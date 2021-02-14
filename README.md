@@ -13,6 +13,11 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 * Search if a given address has been derived from a given master public key
 * Supports legacy, SegWit, and Native Segwit
 
+## Prerequisites
+
+- Node.js, and/or
+- Docker
+
 ## Install
 
 `$ npm i`

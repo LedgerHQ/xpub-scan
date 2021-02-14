@@ -1,37 +1,10 @@
 const display = require('../display');
 
-const { Address, getAddress } = require('./address');
-const { AddressType, MAX_EXPLORATION, ADDRESSES_PREGENERATION } = require('../settings');
+const { Address, OwnAddresses } = require('./address');
+const { AddressType, MAX_EXPLORATION } = require('../settings');
 const { getStats, getTransactions, getSortedTransactions } = require('./transactions')
 
 const chalk = require('chalk');
-
-// generate addresses associated with the xpub
-function generateSampleOfDerivedAddresses(xpub) {
-  display.transientLine(chalk.grey("pre-generating addresses..."));
-  
-  var external = [], internal = [];
-  
-  [
-    AddressType.LEGACY,
-    AddressType.SEGWIT,
-    AddressType.NATIVE
-  ]
-  .forEach(addressType => {
-    for(var index = 0; index < ADDRESSES_PREGENERATION; ++index) {
-      external.push(getAddress(addressType, xpub, 0, index));
-      internal.push(getAddress(addressType, xpub, 1, index));
-    }
-  });
-  
-  display.transientLine(/* delete line about addresses pre-generation */);
-  
-  return {
-    external: external,
-    internal: internal,
-    all: internal.concat(external)
-  };
-}
 
 function updateSummary(summary, addressType, value) {
   if(!summary.get(addressType)) {
@@ -42,21 +15,11 @@ function updateSummary(summary, addressType, value) {
   }
 }
 
-function getLegacyOrSegWitStats(xpub, derivedAddresses) {
-  const legacy = scanAddresses(AddressType.LEGACY, xpub, derivedAddresses);
-  const segwit = scanAddresses(AddressType.SEGWIT, xpub, derivedAddresses);
-  
-  const totalBalance = legacy.balance + segwit.balance
-  
-  return {
-    balance: totalBalance,
-    addresses: legacy.addresses.concat(segwit.addresses)
-  };
-}
-
 // scan all active addresses
-function scanAddresses(addressType, xpub, derivedAddresses) {
+function scanAddresses(addressType, xpub) {
   display.logStatus("Scanning ".concat(chalk.bold(addressType)).concat(" addresses..."));
+
+  var ownAddresses = new OwnAddresses(addressType);
   
   var totalBalance = 0, noTxCounter = 0;
   var addresses = []
@@ -98,36 +61,21 @@ function scanAddresses(addressType, xpub, derivedAddresses) {
         noTxCounter = 0;
       }
       
-      // if the address is an active one, fetch its transactions
-      // (note: with the current implementation, this is done in
-      //  _getStats_ function, called above, but in the future,
-      //  the API may change and require two different requests.
-      //  Therefore, this call to _getTransactions_ would then
-      //  be justified).
-      getTransactions(address, derivedAddresses);
-      
       totalBalance += address.getBalance();
-      
-      const tx = {
-        funded: {
-          count: addressStats.funded.count,
-          sum: addressStats.funded.sum,
-        },
-        spent: {
-          count: addressStats.spent.count,
-          sum: addressStats.spent.sum,
-        },
-        txsCount: addressStats.txs_count
-      };
       
       display.updateAddressDetails(address);
       
-      address.setStats(tx);
-      
-      addresses.push(address)      
+      ownAddresses.addAddress(address);
+
+      addresses.push(address);
     }
   }
   
+  // process transactions
+  addresses.forEach(address => {
+    getTransactions(address, ownAddresses);
+  });
+
   display.logStatus(addressType.concat(" addresses scanned\n"));
   
   return {
@@ -145,20 +93,22 @@ function run(xpub, account, index) {
     // Option A: no index has been provided:
     //  - retrieve stats for legacy/SegWit
     //  - scan Native SegWit addresses
-    
     console.log(chalk.bold("\nActive addresses\n"))
     
-    // a _meaningful_ sample of addresses derived from the xpub has 
-    // to be generated (once) to perform analysis of the transactions
-    const derivedAddresses = generateSampleOfDerivedAddresses(xpub);
+    const legacy = scanAddresses(AddressType.LEGACY, xpub);
+    updateSummary(summary, AddressType.LEGACY, legacy);
+
+    const segwit = scanAddresses(AddressType.SEGWIT, xpub);
+    updateSummary(summary, AddressType.SEGWIT, segwit);
     
-    const legacyOrSegwit = getLegacyOrSegWitStats(xpub, derivedAddresses);
-    updateSummary(summary, AddressType.LEGACY_OR_SEGWIT, legacyOrSegwit);
-    
-    const nativeSegwit = scanAddresses(AddressType.NATIVE, xpub, derivedAddresses);
+    const nativeSegwit = scanAddresses(AddressType.NATIVE, xpub);
     updateSummary(summary, AddressType.NATIVE, nativeSegwit);
     
-    const sortedAddresses = getSortedTransactions(legacyOrSegwit.addresses, nativeSegwit.addresses);
+    const sortedAddresses = getSortedTransactions(
+      legacy.addresses, 
+      segwit.addresses, 
+      nativeSegwit.addresses
+    );
     
     display.displayTransactions(sortedAddresses)
   }
