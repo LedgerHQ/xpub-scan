@@ -13,15 +13,14 @@ function getStats(address) {
     }
 }
 
-function getTransactions(address, derivedAddresses) {
+function getTransactions(address, ownAddresses) {
     preprocessTransactions(address);
     processFundedTransactions(address);
-    processSentTransactions(address, derivedAddresses);
+    processSentTransactions(address, ownAddresses);
 }
 
-// transforms raw transactions associated with an address
-// into an array of processed transactions:
-// [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
+// get and transform raw transactions associated with an address
+// into an array of processed transactions
 function preprocessTransactions(address) {
     switch(global.network) {
         case BITCOIN_NETWORK:
@@ -63,9 +62,11 @@ function processFundedTransactions(address) {
 }
 
 // process amounts sent to relevant addresses
-function processSentTransactions(address, derivedAddresses) {
+function processSentTransactions(address, ownAddresses) {
     const transactions = address.getTransactions();
-    
+    const internalAddresses = ownAddresses.getInternalAddresses();
+    const externalAddresses = ownAddresses.getExternalAddresses();
+
     var sent = [];
     
     for(var i = 0; i < transactions.length; ++i) {
@@ -76,13 +77,13 @@ function processSentTransactions(address, derivedAddresses) {
         
         outs.forEach(out => {
             // exclude internal (i.e. change) addresses
-            if (!derivedAddresses.internal.includes(out.address)) {
+            if (!internalAddresses.includes(out.address)) {
                 sent.push({
                     txid: txid,
                     blockHeight: tx.blockHeight,
                     time: tx.time,
                     amount: out.value,
-                    self: derivedAddresses.external.includes(out.address)
+                    self: externalAddresses.includes(out.address)
                 });
             }
         })

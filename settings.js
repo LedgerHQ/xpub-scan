@@ -16,10 +16,6 @@ const LITECOIN_API = 'https://sochain.com/api/v2/address/LTC/';
 // (that is: range of indices not used for derivation)
 const MAX_EXPLORATION = 20;
 
-// number of addresses to pre-generate (used for transactions analysis)
-const ADDRESSES_PREGENERATION = 2000;
-
-
 // XPUB <> ADDRESS COMPARISON
 // --------------------------
 
@@ -67,7 +63,6 @@ const AddressType = {
   LEGACY: "Legacy",
   NATIVE: "Native SegWit",
   SEGWIT: "SegWit",
-  LEGACY_OR_SEGWIT: "Legacy/SegWit",
   ALL: "All"
 };
 
@@ -79,7 +74,6 @@ module.exports = {
   LITECOIN_API,
   MAX_EXPLORATION, 
   VERBOSE, 
-  ADDRESSES_PREGENERATION,
   BITCOIN_NETWORK,
   LITECOIN_NETWORK,
   DERIVATION_SCOPE
