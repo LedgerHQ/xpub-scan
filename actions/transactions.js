@@ -105,13 +105,13 @@ function getSortedTransactions(...addresses) {
   
         address.funded.forEach(tx => {
             transactions.push(
-            {
-                address: address,
-                amount: tx.amount,
-                blockHeight: tx.blockHeight,
-                time: tx.time
-            }
-            )
+                {
+                    address: address,
+                    amount: tx.amount,
+                    blockHeight: tx.blockHeight,
+                    time: tx.time
+                }
+            );
         });
     
         address.sent.forEach(tx => {  

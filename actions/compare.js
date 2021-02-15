@@ -1,18 +1,16 @@
+const chalk = require('chalk');
+
 const { getAddressType, getAddress } = require('./address');
 const { showComparisonResult } = require('../display');
 const { DERIVATION_SCOPE } = require('../settings');
 
-const chalk = require('chalk');
-
-function partialMatch(provided, derived) {
-    for(var i = 0; i < derived.length; ++i) {
-        const p = provided.toUpperCase()[i]
-        
-        if (p === '?') {
+function partialMatch(derived, provided) {
+    for (var i = 0; i < derived.length; ++i) {        
+        if (provided[i] === '?') {
             continue;
         }
         
-        if (p !== derived.toUpperCase()[i]) {
+        if (provided[i] !== derived[i]) {
             return false;
         }
     }
@@ -22,25 +20,27 @@ function partialMatch(provided, derived) {
 
 function search(xpub, providedAddress, range) {
     const addressType = getAddressType(providedAddress);
-    
     const partialSearch = providedAddress.includes('?');
     
     for (var account = range.account.min; account < range.account.max; ++account) {
         for (var index = range.index.min; index < range.index.max; ++index) {
-            const generatedAddress = getAddress(addressType, xpub, account, index);
+            const derivedAddress = getAddress(addressType, xpub, account, index);
             
             const derivationPath = 
             "m/"
             .concat(account)
             .concat("/")
-            .concat(index)
+            .concat(index);
             
             const status =
             range.label.padEnd(18, ' ')
             .concat(derivationPath.padEnd(14, ' '))
-            .concat(generatedAddress)
+            .concat(derivedAddress);
+
+            const derived = derivedAddress.toUpperCase();
+            const provided = providedAddress.toUpperCase();
             
-            if (generatedAddress.toUpperCase() === providedAddress.toUpperCase()) {
+            if (derived === provided) {
                 
                 console.log(chalk.green(status)); 
                 
@@ -50,11 +50,11 @@ function search(xpub, providedAddress, range) {
                 }
             }
             
-            if (partialSearch && partialMatch(providedAddress, generatedAddress)) {
+            if (partialSearch && partialMatch(derived, provided)) {
                 console.log(chalk.blueBright(status));
                 
                 return {
-                    partial: generatedAddress,
+                    partial: derivedAddress,
                     account: account,
                     index: index
                 }
@@ -67,12 +67,58 @@ function search(xpub, providedAddress, range) {
     return {};
 }
 
-function run(xpub, address) {
+function showError(message, derived = undefined, provided= undefined) {
+    var errorMessage = chalk.red('[Comparison error] '.concat(message));
+
+    if (typeof(derived) !== 'undefined') {
+        const comparison = 
+            '\nProvided address:\t'
+            .concat(provided)
+            .concat('\nFirst derived address:  ')
+            .concat(derived);
+
+        errorMessage = 
+            errorMessage.concat(chalk.redBright(comparison));
+    }
+    
+    console.log(errorMessage);
+}
+
+// check basic assumptions to avoid useless comparisons
+function sanityCheck(xpub, provided) {
+    // check that the settings are set
+    if (typeof(DERIVATION_SCOPE) === 'undefined') {
+        showError('DERIVATION_SCOPE setting is not defined');
+    }
+
+    // check assumptions regarding the provided address
+    const derived = getAddress(getAddressType(provided), xpub, 0, 0);    
+
+    if (derived.length !== provided.length) {
+        // assumption 1. size of provided === size of derived
+        showError('Provided address size ≠ derived address size', derived, provided);
+        return false;
+    }
+    
+    if (derived.toUpperCase()[0] !== provided.toUpperCase()[0]) {
+        // assumption 2. derived and provided share the same prefix
+        showError('Prefixes mismatch', derived, provided);
+        return false;
+    }
+
+    return true;
+}
+
+function run(xpub, providedAddress) {
+    if (!sanityCheck(xpub, providedAddress)) {
+        return;
+    }
+
     const quickSearchRange = DERIVATION_SCOPE.quick_search;
     
     quickSearchRange.label = 'quick search';
     
-    var result = search(xpub, address, quickSearchRange);
+    var result = search(xpub, providedAddress, quickSearchRange);
     
     if (Object.keys(result).length === 0) {
         
@@ -80,10 +126,10 @@ function run(xpub, address) {
         
         deepSearchRange.label = 'deep search';
         
-        result = search(xpub, address, deepSearchRange);
+        result = search(xpub, providedAddress, deepSearchRange);
     }
     
-    showComparisonResult(xpub, address, result);
+    showComparisonResult(xpub, providedAddress, result);
 }
 
 module.exports = { run }
