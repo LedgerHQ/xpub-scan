@@ -48,7 +48,7 @@ function processFundedTransactions(address) {
             funded.push({
                 txid: tx.txid,
                 blockHeight: tx.blockHeight,
-                time: tx.time,
+                date: tx.date,
                 amount: tx.ins[0].value
             });
         }
@@ -81,7 +81,7 @@ function processSentTransactions(address, ownAddresses) {
                 sent.push({
                     txid: txid,
                     blockHeight: tx.blockHeight,
-                    time: tx.time,
+                    date: tx.date,
                     amount: out.value,
                     self: externalAddresses.includes(out.address)
                 });
@@ -109,7 +109,7 @@ function getSortedTransactions(...addresses) {
                     address: address,
                     amount: tx.amount,
                     blockHeight: tx.blockHeight,
-                    time: tx.time
+                    date: tx.date
                 }
             );
         });
@@ -123,7 +123,7 @@ function getSortedTransactions(...addresses) {
                         address: address,
                         amount: -1 * tx.amount, // make it a negative number
                         blockHeight: tx.blockHeight,
-                        time: tx.time,
+                        date: tx.date,
                         self: tx.self
                     }
                 );
@@ -136,7 +136,7 @@ function getSortedTransactions(...addresses) {
   
     // reverse chronological order
     transactions = transactions.sort(function(a, b) {
-      return b.time - a.time;
+      return b.date - a.date;
     });
 
     return transactions;

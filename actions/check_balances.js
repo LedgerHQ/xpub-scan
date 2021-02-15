@@ -84,10 +84,9 @@ function scanAddresses(addressType, xpub) {
   }
 }
 
-
-function run(xpub, account, index) {
-  
+function run(xpub, account, index) {  
   var summary = new Map();
+  var transactions = [];
   
   if (typeof(account) === 'undefined') {
     // Option A: no index has been provided:
@@ -104,13 +103,13 @@ function run(xpub, account, index) {
     const nativeSegwit = scanAddresses(AddressType.NATIVE, xpub);
     updateSummary(summary, AddressType.NATIVE, nativeSegwit);
     
-    const sortedAddresses = getSortedTransactions(
+    transactions = getSortedTransactions(
       legacy.addresses, 
       segwit.addresses, 
       nativeSegwit.addresses
     );
     
-    display.displayTransactions(sortedAddresses)
+    display.displayTransactions(transactions);
   }
   else {
     // Option B: an index has been provided:
@@ -138,6 +137,8 @@ function run(xpub, account, index) {
   for (var [addressType, value] of summary.entries()) {
     display.showSummary(addressType, value);
   }
+
+  return transactions;
 }
 
 module.exports = { run }

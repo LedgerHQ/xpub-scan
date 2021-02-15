@@ -28,10 +28,10 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 
 ### Scan for a Specific Account and an Index
 
-`$ node scan.js <xpub> <account> <index>`
+`$ node scan.js <xpub> -a <account> -i <index>`
 
 Example: 
-`$ node scan.js xpub6C...44dXs7p 0 10` [addresses at account `0`, index `10`]
+`$ node scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
 
 ### Scan All Active Addresses
 
@@ -40,13 +40,20 @@ Example:
 Example: 
 `$ node scan.js xpub6C...44dXs7p`
 
+### Compare With Transactions Imported From a File
+
+`$ node scan.js <xpub> --file <file path>`
+
+Example:
+`$ node scan.js xpub6C...44dXs7p --file /Users/Test/Downloads/export.csv`
+
 ## Usage 2. Check Address Against Xpub
 
 *Check if an address has been derived from a master public key.*
 
 ### Perfect Match
 
-`$ node scan.js <xpub> <address>`
+`$ node scan.js <xpub> --address <address>`
 
 ### Partial Match
 

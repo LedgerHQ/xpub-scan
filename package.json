@@ -17,16 +17,14 @@
   },
   "homepage": "https://github.com/LedgerHQ/xpub-scan#readme",
   "dependencies": {
-    "axios": "^0.21.1",
     "bitcoinjs-lib": "^5.2.0",
     "chalk": "^4.1.0",
-    "cli-interact": "^0.1.9",
     "coininfo": "^5.1.0",
-    "colors": "^1.4.0",
     "dateformat": "^4.5.1",
     "es6-promise": "^4.2.8",
+    "line-reader": "^0.4.0",
+    "minimist": "^1.2.5",
     "request": "^2.88.2",
-    "request-promise": "^4.2.6",
     "satoshi-bitcoin": "^1.0.4",
     "sync-request": "^6.1.0"
   },

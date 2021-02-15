@@ -1,9 +1,6 @@
 const readline = require('readline');
 const dateFormat = require("dateformat");
 const chalk = require('chalk');
-//const sb = require('satoshi-bitcoin');
-
-//const { BITCOIN_NETWORK } = require('./settings')
 
 function convertUnits(amount) {
   // Currently, this function does not convert the amounts
@@ -75,7 +72,7 @@ function displayTransactions(sortedAddresses) {
   console.log(chalk.bold("Transactions History").concat(chalk.redBright(" (beta feature)\n")));
   
   const header =
-  "time\t\t\tblock\t\taddress\t\t\t\t\treceived (←) or sent (→) to self (↺)";
+  "date\t\t\tblock\t\taddress\t\t\t\t\treceived (←) or sent (→) to self (↺)";
   
   console.log(chalk.grey(header));
   
@@ -83,7 +80,7 @@ function displayTransactions(sortedAddresses) {
     const amount = convertUnits(tx.amount);
     
     var status = 
-    convertTime(tx.time).padEnd(8, ' ')
+    convertTime(tx.date).padEnd(8, ' ')
     .concat("\t")
     .concat(String(tx.blockHeight).padEnd(8, ' '))
     .concat("\t")
