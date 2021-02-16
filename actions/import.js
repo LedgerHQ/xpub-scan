@@ -1,6 +1,7 @@
 const fs = require('fs');
 const dateFormat = require("dateformat");
 const chalk = require('chalk');
+const sb = require('satoshi-bitcoin');
 
 // get lines from a file
 function getFileLines(path) {
@@ -34,9 +35,9 @@ function importFromCSVTypeA(lines) {
         const date =        String(tokens[0])
                             .match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/ig);
 
-        const type =        String(tokens[2]);
-        const status =      String(tokens[4]);
-        const amount =      parseFloat(tokens[8]);
+        const type =        String(tokens[2]);      // CREDIT || DEBIT
+        const status =      String(tokens[4]);      // CONFIRMED || ABORTED
+        const amount =      parseFloat(tokens[8]);  // in bitcoins
         const sender =      String(tokens[17]).replace('"', '');
         const recipient =   String(tokens[18]).replace('"', '');
 
@@ -79,10 +80,11 @@ function importFromCSVTypeB(lines) {
         const date =        String(tokens[0])
                             .match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig);
 
-        const type =        String(tokens[2]);
-        const amount =      parseFloat(tokens[3]);
+        const type =        String(tokens[2]);      // IN | OUT
+        const amount =      parseFloat(tokens[3]);  // in bitcoins
+        const fees =        parseFloat(tokens[4]);  // in bitcoins
 
-        // note: type B CSV do not refer to addresses
+        // note: type B CSV does not refer to addresses
         if (type === 'IN') {
             transactions.push({
                 date: date,
@@ -90,9 +92,11 @@ function importFromCSVTypeB(lines) {
             });
         }
         else if (type === 'OUT') {
+            // out transactions: substract fees from amount (in satoshis)
+            const amountInSatoshis = sb.toSatoshi(amount) - sb.toSatoshi(fees);
             transactions.push({
                 date: date,
-                amount: -1 * amount,
+                amount: -1 * sb.toBitcoin(amountInSatoshis),
             }); 
         }
     });
@@ -255,7 +259,7 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
         // 1. check if imported and actual amounts match, and
         // 2. iff imported address is set: check that imported and actual addresses match
         if (importedTx.amount === actualTx.amount
-            && ( importedAddress ^ importedTx.address.includes(actualAddress) )) {
+            && !( importedAddress && !importedTx.address.includes(actualAddress) )) {
             // match
             console.log(chalk.greenBright(imported), '\t', actual);
         }
