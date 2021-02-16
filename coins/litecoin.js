@@ -64,7 +64,7 @@ function getTransactions(address) {
         
         transactions.push({
             blockHeight: tx.block_no,
-            time: tx.time,
+            date: tx.time,
             txid: tx.txid,
             ins: ins,
             outs: outs
