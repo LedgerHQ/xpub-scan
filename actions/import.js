@@ -208,6 +208,7 @@ function identifyMismatches(importedTransactions, actualTransactions) {
 function checkImportedTransactions(importedTransactions, actualTransactions) {
     console.log(chalk.bold.whiteBright('\nComparison with imported transactions\n'));
     console.log(chalk.grey("imported transactions\t\t\t\t\t\t\t\t actual transactions"));
+    const displayedAddressLength = 35;
 
     const mismatches = identifyMismatches(importedTransactions, actualTransactions);
     var errors = [], warnings = [];
@@ -232,22 +233,24 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
         
         // make imported address displayable
         var importedAddress;
-        if (importedTx.address.length < 35) {
+        if (importedTx.address.length < displayedAddressLength) {
             importedAddress = importedTx.address;
         }
         else {
-            importedAddress = importedTx.address.substring(0, 34) + '...';
+            importedAddress = importedTx.address.substring(0, displayedAddressLength - 1) + '...';
         }
 
         const actualDate = dateFormat(new Date(actualTx.date * 1000), "yyyy-mm-dd HH:MM:ss");
         const actualAddress = actualTx.address.toString();
+
+        const padding = importedAddress ? 10 : displayedAddressLength + 10;
 
         const imported = 
             String(importedTx.date)
             .concat("\t")
             .concat(importedAddress)
             .concat("\t")
-            .concat(String(importedTx.amount).padEnd(10, ' '));
+            .concat(String(importedTx.amount).padEnd(padding, ' '));
 
         const actual = 
             actualDate
