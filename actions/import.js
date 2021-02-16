@@ -27,7 +27,7 @@ function importFromCSVTypeA(lines) {
             return;
         }
 
-        // date: yyyy-MM-dd HH:mm:ss
+        // expected date format: yyyy-MM-dd HH:mm:ss
         const date =        String(tokens[0])
                             .match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/ig);
 
@@ -55,13 +55,41 @@ function importFromCSVTypeA(lines) {
             }
         }
     });
+
+    return transactions;
+}
+
+// import transactions from a type B CSV
+function importFromCSVTypeB(lines) {
+    var transactions = [];
     
-    console.log(
-        chalk.grey(
-            String(transactions.length)
-            .concat(' transactions have been imported')
-        )
-    );
+    lines.slice(1).forEach(line => {
+        const tokens = line.split(/,/);
+
+        if (tokens.length < 8) {
+            return;
+        }
+
+        // expected date format: yyyy-MM-dd HH:mm:ss
+        const date =        String(tokens[0])
+                            .match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig);
+
+        const type =        String(tokens[2]);
+        const amount =      parseFloat(tokens[3]);
+
+        if (type === 'IN') {
+            transactions.push({
+                date: date,
+                amount: amount,
+            });
+        }
+        else if (type === 'OUT') {
+            transactions.push({
+                date: date,
+                amount: -1 * amount,
+            }); 
+        }
+    });
 
     return transactions;
 }
@@ -74,7 +102,16 @@ function importTransactions(path) {
     if (lines[0].substring(0, 8) == 'Creation') {
         transactions = importFromCSVTypeA(lines);
     }
-    // TODO: type B CSV
+    else if (lines[0].substring(0, 9) == 'Operation') {
+        transactions = importFromCSVTypeB(lines);
+    }
+
+    console.log(
+        chalk.grey(
+            String(transactions.length)
+            .concat(' transactions have been imported')
+        )
+    );
 
     return transactions;
 }
@@ -99,35 +136,76 @@ function compareTransactions(txA, txB){
         return 1;
     }
 
-    // case 3. same amounts: sort by address
-    if (txA.address > txB.address) {
-        return -1;
-    }
-    if (txA.address < txB.address) {
-        return 1;
-    }
-
     return 0;
 }
 
+function identifyMismatches(importedTransactions, actualTransactions) {
+    var importedAmounts = [], actualAmounts = [];
+
+    importedTransactions.forEach(imported => {
+        importedAmounts.push(imported.amount);
+    })
+
+    actualTransactions.forEach(actual => {
+        actualAmounts.push(actual.amount);
+    })
+
+    // diff between imported and actual amounts
+    // (taking into account duplicated amounts)
+    var mismatches = [];
+
+    const allUniqueAmounts = new Set(importedAmounts.concat(actualAmounts));
+
+    allUniqueAmounts.forEach(amount => {
+        const supernumeraryAmounts = Math.abs(
+            importedAmounts.filter(a => a === amount).length -
+            actualAmounts.filter(a =>a === amount).length
+        )
+
+        // each supernumerary amount is a mismatch
+        for (var i = 0; i < supernumeraryAmounts; i++) {
+            mismatches.push(amount);
+        }
+    });
+
+    return mismatches;
+}
 
 function checkImportedTransactions(importedTransactions, actualTransactions) {
     console.log(chalk.bold.whiteBright('\nComparison with imported transactions\n'));
     console.log(chalk.grey("imported transactions\t\t\t\t\t\t\t\t actual transactions"));
 
+    const mismatches = identifyMismatches(importedTransactions, actualTransactions);
+
     // sort transactions to make the analysis practical
     actualTransactions.sort(compareTransactions);
     importedTransactions.sort(compareTransactions);
 
-    for(var i = 0; i < actualTransactions.length; i++) {
+    for (var i = 0; i < actualTransactions.length; i++) {
         const actualTx = actualTransactions[i];
         const importedTx = importedTransactions[i];
 
+        // if no transaction, break
+        if (typeof(importedTx) === 'undefined' || typeof(actualTx) === 'undefined') {
+            break;
+        }
+
+        // if no address, set address to empty string
+        if (typeof(importedTx.address) === 'undefined') {
+            importedTx.address = '';
+        }
+        
+        // make imported addresses displayable
+        var importedAddress;
+        if (importedTx.address.length < 35) {
+            importedAddress = importedTx.address;
+        }
+        else {
+            importedAddress = importedTx.address.substring(0, 34) + '...';
+        }
+
         const actualDate = dateFormat(new Date(actualTx.date * 1000), "yyyy-mm-dd HH:MM:ss");
         const actualAddress = actualTx.address.toString();
-
-        const importedAddress = 
-            importedTx.address.length < 35 ? importedTx.address : importedTx.address.substring(0, 34) + '...';
 
         const imported = 
             String(importedTx.date)
@@ -143,11 +221,22 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
             .concat("\t")
             .concat(actualTx.amount);
 
-        if (importedTx.address.includes(actualAddress) && actualTx.amount === importedTx.amount) {
+        // 1. check if imported and actual amouns match, and
+        // 2. iff imported address is set: check that imported and actual addresses match
+        if (importedTx.amount === actualTx.amount
+            && ( importedAddress ^ importedTx.address.includes(actualAddress) )) {
+            // match
             console.log(chalk.greenBright(imported), '\t', actual);
         }
-        else {
+        else if (mismatches.includes(actualTx.amount) || mismatches.includes(importedTx.amount)) {
+            // mismatch
             console.log(chalk.redBright(imported,'\t', actual));
+        }
+        else {
+            // not a real mismatch: to be reviewed manually;
+            // this kind of situation can be explained by the timing
+            // differences between imported and actual transactions
+            console.log(chalk.yellowBright(imported,'\t', actual));
         }
     }
 }
