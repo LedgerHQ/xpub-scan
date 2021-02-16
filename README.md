@@ -42,10 +42,10 @@ Example:
 
 ### Compare With Transactions Imported From a File
 
-`$ node scan.js <xpub> --file <file path>`
+`$ node scan.js <xpub> --import <file path>`
 
 Example:
-`$ node scan.js xpub6C...44dXs7p --file /Users/Test/Downloads/export.csv`
+`$ node scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv`
 
 ## Usage 2. Check Address Against Xpub
 

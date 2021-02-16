@@ -26,7 +26,7 @@ else {
   // scan mode
   var importedTransactions;
 
-  if (!argv.file) {
+  if (!argv.import) {
     // if no file path has been provided, only the xpub is expected to have
     // been specified
     if (argv._.length > 1) {
@@ -38,7 +38,7 @@ else {
   }
   else {
     // if a file path has been provided, import its transactions
-    importedTransactions = importTransactions(argv.file);
+    importedTransactions = importTransactions(argv.import);
   }
 
   const actualTransactions = check_balances.run(xpub);
