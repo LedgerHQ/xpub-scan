@@ -44,6 +44,10 @@ else {
   const actualTransactions = check_balances.run(xpub);
 
   if (typeof(importedTransactions) !== 'undefined') {
-    checkImportedTransactions(importedTransactions, actualTransactions);
+    const results = checkImportedTransactions(importedTransactions, actualTransactions);
+
+    if (results.errors.length > 0) {
+      process.exit(1);
+    }
   }
 }

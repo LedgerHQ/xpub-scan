@@ -2,7 +2,8 @@ const fs = require('fs');
 const dateFormat = require("dateformat");
 const chalk = require('chalk');
 
-function getFileContents(path) {
+// get lines from a file
+function getFileLines(path) {
     try {
         const contents = fs.readFileSync(path, 'utf-8');
         return contents.split(/\r?\n/);
@@ -14,6 +15,8 @@ function getFileContents(path) {
 }
 
 // import transactions from a type A CSV
+//
+// returns an array of type A imported transactions
 function importFromCSVTypeA(lines) {
     var transactions = [];
     
@@ -60,6 +63,8 @@ function importFromCSVTypeA(lines) {
 }
 
 // import transactions from a type B CSV
+//
+// returns an array of type B imported transactions
 function importFromCSVTypeB(lines) {
     var transactions = [];
     
@@ -77,6 +82,7 @@ function importFromCSVTypeB(lines) {
         const type =        String(tokens[2]);
         const amount =      parseFloat(tokens[3]);
 
+        // note: type B CSV do not refer to addresses
         if (type === 'IN') {
             transactions.push({
                 date: date,
@@ -94,14 +100,22 @@ function importFromCSVTypeB(lines) {
     return transactions;
 }
 
+// dispatcher: detect the type of the imported file
+// based on its contents
+//
+// returns an array of imported transactions:
+//  - date
+//  - amount
+//  - address (optional)
 function importTransactions(path) {
-    const lines = getFileContents(path);
+    const lines = getFileLines(path);
     var transactions;
 
     // type A CSV: 'Creation' is the first token
     if (lines[0].substring(0, 8) == 'Creation') {
         transactions = importFromCSVTypeA(lines);
     }
+    // type B CSV: 'Operation' is the first token
     else if (lines[0].substring(0, 9) == 'Operation') {
         transactions = importFromCSVTypeB(lines);
     }
@@ -116,6 +130,10 @@ function importTransactions(path) {
     return transactions;
 }
 
+// sort transaction based on
+//  - first: their respective dates
+//  - second: their respective amounts
+//
 // TODO: improve comparison between transactions
 // (e.g. when dates between imported and actual transactions 
 //  do not perfectly match.)
@@ -124,6 +142,7 @@ function compareTransactions(txA, txB){
     if (txA.date > txB.date) {
         return -1;
     }
+
     if (txA.date < txB.date) {
         return 1;
     }
@@ -132,6 +151,7 @@ function compareTransactions(txA, txB){
     if (txA.amount > txB.amount) {
         return -1;
     }
+
     if (txA.amount < txB.amount) {
         return 1;
     }
@@ -139,6 +159,10 @@ function compareTransactions(txA, txB){
     return 0;
 }
 
+// identify the mismatches between amounts
+// 
+// returns an array of amounts that do not belong to 
+// imported _and_ actual transactions
 function identifyMismatches(importedTransactions, actualTransactions) {
     var importedAmounts = [], actualAmounts = [];
 
@@ -171,11 +195,18 @@ function identifyMismatches(importedTransactions, actualTransactions) {
     return mismatches;
 }
 
+// compare the imported transactions with the actual ones
+// 
+// returns:
+//  - an array of errors (true mismatches), and
+//  - an array warnings (mismatches that can be explained by the way dates are 
+//    handled for imported v. actual transactions)
 function checkImportedTransactions(importedTransactions, actualTransactions) {
     console.log(chalk.bold.whiteBright('\nComparison with imported transactions\n'));
     console.log(chalk.grey("imported transactions\t\t\t\t\t\t\t\t actual transactions"));
 
     const mismatches = identifyMismatches(importedTransactions, actualTransactions);
+    var errors = [], warnings = [];
 
     // sort transactions to make the analysis practical
     actualTransactions.sort(compareTransactions);
@@ -190,12 +221,12 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
             break;
         }
 
-        // if no address, set address to empty string
+        // if no imported address, set address to empty string
         if (typeof(importedTx.address) === 'undefined') {
             importedTx.address = '';
         }
         
-        // make imported addresses displayable
+        // make imported address displayable
         var importedAddress;
         if (importedTx.address.length < 35) {
             importedAddress = importedTx.address;
@@ -221,7 +252,7 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
             .concat("\t")
             .concat(actualTx.amount);
 
-        // 1. check if imported and actual amouns match, and
+        // 1. check if imported and actual amounts match, and
         // 2. iff imported address is set: check that imported and actual addresses match
         if (importedTx.amount === actualTx.amount
             && ( importedAddress ^ importedTx.address.includes(actualAddress) )) {
@@ -229,15 +260,30 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
             console.log(chalk.greenBright(imported), '\t', actual);
         }
         else if (mismatches.includes(actualTx.amount) || mismatches.includes(importedTx.amount)) {
-            // mismatch
+            // true mismatch
             console.log(chalk.redBright(imported,'\t', actual));
+
+            errors.push({
+                imported: importedTx, 
+                actual: actualTx
+            })
         }
         else {
             // not a real mismatch: to be reviewed manually;
             // this kind of situation can be explained by the timing
             // differences between imported and actual transactions
             console.log(chalk.yellowBright(imported,'\t', actual));
+
+            warnings.push({
+                imported: importedTx, 
+                actual: actualTx
+            })
         }
+    }
+
+    return {
+        warnings: warnings,
+        errors: errors
     }
 }
   

@@ -5,11 +5,11 @@ const litecoin = require('../coins/litecoin')
 function getStats(address) {
     switch(global.network) {
         case BITCOIN_NETWORK:
-        bitcoin.getStats(address);
-        break;
+            bitcoin.getStats(address);
+            break;
         case LITECOIN_NETWORK:
-        litecoin.getStats(address);
-        break;
+            litecoin.getStats(address);
+            break;
     }
 }
 
@@ -24,11 +24,11 @@ function getTransactions(address, ownAddresses) {
 function preprocessTransactions(address) {
     switch(global.network) {
         case BITCOIN_NETWORK:
-        bitcoin.getTransactions(address);
-        break;
+            bitcoin.getTransactions(address);
+            break;
         case LITECOIN_NETWORK:
-        litecoin.getTransactions(address);
-        break;
+            litecoin.getTransactions(address);
+            break;
     }
 }
 
