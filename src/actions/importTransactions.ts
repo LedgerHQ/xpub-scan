@@ -1,10 +1,12 @@
-const fs = require('fs');
-const dateFormat = require("dateformat");
-const chalk = require('chalk');
-const sb = require('satoshi-bitcoin');
+import fs from "fs";
+import chalk from "chalk";
+// @ts-ignore
+import sb from "satoshi-bitcoin";
+
+import { Operation } from "../models/operation"
 
 // get lines from a file
-function getFileLines(path) {
+function getFileLines(path: string) {
     try {
         const contents = fs.readFileSync(path, 'utf-8');
         return contents.split(/\r?\n/);
@@ -18,8 +20,8 @@ function getFileLines(path) {
 // import transactions from a type A CSV
 //
 // returns an array of type A imported transactions
-function importFromCSVTypeA(lines) {
-    var transactions = [];
+function importFromCSVTypeA(lines: string[]) : Operation[] {
+    let operations: Operation[] = [];
     
     lines.slice(1).forEach(line => {
         // split using delimiter ',' except when between double quotes
@@ -32,8 +34,8 @@ function importFromCSVTypeA(lines) {
         }
 
         // expected date format: yyyy-MM-dd HH:mm:ss
-        const date =        String(tokens[0])
-                            .match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/ig);
+        const date =        /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/ig
+                            .exec(tokens[0]) || "";
 
         const type =        String(tokens[2]);      // CREDIT || DEBIT
         const status =      String(tokens[4]);      // CONFIRMED || ABORTED
@@ -44,32 +46,32 @@ function importFromCSVTypeA(lines) {
         // process only confirmed transactions
         if (status === 'CONFIRMED') {
             if (type === 'CREDIT') {
-                transactions.push({
-                    date: date,
-                    amount: amount,
-                    address: recipient
-                });
+                const op = new Operation(date[0], amount);
+                op.setAddress(recipient);
+                op.setAsIn();
+
+                operations.push(op);
             }
             else if (type === 'DEBIT') {
-                transactions.push({
-                    date: date,
-                    amount: -1 * amount,
-                    address: sender
-                }); 
+                const op = new Operation(date[0], -1 * amount);
+                op.setAddress(sender);
+                op.setAsOut();
+
+                operations.push(op);
             }
         }
     });
 
-    return transactions;
+    return operations;
 }
 
 // import transactions from a type B CSV
 //
 // returns an array of type B imported transactions
-function importFromCSVTypeB(lines) {
-    var transactions = [];
+function importFromCSVTypeB(lines: string[]) : Operation[] {
+    let operations: Operation[] = [];
     
-    lines.slice(1).forEach(line => {
+    lines.slice(1).forEach( (line: string) => {
         const tokens = line.split(/,/);
 
         if (tokens.length < 8) {
@@ -77,8 +79,8 @@ function importFromCSVTypeB(lines) {
         }
 
         // expected date format: yyyy-MM-dd HH:mm:ss
-        const date =        String(tokens[0])
-                            .match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig);
+        const date =        /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
+                            .exec(tokens[0]) || "";
 
         const type =        String(tokens[2]);      // IN | OUT
         const amount =      parseFloat(tokens[3]);  // in bitcoins
@@ -86,22 +88,22 @@ function importFromCSVTypeB(lines) {
 
         // note: type B CSV does not refer to addresses
         if (type === 'IN') {
-            transactions.push({
-                date: date,
-                amount: amount,
-            });
+            const op = new Operation(date[0], amount);
+            op.setAsIn();
+
+            operations.push(op);
         }
         else if (type === 'OUT') {
             // out transactions: substract fees from amount (in satoshis)
             const amountInSatoshis = sb.toSatoshi(amount) - sb.toSatoshi(fees);
-            transactions.push({
-                date: date,
-                amount: -1 * sb.toBitcoin(amountInSatoshis),
-            }); 
+            const op = new Operation(date[0], -1 * sb.toBitcoin(amountInSatoshis));
+            op.setAsOut();
+
+            operations.push(op);
         }
     });
 
-    return transactions;
+    return operations;
 }
 
 // dispatcher: detect the type of the imported file
@@ -111,27 +113,27 @@ function importFromCSVTypeB(lines) {
 //  - date
 //  - amount
 //  - address (optional)
-function importTransactions(path) {
+function importTransactions(path: string) : Operation[] {
     const lines = getFileLines(path);
-    var transactions;
+    let operations: Operation[] = [];
 
     // type A CSV: 'Creation' is the first token
-    if (lines[0].substring(0, 8) == 'Creation') {
-        transactions = importFromCSVTypeA(lines);
+    if (lines[0].substring(0, 8) === 'Creation') {
+        operations = importFromCSVTypeA(lines);
     }
     // type B CSV: 'Operation' is the first token
-    else if (lines[0].substring(0, 9) == 'Operation') {
-        transactions = importFromCSVTypeB(lines);
+    else if (lines[0].substring(0, 9) === 'Operation') {
+        operations = importFromCSVTypeB(lines);
     }
 
     console.log(
         chalk.grey(
-            String(transactions.length)
-            .concat(' transactions have been imported')
+            String(operations.length)
+            .concat(' operations have been imported')
         )
     );
 
-    return transactions;
+    return operations;
 }
 
 // sort transaction based on
@@ -141,22 +143,22 @@ function importTransactions(path) {
 // TODO: improve comparison between transactions
 // (e.g. when dates between imported and actual transactions 
 //  do not perfectly match.)
-function compareTransactions(txA, txB){
+function compareOperations(opA: Operation, opB: Operation){
     // case 1. different dates: sort by date
-    if (txA.date > txB.date) {
+    if (opA.date > opB.date) {
         return -1;
     }
 
-    if (txA.date < txB.date) {
+    if (opA.date < opB.date) {
         return 1;
     }
 
     // case 2. same dates: sort by amount
-    if (txA.amount > txB.amount) {
+    if (opA.amount > opB.amount) {
         return -1;
     }
 
-    if (txA.amount < txB.amount) {
+    if (opA.amount < opB.amount) {
         return 1;
     }
 
@@ -167,22 +169,25 @@ function compareTransactions(txA, txB){
 // 
 // returns an array of amounts that do not belong to 
 // imported _and_ actual transactions
-function identifyMismatches(importedTransactions, actualTransactions) {
-    var importedAmounts = [], actualAmounts = [];
+function identifyMismatches(importedOperations: Operation[], actualOperations: Operation[]) {
+    let importedAmounts: number[] = [];
+    let actualAmounts: number[] = [];
 
-    importedTransactions.forEach(imported => {
+    importedOperations.forEach(imported => {
         importedAmounts.push(imported.amount);
     })
 
-    actualTransactions.forEach(actual => {
+    actualOperations.forEach(actual => {
         actualAmounts.push(actual.amount);
     })
 
     // diff between imported and actual amounts
     // (taking into account duplicated amounts)
-    var mismatches = [];
+    let mismatches: number[] = [];
 
-    const allUniqueAmounts = new Set(importedAmounts.concat(actualAmounts));
+    const allUniqueAmounts = 
+        // eslint-disable-next-line no-undef
+        new Set(importedAmounts.concat(actualAmounts));
 
     allUniqueAmounts.forEach(amount => {
         const supernumeraryAmounts = Math.abs(
@@ -191,7 +196,7 @@ function identifyMismatches(importedTransactions, actualTransactions) {
         )
 
         // each supernumerary amount is a mismatch
-        for (var i = 0; i < supernumeraryAmounts; i++) {
+        for (let i = 0; i < supernumeraryAmounts; i++) {
             mismatches.push(amount);
         }
     });
@@ -205,21 +210,21 @@ function identifyMismatches(importedTransactions, actualTransactions) {
 //  - an array of errors (true mismatches), and
 //  - an array warnings (mismatches that can be explained by the way dates are 
 //    handled for imported v. actual transactions)
-function checkImportedTransactions(importedTransactions, actualTransactions) {
+function checkImportedTransactions(importedOperations: Operation[], actualOperations: Operation[]) {
     console.log(chalk.bold.whiteBright('\nComparison with imported transactions\n'));
     console.log(chalk.grey("imported transactions\t\t\t\t\t\t\t\t actual transactions"));
     const displayedAddressLength = 35;
 
-    const mismatches = identifyMismatches(importedTransactions, actualTransactions);
-    var errors = [], warnings = [];
+    const mismatches = identifyMismatches(importedOperations, actualOperations);
+    let errors = [], warnings = [];
 
     // sort transactions to make the analysis practical
-    actualTransactions.sort(compareTransactions);
-    importedTransactions.sort(compareTransactions);
+    actualOperations.sort(compareOperations);
+    importedOperations.sort(compareOperations);
 
-    for (var i = 0; i < actualTransactions.length; i++) {
-        const actualTx = actualTransactions[i];
-        const importedTx = importedTransactions[i];
+    for (let i = 0; i < actualOperations.length; i++) {
+        const actualTx = actualOperations[i];
+        const importedTx = importedOperations[i];
 
         // if no transaction, break
         if (typeof(importedTx) === 'undefined' || typeof(actualTx) === 'undefined') {
@@ -232,7 +237,7 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
         }
         
         // make imported address displayable
-        var importedAddress;
+        let importedAddress;
         if (importedTx.address.length < displayedAddressLength) {
             importedAddress = importedTx.address;
         }
@@ -240,7 +245,7 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
             importedAddress = importedTx.address.substring(0, displayedAddressLength - 1) + '...';
         }
 
-        const actualDate = dateFormat(new Date(actualTx.date * 1000), "yyyy-mm-dd HH:MM:ss");
+        const actualDate = actualTx.date;
         const actualAddress = actualTx.address.toString();
 
         const padding = importedAddress ? 10 : displayedAddressLength + 10;
@@ -257,7 +262,7 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
             .concat("\t")
             .concat(actualAddress)
             .concat("\t")
-            .concat(actualTx.amount);
+            .concat(String(actualTx.amount));
 
         // 1. check if imported and actual amounts match, and
         // 2. iff imported address is set: check that imported and actual addresses match
@@ -295,4 +300,4 @@ function checkImportedTransactions(importedTransactions, actualTransactions) {
 }
   
 
-module.exports = { importTransactions, checkImportedTransactions }
+export { importTransactions, checkImportedTransactions }

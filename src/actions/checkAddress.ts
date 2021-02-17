@@ -1,11 +1,16 @@
-const chalk = require('chalk');
+import chalk from "chalk";
 
-const { getAddressType, getAddress } = require('./address');
-const { showComparisonResult } = require('../display');
-const { DERIVATION_SCOPE } = require('../settings');
+import { getAddressType, getAddress } from "./deriveAddresses";
+import { DERIVATION_SCOPE } from "../settings";
 
-function partialMatch(derived, provided) {
-    for (var i = 0; i < derived.length; ++i) {        
+interface Result {
+    partial?: string;
+    account?: number;
+    index?: number;
+}
+
+function partialMatch(derived: string, provided: string) {
+    for (let i = 0; i < derived.length; ++i) {        
         if (provided[i] === '?') {
             continue;
         }
@@ -18,12 +23,12 @@ function partialMatch(derived, provided) {
     return true;
 }
 
-function search(xpub, providedAddress, range) {
+function search(xpub: string, providedAddress: string, range: any, info: string) : Result {
     const addressType = getAddressType(providedAddress);
     const partialSearch = providedAddress.includes('?');
     
-    for (var account = range.account.min; account < range.account.max; ++account) {
-        for (var index = range.index.min; index < range.index.max; ++index) {
+    for (let account = range.account.min; account < range.account.max; ++account) {
+        for (let index = range.index.min; index < range.index.max; ++index) {
             const derivedAddress = getAddress(addressType, xpub, account, index);
             
             const derivationPath = 
@@ -33,7 +38,7 @@ function search(xpub, providedAddress, range) {
             .concat(index);
             
             const status =
-            range.label.padEnd(18, ' ')
+            info.padEnd(18, ' ')
             .concat(derivationPath.padEnd(14, ' '))
             .concat(derivedAddress);
 
@@ -67,15 +72,15 @@ function search(xpub, providedAddress, range) {
     return {};
 }
 
-function showError(message, derived = undefined, provided= undefined) {
-    var errorMessage = chalk.red('[Comparison error] '.concat(message));
+function showError(message: string, derived?: string, provided?: string) {
+    let errorMessage = chalk.red('[Comparison error] '.concat(message));
 
     if (typeof(derived) !== 'undefined') {
         const comparison = 
             '\nProvided address:\t'
-            .concat(provided)
+            .concat(String(provided))
             .concat('\nFirst derived address:  ')
-            .concat(derived);
+            .concat(String(derived));
 
         errorMessage = 
             errorMessage.concat(chalk.redBright(comparison));
@@ -85,7 +90,7 @@ function showError(message, derived = undefined, provided= undefined) {
 }
 
 // check basic assumptions to avoid useless comparisons
-function sanityCheck(xpub, provided) {
+function sanityCheck(xpub: string, provided: string) {
     // check that the settings are set
     if (typeof(DERIVATION_SCOPE) === 'undefined') {
         showError('DERIVATION_SCOPE setting is not defined');
@@ -109,27 +114,57 @@ function sanityCheck(xpub, provided) {
     return true;
 }
 
-function run(xpub, providedAddress) {
+function run(xpub: string, providedAddress: string) {
     if (!sanityCheck(xpub, providedAddress)) {
         return;
     }
 
     const quickSearchRange = DERIVATION_SCOPE.quick_search;
-    
-    quickSearchRange.label = 'quick search';
-    
-    var result = search(xpub, providedAddress, quickSearchRange);
+        
+    let result = search(xpub, providedAddress, quickSearchRange, 'quick search');
     
     if (Object.keys(result).length === 0) {
         
         const deepSearchRange = DERIVATION_SCOPE.deep_search;
-        
-        deepSearchRange.label = 'deep search';
-        
-        result = search(xpub, providedAddress, deepSearchRange);
+                
+        result = search(xpub, providedAddress, deepSearchRange, 'deep search');
     }
     
     showComparisonResult(xpub, providedAddress, result);
 }
 
-module.exports = { run }
+function showComparisonResult(xpub: string, address: string, result: Result) {
+
+    console.log("\nXpub:", chalk.whiteBright(xpub));
+    console.log("Provided address:", chalk.whiteBright(address));
+  
+    if (Object.keys(result).length === 0) {
+      // no match
+      console.log(chalk.redBright(
+        "The address does not seem to have been derived from this xpub!"
+      ))
+    }
+    else {
+      const derivationPath = 
+      "m/".concat(String(result.account))
+        .concat("/")
+        .concat(String(result.index))
+  
+      if (typeof(result.partial) === 'undefined') {
+        // full match
+        console.log(chalk.greenBright(
+          "The address has been derived from this xpub using derivation path "
+            .concat(chalk.bold(derivationPath))));
+      }
+      else {
+        // partial match
+        console.log("Derived address: ", chalk.whiteBright(result.partial));
+  
+        console.log(chalk.blueBright(
+          "There is a partial match between the provided address and the one derived using derivation path "
+            .concat(chalk.bold(derivationPath))));
+      }
+    }
+  }
+
+export { run }

@@ -1,37 +1,30 @@
-const display = require('../display');
+import * as display from "../display";
 
-const { Address, OwnAddresses } = require('./address');
-const { AddressType, MAX_EXPLORATION } = require('../settings');
-const { getStats, getTransactions, getSortedTransactions } = require('./transactions')
+import { Address } from "../models/address"
+import { OwnAddresses } from "../models/ownAddresses"
+import { Operation } from "../models/operation"
+import { AddressType, MAX_EXPLORATION } from "../settings";
+import { getStats, getTransactions, getSortedOperations } from "./processTransactions";
 
-const chalk = require('chalk');
-
-function updateSummary(summary, addressType, value) {
-  if(!summary.get(addressType)) {
-    summary.set(addressType, value);
-  }
-  else {
-    summary.get(addressType).balance += value.balance;
-  }
-}
+import chalk from "chalk";
 
 // scan all active addresses
-function scanAddresses(addressType, xpub) {
+function scanAddresses(addressType: AddressType, xpub: string) {
   display.logStatus("Scanning ".concat(chalk.bold(addressType)).concat(" addresses..."));
 
-  var ownAddresses = new OwnAddresses(addressType);
+  let ownAddresses = new OwnAddresses();
   
-  var totalBalance = 0, noTxCounter = 0;
-  var addresses = []
+  let totalBalance = 0, noTxCounter = 0;
+  let addresses = []
   
-  for(var account = 0; account < 2; ++account) {
+  for(let account = 0; account < 2; ++account) {
     const typeAccount = account === 0 ? "external" : "internal";
     
     display.logStatus("- scanning " + chalk.italic(typeAccount) + " addresses -");
     
     noTxCounter = 0;
     
-    for(var index = 0; index < 1000; ++index) {
+    for(let index = 0; index < 1000; ++index) {
       const address = new Address(addressType, xpub, account, index)
       display.updateAddressDetails(address);
       
@@ -44,7 +37,7 @@ function scanAddresses(addressType, xpub) {
       
       // here, evaluate if the address needs further analysis
       
-      if (addressStats.txs_count === 0) {
+      if (addressStats.txsCount === 0) {
         noTxCounter++;
         display.transientLine(/* delete address */);
         
@@ -84,9 +77,9 @@ function scanAddresses(addressType, xpub) {
   }
 }
 
-function run(xpub, account, index) {  
-  var summary = new Map();
-  var transactions = [];
+function run(xpub: string, account?: number, index?: number) : Operation[] {  
+  let summary = new Map<string, number>();
+  let operations: Operation[] = [];
   
   if (typeof(account) === 'undefined') {
     // Option A: no index has been provided:
@@ -95,21 +88,21 @@ function run(xpub, account, index) {
     console.log(chalk.bold("\nActive addresses\n"))
     
     const legacy = scanAddresses(AddressType.LEGACY, xpub);
-    updateSummary(summary, AddressType.LEGACY, legacy);
+    summary.set(AddressType.LEGACY, legacy.balance);
 
     const segwit = scanAddresses(AddressType.SEGWIT, xpub);
-    updateSummary(summary, AddressType.SEGWIT, segwit);
-    
+    summary.set(AddressType.SEGWIT, segwit.balance);
+
     const nativeSegwit = scanAddresses(AddressType.NATIVE, xpub);
-    updateSummary(summary, AddressType.NATIVE, nativeSegwit);
-    
-    transactions = getSortedTransactions(
+    summary.set(AddressType.NATIVE, nativeSegwit.balance);
+
+    operations = getSortedOperations(
       legacy.addresses, 
       segwit.addresses, 
       nativeSegwit.addresses
     );
     
-    display.displayTransactions(transactions);
+    display.displayOperations(operations);
   }
   else {
     // Option B: an index has been provided:
@@ -120,7 +113,7 @@ function run(xpub, account, index) {
       AddressType.SEGWIT,
       AddressType.NATIVE
     ].forEach(addressType => {
-      const address = new Address(addressType, xpub, account, index);
+      const address = new Address(addressType, xpub, account, (index || 0));
       
       display.updateAddressDetails(address);
       
@@ -128,17 +121,17 @@ function run(xpub, account, index) {
       
       display.updateAddressDetails(address);
       
-      updateSummary(summary, addressType, address);
+      summary.set(addressType, address.getBalance());
     })
   }
   
   console.log(chalk.bold("\nSummary\n"));
   
-  for (var [addressType, value] of summary.entries()) {
+  for (let [addressType, value] of summary.entries()) {
     display.showSummary(addressType, value);
   }
 
-  return transactions;
+  return operations;
 }
 
-module.exports = { run }
+export { run }

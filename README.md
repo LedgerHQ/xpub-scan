@@ -20,7 +20,10 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 
 ## Install
 
-`$ npm i`
+```
+$ npm i
+$ tsc -p .
+```
 
 ## Usage 1. Check Balances
 
@@ -28,24 +31,24 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 
 ### Scan for a Specific Account and an Index
 
-`$ node scan.js <xpub> -a <account> -i <index>`
+`$ node build/scan.js <xpub> -a <account> -i <index>`
 
 Example: 
-`$ node scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
+`$ node build/scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
 
 ### Scan All Active Addresses
 
-`$ node scan.js <xpub>`
+`$ node build/scan.js <xpub>`
 
 Example: 
-`$ node scan.js xpub6C...44dXs7p`
+`$ node build/scan.js xpub6C...44dXs7p`
 
 ### Compare With Transactions Imported From a File
 
-`$ node scan.js <xpub> --import <file path>`
+`$ node build/scan.js <xpub> --import <file path>`
 
 Example:
-`$ node scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv`
+`$ node build/scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv`
 
 ## Usage 2. Check Address Against Xpub
 
@@ -53,7 +56,7 @@ Example:
 
 ### Perfect Match
 
-`$ node scan.js <xpub> --address <address>`
+`$ node build/scan.js <xpub> --address <address>`
 
 ### Partial Match
 

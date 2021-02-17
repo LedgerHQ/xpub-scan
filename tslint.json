@@ -1,0 +1,13 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "curly": true,
+        "no-console": false,
+        "no-trailing-whitespace": false
+    },
+    "rulesDirectory": []
+}

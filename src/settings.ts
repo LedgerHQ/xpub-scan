@@ -1,4 +1,5 @@
-const coininfo = require('coininfo');
+// @ts-ignore
+import coininfo from "coininfo";
 
 // GENERAL
 // -------
@@ -21,7 +22,7 @@ const MAX_EXPLORATION = 20;
 
 // scope of the derivation for the comparison
 const DERIVATION_SCOPE = {
-  
+
   // _quick search_
   // the common range from which addresses
   // are generally derived
@@ -35,7 +36,7 @@ const DERIVATION_SCOPE = {
       max: 1000
     }
   },
-  
+
   // _deep search_
   // an extended range for a deeper analysis,
   // initiated when quick search fails
@@ -55,26 +56,27 @@ const DERIVATION_SCOPE = {
 // DERIVATION PARAMETERS
 // ---------------------
 
+export const network = {type: undefined};
+
+
 const BITCOIN_NETWORK = coininfo.bitcoin.main.toBitcoinJS()
 
 const LITECOIN_NETWORK = coininfo.litecoin.main.toBitcoinJS();
 
-const AddressType = { 
-  LEGACY: "Legacy",
-  NATIVE: "Native SegWit",
-  SEGWIT: "SegWit",
-  ALL: "All"
-};
+export enum AddressType {
+  LEGACY = "Legacy",
+  NATIVE = "Native SegWit",
+  SEGWIT = "SegWit"
+}
 
 Object.freeze(AddressType);
 
-module.exports = { 
-  AddressType, 
-  BITCOIN_API, 
+export {
+  BITCOIN_API,
   LITECOIN_API,
-  MAX_EXPLORATION, 
-  VERBOSE, 
+  MAX_EXPLORATION,
+  VERBOSE,
   BITCOIN_NETWORK,
   LITECOIN_NETWORK,
-  DERIVATION_SCOPE
+  DERIVATION_SCOPE,
 }
