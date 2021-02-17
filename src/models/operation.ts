@@ -1,9 +1,12 @@
+
+// In or Out Operation,
+// part of a Transaction
+
 export enum OperationType {
     In,
     Out
 }
 
-// In or Out Operation
 class Operation {
     type: OperationType;
     txid: string;
@@ -21,20 +24,10 @@ class Operation {
 
     setAsIn() {
         this.type = OperationType.In;
-
-        // ensure that out operations have positive amounts
-        if (this.amount < 0) {
-            this.amount = -1 * this.amount;
-        }
     }
 
     setAsOut() {
         this.type = OperationType.Out;
-
-        // ensure that out operations have negative amounts
-        if (this.amount > 0) {
-            this.amount = -1 * this.amount;
-        }
     }
 
     setTxid(txid: string) {

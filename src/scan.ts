@@ -6,7 +6,7 @@ import yargs from "yargs";
 import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
 import { checkXpub } from "./helpers";
-import { importTransactions, checkImportedTransactions } from "./actions/importTransactions";
+import { importTransactions, checkImportedTransactions } from "./actions/importOperations";
 
 const args = yargs
   .option('account', {

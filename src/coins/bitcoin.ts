@@ -62,7 +62,7 @@ function getTransactions(address: Address) {
         
         if (typeof(tx.incoming) !== 'undefined') {   
             tx.incoming.inputs.forEach(vin => {
-                const op = new Operation(String(tx.time), parseFloat(tx.incoming.value) * -1);
+                const op = new Operation(String(tx.time), parseFloat(tx.incoming.value));
                 op.setAddress(vin.address);
                 op.setTxid(tx.txid);
                 op.setAsIn();

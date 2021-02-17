@@ -15,12 +15,13 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 
 ## Prerequisites
 
-- Node.js, and/or
+- Node.js and TypeScript,
 - Docker
 
 ## Install
 
 ```
+$ npm i -g typescript # if needed
 $ npm i
 $ tsc -p .
 ```

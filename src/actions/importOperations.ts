@@ -1,9 +1,9 @@
-import fs from "fs";
-import chalk from "chalk";
+import fs from 'fs';
+import chalk from 'chalk';
 // @ts-ignore
-import sb from "satoshi-bitcoin";
+import sb from 'satoshi-bitcoin';
 
-import { Operation } from "../models/operation"
+import { Operation, OperationType } from '../models/operation'
 
 // get lines from a file
 function getFileLines(path: string) {
@@ -26,7 +26,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
     lines.slice(1).forEach(line => {
         // split using delimiter ',' except when between double quotes
         // as a type A CSV can have several addresses in the same field:
-        // ...,"<address1>,<address2>,<address3",...
+        // ...,'<address1>,<address2>,<address3',...
         const tokens = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
         if (tokens.length < 20) {
@@ -35,7 +35,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
 
         // expected date format: yyyy-MM-dd HH:mm:ss
         const date =        /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/ig
-                            .exec(tokens[0]) || "";
+                            .exec(tokens[0]) || '';
 
         const type =        String(tokens[2]);      // CREDIT || DEBIT
         const status =      String(tokens[4]);      // CONFIRMED || ABORTED
@@ -53,7 +53,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 operations.push(op);
             }
             else if (type === 'DEBIT') {
-                const op = new Operation(date[0], -1 * amount);
+                const op = new Operation(date[0], amount);
                 op.setAddress(sender);
                 op.setAsOut();
 
@@ -80,7 +80,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
 
         // expected date format: yyyy-MM-dd HH:mm:ss
         const date =        /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
-                            .exec(tokens[0]) || "";
+                            .exec(tokens[0]) || '';
 
         const type =        String(tokens[2]);      // IN | OUT
         const amount =      parseFloat(tokens[3]);  // in bitcoins
@@ -96,7 +96,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
         else if (type === 'OUT') {
             // out transactions: substract fees from amount (in satoshis)
             const amountInSatoshis = sb.toSatoshi(amount) - sb.toSatoshi(fees);
-            const op = new Operation(date[0], -1 * sb.toBitcoin(amountInSatoshis));
+            const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
             op.setAsOut();
 
             operations.push(op);
@@ -173,12 +173,26 @@ function identifyMismatches(importedOperations: Operation[], actualOperations: O
     let importedAmounts: number[] = [];
     let actualAmounts: number[] = [];
 
+    // note: to identify the mismatches, it is important
+    // to arithmetically distinguish between in (positive)
+    // and out (negative) amounts, hence the `* -1` in case
+    // of Out operation type.
     importedOperations.forEach(imported => {
-        importedAmounts.push(imported.amount);
+        if (imported.type === OperationType.In) {
+            importedAmounts.push(imported.amount);
+        }
+        else {
+            importedAmounts.push(imported.amount * -1);
+        }
     })
 
     actualOperations.forEach(actual => {
-        actualAmounts.push(actual.amount);
+        if (actual.type === OperationType.In) {
+            actualAmounts.push(actual.amount);
+        }
+        else {
+            actualAmounts.push(actual.amount * -1);
+        }
     })
 
     // diff between imported and actual amounts
@@ -212,7 +226,7 @@ function identifyMismatches(importedOperations: Operation[], actualOperations: O
 //    handled for imported v. actual transactions)
 function checkImportedTransactions(importedOperations: Operation[], actualOperations: Operation[]) {
     console.log(chalk.bold.whiteBright('\nComparison with imported transactions\n'));
-    console.log(chalk.grey("imported transactions\t\t\t\t\t\t\t\t actual transactions"));
+    console.log(chalk.grey('imported transactions\t\t\t\t\t\t\t\t\t actual transactions'));
     const displayedAddressLength = 35;
 
     const mismatches = identifyMismatches(importedOperations, actualOperations);
@@ -223,61 +237,87 @@ function checkImportedTransactions(importedOperations: Operation[], actualOperat
     importedOperations.sort(compareOperations);
 
     for (let i = 0; i < actualOperations.length; i++) {
-        const actualTx = actualOperations[i];
-        const importedTx = importedOperations[i];
+        const actualOp = actualOperations[i];
+        const importedOp = importedOperations[i];
 
         // if no transaction, break
-        if (typeof(importedTx) === 'undefined' || typeof(actualTx) === 'undefined') {
+        if (typeof(importedOp) === 'undefined' || typeof(actualOp) === 'undefined') {
             break;
         }
 
+        // imported operations
+
         // if no imported address, set address to empty string
-        if (typeof(importedTx.address) === 'undefined') {
-            importedTx.address = '';
+        if (typeof(importedOp.address) === 'undefined') {
+            importedOp.address = '';
         }
         
         // make imported address displayable
         let importedAddress;
-        if (importedTx.address.length < displayedAddressLength) {
-            importedAddress = importedTx.address;
-        }
-        else {
-            importedAddress = importedTx.address.substring(0, displayedAddressLength - 1) + '...';
+
+        // the imported address may not exist 
+        // (see: type B CSVs for instance)
+        if (importedOp.address) {
+            if (importedOp.address.length < displayedAddressLength) {
+                importedAddress = importedOp.address;
+            }
+            else {
+                importedAddress = importedOp.address.substring(0, displayedAddressLength - 1) + '...';
+            }
         }
 
-        const actualDate = actualTx.date;
-        const actualAddress = actualTx.address.toString();
+        const padding = importedOp.address ? 10 : displayedAddressLength + 10;
 
-        const padding = importedAddress ? 10 : displayedAddressLength + 10;
+        const importedAmount = 
+            ( importedOp.type === OperationType.In ? '+' : '-' )
+            .concat(String(importedOp.amount));
 
         const imported = 
-            String(importedTx.date)
-            .concat("\t")
-            .concat(importedAddress)
-            .concat("\t")
-            .concat(String(importedTx.amount).padEnd(padding, ' '));
+            String(importedOp.date)
+            .concat('\t')
+            .concat(importedAddress || '')
+            .concat('\t')
+            .concat(importedAmount.padEnd(padding, ' '))
+            .concat('\t');
+
+        // actual operations
+
+        const actualAddress = actualOp.address.toString();
+
+        const actualAmount = 
+            ( actualOp.type === OperationType.In ? '+' : '-' )
+            .concat(String(actualOp.amount));
 
         const actual = 
-            actualDate
-            .concat("\t")
+            actualOp.date
+            .concat('\t')
             .concat(actualAddress)
-            .concat("\t")
-            .concat(String(actualTx.amount));
+            .concat('\t')
+            .concat(actualAmount);
 
-        // 1. check if imported and actual amounts match, and
-        // 2. iff imported address is set: check that imported and actual addresses match
-        if (importedTx.amount === actualTx.amount
-            && !( importedAddress && !importedTx.address.includes(actualAddress) )) {
-            // match
+            
+        if (
+                // if imported and actual amounts match
+                importedOp.amount === actualOp.amount
+                && // and
+                // iff imported address is set: imported and actual addresses match
+                !( importedAddress && !importedOp.address.includes(actualAddress) )
+                ) {
+            // then: match
             console.log(chalk.greenBright(imported), '\t', actual);
         }
-        else if (mismatches.includes(actualTx.amount) || mismatches.includes(importedTx.amount)) {
-            // true mismatch
+        else if (
+                // if actual or imported amounts are a mismatch
+                // TODO: improve to take into account the addresses as, currently, the mismatch
+                // between addresses is ignored if the amount is NOT in the list of mismatches
+                ( mismatches.includes(actualOp.amount) || mismatches.includes(importedOp.amount) )
+            ) {
+            // then: true mismatch
             console.log(chalk.redBright(imported,'\t', actual));
 
             errors.push({
-                imported: importedTx, 
-                actual: actualTx
+                imported: importedOp, 
+                actual: actualOp
             })
         }
         else {
@@ -287,8 +327,8 @@ function checkImportedTransactions(importedOperations: Operation[], actualOperat
             console.log(chalk.yellowBright(imported,'\t', actual));
 
             warnings.push({
-                imported: importedTx, 
-                actual: actualTx
+                imported: importedOp, 
+                actual: actualOp
             })
         }
     }

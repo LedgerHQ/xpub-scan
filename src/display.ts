@@ -1,8 +1,8 @@
-import readline from "readline";
-import chalk from "chalk";
+import readline from 'readline';
+import chalk from 'chalk';
 
-import { Address } from "./models/address"
-import { OperationType, Operation } from "./models/operation"
+import { Address } from './models/address'
+import { OperationType, Operation } from './models/operation'
 
 function convertUnits(amount: number) {
   // Currently, this function does not convert the amounts
@@ -22,64 +22,76 @@ function convertUnits(amount: number) {
   }
 }
 
+// display the active/probed address with its stats
 function updateAddressDetails(address: Address) {
   const addressType = address.getType()
   const account = address.getDerivation().account
   const index = address.getDerivation().index
 
   const derivationPath =
-    "m/"
+    'm/'
     .concat(String(account))
-    .concat("/")
+    .concat('/')
     .concat(String(index));
 
   const addressStats = address.getStats();
 
   // _type_  path  address ...
   let stats = 
-    chalk.italic("  " + addressType.padEnd(16, ' '))
-    .concat(derivationPath.padEnd(12, ' '))
-    .concat(address.toString().padEnd(46, ' '))
+    //    _{address type}_  {derivation path}  {address}...
+      '  '
+      .concat(chalk.italic(addressType.padEnd(16, ' ')))
+      .concat(derivationPath.padEnd(12, ' '))
+      .concat(address.toString().padEnd(46, ' '));
 
   if (typeof(address.getStats()) === 'undefined') {
+    // if no stats, display just half of the line
     process.stdout.write(stats)
     return;
   }
   else {
+    // else, display the full line
     const balance = convertUnits(address.getBalance());
     const fundedSum = convertUnits(addressStats.funded);
 
     transientLine(/* delete line to display complete info */);
 
+    // ... +{total funded} ←
     stats = 
       stats
       .concat(balance.padEnd(16, ' '))
-      .concat("+").concat(fundedSum.padEnd(10, ' ')).concat(" ←");
+      .concat('+')
+      .concat(fundedSum.padEnd(10, ' ')) // an active address has necessarily been funded,
+      .concat(' ←');                     // thus this information is mandatory
   }
 
   // optional: spent sum
   if (typeof(addressStats.spent) !== 'undefined' && addressStats.spent > 0) {
     const spentSum = convertUnits(addressStats.spent);
   
+    // ... -{total spent} →
     stats =
       stats
-      .concat("\t-")
+      .concat('\t-')
       .concat(spentSum.padEnd(10, ' '))
-      .concat(" →");
+      .concat(' →');
   }
 
   console.log(stats);
 }
 
-function displayOperations(sortedTransactions: Operation[]) {
-  console.log(chalk.bold("Transactions History").concat(chalk.redBright(" (beta feature)\n")));
+// display the list of operations sorted by date (reverse chronological order)
+function displayOperations(sortedOperations: Operation[]) {
+  console.log(chalk.bold('Transactions History').concat(chalk.redBright(' (beta feature)\n')));
   
   const header =
-  "date\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (↺)";
-  
+  'date\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (↺)';
   console.log(chalk.grey(header));
   
-  sortedTransactions.forEach(op => {    
+  sortedOperations.forEach(op => {    
+    const amount = convertUnits(op.amount).padEnd(12, ' ');
+
+    // {date} {block} {address}
     let status = 
       op.date.padEnd(20, ' ')
       .concat('\t')
@@ -87,37 +99,43 @@ function displayOperations(sortedTransactions: Operation[]) {
       .concat('\t')
       .concat(op.address.padEnd(42, ' '))
       .concat('\t')
-      .concat(convertUnits(op.amount).padEnd(12, ' '))
+      
   
     if (op.type === OperationType.In) {
-      status = status.concat(" ←");
-    }
-    else if (op.self) {
-      // send to non-change address belonging to
-      // the same xpub/ltub
-      status = status.concat(" ↺");
+      // ... +{amount} ←
+      status = 
+        status
+        .concat('+')
+        .concat(amount)
+        .concat(' ←');
     }
     else {
-      status = status.concat(" →");
+      // ... -{amount} ↺|→
+      status = 
+        status
+        .concat('-')
+        .concat(amount)
+        .concat(op.self ? ' ↺' : ' →')
     }
     
     console.log(status);
   })
   
-  console.log(chalk.bold("\nNumber of transactions\n"));
-  console.log(chalk.whiteBright(sortedTransactions.length))
+  console.log(chalk.bold('\nNumber of transactions\n'));
+  console.log(chalk.whiteBright(sortedOperations.length))
 }
 
+// display the summary: total balance by address type
 function showSummary(addressType: string, totalBalance: number) {
   const balance = convertUnits(totalBalance);
     
   if (balance === '0') {
-  console.log(
-      chalk.grey(
-        addressType.padEnd(16, ' ')
-          .concat(balance.padEnd(12, ' '))
-      )
-    );
+    console.log(
+        chalk.grey(
+          addressType.padEnd(16, ' ')
+            .concat(balance.padEnd(12, ' '))
+        )
+      );
   }
   else {
     console.log(
@@ -145,8 +163,9 @@ function transientLine(message?: string) {
   }
   else {
     // blank line
-    // (solution compatible with Docker)
-    process.stdout.write("".padEnd(100, ' '));
+    // ! solution implemented this way to be
+    // ! compatible with Docker
+    process.stdout.write(''.padEnd(100, ' '));
     readline.cursorTo(process.stdout, 0);
   }
 }

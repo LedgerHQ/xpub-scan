@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 import * as display from "../display";
 
 import { Address } from "../models/address"
@@ -6,25 +8,26 @@ import { Operation } from "../models/operation"
 import { AddressType, MAX_EXPLORATION } from "../settings";
 import { getStats, getTransactions, getSortedOperations } from "./processTransactions";
 
-import chalk from "chalk";
 
 // scan all active addresses
+// (that is: balances with > 0 transactions)
 function scanAddresses(addressType: AddressType, xpub: string) {
   display.logStatus("Scanning ".concat(chalk.bold(addressType)).concat(" addresses..."));
 
   let ownAddresses = new OwnAddresses();
   
-  let totalBalance = 0, noTxCounter = 0;
-  let addresses = []
+  let totalBalance = 0;
+  let noTxCounter = 0;
+  const addresses: Address[] = []
   
-  for(let account = 0; account < 2; ++account) {
-    const typeAccount = account === 0 ? "external" : "internal";
+  for (let account = 0; account < 2; ++account) {
+    const typeAccount = account === 1 ? "internal" : "external";
     
     display.logStatus("- scanning " + chalk.italic(typeAccount) + " addresses -");
     
     noTxCounter = 0;
     
-    for(let index = 0; index < 1000; ++index) {
+    for (let index = 0; index < 1000; ++index) {
       const address = new Address(addressType, xpub, account, index)
       display.updateAddressDetails(address);
       
@@ -83,24 +86,23 @@ function run(xpub: string, account?: number, index?: number) : Operation[] {
   
   if (typeof(account) === 'undefined') {
     // Option A: no index has been provided:
-    //  - retrieve stats for legacy/SegWit
-    //  - scan Native SegWit addresses
-    console.log(chalk.bold("\nActive addresses\n"))
-    
-    const legacy = scanAddresses(AddressType.LEGACY, xpub);
-    summary.set(AddressType.LEGACY, legacy.balance);
+    //  - scan all address types
 
-    const segwit = scanAddresses(AddressType.SEGWIT, xpub);
-    summary.set(AddressType.SEGWIT, segwit.balance);
+    let activeAddresses: Address[] = [];
 
-    const nativeSegwit = scanAddresses(AddressType.NATIVE, xpub);
-    summary.set(AddressType.NATIVE, nativeSegwit.balance);
+    console.log(chalk.bold("\nActive addresses\n"));
 
-    operations = getSortedOperations(
-      legacy.addresses, 
-      segwit.addresses, 
-      nativeSegwit.addresses
-    );
+    [
+      AddressType.LEGACY,
+      AddressType.SEGWIT,
+      AddressType.NATIVE
+    ].forEach(addressType => {
+      const results = scanAddresses(addressType, xpub);
+      activeAddresses = activeAddresses.concat(results.addresses);
+      summary.set(addressType, results.balance);
+    });
+
+    operations = getSortedOperations(activeAddresses);
     
     display.displayOperations(operations);
   }

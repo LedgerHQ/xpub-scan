@@ -1,4 +1,3 @@
-// @ts-ignore
 import request from "sync-request";
 
 import * as bip32 from 'bip32';
