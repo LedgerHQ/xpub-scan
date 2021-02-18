@@ -83,4 +83,6 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 
 ## Configure
 
-Modify `./src/settings.ts`, rebuild the tool: `$ tsc -p .`, and re-run it `$ node build/scan.js <xpub>...`.
+1. Modify `./src/settings.ts`
+2. rebuild the tool: `$ tsc -p .`
+3. Re-run it: `$ node build/scan.js <xpub>...`
