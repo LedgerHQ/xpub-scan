@@ -82,7 +82,7 @@ function updateAddressDetails(address: Address) {
 
 // display the list of operations sorted by date (reverse chronological order)
 function displayOperations(sortedOperations: Operation[]) {
-  console.log(chalk.bold('Transactions History').concat(chalk.redBright(' (beta feature)\n')));
+  console.log(chalk.bold('Operations History').concat(chalk.redBright(' (only the last ~50 operations by address are displayed)\n')));
   
   const header =
   'date\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (↺)';

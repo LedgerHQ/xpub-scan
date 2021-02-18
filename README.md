@@ -1,6 +1,6 @@
 # Xpub Scan
 
-![XPUB](./doc/logo.png)
+![XPUB](./doc/logo_pre_alpha.png)
 
 Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived legacy, native SegWit, and SegWit addresses, or check whether an address has been derived from it.
 
@@ -10,8 +10,9 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 
 * Privacy Friendly: master public keys are never sent over the Internet: only their derived addresses are 
 * Derives specific addresses (by account+index) or all active ones
-* Search if a given address has been derived from a given master public key
+* Searches if a given address has been derived from a given master public key (perfect and partial match)
 * Supports legacy, SegWit, and Native Segwit
+* Automatically checks some categories of CSV files containing operations history
 
 ## Prerequisites
 
@@ -79,3 +80,7 @@ When an analysis is performed, 3 elements are displayed in the following order:
 
 ### Xpub and Address Comparison
 The derived addresses are displayed during the analysis. Perfect matches are displayed in green (with the corresponding derivation path). Partial matches are displayed in blue (also with the derivation path). No matches are rendered in red.
+
+## Configure
+
+Modify `./src/settings.ts`, rebuild the tool: `$ tsc -p .`, and re-run it `$ node build/scan.js <xpub>...`.

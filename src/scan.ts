@@ -39,13 +39,25 @@ const address = args.address
 const xpub = String(args._[0]);
 checkXpub(xpub);
 
+function displayWarning() {
+  console.log(
+    chalk.redBright(
+      '\nXpub scan is not stable yet (pre-alpha release): do not hesitate to double-check its output.',
+      '\nIf you notice any error, please open an issue at: https://github.com/LedgerHQ/xpub-scan/issues',
+      '\nThank you.'
+      )
+    );
+}
+
 if (address) {
   // comparison mode
   compare.run(xpub, address);
+  displayWarning();
 }
 else if (typeof(account) !== 'undefined' && typeof(index) !== 'undefined') {
   // specific derivation mode
   check_balances.run(xpub, account, index);
+  displayWarning();
 }
 else {
   // scan mode
@@ -75,4 +87,6 @@ else {
       process.exit(1);
     }
   }
+
+  displayWarning();
 }

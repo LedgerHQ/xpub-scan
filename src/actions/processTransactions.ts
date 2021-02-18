@@ -116,9 +116,7 @@ function getSortedOperations(...addresses: any) : Operation[] {
     });
   
     // reverse chronological order
-    operations = operations.sort(function(a, b) {
-      return parseInt(b.date, 10) - parseInt(a.date, 10);
-    });
+    operations.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0);
 
     return operations;
 }

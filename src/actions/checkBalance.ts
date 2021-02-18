@@ -27,7 +27,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
     
     noTxCounter = 0;
     
-    for (let index = 0; index < 1000; ++index) {
+    for (let index = 0; /* scan all active indices */ ; ++index) {
       const address = new Address(addressType, xpub, account, index)
       display.updateAddressDetails(address);
       

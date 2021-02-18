@@ -285,7 +285,7 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
 // 
 // returns an array of errors
 function checkImportedTransactions(importedOperations: Operation[], actualOperations: Operation[]) {
-    console.log(chalk.bold.whiteBright('\nComparison with imported transactions\n'));
+    console.log(chalk.bold.whiteBright('\nComparison between imported and actual operations\n'));
     console.log(chalk.grey('imported operations\t\t\t\t\t\t\t\t     actual operations'));
 
     // eslint-disable-next-line no-undef
