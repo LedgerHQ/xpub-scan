@@ -71,7 +71,7 @@ else {
   if (typeof(importedTransactions) !== 'undefined') {
     const results = checkImportedTransactions(importedTransactions, actualTransactions);
 
-    if (results.errors.length > 0) {
+    if (results.length > 0) {
       process.exit(1);
     }
   }
