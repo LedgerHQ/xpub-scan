@@ -1,6 +1,6 @@
 # Xpub Scan
 
-![XPUB](./doc/logo.png)
+![XPUB](./doc/logo_pre_alpha.png)
 
 Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived legacy, native SegWit, and SegWit addresses, or check whether an address has been derived from it.
 
@@ -10,17 +10,22 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 
 * Privacy Friendly: master public keys are never sent over the Internet: only their derived addresses are 
 * Derives specific addresses (by account+index) or all active ones
-* Search if a given address has been derived from a given master public key
+* Searches if a given address has been derived from a given master public key (perfect and partial match)
 * Supports legacy, SegWit, and Native Segwit
+* Automatically checks some categories of CSV files containing operations history
 
 ## Prerequisites
 
-- Node.js, and/or
+- Node.js and TypeScript,
 - Docker
 
 ## Install
 
-`$ npm i`
+```
+$ npm i -g typescript # if needed
+$ npm i
+$ tsc -p .
+```
 
 ## Usage 1. Check Balances
 
@@ -28,24 +33,24 @@ Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived 
 
 ### Scan for a Specific Account and an Index
 
-`$ node scan.js <xpub> -a <account> -i <index>`
+`$ node build/scan.js <xpub> -a <account> -i <index>`
 
 Example: 
-`$ node scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
+`$ node build/scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
 
 ### Scan All Active Addresses
 
-`$ node scan.js <xpub>`
+`$ node build/scan.js <xpub>`
 
 Example: 
-`$ node scan.js xpub6C...44dXs7p`
+`$ node build/scan.js xpub6C...44dXs7p`
 
 ### Compare With Transactions Imported From a File
 
-`$ node scan.js <xpub> --import <file path>`
+`$ node build/scan.js <xpub> --import <file path>`
 
 Example:
-`$ node scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv`
+`$ node build/scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv`
 
 ## Usage 2. Check Address Against Xpub
 
@@ -53,7 +58,7 @@ Example:
 
 ### Perfect Match
 
-`$ node scan.js <xpub> --address <address>`
+`$ node build/scan.js <xpub> --address <address>`
 
 ### Partial Match
 
@@ -75,3 +80,9 @@ When an analysis is performed, 3 elements are displayed in the following order:
 
 ### Xpub and Address Comparison
 The derived addresses are displayed during the analysis. Perfect matches are displayed in green (with the corresponding derivation path). Partial matches are displayed in blue (also with the derivation path). No matches are rendered in red.
+
+## Configure
+
+1. Modify `./src/settings.ts`
+2. rebuild the tool: `$ tsc -p .`
+3. Re-run it: `$ node build/scan.js <xpub>...`

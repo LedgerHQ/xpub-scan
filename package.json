@@ -2,9 +2,10 @@
   "name": "xpub-scan",
   "version": "1.0.0",
   "description": "Master public key analysis tool",
-  "main": "scan.js",
+  "main": "./build/scan.js",
   "scripts": {
-    "start": "node scan.js"
+    "build": "tsc -p .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -17,19 +18,28 @@
   },
   "homepage": "https://github.com/LedgerHQ/xpub-scan#readme",
   "dependencies": {
+    "@types/lodash": "^4.14.168",
+    "@types/yargs": "^16.0.0",
     "bitcoinjs-lib": "^5.2.0",
     "chalk": "^4.1.0",
-    "coininfo": "^5.1.0",
     "dateformat": "^4.5.1",
     "es6-promise": "^4.2.8",
     "line-reader": "^0.4.0",
     "minimist": "^1.2.5",
+    "minimist2": "^1.0.2",
     "request": "^2.88.2",
     "satoshi-bitcoin": "^1.0.4",
-    "sync-request": "^6.1.0"
+    "sync-request": "^6.1.0",
+    "typescript": "^4.1.5",
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@types/bip32": "^2.0.0",
+    "@types/chalk": "^2.2.0",
+    "@types/dateformat": "^3.0.1",
+    "@types/minimist": "^1.2.1",
     "babel-eslint": "^10.1.0",
+    "coininfo": "^5.1.0",
     "eslint": "^7.20.0",
     "eslint-plugin-prettier": "^3.3.1"
   }
