@@ -18,6 +18,7 @@ enum MatchingStatus {
 }
 
 // get lines from a file
+// TODO: properly rework this function
 function getFileLines(path: string) {
     try {
         const contents = fs.readFileSync(path, 'utf-8');
@@ -32,6 +33,8 @@ function getFileLines(path: string) {
 // import transactions from a type A CSV
 //
 // returns an array of type A imported transactions
+//
+// TODO: use a CSV parser instead
 function importFromCSVTypeA(lines: string[]) : Operation[] {
     let operations: Operation[] = [];
     
@@ -61,7 +64,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
             if (type === 'CREDIT') {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
-                op.setAddress(recipient);
+                op.setAddress(recipient); // one address or several concatenated addresses
                 op.setAsIn();
 
                 operations.push(op);
@@ -69,7 +72,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
             else if (type === 'DEBIT') {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
-                op.setAddress(sender);
+                op.setAddress(sender); // one address or several concatenated addresses
                 op.setAsOut();
 
                 operations.push(op);
@@ -83,6 +86,8 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
 // import transactions from a type B CSV
 //
 // returns an array of type B imported transactions
+//
+// TODO: use a CSV parser instead
 function importFromCSVTypeB(lines: string[]) : Operation[] {
     let operations: Operation[] = [];
     
@@ -111,8 +116,10 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
             operations.push(op);
         }
         else if (type === 'OUT') {
-            // out transactions: substract fees from amount (in satoshis)
+            // out transactions: substract fees from amount (in satoshis)...
             const amountInSatoshis = sb.toSatoshi(amount) - sb.toSatoshi(fees);
+            // ... and couvert the total back to Bitcoin
+            // (otherwise, there would be floating number issues)
             const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
             op.setTxid(txid);
             op.setAsOut();
@@ -131,7 +138,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
 //  - date
 //  - amount
 //  - address (optional)
-function importTransactions(path: string) : Operation[] {
+function importOperations(path: string) : Operation[] {
     const lines = getFileLines(path);
     const firstLine = lines[0].replace('"', '');
 
@@ -145,6 +152,9 @@ function importTransactions(path: string) : Operation[] {
     else if (firstLine.substring(0, 9) === 'Operation') {
         operations = importFromCSVTypeB(lines);
     }
+    else {
+        throw new Error('CSV format not recognized.')
+    }
 
     console.log(
         chalk.grey(
@@ -153,10 +163,14 @@ function importTransactions(path: string) : Operation[] {
         )
     );
 
+    // TODO: at this point, generate a warning/error 
+    // message if no operation has been imported 
+    // (file parsing issue?)
+
     return operations;
 }
 
-// sort by amount and then, if need, by address
+// sort by amount and, _then, if needed_, by address
 function compareOperations(A: Operation, B: Operation){
     // amount
     if (A.amount > B.amount) {
@@ -199,7 +213,7 @@ function areMatching(importedOperation: Operation, actualOperation: Operation) :
 
 // make addresses displayable:
 //  - no address: empty string
-//  - long address: ellipsis
+//  - long address (native): ellipsis
 function renderAddress(address: string) {
     const maxLength = 35;
 
@@ -217,6 +231,7 @@ function renderAddress(address: string) {
         .padEnd(maxLength + 4, ' ');
 }
 
+// TODO?: export in a dedicated module (display.ts)?
 function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation) {
     const halfColorPadding = 84;
     const fullColorPadding = 85;
@@ -284,12 +299,12 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
 // compare the imported operations with the actual ones
 // 
 // returns an array of errors
-function checkImportedTransactions(importedOperations: Operation[], actualOperations: Operation[]) {
+function checkImportedOperations(importedOperations: Operation[], actualOperations: Operation[]) {
     console.log(chalk.bold.whiteBright('\nComparison between imported and actual operations\n'));
     console.log(chalk.grey('imported operations\t\t\t\t\t\t\t\t     actual operations'));
 
     // eslint-disable-next-line no-undef
-    let allTxids: Txid[] = [];
+    let allTxids: Txid[] = []; // TODO: convert into a Set as they have to be unique
     let errors = [];
 
     importedOperations.forEach(op => {
@@ -302,6 +317,7 @@ function checkImportedTransactions(importedOperations: Operation[], actualOperat
     // add potential actual operations absent from the list
     // of imported operations
     actualOperations.forEach(op => {
+        // only add txid once
         if (!allTxids.some(t => t.hash === op.txid)) {
             allTxids.push({date: op.date, hash: op.txid});
         }
@@ -319,7 +335,7 @@ function checkImportedTransactions(importedOperations: Operation[], actualOperat
         // the one corresponding to that of an actual operation from the same 
         // block and with the same amount
         for (let imported of importedOps) {
-            // do not continue if no address (see: type B CSVs)
+            // do not continue if no address (see: type B CSVs): not relevant
             if (!imported.address) {
                 break;
             }
@@ -327,17 +343,20 @@ function checkImportedTransactions(importedOperations: Operation[], actualOperat
             // the actual operation address must already be present in the 
             // imported operations' addresses and the amount must match
             const actual = actualOperations
-                .filter(op => imported.address.includes(op.address) && 
-                              op.amount === imported.amount);
+                .filter(op => imported.address.includes(op.address) 
+                              && op.amount === imported.amount);
 
             if (Object.keys(actual).length === 1) {
                 imported.setAddress(actual[0].address);
             }
         }
 
+        // sort both arrays of operations to ease the comparison
         importedOps.sort(compareOperations);
         actualOps.sort(compareOperations);
 
+        // Math.max(...) used here because the imported and actual arrays do not
+        // necessarily have the same size (i.e. missing operations)
         for (let i = 0; i < Math.max(importedOps.length, actualOps.length); ++i) {
             const importedOp = importedOps[i];
             const actualOp = actualOps[i];
@@ -357,10 +376,12 @@ function checkImportedTransactions(importedOperations: Operation[], actualOperat
             }
 
             if (!areMatching(importedOp, actualOp)) {
+                // mismatch
                 showOperations(MatchingStatus.MISMATCH, importedOp, actualOp);
                 errors.push({imported: importedOp, actual: actualOp});
             }
             else {
+                // match
                 showOperations(MatchingStatus.MATCH, importedOp, actualOp);
             }
         }
@@ -370,4 +391,4 @@ function checkImportedTransactions(importedOperations: Operation[], actualOperat
 }
   
 
-export { importTransactions, checkImportedTransactions }
+export { importOperations, checkImportedOperations }

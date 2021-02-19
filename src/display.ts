@@ -155,6 +155,10 @@ function logStatus(status: string) {
 
 // overwrite last displayed line
 // (no message: delete the line)
+//
+// note: if this implementation is modified,
+// always check the resulting behavior in
+// Docker
 function transientLine(message?: string) {
   readline.cursorTo(process.stdout, 0);
 

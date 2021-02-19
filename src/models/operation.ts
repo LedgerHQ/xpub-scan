@@ -14,7 +14,9 @@ class Operation {
     block: number;
     address: string;
     amount: number;
-    self: boolean;
+
+    // self sent (sent to non-change address belonging to same xpub)
+    self: boolean; 
 
     constructor(date: string, amount: number) {
         this.date = date;

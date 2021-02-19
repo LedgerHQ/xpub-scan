@@ -26,6 +26,7 @@ function showError(message: string, derived?: string, provided?: string) {
     console.log(errorMessage);
 }
 
+// TODO?: export in a dedicated module (display.ts)?
 function showComparisonResult(xpub: string, address: string, result: Result) {
     console.log("\nXpub:", chalk.whiteBright(xpub));
     console.log("Provided address:", chalk.whiteBright(address));

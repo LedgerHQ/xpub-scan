@@ -37,6 +37,7 @@ function getStats(address: Address) {
     const url = LITECOIN_API.concat(address.toString());
     const res = helpers.getJSON(url);
     
+    // TODO: check potential errors here (API returning invalid data...)
     const funded_sum = parseFloat(res.data.received_value);
     const balance = parseFloat(res.data.balance);
     const spent_sum = funded_sum - balance;

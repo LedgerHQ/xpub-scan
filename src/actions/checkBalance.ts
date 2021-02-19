@@ -20,6 +20,8 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   let noTxCounter = 0;
   const addresses: Address[] = []
   
+  // TODO: should we limit ourselves to account 0 and 1?
+  // if not, use a logic similar to indices exploration
   for (let account = 0; account < 2; ++account) {
     const typeAccount = account === 1 ? "internal" : "external";
     
@@ -41,6 +43,8 @@ function scanAddresses(addressType: AddressType, xpub: string) {
       // here, evaluate if the address needs further analysis
       
       if (addressStats.txsCount === 0) {
+        // if no transaction, perform address gap probing if exploration
+        // limit no reached yet
         noTxCounter++;
         display.transientLine(/* delete address */);
         
@@ -61,6 +65,9 @@ function scanAddresses(addressType: AddressType, xpub: string) {
       
       display.updateAddressDetails(address);
       
+      // important step: add the active address to the
+      // list of own addresses in order to perform
+      // transaction analysis further down the flow
       ownAddresses.addAddress(address);
 
       addresses.push(address);
@@ -81,12 +88,14 @@ function scanAddresses(addressType: AddressType, xpub: string) {
 }
 
 function run(xpub: string, account?: number, index?: number) : Operation[] {  
+  // eslint-disable-next-line no-undef
   let summary = new Map<string, number>();
+
   let operations: Operation[] = [];
   
   if (typeof(account) === 'undefined') {
     // Option A: no index has been provided:
-    //  - scan all address types
+    // scan all address types
 
     let activeAddresses: Address[] = [];
 
@@ -107,7 +116,7 @@ function run(xpub: string, account?: number, index?: number) : Operation[] {
     display.displayOperations(operations);
   }
   else {
-    // Option B: an index has been provided:
+    // Option B: an account number and index has been provided:
     // derive all addresses at that account and index; then
     // check their respective balances
     [

@@ -69,14 +69,17 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
     
     for(const tx of transactions) {
         const outs = tx.outs;
-        // const txid = tx.txid;
         
         outs.forEach(out => {
             // exclude internal (i.e. change) addresses
             if (!internalAddresses.includes(out.address)) {
                 const op = new Operation(tx.date, out.amount);
                 op.setTxid(tx.txid);
+
+                // self sent: sent to an address belonging to the same xpub
+                // while not being a change address
                 op.setSelf(externalAddresses.includes(out.address));
+
                 op.setBlockNumber(tx.blockHeight);
                 op.setAsOut();
 
@@ -91,12 +94,13 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
     }
 }
 
-// Sort transactions by block time
-// (reversed ordering)
+// Sort transactions by date
+// (reverse chronological order)
 function getSortedOperations(...addresses: any) : Operation[] {
     let operations: Operation[] = [];
     let processedTxids: string[]= [];
 
+    // flatten the array of arrays in one dimension, and iterate
     [].concat.apply([], addresses).forEach( (address: Address) => {
   
         address.getFundedOperations().forEach( (op: Operation) => {
