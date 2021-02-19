@@ -6,7 +6,7 @@ import chalk from "chalk";
 import { BITCOIN_NETWORK, LITECOIN_NETWORK, network } from "./settings";
 import { transientLine } from "./display";
 
-// TODO: rework this function
+// TODO: properly rework this function
 function getJSON(url: string, attempts = 0) {
   const res = request('GET', url);
 
@@ -31,6 +31,8 @@ function getJSON(url: string, attempts = 0) {
 
 // ensure that the xpub is a valid one
 // and select the relevant network
+//
+// TODO: extend to ypub, zpub...
 function checkXpub(xpub: string) {
   const prefix = xpub.substring(0, 4);
 

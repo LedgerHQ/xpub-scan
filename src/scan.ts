@@ -6,7 +6,7 @@ import yargs from "yargs";
 import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
 import { checkXpub } from "./helpers";
-import { importTransactions, checkImportedTransactions } from "./actions/importOperations";
+import { importOperations, checkImportedOperations } from "./actions/importOperations";
 
 const args = yargs
   .option('account', {
@@ -39,6 +39,7 @@ const address = args.address
 const xpub = String(args._[0]);
 checkXpub(xpub);
 
+// TODO: remove once stable enough
 function displayWarning() {
   console.log(
     chalk.redBright(
@@ -75,15 +76,17 @@ else {
   }
   else {
     // if a file path has been provided, import its transactions
-    importedTransactions = importTransactions(args.import);
+    importedTransactions = importOperations(args.import);
   }
 
   const actualTransactions = check_balances.run(xpub);
 
   if (typeof(importedTransactions) !== 'undefined') {
-    const results = checkImportedTransactions(importedTransactions, actualTransactions);
+    const errors = checkImportedOperations(importedTransactions, actualTransactions);
 
-    if (results.length > 0) {
+    // TODO: process the errors
+    // (e.g. save them in a file, perform some CI action, etc.)
+    if (errors.length > 0) {
       process.exit(1);
     }
   }

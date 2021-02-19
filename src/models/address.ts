@@ -11,7 +11,7 @@ class Address {
   index: number;
   balance: number;
   transactions: Transaction[];
-  rawTransactions: string;
+  rawTransactions: string; // TODO: perhaps not needed
   stats: Stats;
   ins: Operation[];
   outs: Operation[];

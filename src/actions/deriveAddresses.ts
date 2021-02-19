@@ -59,6 +59,10 @@ function getAddress(addressType: AddressType, xpub: string, account: number, ind
 }
 
 // infer address type from its syntax
+//
+// TODO: improve the prefix matching: make the expected prefix 
+// correspond to the actual type (currently, a `ltc1` prefix 
+// could match a native Bitcoin address type for instance)
 function getAddressType(address: string) {
   if (address.match('^(bc1|ltc1).*')) {
     return AddressType.NATIVE;
