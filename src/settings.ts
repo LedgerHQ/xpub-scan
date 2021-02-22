@@ -9,9 +9,12 @@ const VERBOSE = false;
 // CHECK BALANCES
 // --------------
 
-const BITCOIN_API = 'https://sochain.com/api/v2/address/BTC/';
+// Providers
+// (use {address} as a placeholder for the address)
 
-const LITECOIN_API = 'https://sochain.com/api/v2/address/LTC/';
+const DEFAULT_BITCOIN_API = 'https://sochain.com/api/v2/address/BTC/';
+
+const DEFAULT_LITECOIN_API = 'https://sochain.com/api/v2/address/LTC/';
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
@@ -72,8 +75,8 @@ export enum AddressType {
 Object.freeze(AddressType);
 
 export {
-  BITCOIN_API,
-  LITECOIN_API,
+  DEFAULT_BITCOIN_API,
+  DEFAULT_LITECOIN_API,
   MAX_EXPLORATION,
   VERBOSE,
   BITCOIN_NETWORK,

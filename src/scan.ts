@@ -39,6 +39,10 @@ const address = args.address
 const xpub = String(args._[0]);
 checkXpub(xpub);
 
+// TODO
+const api_key = process.env["XPUB_SCAN_API_KEY"];
+const api_url = process.env["XPUB_SCAN_API_URL"];
+
 // TODO: remove once stable enough
 function displayWarning() {
   console.log(

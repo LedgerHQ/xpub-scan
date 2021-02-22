@@ -1,18 +1,18 @@
-import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, network } from "../settings";
+import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, network, DEFAULT_BITCOIN_API, DEFAULT_LITECOIN_API } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
 import { Operation } from "../models/operation"
 
-import * as bitcoin from "../coins/bitcoin";
-import * as litecoin from "../coins/litecoin";
+import * as defaultProvider from "../api/defaultProvider";
 
 function getStats(address: Address) {
+    // TODO: dispatch default v. alternative provider
     switch(network.type) {
         case BITCOIN_NETWORK:
-            bitcoin.getStats(address);
+            defaultProvider.getStats(address, DEFAULT_BITCOIN_API);
             break;
         case LITECOIN_NETWORK:
-            litecoin.getStats(address);
+            defaultProvider.getStats(address, DEFAULT_LITECOIN_API);
             break;
     }
 }
@@ -26,12 +26,12 @@ function getTransactions(address: Address, ownAddresses: OwnAddresses) {
 // get and transform raw transactions associated with an address
 // into an array of processed transactions
 function preprocessTransactions(address: Address) {
+    // TODO: dispatch default v. alternative provider
     switch(network.type) {
         case BITCOIN_NETWORK:
-            bitcoin.getTransactions(address);
-            break;
+            /* fallthrough */
         case LITECOIN_NETWORK:
-            litecoin.getTransactions(address);
+            defaultProvider.getTransactions(address);
             break;
     }
 }

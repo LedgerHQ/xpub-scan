@@ -1,7 +1,7 @@
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
-import { BITCOIN_API } from "../settings";
+import { DEFAULT_BITCOIN_API } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
@@ -26,16 +26,10 @@ interface RawTransaction {
     };
 }
 
-// Note: Bitcoin and Litecoin are currently identically implemented
-//       because they are using the same API.
-//       However, in the future this may change. Therefore, each coin
-//       should have its own implementation.
-
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-function getStats(address: Address) {
-    const url = BITCOIN_API.concat(address.toString());
-    const res = helpers.getJSON(url);
+function getStats(address: Address, url: string) {
+    const res = helpers.getJSON(url.concat(address.toString()));
     
     // TODO: check potential errors here (API returning invalid data...)
     const funded_sum = parseFloat(res.data.received_value);
