@@ -75,9 +75,11 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   }
   
   // process transactions
+  display.transientLine(chalk.yellowBright('Processing transactions...'));
   addresses.forEach(address => {
     getTransactions(address, ownAddresses);
   });
+  display.transientLine(/* delete address */);
 
   display.logStatus(addressType.concat(" addresses scanned\n"));
   

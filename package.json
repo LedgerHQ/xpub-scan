@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/LedgerHQ/xpub-scan#readme",
   "dependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/lodash": "^4.14.168",
     "@types/yargs": "^16.0.0",
     "bitcoinjs-lib": "^5.2.0",

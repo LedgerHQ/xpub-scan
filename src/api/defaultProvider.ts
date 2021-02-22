@@ -1,7 +1,7 @@
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
-import { DEFAULT_BITCOIN_API } from "../settings";
+import { configuration } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
@@ -28,8 +28,12 @@ interface RawTransaction {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-function getStats(address: Address, url: string) {
-    const res = helpers.getJSON(url.concat(address.toString()));
+function getStats(address: Address, coin: string) {
+    const url = configuration.BaseURL
+                .replace('{coin}', coin)
+                .replace('{address}', address.toString());
+
+    const res = helpers.getJSON(url);
     
     // TODO: check potential errors here (API returning invalid data...)
     const funded_sum = parseFloat(res.data.received_value);
@@ -38,6 +42,7 @@ function getStats(address: Address, url: string) {
     
     address.setStats(res.data.total_txs, funded_sum, spent_sum);
     address.setBalance(balance);
+
     address.setRawTransactions(JSON.stringify(res.data.txs));
 }
 
@@ -90,7 +95,7 @@ function getTransactions(address: Address) {
         )
         
     });
-    
+
     address.setTransactions(transactions);
 }
 

@@ -1,5 +1,6 @@
 // @ts-ignore
 import coininfo from "coininfo";
+import * as dotenv from "dotenv";
 
 // GENERAL
 // -------
@@ -12,9 +13,7 @@ const VERBOSE = false;
 // Providers
 // (use {address} as a placeholder for the address)
 
-const DEFAULT_BITCOIN_API = 'https://sochain.com/api/v2/address/BTC/';
-
-const DEFAULT_LITECOIN_API = 'https://sochain.com/api/v2/address/LTC/';
+const DEFAULT_API_URL = 'https://sochain.com/api/v2/address/{coin}/{address}';
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
@@ -59,9 +58,6 @@ const DERIVATION_SCOPE = {
 // DERIVATION PARAMETERS
 // ---------------------
 
-export const network = {type: undefined};
-
-
 const BITCOIN_NETWORK = coininfo.bitcoin.main.toBitcoinJS()
 
 const LITECOIN_NETWORK = coininfo.litecoin.main.toBitcoinJS();
@@ -74,9 +70,16 @@ export enum AddressType {
 
 Object.freeze(AddressType);
 
+dotenv.config();
+export const configuration = {
+  network: undefined, 
+  BaseURL: process.env.API_URL || DEFAULT_API_URL,
+  APIKey: process.env.API_KEY,
+  providerType: process.env.API_PROVIDER || 'default'
+};
+
 export {
-  DEFAULT_BITCOIN_API,
-  DEFAULT_LITECOIN_API,
+  DEFAULT_API_URL,
   MAX_EXPLORATION,
   VERBOSE,
   BITCOIN_NETWORK,

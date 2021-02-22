@@ -1,18 +1,30 @@
-import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, network, DEFAULT_BITCOIN_API, DEFAULT_LITECOIN_API } from "../settings";
+import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, configuration } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
 import { Operation } from "../models/operation"
 
 import * as defaultProvider from "../api/defaultProvider";
+import * as alternativeProvider from "../api/alternativeProvider";
 
 function getStats(address: Address) {
-    // TODO: dispatch default v. alternative provider
-    switch(network.type) {
-        case BITCOIN_NETWORK:
-            defaultProvider.getStats(address, DEFAULT_BITCOIN_API);
+    const network = configuration.network;
+
+    switch(configuration.providerType) {
+        case 'default':
+            if (network === BITCOIN_NETWORK) {
+                defaultProvider.getStats(address, 'BTC');
+            }
+            else if (network === LITECOIN_NETWORK) {
+                defaultProvider.getStats(address, 'LTC');
+            }
             break;
-        case LITECOIN_NETWORK:
-            defaultProvider.getStats(address, DEFAULT_LITECOIN_API);
+        default:
+            if (network === BITCOIN_NETWORK) {
+                alternativeProvider.getStats(address, 'btc');
+            }
+            else if (network === LITECOIN_NETWORK) {
+                alternativeProvider.getStats(address, 'ltc');
+            }
             break;
     }
 }
@@ -26,12 +38,19 @@ function getTransactions(address: Address, ownAddresses: OwnAddresses) {
 // get and transform raw transactions associated with an address
 // into an array of processed transactions
 function preprocessTransactions(address: Address) {
-    // TODO: dispatch default v. alternative provider
-    switch(network.type) {
-        case BITCOIN_NETWORK:
-            /* fallthrough */
-        case LITECOIN_NETWORK:
+    const network = configuration.network;
+
+    switch(configuration.providerType) {
+        case 'default':
             defaultProvider.getTransactions(address);
+            break;
+        default:
+            if (network === BITCOIN_NETWORK) {
+                alternativeProvider.getTransactions(address, 'btc');
+            }
+            else if (network === LITECOIN_NETWORK) {
+                alternativeProvider.getTransactions(address, 'ltc');
+            }
             break;
     }
 }

@@ -10,7 +10,7 @@ function convertUnits(amount: number) {
   // changes, it would allow to change the unit
   // depending on the network.
   // For example:
-  // if (network.type === BITCOIN_NETWORK) {
+  // if (configuration.network === BITCOIN_NETWORK) {
   //   return sb.toBitcoin(amount);
   // }
   if (amount === 0) {

@@ -3,14 +3,25 @@ import request from "sync-request";
 import * as bip32 from 'bip32';
 import chalk from "chalk";
 
-import { BITCOIN_NETWORK, LITECOIN_NETWORK, network } from "./settings";
-import { transientLine } from "./display";
+import { 
+  BITCOIN_NETWORK, 
+  LITECOIN_NETWORK,
+  configuration 
+} from "./settings";
 
 // TODO: properly rework this function
-function getJSON(url: string, attempts = 0) {
-  const res = request('GET', url);
+function getJSON(url: string, APIKey?: string) {
+  let headers = {};
 
-  if (attempts > 5) {
+  if (APIKey !== undefined) {
+    headers = {
+      'X-API-Key': APIKey
+    }
+  }
+
+  const res = request('GET', url, {headers: headers} );
+
+  if (res.statusCode !== 200) {
     console.log(chalk.red('GET request error'));
     throw new Error(
       "GET REQUEST ERROR: "
@@ -18,12 +29,6 @@ function getJSON(url: string, attempts = 0) {
         .concat(", Status Code: ")
         .concat(String(res.statusCode))
       );
-  }
-
-  if (res.statusCode !== 200) {
-    transientLine(chalk.red('GET request error'));
-    attempts++;
-    getJSON(url, attempts);
   }
 
   return JSON.parse(res.getBody('utf-8'));
@@ -37,24 +42,26 @@ function checkXpub(xpub: string) {
   const prefix = xpub.substring(0, 4);
 
   if (prefix === 'xpub') {
-    network.type = BITCOIN_NETWORK;
+    configuration.network = BITCOIN_NETWORK;
   }
   else if (prefix === 'Ltub') {
-    network.type = LITECOIN_NETWORK;
+    configuration.network = LITECOIN_NETWORK;
   }
   else {
     throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
   }
 
   try {
-    bip32.fromBase58(xpub, network.type);
+    bip32.fromBase58(xpub, configuration.network);
   }
   catch (e) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
   }
+
+  console.log('Using ' + configuration.providerType + ' API');
 }
 
 export {
-  checkXpub,
-  getJSON
+  getJSON,
+  checkXpub
 }
