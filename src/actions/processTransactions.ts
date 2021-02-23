@@ -1,19 +1,35 @@
-import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, network } from "../settings";
+import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, configuration } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { Operation } from "../models/operation"
+import { Operation, OperationType } from "../models/operation"
 
-import * as bitcoin from "../coins/bitcoin";
-import * as litecoin from "../coins/litecoin";
+import * as defaultProvider from "../api/defaultProvider";
+import * as customProvider from "../api/customProvider";
 
 function getStats(address: Address) {
-    switch(network.type) {
-        case BITCOIN_NETWORK:
-            bitcoin.getStats(address);
+    const network = configuration.network;
+
+    switch(configuration.providerType) {
+        case 'default':
+            if (network === BITCOIN_NETWORK) {
+                defaultProvider.getStats(address, 'BTC');
+            }
+            else if (network === LITECOIN_NETWORK) {
+                defaultProvider.getStats(address, 'LTC');
+            }
             break;
-        case LITECOIN_NETWORK:
-            litecoin.getStats(address);
+
+        case 'custom':
+            if (network === BITCOIN_NETWORK) {
+                customProvider.getStats(address, 'btc');
+            }
+            else if (network === LITECOIN_NETWORK) {
+                customProvider.getStats(address, 'ltc');
+            }
             break;
+
+        default:
+            throw new Error("Should not be reachable: providerType should be 'default' or 'custom'");
     }
 }
 
@@ -26,13 +42,17 @@ function getTransactions(address: Address, ownAddresses: OwnAddresses) {
 // get and transform raw transactions associated with an address
 // into an array of processed transactions
 function preprocessTransactions(address: Address) {
-    switch(network.type) {
-        case BITCOIN_NETWORK:
-            bitcoin.getTransactions(address);
+    switch(configuration.providerType) {
+        case 'default':
+            defaultProvider.getTransactions(address);
             break;
-        case LITECOIN_NETWORK:
-            litecoin.getTransactions(address);
+
+        case 'custom':
+            customProvider.getTransactions(address);
             break;
+
+        default:
+            throw new Error("Should not be reachable: providerType should be 'default' or 'custom'");
     }
 }
 
@@ -50,7 +70,7 @@ function processFundedTransactions(address: Address) {
             const op = new Operation(tx.date, tx.ins[0].amount);
             op.setTxid(tx.txid);
             op.setBlockNumber(tx.blockHeight);
-            op.setAsIn();
+            op.setType(OperationType.In)
 
             address.addFundedOperation(op);
         }
@@ -76,12 +96,20 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
                 const op = new Operation(tx.date, out.amount);
                 op.setTxid(tx.txid);
 
-                // self sent: sent to an address belonging to the same xpub
-                // while not being a change address
-                op.setSelf(externalAddresses.includes(out.address));
+                if (out.address === address.toString()) {
+                    // sent to self: sent to same address
+                    op.setType(OperationType.Out_Self);
+                }
+                else if (externalAddresses.includes(out.address)) {
+                    // sent to a sibling: sent to an address belonging to the same xpub
+                    // while not being a change address
+                    op.setType(OperationType.Out_Sibling);
+                }
+                else {
+                    op.setType(OperationType.Out);
+                }
 
                 op.setBlockNumber(tx.blockHeight);
-                op.setAsOut();
 
                 address.addSentOperation(op);
             }
@@ -92,6 +120,29 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
     if (VERBOSE) {
         console.log('SENT\t', address.getSpentOperations());
     }
+}
+
+// sort by block number and, _then, if needed_, by date
+function compareOpsByBlockThenDate(A: Operation, B: Operation){
+    // block number
+    if (A.block > B.block) {
+        return -1;
+    }
+
+    if (A.block < B.block) {
+        return 1;
+    }
+
+    // date
+    if (A.date > B.date) {
+        return -1;
+    }
+
+    if (A.date < B.date) {
+        return 1;
+    }
+
+    return 0;
 }
 
 // Sort transactions by date
@@ -120,7 +171,7 @@ function getSortedOperations(...addresses: any) : Operation[] {
     });
   
     // reverse chronological order
-    operations.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0);
+    operations.sort(compareOpsByBlockThenDate);
 
     return operations;
 }

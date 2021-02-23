@@ -1,10 +1,10 @@
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
-import { BITCOIN_API } from "../settings";
+import { configuration } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
-import { Operation } from "../models/operation";
+import { Operation, OperationType } from "../models/operation";
 
 interface RawTransaction {
     txid: string;
@@ -13,37 +13,36 @@ interface RawTransaction {
     time: number;
     incoming: {
         value: string;
-        inputs: Array<{
+        inputs: {
             address: string;
-        }>;
+        }[];
     };
     outgoing: {
         value: string;
-        outputs: Array<{
+        outputs: {
             address: string;
             value: string;
-        }>
+        }[];
     };
 }
 
-// Note: Bitcoin and Litecoin are currently identically implemented
-//       because they are using the same API.
-//       However, in the future this may change. Therefore, each coin
-//       should have its own implementation.
-
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-function getStats(address: Address) {
-    const url = BITCOIN_API.concat(address.toString());
+function getStats(address: Address, coin: string) {
+    const url = configuration.BaseURL
+                .replace('{coin}', coin)
+                .replace('{address}', address.toString());
+
     const res = helpers.getJSON(url);
     
     // TODO: check potential errors here (API returning invalid data...)
-    const funded_sum = parseFloat(res.data.received_value);
+    const fundedSum = parseFloat(res.data.received_value);
     const balance = parseFloat(res.data.balance);
-    const spent_sum = funded_sum - balance;
+    const spentSum = fundedSum - balance;
     
-    address.setStats(res.data.total_txs, funded_sum, spent_sum);
+    address.setStats(res.data.total_txs, fundedSum, spentSum);
     address.setBalance(balance);
+
     address.setRawTransactions(JSON.stringify(res.data.txs));
 }
 
@@ -62,22 +61,22 @@ function getTransactions(address: Address) {
         let outs: Operation[] = [];
         
         if (typeof(tx.incoming) !== 'undefined') {   
-            tx.incoming.inputs.forEach(vin => {
+            tx.incoming.inputs.forEach(txin => {
                 const op = new Operation(String(tx.time), parseFloat(tx.incoming.value));
-                op.setAddress(vin.address);
+                op.setAddress(txin.address);
                 op.setTxid(tx.txid);
-                op.setAsIn();
+                op.setType(OperationType.In)
 
                 ins.push(op);
             })
         }
         
         if (typeof(tx.outgoing) !== 'undefined') {
-            tx.outgoing.outputs.forEach(vout => {  
-                const op = new Operation(String(tx.time), parseFloat(vout.value));
-                op.setAddress(vout.address);
+            tx.outgoing.outputs.forEach(txout => {  
+                const op = new Operation(String(tx.time), parseFloat(txout.value));
+                op.setAddress(txout.address);
                 op.setTxid(tx.txid);
-                op.setAsOut();
+                op.setType(OperationType.Out)
 
                 outs.push(op);
             })
@@ -96,7 +95,7 @@ function getTransactions(address: Address) {
         )
         
     });
-    
+
     address.setTransactions(transactions);
 }
 

@@ -1,16 +1,16 @@
 import * as bjs from "bitcoinjs-lib";
 import * as bip32 from 'bip32';
 
-import { AddressType, network } from "../settings";
+import { AddressType, configuration } from "../settings";
 
 // derive legacy address at account and index positions
 function getLegacyAddress(xpub: string, account: number, index: number) : string {
   const { address } = bjs.payments.p2pkh({
     pubkey: bip32
-      .fromBase58(xpub, network.type)
+      .fromBase58(xpub, configuration.network)
       .derive(account)
       .derive(index).publicKey,
-    network: network.type
+    network: configuration.network
   });
   
   return String(address);
@@ -20,10 +20,10 @@ function getLegacyAddress(xpub: string, account: number, index: number) : string
 function getNativeSegWitAddress(xpub: string, account: number, index: number) : string {
   const { address } = bjs.payments.p2wpkh({
     pubkey: bip32
-      .fromBase58(xpub, network.type)
+      .fromBase58(xpub, configuration.network)
       .derive(account)
       .derive(index).publicKey,
-    network: network.type
+    network: configuration.network
   });
   
   return String(address);
@@ -34,10 +34,10 @@ function getSegWitAddress(xpub: string, account: number, index: number) : string
   const { address } = bjs.payments.p2sh({
     redeem: bjs.payments.p2wpkh({
       pubkey: bip32
-        .fromBase58(xpub, network.type)
+        .fromBase58(xpub, configuration.network)
         .derive(account)
         .derive(index).publicKey,
-      network: network.type
+      network: configuration.network
     }),
   });
   

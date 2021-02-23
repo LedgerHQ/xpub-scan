@@ -75,7 +75,7 @@ Run: `$ docker run xpubscan <xpub> [optional: <args>]`
 ### Check Balance
 When an analysis is performed, 3 elements are displayed in the following order:
 * The analysis of each derived active address (type, path, address, current balance, total in `←`, total out `→`)
-* The transactions ordered by date (date, block number, address, in `←` | out `→` | sent to self `↺`)
+* The transactions ordered by date (date, block number, address, in `←` | out `→` | sent to self `⮂` | sent to sibling `↺`)
 * A summary: total number of transactions and total balance by address type
 
 ### Xpub and Address Comparison
@@ -83,6 +83,16 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 
 ## Configure
 
+### Change Settings
+
 1. Modify `./src/settings.ts`
 2. rebuild the tool: `$ tsc -p .`
-3. Re-run it: `$ node build/scan.js <xpub>...`
+3. Re-run it: `$ node build/scan.js <xpub> …`
+
+### Change External Provider
+
+1. At the root of the project, rename `.env.template` to `.env`
+2. In `.env`, set the `API_URL` as well as your `API_KEY` (following the structure provided by the `.env.template`)
+3. rebuild the tool: `$ tsc -p .`
+4. Re-run it: `$ node build/scan.js <xpub> …`
+5. Ensure that, when running the tool, it shows that the *custom* provider is being used

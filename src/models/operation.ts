@@ -4,7 +4,9 @@
 
 export enum OperationType {
     In,
-    Out
+    Out,
+    Out_Self,
+    Out_Sibling
 }
 
 class Operation {
@@ -15,21 +17,17 @@ class Operation {
     address: string;
     amount: number;
 
-    // self sent (sent to non-change address belonging to same xpub)
+    // self sent (sent to same address)
     self: boolean; 
+
+    // sent to non-change address belonging to same xpub
+    sentToSibling: boolean;
 
     constructor(date: string, amount: number) {
         this.date = date;
         this.amount = amount;
         this.self = false;
-    }
-
-    setAsIn() {
-        this.type = OperationType.In;
-    }
-
-    setAsOut() {
-        this.type = OperationType.Out;
+        this.sentToSibling=false;
     }
 
     setTxid(txid: string) {
@@ -56,12 +54,12 @@ class Operation {
         return this.address;
     }
 
-    setSelf(selfStatus: boolean) {
-        this.self = selfStatus;
+    setType(operationType: OperationType) {
+        this.type = operationType;
     }
 
-    isSelf() {
-        return this.self;
+    getType() {
+        return this.type
     }
 }
 
