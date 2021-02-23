@@ -58,7 +58,17 @@ function checkXpub(xpub: string) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
   }
 
-  console.log('Using ' + configuration.providerType + ' API');
+  if (typeof(configuration.APIKey) !== 'undefined' && configuration.APIKey.length > 0) {
+    configuration.providerType = 'custom';
+  }
+
+  console.log(
+    chalk.grey(
+      '(Data fetched from '
+      .concat(chalk.bold(configuration.providerType))
+      .concat(' provider)')
+    )
+  );
 }
 
 export {

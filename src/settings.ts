@@ -11,7 +11,7 @@ const VERBOSE = false;
 // --------------
 
 // Providers
-// (use {address} as a placeholder for the address)
+// (use {coin} and {address} as placeholders for the coin name and the address)
 
 const DEFAULT_API_URL = 'https://sochain.com/api/v2/address/{coin}/{address}';
 
@@ -75,7 +75,7 @@ export const configuration = {
   network: undefined, 
   BaseURL: process.env.API_URL || DEFAULT_API_URL,
   APIKey: process.env.API_KEY,
-  providerType: process.env.API_PROVIDER || 'default'
+  providerType: 'default'
 };
 
 export {

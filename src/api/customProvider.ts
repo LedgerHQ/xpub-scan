@@ -13,14 +13,14 @@ interface RawTransaction {
     timestamp: number;
     amount: string;
     fees: string;
-    txins: Array<{
+    txins: {
         amount: string;
         addresses: string[];
-    }>;
-    txouts: Array<{
+    }[];
+    txouts: {
         amount: string;
         addresses: string[];
-    }>;
+    }[];
 }
 
 // returns the basic stats related to an address:
@@ -33,11 +33,11 @@ function getStats(address: Address, coin: string) {
     const res = helpers.getJSON(url, configuration.APIKey);
     
     // TODO: check potential errors here (API returning invalid data...)
-    const funded_sum = parseFloat(res.payload.totalReceived);
+    const fundedSum = parseFloat(res.payload.totalReceived);
+    const spentSum = parseFloat(res.payload.totalSpent);
     const balance = parseFloat(res.payload.balance);
-    const spent_sum = parseFloat(res.payload.totalSpent);
-    
-    address.setStats(res.payload.txsCount, funded_sum, spent_sum);
+
+    address.setStats(res.payload.txsCount, fundedSum, spentSum);
     address.setBalance(balance);
 
     if (res.payload.txsCount > 0) {
@@ -56,27 +56,20 @@ function getStats(address: Address, coin: string) {
 // into an array of processed transactions:
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getTransactions(address: Address, coin: string) {
-    // 1. get raw transactions
-    // const url = configuration.BaseURL
-    //             .replace('{coin}', coin)
-    //             .replace('{address}', address.toString())
-    //             .concat('/transactions?index=0&limit=1000');
-                
-    // const rawTransactions = helpers.getJSON(url, configuration.APIKey);
     const rawTransactions = JSON.parse(address.getRawTransactions());
 
-    let transactions: Transaction[] = [];
+    const transactions: Transaction[] = [];
     
     rawTransactions.payload.forEach( (tx: RawTransaction) => {
-        let ins: Operation[] = [];
-        let outs: Operation[] = [];
+        const ins: Operation[] = [];
+        const outs: Operation[] = [];
         let operationType: OperationType = OperationType.In;
         let amount = 0.0;
 
         // 1. Detect operation type
         tx.txins.forEach(txin => {
             txin.addresses.forEach(inAddress => {
-                if (inAddress == address.toString()) {
+                if (inAddress === address.toString()) {
                     operationType = OperationType.Out;
                 }
             });
@@ -84,9 +77,10 @@ function getTransactions(address: Address, coin: string) {
 
         tx.txouts.forEach(txout => {  
             txout.addresses.forEach(outAddress => {
-                if (outAddress == address.toString()) {
+                if (outAddress === address.toString()) {
                     operationType = OperationType.In;
-                    amount = parseFloat(txout.amount); // when in op, amount correspond to txout
+                    // when in op, amount correspond to txout
+                    amount = parseFloat(txout.amount); 
                 }
             });
         });

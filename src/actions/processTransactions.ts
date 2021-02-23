@@ -4,7 +4,7 @@ import { OwnAddresses } from "../models/ownAddresses"
 import { Operation } from "../models/operation"
 
 import * as defaultProvider from "../api/defaultProvider";
-import * as alternativeProvider from "../api/alternativeProvider";
+import * as customProvider from "../api/customProvider";
 
 function getStats(address: Address) {
     const network = configuration.network;
@@ -18,14 +18,18 @@ function getStats(address: Address) {
                 defaultProvider.getStats(address, 'LTC');
             }
             break;
-        default:
+
+        case 'custom':
             if (network === BITCOIN_NETWORK) {
-                alternativeProvider.getStats(address, 'btc');
+                customProvider.getStats(address, 'btc');
             }
             else if (network === LITECOIN_NETWORK) {
-                alternativeProvider.getStats(address, 'ltc');
+                customProvider.getStats(address, 'ltc');
             }
             break;
+
+        default:
+            throw new Error("Should not be reachable: providerType should be 'default' or 'custom'");
     }
 }
 
@@ -44,14 +48,18 @@ function preprocessTransactions(address: Address) {
         case 'default':
             defaultProvider.getTransactions(address);
             break;
-        default:
+
+        case 'custom':
             if (network === BITCOIN_NETWORK) {
-                alternativeProvider.getTransactions(address, 'btc');
+                customProvider.getTransactions(address, 'btc');
             }
             else if (network === LITECOIN_NETWORK) {
-                alternativeProvider.getTransactions(address, 'ltc');
+                customProvider.getTransactions(address, 'ltc');
             }
             break;
+
+        default:
+            throw new Error("Should not be reachable: providerType should be 'default' or 'custom'");
     }
 }
 

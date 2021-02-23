@@ -13,16 +13,16 @@ interface RawTransaction {
     time: number;
     incoming: {
         value: string;
-        inputs: Array<{
+        inputs: {
             address: string;
-        }>;
+        }[];
     };
     outgoing: {
         value: string;
-        outputs: Array<{
+        outputs: {
             address: string;
             value: string;
-        }>
+        }[];
     };
 }
 
@@ -36,11 +36,11 @@ function getStats(address: Address, coin: string) {
     const res = helpers.getJSON(url);
     
     // TODO: check potential errors here (API returning invalid data...)
-    const funded_sum = parseFloat(res.data.received_value);
+    const fundedSum = parseFloat(res.data.received_value);
     const balance = parseFloat(res.data.balance);
-    const spent_sum = funded_sum - balance;
+    const spentSum = fundedSum - balance;
     
-    address.setStats(res.data.total_txs, funded_sum, spent_sum);
+    address.setStats(res.data.total_txs, fundedSum, spentSum);
     address.setBalance(balance);
 
     address.setRawTransactions(JSON.stringify(res.data.txs));
@@ -61,9 +61,9 @@ function getTransactions(address: Address) {
         let outs: Operation[] = [];
         
         if (typeof(tx.incoming) !== 'undefined') {   
-            tx.incoming.inputs.forEach(vin => {
+            tx.incoming.inputs.forEach(txin => {
                 const op = new Operation(String(tx.time), parseFloat(tx.incoming.value));
-                op.setAddress(vin.address);
+                op.setAddress(txin.address);
                 op.setTxid(tx.txid);
                 op.setAsIn();
 
@@ -72,9 +72,9 @@ function getTransactions(address: Address) {
         }
         
         if (typeof(tx.outgoing) !== 'undefined') {
-            tx.outgoing.outputs.forEach(vout => {  
-                const op = new Operation(String(tx.time), parseFloat(vout.value));
-                op.setAddress(vout.address);
+            tx.outgoing.outputs.forEach(txout => {  
+                const op = new Operation(String(tx.time), parseFloat(txout.value));
+                op.setAddress(txout.address);
                 op.setTxid(tx.txid);
                 op.setAsOut();
 
