@@ -75,7 +75,7 @@ Run: `$ docker run xpubscan <xpub> [optional: <args>]`
 ### Check Balance
 When an analysis is performed, 3 elements are displayed in the following order:
 * The analysis of each derived active address (type, path, address, current balance, total in `←`, total out `→`)
-* The transactions ordered by date (date, block number, address, in `←` | out `→` | sent to self `↺`)
+* The transactions ordered by date (date, block number, address, in `←` | out `→` | sent to self `⮂` | sent to sibling `↺`)
 * A summary: total number of transactions and total balance by address type
 
 ### Xpub and Address Comparison

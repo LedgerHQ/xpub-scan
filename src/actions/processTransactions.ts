@@ -105,7 +105,8 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
 
                 // self sent: sent to an address belonging to the same xpub
                 // while not being a change address
-                op.setSelf(externalAddresses.includes(out.address));
+                op.setSibling(externalAddresses.includes(out.address));
+                op.setSelf(out.address === address.toString());
 
                 op.setBlockNumber(tx.blockHeight);
                 op.setAsOut();

@@ -15,13 +15,17 @@ class Operation {
     address: string;
     amount: number;
 
-    // self sent (sent to non-change address belonging to same xpub)
+    // self sent (sent to same address)
     self: boolean; 
+
+    // sent to non-change address belonging to same xpub
+    sentToSibling: boolean;
 
     constructor(date: string, amount: number) {
         this.date = date;
         this.amount = amount;
         this.self = false;
+        this.sentToSibling=false;
     }
 
     setAsIn() {
@@ -60,8 +64,16 @@ class Operation {
         this.self = selfStatus;
     }
 
-    isSelf() {
+    hasSentToSelf() {
         return this.self;
+    }
+
+    setSibling(sentToSibling: boolean) {
+        this.sentToSibling = sentToSibling;
+    }
+
+    hasSentToSibling() {
+        return this.sentToSibling;
     }
 }
 

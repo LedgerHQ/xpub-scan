@@ -3,6 +3,7 @@ import chalk from 'chalk';
 
 import { Address } from './models/address'
 import { OperationType, Operation } from './models/operation'
+import { configuration } from './settings';
 
 function convertUnits(amount: number) {
   // Currently, this function does not convert the amounts
@@ -82,10 +83,16 @@ function updateAddressDetails(address: Address) {
 
 // display the list of operations sorted by date (reverse chronological order)
 function displayOperations(sortedOperations: Operation[]) {
-  console.log(chalk.bold('Operations History').concat(chalk.redBright(' (only the last ~50 operations by address are displayed)\n')));
+  process.stdout.write(chalk.bold('Operations History'))
+
+  if (typeof(configuration.APIKey) === 'undefined') {
+    process.stdout.write(
+      chalk.redBright(' (only the last ~50 operations by address are displayed)\n')
+      )
+  }
   
   const header =
-  'date\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (↺)';
+  'date\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (⮂) or sibling (↺)';
   console.log(chalk.grey(header));
   
   sortedOperations.forEach(op => {    
@@ -110,12 +117,31 @@ function displayOperations(sortedOperations: Operation[]) {
         .concat(' ←');
     }
     else {
-      // ... -{amount} ↺|→
+      // ... -{amount} →|↔|↺
       status = 
         status
         .concat('-')
         .concat(amount)
-        .concat(op.self ? ' ↺' : ' →')
+
+        if (op.hasSentToSelf()) {
+          // case 1. Sent to the same address
+          status = 
+            status
+            .concat(' ⮂');
+        }
+        else if (op.hasSentToSibling()) {
+          // case 2. Sent to a sibling address
+          // (different non-change address belonging to same xpub)
+          status = 
+            status
+            .concat(' ↺');
+        }
+        else {
+          // case 3. Sent to external address
+          status = 
+            status
+            .concat(' →');
+        }
     }
     
     console.log(status);

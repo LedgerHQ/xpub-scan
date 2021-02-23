@@ -4,7 +4,7 @@ import * as helpers from "../helpers";
 import { configuration } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
-import { OperationType, Operation } from "../models/operation";
+import { Operation } from "../models/operation";
 
 interface RawTransaction {
     txid: string;
@@ -41,12 +41,35 @@ function getStats(address: Address, coin: string) {
     address.setBalance(balance);
 
     if (res.payload.txsCount > 0) {
-        const getTxsURL = configuration.BaseURL
+        const getTxsURLTemplate = configuration.BaseURL
             .replace('{coin}', coin)
             .replace('{address}', address.toString())
-            .concat('/transactions?index=0&limit=1000');
+            .concat('/transactions?index={index}&limit={limit}')
 
-        const rawTransactions = helpers.getJSON(getTxsURL, configuration.APIKey);
+        let payloads = [];
+        let index = 0;
+        for (let limit = 100; /* continue until txs count is reached */; limit += 100) {
+
+            const getTxsURL = getTxsURLTemplate
+                .replace('{index}', String(index))
+                .replace('{limit}', String(limit));
+
+            const txs = helpers.getJSON(getTxsURL, configuration.APIKey);
+            const payload = txs.payload;
+            const txsCount = txs.meta.totalCount;
+
+            payloads.push(payload);
+
+            // when the limit includes the total number of transactions,
+            // no need to go further
+            if (limit > txsCount || payload.length === 0) {
+                break;
+            }
+
+            index += limit;
+        }
+
+        const rawTransactions = [].concat.apply([], payloads);
 
         address.setRawTransactions(JSON.stringify(rawTransactions));
     }
@@ -60,17 +83,18 @@ function getTransactions(address: Address, coin: string) {
 
     const transactions: Transaction[] = [];
     
-    rawTransactions.payload.forEach( (tx: RawTransaction) => {
+    rawTransactions.forEach( (tx: RawTransaction) => {
         const ins: Operation[] = [];
         const outs: Operation[] = [];
-        let operationType: OperationType = OperationType.In;
         let amount = 0.0;
+        let processIn: boolean = false;
+        let processOut: boolean = false;
 
         // 1. Detect operation type
         tx.txins.forEach(txin => {
             txin.addresses.forEach(inAddress => {
                 if (inAddress === address.toString()) {
-                    operationType = OperationType.Out;
+                    processOut = true;
                 }
             });
         });
@@ -78,14 +102,14 @@ function getTransactions(address: Address, coin: string) {
         tx.txouts.forEach(txout => {  
             txout.addresses.forEach(outAddress => {
                 if (outAddress === address.toString()) {
-                    operationType = OperationType.In;
                     // when in op, amount correspond to txout
                     amount = parseFloat(txout.amount); 
+                    processIn = true;
                 }
             });
         });
         
-        if (operationType === OperationType.In) {   
+        if (processIn) {   
             tx.txins.forEach(txin => {
                 txin.addresses.forEach(inAddress => {
                     const op = new Operation(String(tx.timestamp), amount);
@@ -97,7 +121,8 @@ function getTransactions(address: Address, coin: string) {
                 })
             })
         } 
-        else {
+       
+        if (processOut) {
             tx.txouts.forEach(txout => {  
                 txout.addresses.forEach(outAddress => {
                     const op = new Operation(String(tx.timestamp), parseFloat(txout.amount));
