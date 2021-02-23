@@ -48,7 +48,7 @@ function getStats(address: Address, coinDenomination: string) {
 
         // to handle large number of transactions by address, use the index+limit logic
         // offered by the custom provider
-        let payloads = [];
+        const payloads = [];
         let index = 0;
         for (let limit = 100; /* continue until txs count is reached */; limit += 100) {
 
@@ -94,24 +94,27 @@ function getTransactions(address: Address) {
         let processOut: boolean = false;
 
         // 1. Detect operation type
-        tx.txins.forEach(txin => {
-            txin.addresses.forEach(inAddress => {
+        for (const txin of tx.txins) {
+            for (const inAddress of txin.addresses) {
                 if (inAddress === address.toString()) {
                     processOut = true;
+                    break;
                 }
-            });
-        });
+            }
+        }
 
-        tx.txouts.forEach(txout => {  
-            txout.addresses.forEach(outAddress => {
+        for (const txout of tx.txouts) {
+            for (const outAddress of txout.addresses) {
                 if (outAddress === address.toString()) {
                     // when in op, amount correspond to txout
                     amount = parseFloat(txout.amount); 
                     processIn = true;
+                    break;
                 }
-            });
-        });
+            }
+        }
         
+        // 2. Process operations
         if (processIn) {   
             tx.txins.forEach(txin => {
                 txin.addresses.forEach(inAddress => {
