@@ -1,7 +1,7 @@
 import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, configuration } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { Operation } from "../models/operation"
+import { Operation, OperationType } from "../models/operation"
 
 import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
@@ -70,7 +70,7 @@ function processFundedTransactions(address: Address) {
             const op = new Operation(tx.date, tx.ins[0].amount);
             op.setTxid(tx.txid);
             op.setBlockNumber(tx.blockHeight);
-            op.setAsIn();
+            op.setType(OperationType.In)
 
             address.addFundedOperation(op);
         }
@@ -96,15 +96,20 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
                 const op = new Operation(tx.date, out.amount);
                 op.setTxid(tx.txid);
 
-                // sent to a sibling: sent to an address belonging to the same xpub
-                // while not being a change address
-                op.setSibling(externalAddresses.includes(out.address));
-
-                // sent to self
-                op.setSelf(out.address === address.toString());
+                if (out.address === address.toString()) {
+                    // sent to self: sent to same address
+                    op.setType(OperationType.Out_Self);
+                }
+                else if (externalAddresses.includes(out.address)) {
+                    // sent to a sibling: sent to an address belonging to the same xpub
+                    // while not being a change address
+                    op.setType(OperationType.Out_Sibling);
+                }
+                else {
+                    op.setType(OperationType.Out);
+                }
 
                 op.setBlockNumber(tx.blockHeight);
-                op.setAsOut();
 
                 address.addSentOperation(op);
             }

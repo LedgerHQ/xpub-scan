@@ -4,7 +4,9 @@
 
 export enum OperationType {
     In,
-    Out
+    Out,
+    Out_Self,
+    Out_Sibling
 }
 
 class Operation {
@@ -26,14 +28,6 @@ class Operation {
         this.amount = amount;
         this.self = false;
         this.sentToSibling=false;
-    }
-
-    setAsIn() {
-        this.type = OperationType.In;
-    }
-
-    setAsOut() {
-        this.type = OperationType.Out;
     }
 
     setTxid(txid: string) {
@@ -60,20 +54,12 @@ class Operation {
         return this.address;
     }
 
-    setSelf(selfStatus: boolean) {
-        this.self = selfStatus;
+    setType(operationType: OperationType) {
+        this.type = operationType;
     }
 
-    hasSentToSelf() {
-        return this.self;
-    }
-
-    setSibling(sentToSibling: boolean) {
-        this.sentToSibling = sentToSibling;
-    }
-
-    hasSentToSibling() {
-        return this.sentToSibling;
+    getType() {
+        return this.type
     }
 }
 

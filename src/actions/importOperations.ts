@@ -3,7 +3,7 @@ import chalk from 'chalk';
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
 
-import { Operation } from '../models/operation'
+import { Operation, OperationType } from '../models/operation'
 
 interface Txid {
     date: string,
@@ -65,7 +65,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
                 op.setAddress(recipient); // one address or several concatenated addresses
-                op.setAsIn();
+                op.setType(OperationType.In)
 
                 operations.push(op);
             }
@@ -73,7 +73,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
                 op.setAddress(sender); // one address or several concatenated addresses
-                op.setAsOut();
+                op.setType(OperationType.Out)
 
                 operations.push(op);
             }
@@ -111,7 +111,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
         if (type === 'IN') {
             const op = new Operation(date[0], amount);
             op.setTxid(txid);
-            op.setAsIn();
+            op.setType(OperationType.In)
 
             operations.push(op);
         }
@@ -122,7 +122,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
             // (otherwise, there would be floating number issues)
             const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
             op.setTxid(txid);
-            op.setAsOut();
+            op.setType(OperationType.Out)
 
             operations.push(op);
         }
@@ -389,6 +389,5 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
 
     return errors;
 }
-  
 
 export { importOperations, checkImportedOperations }

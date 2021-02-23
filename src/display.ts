@@ -127,13 +127,15 @@ function displayOperations(sortedOperations: Operation[]) {
         .concat('-')
         .concat(amount)
 
-        if (op.hasSentToSelf()) {
+        const operationType = op.getType();
+
+        if (operationType == OperationType.Out_Self) {
           // case 1. Sent to the same address
           status = 
             status
             .concat(' ⮂');
         }
-        else if (op.hasSentToSibling()) {
+        else if (operationType == OperationType.Out_Sibling) {
           // case 2. Sent to a sibling address
           // (different non-change address belonging to same xpub)
           status = 

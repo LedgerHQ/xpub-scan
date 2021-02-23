@@ -4,7 +4,7 @@ import * as helpers from "../helpers";
 import { configuration } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
-import { Operation } from "../models/operation";
+import { Operation, OperationType } from "../models/operation";
 
 interface RawTransaction {
     txid: string;
@@ -65,7 +65,7 @@ function getTransactions(address: Address) {
                 const op = new Operation(String(tx.time), parseFloat(tx.incoming.value));
                 op.setAddress(txin.address);
                 op.setTxid(tx.txid);
-                op.setAsIn();
+                op.setType(OperationType.In)
 
                 ins.push(op);
             })
@@ -76,7 +76,7 @@ function getTransactions(address: Address) {
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
                 op.setAddress(txout.address);
                 op.setTxid(tx.txid);
-                op.setAsOut();
+                op.setType(OperationType.Out)
 
                 outs.push(op);
             })
