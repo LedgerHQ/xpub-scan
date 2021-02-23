@@ -121,7 +121,7 @@ function displayOperations(sortedOperations: Operation[]) {
         .concat(' ←');
     }
     else {
-      // ... -{amount} →|↔|↺
+      // ... -{amount} →|⮂|↺
       status = 
         status
         .concat('-')
