@@ -106,7 +106,7 @@ function getTransactions(address: Address) {
         for (const txout of tx.txouts) {
             for (const outAddress of txout.addresses) {
                 if (outAddress === address.toString()) {
-                    // when in op, amount correspond to txout
+                    // when IN op, amount corresponds to txout
                     amount = parseFloat(txout.amount); 
                     processIn = true;
                     break;
