@@ -64,7 +64,7 @@ function checkXpub(xpub: string) {
 
   console.log(
     chalk.grey(
-      '(Data fetched from '
+      '(Data fetched from the '
       .concat(chalk.bold(configuration.providerType))
       .concat(' provider)')
     )
