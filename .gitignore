@@ -1,4 +1,5 @@
 .env
+.env.backup
 node_modules/
 build/
 .DS_Store

@@ -25,9 +25,9 @@ interface RawTransaction {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-function getStats(address: Address, coin: string) {
+function getStats(address: Address, coinDenomination: string) {
     const url = configuration.BaseURL
-                .replace('{coin}', coin)
+                .replace('{coin}', coinDenomination)
                 .replace('{address}', address.toString());
                 
     const res = helpers.getJSON(url, configuration.APIKey);
@@ -42,10 +42,12 @@ function getStats(address: Address, coin: string) {
 
     if (res.payload.txsCount > 0) {
         const getTxsURLTemplate = configuration.BaseURL
-            .replace('{coin}', coin)
+            .replace('{coin}', coinDenomination)
             .replace('{address}', address.toString())
             .concat('/transactions?index={index}&limit={limit}')
 
+        // to handle large number of transactions by address, use the index+limit logic
+        // offered by the custom provider
         let payloads = [];
         let index = 0;
         for (let limit = 100; /* continue until txs count is reached */; limit += 100) {
@@ -69,6 +71,7 @@ function getStats(address: Address, coin: string) {
             index += limit;
         }
 
+        // flatten the payloads
         const rawTransactions = [].concat.apply([], payloads);
 
         address.setRawTransactions(JSON.stringify(rawTransactions));
@@ -78,7 +81,7 @@ function getStats(address: Address, coin: string) {
 // transforms raw transactions associated with an address
 // into an array of processed transactions:
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
-function getTransactions(address: Address, coin: string) {
+function getTransactions(address: Address) {
     const rawTransactions = JSON.parse(address.getRawTransactions());
 
     const transactions: Transaction[] = [];

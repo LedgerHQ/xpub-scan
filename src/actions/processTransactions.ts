@@ -42,20 +42,13 @@ function getTransactions(address: Address, ownAddresses: OwnAddresses) {
 // get and transform raw transactions associated with an address
 // into an array of processed transactions
 function preprocessTransactions(address: Address) {
-    const network = configuration.network;
-
     switch(configuration.providerType) {
         case 'default':
             defaultProvider.getTransactions(address);
             break;
 
         case 'custom':
-            if (network === BITCOIN_NETWORK) {
-                customProvider.getTransactions(address, 'btc');
-            }
-            else if (network === LITECOIN_NETWORK) {
-                customProvider.getTransactions(address, 'ltc');
-            }
+            customProvider.getTransactions(address);
             break;
 
         default:
@@ -103,9 +96,11 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
                 const op = new Operation(tx.date, out.amount);
                 op.setTxid(tx.txid);
 
-                // self sent: sent to an address belonging to the same xpub
+                // sent to a sibling: sent to an address belonging to the same xpub
                 // while not being a change address
                 op.setSibling(externalAddresses.includes(out.address));
+
+                // sent to self
                 op.setSelf(out.address === address.toString());
 
                 op.setBlockNumber(tx.blockHeight);
@@ -120,6 +115,29 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
     if (VERBOSE) {
         console.log('SENT\t', address.getSpentOperations());
     }
+}
+
+// sort by block number and, _then, if needed_, by date
+function compareOpsByBlockThenDate(A: Operation, B: Operation){
+    // block number
+    if (A.block > B.block) {
+        return -1;
+    }
+
+    if (A.block < B.block) {
+        return 1;
+    }
+
+    // date
+    if (A.date > B.date) {
+        return -1;
+    }
+
+    if (A.date < B.date) {
+        return 1;
+    }
+
+    return 0;
 }
 
 // Sort transactions by date
@@ -148,7 +166,7 @@ function getSortedOperations(...addresses: any) : Operation[] {
     });
   
     // reverse chronological order
-    operations.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0);
+    operations.sort(compareOpsByBlockThenDate);
 
     return operations;
 }

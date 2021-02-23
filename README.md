@@ -87,12 +87,12 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 
 1. Modify `./src/settings.ts`
 2. rebuild the tool: `$ tsc -p .`
-3. Re-run it: `$ node build/scan.js <xpub>...`
+3. Re-run it: `$ node build/scan.js <xpub> …`
 
 ### Change External Provider
 
 1. At the root of the project, rename `.env.template` to `.env`
 2. In `.env`, set the `API_URL` as well as your `API_KEY`
 3. rebuild the tool: `$ tsc -p .`
-4. Re-run it: `$ node build/scan.js <xpub>...`
+4. Re-run it: `$ node build/scan.js <xpub> …`
 5. Ensure that, when running the tool, it show that the *custom* provider is being used

@@ -171,7 +171,7 @@ function importOperations(path: string) : Operation[] {
 }
 
 // sort by amount and, _then, if needed_, by address
-function compareOperations(A: Operation, B: Operation){
+function compareOpsByAmountThenAddress(A: Operation, B: Operation){
     // amount
     if (A.amount > B.amount) {
         return -1;
@@ -352,8 +352,8 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
         }
 
         // sort both arrays of operations to ease the comparison
-        importedOps.sort(compareOperations);
-        actualOps.sort(compareOperations);
+        importedOps.sort(compareOpsByAmountThenAddress);
+        actualOps.sort(compareOpsByAmountThenAddress);
 
         // Math.max(...) used here because the imported and actual arrays do not
         // necessarily have the same size (i.e. missing operations)

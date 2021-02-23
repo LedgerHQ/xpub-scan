@@ -86,13 +86,17 @@ function displayOperations(sortedOperations: Operation[]) {
   process.stdout.write(chalk.bold('Operations History'))
 
   if (typeof(configuration.APIKey) === 'undefined') {
+    // warning related to the limitations of the default provider
     process.stdout.write(
       chalk.redBright(' (only the last ~50 operations by address are displayed)\n')
       )
   }
+  else {
+    process.stdout.write('\n');
+  }
   
   const header =
-  'date\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (⮂) or sibling (↺)';
+  '\ndate\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (⮂) or sibling (↺)';
   console.log(chalk.grey(header));
   
   sortedOperations.forEach(op => {    
