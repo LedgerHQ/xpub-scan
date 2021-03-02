@@ -64,7 +64,13 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
             if (type === 'CREDIT') {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
-                op.setAddress(recipient); // one address or several concatenated addresses
+
+                // recipient: one address or several concatenated addresses
+                // ! for this type of CSV, this field is required and should 
+                // default to a non-empty string (here: `(no address)`) to 
+                // ensure that an operation without address results in a mismatch
+                op.setAddress(recipient || '(no address)'); 
+                                                            
                 op.setType(OperationType.In)
 
                 operations.push(op);
@@ -72,7 +78,13 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
             else if (type === 'DEBIT') {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
-                op.setAddress(sender); // one address or several concatenated addresses
+
+                // sender: one address or several concatenated addresses
+                // ! for this type of CSV, this field is required and should 
+                // default to a non-empty string (here: `(no address)`) to 
+                // ensure that an operation without address results in a mismatch
+                op.setAddress(sender || '(no address)');
+
                 op.setType(OperationType.Out)
 
                 operations.push(op);
