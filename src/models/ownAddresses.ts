@@ -31,7 +31,7 @@ class OwnAddresses {
       return this.external;
     }
 
-    getAllAddress() {
+    getAllAddresses() {
       return this.internal.concat(this.external);
     }
 }

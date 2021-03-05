@@ -60,7 +60,7 @@ function preprocessTransactions(address: Address) {
 function processFundedTransactions(address: Address, ownAddresses: OwnAddresses) {
 
     const transactions = address.getTransactions();
-    const allOwnAddresses = ownAddresses.getAllAddress();
+    const allOwnAddresses = ownAddresses.getAllAddresses();
     const accountNumber = address.getDerivation().account;
     
     for (const tx of transactions) {
