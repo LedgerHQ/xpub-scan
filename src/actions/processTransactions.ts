@@ -61,12 +61,15 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
 
     const transactions = address.getTransactions();
     const allOwnAddresses = ownAddresses.getAllAddress();
+    const accountNumber = address.getDerivation().account;
     
     for (const tx of transactions) {
         if (typeof(tx.ins) !== 'undefined' && tx.ins.length > 0) {
 
-            // if account is internal, return if sender is a sibling
-            if (address.getDerivation().account === 1) {
+            // if account is internal (i.e., 1), and
+            //     - has a sibling as sender: return (expected behavior: sent to change)
+            //     - has no sibling as sender: process the operation (edge case: non-sibling to change)
+            if (accountNumber === 1) {
                 for (let txin of tx.ins) {
                     if (allOwnAddresses.includes(txin.address)) {
                         return;
@@ -77,7 +80,7 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
             const op = new Operation(tx.date, tx.ins[0].amount);
             op.setTxid(tx.txid);
             op.setBlockNumber(tx.blockHeight);
-            op.setType(address.getDerivation().account !== 1 ? OperationType.In : OperationType.InChange)
+            op.setType(accountNumber !== 1 ? OperationType.In : OperationType.InChange)
     
             address.addFundedOperation(op);
         }
