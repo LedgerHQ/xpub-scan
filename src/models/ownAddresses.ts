@@ -30,6 +30,10 @@ class OwnAddresses {
     getExternalAddresses() {
       return this.external;
     }
+
+    getAllAddress() {
+      return this.internal.concat(this.external);
+    }
 }
 
 export { OwnAddresses }

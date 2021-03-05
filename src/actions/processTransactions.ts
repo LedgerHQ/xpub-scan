@@ -35,7 +35,7 @@ function getStats(address: Address) {
 
 function getTransactions(address: Address, ownAddresses: OwnAddresses) {
     preprocessTransactions(address);
-    processFundedTransactions(address);
+    processFundedTransactions(address, ownAddresses);
     processSentTransactions(address, ownAddresses);
 }
 
@@ -57,24 +57,31 @@ function preprocessTransactions(address: Address) {
 }
 
 // process amounts received
-function processFundedTransactions(address: Address) {
-    // if change address: no funded transactions
-    if (address.getDerivation().account === 1) {
-        return;
-    }
-    
+function processFundedTransactions(address: Address, ownAddresses: OwnAddresses) {
+
     const transactions = address.getTransactions();
+    const allOwnAddresses = ownAddresses.getAllAddress();
     
-    transactions.forEach(tx => {
+    for (const tx of transactions) {
         if (typeof(tx.ins) !== 'undefined' && tx.ins.length > 0) {
+
+            // if account is internal, return if sender is a sibling
+            if (address.getDerivation().account === 1) {
+                for (let txin of tx.ins) {
+                    if (allOwnAddresses.includes(txin.address)) {
+                        return;
+                    }
+                }
+            }
+                
             const op = new Operation(tx.date, tx.ins[0].amount);
             op.setTxid(tx.txid);
             op.setBlockNumber(tx.blockHeight);
-            op.setType(OperationType.In)
-
+            op.setType(address.getDerivation().account !== 1 ? OperationType.In : OperationType.InChange)
+    
             address.addFundedOperation(op);
         }
-    })
+    }
         
     if (VERBOSE) {
         console.log('FUNDED\t', address.getFundedOperations());

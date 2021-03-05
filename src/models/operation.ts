@@ -4,6 +4,7 @@
 
 export enum OperationType {
     In,
+    InChange, // change address having received funds from a non-sibling address
     Out,
     Out_Self,
     Out_Sibling
