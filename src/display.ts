@@ -96,7 +96,7 @@ function displayOperations(sortedOperations: Operation[]) {
   }
   
   const header =
-  '\ndate\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) or sent (→) to self (⮂) or sibling (↺)';
+  '\ndate\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) [as change from non-sibling (c)] | sent (→) to self (⮂) or sibling (↺)';
   console.log(chalk.grey(header));
   
   sortedOperations.forEach(op => {    
@@ -112,13 +112,18 @@ function displayOperations(sortedOperations: Operation[]) {
       .concat('\t')
       
   
-    if (op.type === OperationType.In) {
+    if (op.type === OperationType.In || op.type === OperationType.InChange) {
       // ... +{amount} ←
       status = 
         status
         .concat('+')
         .concat(amount)
         .concat(' ←');
+
+      if (op.type === OperationType.InChange) {
+        status =
+          status.concat(' c');
+      }
     }
     else {
       // ... -{amount} →|⮂|↺
