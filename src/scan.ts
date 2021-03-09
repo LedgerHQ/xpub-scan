@@ -60,7 +60,7 @@ function displayWarning() {
     );
 }
 
-let now = new Date()
+const now = new Date()
 
 if (address) {
   // comparison mode
@@ -121,14 +121,14 @@ else {
   }
 
   const meta = {
-    xpub: xpub,
+    xpub,
     date: now,
     version: VERSION
   }
 
   const data = {
     addresses: actualAddresses,
-    summary: summary,
+    summary,
     transactions: actualTransactions,
     comparisons: comparisonResults
   }

@@ -19,7 +19,7 @@ function getJSON(url: string, APIKey?: string) {
     }
   }
 
-  const res = request('GET', url, {headers: headers} );
+  const res = request('GET', url, {headers} );
 
   if (res.statusCode !== 200) {
     console.log(chalk.red('GET request error'));

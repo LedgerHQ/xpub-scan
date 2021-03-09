@@ -70,7 +70,7 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
             //     - has a sibling as sender: return (expected behavior: sent to change)
             //     - has no sibling as sender: process the operation (edge case: non-sibling to change)
             if (accountNumber === 1) {
-                for (let txin of tx.ins) {
+                for (const txin of tx.ins) {
                     if (allOwnAddresses.includes(txin.address)) {
                         return;
                     }
@@ -158,8 +158,8 @@ function compareOpsByBlockThenDate(A: Operation, B: Operation){
 // Sort transactions by date
 // (reverse chronological order)
 function getSortedOperations(...addresses: any) : Operation[] {
-    let operations: Operation[] = [];
-    let processedTxids: string[]= [];
+    const operations: Operation[] = [];
+    const processedTxids: string[]= [];
 
     // flatten the array of arrays in one dimension, and iterate
     [].concat.apply([], addresses).forEach( (address: Address) => {

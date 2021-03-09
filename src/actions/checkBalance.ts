@@ -84,7 +84,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   
   return {
     balance: totalBalance,
-    addresses: addresses
+    addresses
   }
 }
 
@@ -148,7 +148,7 @@ function run(xpub: string, account?: number, index?: number) {
 
   return {
     addresses: activeAddresses,
-    summary: summary
+    summary
   }
 }
 

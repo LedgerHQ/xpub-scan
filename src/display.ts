@@ -134,13 +134,13 @@ function showSortedOperations(sortedOperations: Operation[]) {
 
         const operationType = op.getType();
 
-        if (operationType == "Sent to self") {
+        if (operationType === "Sent to self") {
           // case 1. Sent to the same address
           status = 
             status
             .concat(' ⮂');
         }
-        else if (operationType == "Sent to sibling") {
+        else if (operationType === "Sent to sibling") {
           // case 2. Sent to a sibling address
           // (different non-change address belonging to same xpub)
           status = 

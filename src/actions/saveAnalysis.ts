@@ -3,7 +3,7 @@ import fs from 'fs';
 import { configuration, GAP_LIMIT } from '../settings';
 
 function saveJSON(meta: any, data: any, file: string) {
-    let addresses: any[] = [];
+    const addresses: any[] = [];
 
     for (const address of data.addresses) {
         addresses.push(
@@ -23,9 +23,10 @@ function saveJSON(meta: any, data: any, file: string) {
             "by": "xpub scan <https://github.com/LedgerHQ/xpub-scan>",
             "version": meta.version,
             "xpub": meta.xpub,
-            "date": meta.date,
+            "analysis_date": meta.date,
             "currency": configuration.currency,
             "provider": configuration.providerType,
+            "provider_url": configuration.BaseURL,
             "gap_limit": GAP_LIMIT
         },
         "addresses": addresses,
@@ -35,7 +36,7 @@ function saveJSON(meta: any, data: any, file: string) {
     }, null, 2);
 
     // if no filepath/filename specify -> set to current directory
-    if (file == '') {
+    if (file === '') {
         file = __dirname;
     }
 
