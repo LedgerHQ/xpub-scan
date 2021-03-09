@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import { configuration } from '../settings';
+import { configuration, GAP_LIMIT } from '../settings';
 
 function saveJSON(meta: any, data: any, file: string) {
     let addresses: any[] = [];
@@ -25,15 +25,14 @@ function saveJSON(meta: any, data: any, file: string) {
             "xpub": meta.xpub,
             "date": meta.date,
             "currency": configuration.currency,
-            "provider": configuration.providerType
+            "provider": configuration.providerType,
+            "gap_limit": GAP_LIMIT
         },
         "addresses": addresses,
         "summary": data.summary,
         "transactions": data.transactions,
         "comparison": data.comparisons
     }, null, 2);
-
-    console.log(analysisJSON);
 
     // if no filepath/filename specify -> set to current directory
     if (file == '') {

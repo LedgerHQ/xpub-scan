@@ -4,7 +4,7 @@ import * as display from "../display";
 
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { AddressType, MAX_EXPLORATION } from "../settings";
+import { AddressType, GAP_LIMIT } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
 
@@ -47,7 +47,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
         noTxCounter++;
         display.transientLine(/* delete address */);
         
-        if (account === 1 || noTxCounter >= MAX_EXPLORATION) {
+        if (account === 1 || noTxCounter >= GAP_LIMIT) {
           // TODO?: extend logic to account numbers > 1
           display.transientLine(/* delete last probing info */);
           display.logStatus("- " + chalk.italic(typeAccount) + " addresses scanned -");
