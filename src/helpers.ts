@@ -43,9 +43,11 @@ function checkXpub(xpub: string) {
 
   if (prefix === 'xpub') {
     configuration.network = BITCOIN_NETWORK;
+    configuration.currency = 'Bitcoin'
   }
   else if (prefix === 'Ltub') {
     configuration.network = LITECOIN_NETWORK;
+    configuration.currency = 'Litecoin'
   }
   else {
     throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");

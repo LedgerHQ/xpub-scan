@@ -5,8 +5,13 @@ import yargs from "yargs";
 
 import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
+import * as display from "./display";
+import { getSortedOperations } from "./actions/processTransactions"
 import { checkXpub } from "./helpers";
 import { importOperations, checkImportedOperations } from "./actions/importOperations";
+import { saveJSON } from "./actions/saveAnalysis"
+
+const VERSION = '0.0.2'
 
 const args = yargs
   .option('account', {
@@ -30,6 +35,11 @@ const args = yargs
     description: "Import transactions",
     demand: false,
     type: 'string'
+  })
+  .option('save', {
+    description: "Save analysis",
+    demand: false,
+    type: 'boolean'
   }).argv;
 
 const account = args.account;
@@ -50,6 +60,8 @@ function displayWarning() {
     );
 }
 
+let now = new Date()
+
 if (address) {
   // comparison mode
   compare.run(xpub, address);
@@ -57,7 +69,14 @@ if (address) {
 }
 else if (typeof(account) !== 'undefined' && typeof(index) !== 'undefined') {
   // specific derivation mode
-  check_balances.run(xpub, account, index);
+  const scanResult = check_balances.run(xpub, account, index);
+
+  const addresses = scanResult.addresses;
+  const summary = scanResult.summary;
+
+  const actualTransactions = getSortedOperations(addresses);
+
+  display.showOpsAndSummary(actualTransactions, summary);
   displayWarning();
 }
 else {
@@ -79,15 +98,33 @@ else {
     importedTransactions = importOperations(args.import);
   }
 
-  const actualTransactions = check_balances.run(xpub);
+  const scanResult = check_balances.run(xpub);
+
+  const activeAddresses = scanResult.addresses
+  const summary = scanResult.summary
+
+  const actualTransactions = getSortedOperations(activeAddresses);
+
+  display.showOpsAndSummary(actualTransactions, summary);
 
   if (typeof(importedTransactions) !== 'undefined') {
-    const errors = checkImportedOperations(importedTransactions, actualTransactions);
+    const comparisonResults = checkImportedOperations(importedTransactions, actualTransactions);
 
-    // TODO: process the errors
-    // (e.g. save them in a file, perform some CI action, etc.)
-    if (errors.length > 0) {
-      process.exit(1);
+    const meta = {
+      xpub: xpub,
+      date: now,
+      version: VERSION
+    }
+
+    const data = {
+      addresses: activeAddresses,
+      summary: summary,
+      transactions: actualTransactions,
+      comparisons: comparisonResults
+    }
+
+    if (args.save) {
+      saveJSON(meta, data);
     }
   }
 

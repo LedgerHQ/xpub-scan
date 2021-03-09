@@ -73,6 +73,7 @@ Object.freeze(AddressType);
 dotenv.config();
 export const configuration = {
   network: undefined, 
+  currency: '', 
   BaseURL: process.env.API_URL || DEFAULT_API_URL,
   APIKey: process.env.API_KEY,
   providerType: 'default'

@@ -1,7 +1,7 @@
 import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, configuration } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { Operation, OperationType } from "../models/operation"
+import { Operation } from "../models/operation"
 
 import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
@@ -80,7 +80,7 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
             const op = new Operation(tx.date, tx.ins[0].amount);
             op.setTxid(tx.txid);
             op.setBlockNumber(tx.blockHeight);
-            op.setType(accountNumber !== 1 ? OperationType.In : OperationType.InChange)
+            op.setType(accountNumber !== 1 ? "Received" : "Received (non-sibling to change)")
     
             address.addFundedOperation(op);
         }
@@ -108,15 +108,15 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
 
                 if (out.address === address.toString()) {
                     // sent to self: sent to same address
-                    op.setType(OperationType.Out_Self);
+                    op.setType("Sent to self");
                 }
                 else if (externalAddresses.includes(out.address)) {
                     // sent to a sibling: sent to an address belonging to the same xpub
                     // while not being a change address
-                    op.setType(OperationType.Out_Sibling);
+                    op.setType("Sent to sibling");
                 }
                 else {
-                    op.setType(OperationType.Out);
+                    op.setType("Sent");
                 }
 
                 op.setBlockNumber(tx.blockHeight);

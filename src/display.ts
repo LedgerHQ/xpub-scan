@@ -2,7 +2,7 @@ import readline from 'readline';
 import chalk from 'chalk';
 
 import { Address } from './models/address'
-import { OperationType, Operation } from './models/operation'
+import { Operation } from './models/operation'
 import { configuration } from './settings';
 
 function convertUnits(amount: number) {
@@ -82,8 +82,8 @@ function updateAddressDetails(address: Address) {
 }
 
 // display the list of operations sorted by date (reverse chronological order)
-function displayOperations(sortedOperations: Operation[]) {
-  process.stdout.write(chalk.bold('Operations History'))
+function showSortedOperations(sortedOperations: Operation[]) {
+  process.stdout.write(chalk.bold('\nOperations History'))
 
   if (typeof(configuration.APIKey) === 'undefined') {
     // warning related to the limitations of the default provider
@@ -112,7 +112,7 @@ function displayOperations(sortedOperations: Operation[]) {
       .concat('\t')
       
   
-    if (op.type === OperationType.In || op.type === OperationType.InChange) {
+    if (op.type === "Received" || op.type === "Received (non-sibling to change)") {
       // ... +{amount} ←
       status = 
         status
@@ -120,7 +120,7 @@ function displayOperations(sortedOperations: Operation[]) {
         .concat(amount)
         .concat(' ←');
 
-      if (op.type === OperationType.InChange) {
+      if (op.type === "Received (non-sibling to change)") {
         status =
           status.concat(' c');
       }
@@ -134,13 +134,13 @@ function displayOperations(sortedOperations: Operation[]) {
 
         const operationType = op.getType();
 
-        if (operationType == OperationType.Out_Self) {
+        if (operationType == "Sent to self") {
           // case 1. Sent to the same address
           status = 
             status
             .concat(' ⮂');
         }
-        else if (operationType == OperationType.Out_Sibling) {
+        else if (operationType == "Sent to sibling") {
           // case 2. Sent to a sibling address
           // (different non-change address belonging to same xpub)
           status = 
@@ -211,10 +211,20 @@ function transientLine(message?: string) {
   }
 }
 
+function showOpsAndSummary(sortedOperations: Operation[], summary: any[]) {
+  showSortedOperations(sortedOperations);
+
+  console.log(chalk.bold("\nSummary\n"));
+  for (const total of summary) {
+    showSummary(total.type, total.balance);
+  }
+}
+
 export {
     showSummary, 
     logStatus, 
     updateAddressDetails, 
-    displayOperations, 
+    showSortedOperations, 
     transientLine,
+    showOpsAndSummary
 }
