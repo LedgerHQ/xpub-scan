@@ -1,10 +1,10 @@
 import { Operation } from "./operation";
 
 type ComparisonStatus = 
-        "Match" 
+        "Match"                 // perfect match between imported and actual operation
     |   "Mismatch"              // address or amount mismatch
-    |   "Missing Operation"   
-    |   "Extra Operation"
+    |   "Missing Operation"     // missing expected imported operation
+    |   "Extra Operation"       // imported operation without corresponding actual operation
 
 class Comparison {
     imported : Operation | undefined;

@@ -39,7 +39,7 @@ const args = yargs
   .option('save', {
     description: "Save analysis",
     demand: false,
-    type: 'boolean'
+    type: 'string',
   }).argv;
 
 const account = args.account;
@@ -67,66 +67,73 @@ if (address) {
   compare.run(xpub, address);
   displayWarning();
 }
-else if (typeof(account) !== 'undefined' && typeof(index) !== 'undefined') {
-  // specific derivation mode
-  const scanResult = check_balances.run(xpub, account, index);
-
-  const addresses = scanResult.addresses;
-  const summary = scanResult.summary;
-
-  const actualTransactions = getSortedOperations(addresses);
-
-  display.showOpsAndSummary(actualTransactions, summary);
-  displayWarning();
-}
 else {
-  // scan mode
-  let importedTransactions;
+  let actualAddresses;
+  let summary;
+  let actualTransactions;
+  let comparisonResults;
 
-  if (!args.import) {
-    // if no file path has been provided, only the xpub is expected to have
-    // been specified
-    if (args._.length > 1) {
-      console.log(
-        chalk.red('Only 1 arg expected (xpub). Please check the documentation.')
-      )
-      process.exit(1);
-    }
+  if (typeof(account) !== 'undefined' && typeof(index) !== 'undefined') {
+    // specific derivation mode
+    const scanResult = check_balances.run(xpub, account, index);
+
+    actualAddresses = scanResult.addresses;
+    summary = scanResult.summary;
+
+    actualTransactions = getSortedOperations(actualAddresses);
+
+    display.showOpsAndSummary(actualTransactions, summary);
+    displayWarning();
   }
   else {
-    // if a file path has been provided, import its transactions
-    importedTransactions = importOperations(args.import);
+    // scan mode
+    let importedTransactions;
+
+    if (!args.import) {
+      // if no file path has been provided, only the xpub is expected to have
+      // been specified
+      if (args._.length > 1) {
+        console.log(
+          chalk.red('Only 1 arg expected (xpub). Please check the documentation.')
+        )
+        process.exit(1);
+      }
+    }
+    else {
+      // if a file path has been provided, import its transactions
+      importedTransactions = importOperations(args.import);
+    }
+
+    const scanResult = check_balances.run(xpub);
+
+    actualAddresses = scanResult.addresses
+    summary = scanResult.summary
+
+    actualTransactions = getSortedOperations(actualAddresses);
+
+    display.showOpsAndSummary(actualTransactions, summary);
+
+    if (typeof(importedTransactions) !== 'undefined') {
+      comparisonResults = checkImportedOperations(importedTransactions, actualTransactions);
+    }
+
+    displayWarning();
   }
 
-  const scanResult = check_balances.run(xpub);
-
-  const activeAddresses = scanResult.addresses
-  const summary = scanResult.summary
-
-  const actualTransactions = getSortedOperations(activeAddresses);
-
-  display.showOpsAndSummary(actualTransactions, summary);
-
-  if (typeof(importedTransactions) !== 'undefined') {
-    const comparisonResults = checkImportedOperations(importedTransactions, actualTransactions);
-
-    const meta = {
-      xpub: xpub,
-      date: now,
-      version: VERSION
-    }
-
-    const data = {
-      addresses: activeAddresses,
-      summary: summary,
-      transactions: actualTransactions,
-      comparisons: comparisonResults
-    }
-
-    if (args.save) {
-      saveJSON(meta, data);
-    }
+  const meta = {
+    xpub: xpub,
+    date: now,
+    version: VERSION
   }
 
-  displayWarning();
+  const data = {
+    addresses: actualAddresses,
+    summary: summary,
+    transactions: actualTransactions,
+    comparisons: comparisonResults
+  }
+
+  if (args.save || args.save === '' /* allow empty arg */) {
+    saveJSON(meta, data, args.save);
+  }
 }

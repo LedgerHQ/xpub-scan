@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { configuration } from '../settings';
 
-function saveJSON(meta: any, data: any) {
+function saveJSON(meta: any, data: any, file: string) {
     let addresses: any[] = [];
 
     for (const address of data.addresses) {
@@ -10,7 +10,7 @@ function saveJSON(meta: any, data: any) {
             { 
                 type: address.type,
                 derivation: address.getDerivation(),
-                address: address.address,
+                address: address.toString(),
                 balance: address.balance,
                 funded: address.stats.funded,
                 spent: address.stats.spent
@@ -18,7 +18,7 @@ function saveJSON(meta: any, data: any) {
         )
     }
 
-    const JSONobject = JSON.stringify({
+    const analysisJSON = JSON.stringify({
         "meta": {
             "by": "xpub scan <https://github.com/LedgerHQ/xpub-scan>",
             "version": meta.version,
@@ -33,15 +33,33 @@ function saveJSON(meta: any, data: any) {
         "comparison": data.comparisons
     }, null, 2);
 
-    const filename = meta.xpub.concat('.json');
+    console.log(analysisJSON);
 
-    fs.writeFile(filename, JSONobject, function(err) {
+    // if no filepath/filename specify -> set to current directory
+    if (file == '') {
+        file = __dirname;
+    }
+
+    // if is filepath, add filename (<xpub>.json)
+    if (fs.existsSync(file) && fs.lstatSync(file).isDirectory()) {
+        file = file
+                .concat('/')
+                .concat(meta.xpub)
+                .concat('.json');
+    }
+
+    // if needed, add extension
+    if (!file.endsWith('.json')) {
+        file = file.concat('.json');
+    }
+
+    fs.writeFile(file, analysisJSON, function(err) {
         if (err) {
             console.log(err);
         }
     });
 
-    console.log('\nAnalysis saved as '.concat(filename));
+    console.log('\nAnalysis saved: '.concat(file));
 }
 
 export { saveJSON }
