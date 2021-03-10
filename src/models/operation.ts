@@ -8,7 +8,7 @@ type OperationType =
         |   "Sent to sibling"                       // Sent - edge case 2: recipient belongs to same xpub ("sibling")
 
 class Operation {
-    type: OperationType;
+    operationType: OperationType;
     txid: string;
     date: string;
     block: number;
@@ -45,11 +45,11 @@ class Operation {
     }
 
     setType(operationType: OperationType) {
-        this.type = operationType;
+        this.operationType = operationType;
     }
 
     getType() {
-        return this.type
+        return this.operationType
     }
 }
 

@@ -108,7 +108,7 @@ function run(xpub: string, account?: number, index?: number) {
       activeAddresses = activeAddresses.concat(results.addresses);
 
       summary.push({
-        type: addressType, 
+        addressType, 
         balance: results.balance
       });
     });
@@ -140,7 +140,7 @@ function run(xpub: string, account?: number, index?: number) {
       activeAddresses = activeAddresses.concat(address);
       
       summary.push({
-        type: addressType, 
+        addressType, 
         balance: address.getBalance()
       });
     })

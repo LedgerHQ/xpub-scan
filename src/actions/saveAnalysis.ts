@@ -8,7 +8,7 @@ function saveJSON(meta: any, data: any, file: string) {
     for (const address of data.addresses) {
         addresses.push(
             { 
-                type: address.type,
+                addressType: address.addressType,
                 derivation: address.getDerivation(),
                 address: address.toString(),
                 balance: address.balance,
@@ -32,7 +32,7 @@ function saveJSON(meta: any, data: any, file: string) {
         "addresses": addresses,
         "summary": data.summary,
         "transactions": data.transactions,
-        "comparison": data.comparisons
+        "comparisons": data.comparisons
     }, null, 2);
 
     // if no filepath/filename specify -> set to current directory

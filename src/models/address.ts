@@ -6,7 +6,7 @@ import { getAddress } from "../actions/deriveAddresses"
 
 class Address {
   address: string;
-  type: AddressType;
+  addressType: AddressType;
   account: number;
   index: number;
   balance: number;
@@ -16,9 +16,9 @@ class Address {
   ins: Operation[];
   outs: Operation[];
 
-  constructor(type: AddressType, xpub: string, account: number, index: number) {
-    this.address = getAddress(type, xpub, account, index);
-    this.type = type;
+  constructor(addressType: AddressType, xpub: string, account: number, index: number) {
+    this.address = getAddress(addressType, xpub, account, index);
+    this.addressType = addressType;
     this.account = account;
     this.index = index;
     this.ins = [];
@@ -65,7 +65,7 @@ class Address {
   }
 
   getType() {
-    return this.type;
+    return this.addressType;
   }
 
   getDerivation() {

@@ -112,7 +112,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
       .concat('\t')
       
   
-    if (op.type === "Received" || op.type === "Received (non-sibling to change)") {
+    if (op.operationType === "Received" || op.operationType === "Received (non-sibling to change)") {
       // ... +{amount} ←
       status = 
         status
@@ -120,7 +120,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
         .concat(amount)
         .concat(' ←');
 
-      if (op.type === "Received (non-sibling to change)") {
+      if (op.operationType === "Received (non-sibling to change)") {
         status =
           status.concat(' c');
       }
@@ -216,7 +216,7 @@ function showOpsAndSummary(sortedOperations: Operation[], summary: any[]) {
 
   console.log(chalk.bold("\nSummary\n"));
   for (const total of summary) {
-    showSummary(total.type, total.balance);
+    showSummary(total.addressType, total.balance);
   }
 }
 
