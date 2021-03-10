@@ -19,7 +19,7 @@ function getJSON(url: string, APIKey?: string) {
     }
   }
 
-  const res = request('GET', url, {headers: headers} );
+  const res = request('GET', url, {headers} );
 
   if (res.statusCode !== 200) {
     console.log(chalk.red('GET request error'));
@@ -43,9 +43,11 @@ function checkXpub(xpub: string) {
 
   if (prefix === 'xpub') {
     configuration.network = BITCOIN_NETWORK;
+    configuration.currency = 'Bitcoin'
   }
   else if (prefix === 'Ltub') {
     configuration.network = LITECOIN_NETWORK;
+    configuration.currency = 'Litecoin'
   }
   else {
     throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");

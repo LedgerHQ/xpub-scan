@@ -104,8 +104,8 @@ function search(xpub: string, providedAddress: string, range: any, searchType: s
                 console.log(chalk.green(status)); 
                 
                 return {
-                    account: account,
-                    index: index
+                    account,
+                    index
                 }
             }
             
@@ -115,8 +115,8 @@ function search(xpub: string, providedAddress: string, range: any, searchType: s
                 
                 return {
                     partial: derivedAddress,
-                    account: account,
-                    index: index
+                    account,
+                    index
                 }
             }
             

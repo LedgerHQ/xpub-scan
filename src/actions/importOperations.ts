@@ -3,18 +3,12 @@ import chalk from 'chalk';
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
 
-import { Operation, OperationType } from '../models/operation'
+import { Operation } from '../models/operation'
+import { Comparison, ComparisonStatus } from '../models/comparison'
 
 interface Txid {
     date: string,
     hash: string
-}
-
-enum MatchingStatus {
-    MATCH,
-    MISMATCH,
-    IMPORTED_MISSING,
-    ACTUAL_MISSING
 }
 
 // get lines from a file
@@ -71,7 +65,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 // ensure that an operation without address results in a mismatch
                 op.setAddress(recipient || '(no address)'); 
                                                             
-                op.setType(OperationType.In)
+                op.setType("Received")
 
                 operations.push(op);
             }
@@ -85,7 +79,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 // ensure that an operation without address results in a mismatch
                 op.setAddress(sender || '(no address)');
 
-                op.setType(OperationType.Out)
+                op.setType("Sent")
 
                 operations.push(op);
             }
@@ -123,7 +117,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
         if (type === 'IN') {
             const op = new Operation(date[0], amount);
             op.setTxid(txid);
-            op.setType(OperationType.In)
+            op.setType("Received")
 
             operations.push(op);
         }
@@ -134,7 +128,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
             // (otherwise, there would be floating number issues)
             const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
             op.setTxid(txid);
-            op.setType(OperationType.Out)
+            op.setType("Sent")
 
             operations.push(op);
         }
@@ -244,7 +238,7 @@ function renderAddress(address: string) {
 }
 
 // TODO?: export in a dedicated module (display.ts)?
-function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation) {
+function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operation) {
     const halfColorPadding = 84;
     const fullColorPadding = 85;
 
@@ -252,9 +246,9 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
     let actual: string = '';
 
     switch(status) {
-        case MatchingStatus.MATCH:
+        case "Match":
             /* fallthrough */
-        case MatchingStatus.MISMATCH:
+        case "Mismatch":
             imported = 
             opA.date.padEnd(24, ' ')
                 .concat(renderAddress(opA.address))
@@ -267,7 +261,7 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
                     .concat(String(opB.amount));
                 }
             break;
-        case MatchingStatus.ACTUAL_MISSING:
+        case "Extra Operation":
             actual = '(missing operation)';
 
             imported = 
@@ -276,7 +270,7 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
                 .concat(String(opA.amount));
             break;
 
-        case MatchingStatus.IMPORTED_MISSING:
+        case "Missing Operation":
             imported = '(missing operation)';
 
             actual =
@@ -287,7 +281,7 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
     }
 
     switch(status) {
-        case MatchingStatus.MATCH:
+        case "Match":
             console.log(
                 chalk.greenBright(
                     imported.padEnd(halfColorPadding, ' ')
@@ -295,11 +289,11 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
                 actual
                 );
             break;
-        case MatchingStatus.MISMATCH:
+        case "Mismatch":
             /* fallthrough */
-        case MatchingStatus.ACTUAL_MISSING:
+        case "Missing Operation":
             /* fallthrough */
-        case MatchingStatus.IMPORTED_MISSING:
+        case "Extra Operation":
             console.log(
                 chalk.redBright(
                     imported.padEnd(fullColorPadding, ' ').concat(actual)
@@ -311,13 +305,13 @@ function showOperations(status: MatchingStatus, opA: Operation, opB?: Operation)
 // compare the imported operations with the actual ones
 // 
 // returns an array of errors
-function checkImportedOperations(importedOperations: Operation[], actualOperations: Operation[]) {
+function checkImportedOperations(importedOperations: Operation[], actualOperations: Operation[]) : Comparison[] {
     console.log(chalk.bold.whiteBright('\nComparison between imported and actual operations\n'));
     console.log(chalk.grey('imported operations\t\t\t\t\t\t\t\t     actual operations'));
 
     // eslint-disable-next-line no-undef
     let allTxids: Txid[] = []; // TODO: convert into a Set as they have to be unique
-    let errors = [];
+    let comparisons: Comparison[] = [];
 
     importedOperations.forEach(op => {
         // only add txid once
@@ -375,31 +369,54 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
 
             // actual operation with no corresponding imported operation
             if (typeof(importedOp) === 'undefined') {
-                showOperations(MatchingStatus.IMPORTED_MISSING, actualOp);
-                errors.push({actual: actualOp});
+                showOperations("Missing Operation", actualOp);
+                
+                comparisons.push({
+                    imported: undefined,
+                    actual: actualOp,
+                    status: "Missing Operation"
+                });
+
                 continue;
             }
 
             // imported operation with no corresponding actual operation
             if (typeof(actualOp) === 'undefined') {
-                showOperations( MatchingStatus.ACTUAL_MISSING, importedOp);
-                errors.push({imported: importedOp});
+                showOperations( "Extra Operation", importedOp);
+                
+                comparisons.push({
+                    imported: importedOp,
+                    actual: undefined,
+                    status: "Extra Operation"
+                })
+
                 continue;
             }
 
             if (!areMatching(importedOp, actualOp)) {
                 // mismatch
-                showOperations(MatchingStatus.MISMATCH, importedOp, actualOp);
-                errors.push({imported: importedOp, actual: actualOp});
+                showOperations("Mismatch", importedOp, actualOp);
+
+                comparisons.push({
+                    imported: importedOp,
+                    actual: actualOp,
+                    status: "Mismatch"
+                });
             }
             else {
                 // match
-                showOperations(MatchingStatus.MATCH, importedOp, actualOp);
+                showOperations("Match", importedOp, actualOp);
+
+                comparisons.push({
+                    imported: importedOp,
+                    actual: actualOp,
+                    status: "Match"
+                });
             }
         }
     }
 
-    return errors;
+    return comparisons;
 }
 
 export { importOperations, checkImportedOperations }

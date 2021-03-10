@@ -4,9 +4,8 @@ import * as display from "../display";
 
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { Operation } from "../models/operation"
-import { AddressType, MAX_EXPLORATION } from "../settings";
-import { getStats, getTransactions, getSortedOperations } from "./processTransactions";
+import { AddressType, GAP_LIMIT } from "../settings";
+import { getStats, getTransactions } from "./processTransactions";
 
 
 // scan all active addresses
@@ -48,7 +47,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
         noTxCounter++;
         display.transientLine(/* delete address */);
         
-        if (account === 1 || noTxCounter >= MAX_EXPLORATION) {
+        if (account === 1 || noTxCounter >= GAP_LIMIT) {
           // TODO?: extend logic to account numbers > 1
           display.transientLine(/* delete last probing info */);
           display.logStatus("- " + chalk.italic(typeAccount) + " addresses scanned -");
@@ -85,21 +84,17 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   
   return {
     balance: totalBalance,
-    addresses: addresses
+    addresses
   }
 }
 
-function run(xpub: string, account?: number, index?: number) : Operation[] {  
-  // eslint-disable-next-line no-undef
-  let summary = new Map<string, number>();
-
-  let operations: Operation[] = [];
+function run(xpub: string, account?: number, index?: number) {  
+  let activeAddresses: Address[] = [];
+  let summary: any[] = [];
   
   if (typeof(account) === 'undefined') {
     // Option A: no index has been provided:
     // scan all address types
-
-    let activeAddresses: Address[] = [];
 
     console.log(chalk.bold("\nActive addresses\n"));
 
@@ -109,18 +104,22 @@ function run(xpub: string, account?: number, index?: number) : Operation[] {
       AddressType.NATIVE
     ].forEach(addressType => {
       const results = scanAddresses(addressType, xpub);
+      
       activeAddresses = activeAddresses.concat(results.addresses);
-      summary.set(addressType, results.balance);
-    });
 
-    operations = getSortedOperations(activeAddresses);
+      summary.push({
+        addressType, 
+        balance: results.balance
+      });
+    });
     
-    display.displayOperations(operations);
   }
   else {
     // Option B: an account number and index has been provided:
     // derive all addresses at that account and index; then
     // check their respective balances
+    let ownAddresses = new OwnAddresses();
+
     [
       AddressType.LEGACY,
       AddressType.SEGWIT,
@@ -133,18 +132,24 @@ function run(xpub: string, account?: number, index?: number) : Operation[] {
       getStats(address);
       
       display.updateAddressDetails(address);
+
+      if (address.getStats().txsCount !== 0) {
+        getTransactions(address, ownAddresses);
+      }
+
+      activeAddresses = activeAddresses.concat(address);
       
-      summary.set(addressType, address.getBalance());
+      summary.push({
+        addressType, 
+        balance: address.getBalance()
+      });
     })
   }
-  
-  console.log(chalk.bold("\nSummary\n"));
-  
-  for (let [addressType, value] of summary.entries()) {
-    display.showSummary(addressType, value);
-  }
 
-  return operations;
+  return {
+    addresses: activeAddresses,
+    summary
+  }
 }
 
 export { run }

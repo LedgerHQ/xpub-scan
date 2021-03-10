@@ -4,7 +4,6 @@ import * as dotenv from "dotenv";
 
 // GENERAL
 // -------
-
 const VERBOSE = false;
 
 // CHECK BALANCES
@@ -12,12 +11,11 @@ const VERBOSE = false;
 
 // Providers
 // (use {coin} and {address} as placeholders for the coin name and the address)
-
 const DEFAULT_API_URL = 'https://sochain.com/api/v2/address/{coin}/{address}';
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
-const MAX_EXPLORATION = 20;
+const GAP_LIMIT = 20;
 
 // XPUB <> ADDRESS COMPARISON
 // --------------------------
@@ -73,6 +71,7 @@ Object.freeze(AddressType);
 dotenv.config();
 export const configuration = {
   network: undefined, 
+  currency: '', 
   BaseURL: process.env.API_URL || DEFAULT_API_URL,
   APIKey: process.env.API_KEY,
   providerType: 'default'
@@ -80,7 +79,7 @@ export const configuration = {
 
 export {
   DEFAULT_API_URL,
-  MAX_EXPLORATION,
+  GAP_LIMIT,
   VERBOSE,
   BITCOIN_NETWORK,
   LITECOIN_NETWORK,

@@ -5,8 +5,13 @@ import yargs from "yargs";
 
 import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
+import * as display from "./display";
+import { getSortedOperations } from "./actions/processTransactions"
 import { checkXpub } from "./helpers";
 import { importOperations, checkImportedOperations } from "./actions/importOperations";
+import { saveJSON } from "./actions/saveAnalysis"
+
+const VERSION = '0.0.2'
 
 const args = yargs
   .option('account', {
@@ -30,6 +35,11 @@ const args = yargs
     description: "Import transactions",
     demand: false,
     type: 'string'
+  })
+  .option('save', {
+    description: "Save analysis",
+    demand: false,
+    type: 'string',
   }).argv;
 
 const account = args.account;
@@ -50,46 +60,80 @@ function displayWarning() {
     );
 }
 
+const now = new Date()
+
 if (address) {
   // comparison mode
   compare.run(xpub, address);
   displayWarning();
 }
-else if (typeof(account) !== 'undefined' && typeof(index) !== 'undefined') {
-  // specific derivation mode
-  check_balances.run(xpub, account, index);
-  displayWarning();
-}
 else {
-  // scan mode
-  let importedTransactions;
+  let actualAddresses;
+  let summary;
+  let actualTransactions;
+  let comparisonResults;
 
-  if (!args.import) {
-    // if no file path has been provided, only the xpub is expected to have
-    // been specified
-    if (args._.length > 1) {
-      console.log(
-        chalk.red('Only 1 arg expected (xpub). Please check the documentation.')
-      )
-      process.exit(1);
-    }
+  if (typeof(account) !== 'undefined' && typeof(index) !== 'undefined') {
+    // specific derivation mode
+    const scanResult = check_balances.run(xpub, account, index);
+
+    actualAddresses = scanResult.addresses;
+    summary = scanResult.summary;
+
+    actualTransactions = getSortedOperations(actualAddresses);
+
+    display.showOpsAndSummary(actualTransactions, summary);
+    displayWarning();
   }
   else {
-    // if a file path has been provided, import its transactions
-    importedTransactions = importOperations(args.import);
-  }
+    // scan mode
+    let importedTransactions;
 
-  const actualTransactions = check_balances.run(xpub);
-
-  if (typeof(importedTransactions) !== 'undefined') {
-    const errors = checkImportedOperations(importedTransactions, actualTransactions);
-
-    // TODO: process the errors
-    // (e.g. save them in a file, perform some CI action, etc.)
-    if (errors.length > 0) {
-      process.exit(1);
+    if (!args.import) {
+      // if no file path has been provided, only the xpub is expected to have
+      // been specified
+      if (args._.length > 1) {
+        console.log(
+          chalk.red('Only 1 arg expected (xpub). Please check the documentation.')
+        )
+        process.exit(1);
+      }
     }
+    else {
+      // if a file path has been provided, import its transactions
+      importedTransactions = importOperations(args.import);
+    }
+
+    const scanResult = check_balances.run(xpub);
+
+    actualAddresses = scanResult.addresses
+    summary = scanResult.summary
+
+    actualTransactions = getSortedOperations(actualAddresses);
+
+    display.showOpsAndSummary(actualTransactions, summary);
+
+    if (typeof(importedTransactions) !== 'undefined') {
+      comparisonResults = checkImportedOperations(importedTransactions, actualTransactions);
+    }
+
+    displayWarning();
   }
 
-  displayWarning();
+  const meta = {
+    xpub,
+    date: now,
+    version: VERSION
+  }
+
+  const data = {
+    addresses: actualAddresses,
+    summary,
+    transactions: actualTransactions,
+    comparisons: comparisonResults
+  }
+
+  if (args.save || args.save === '' /* allow empty arg */) {
+    saveJSON(meta, data, args.save);
+  }
 }

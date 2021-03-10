@@ -65,7 +65,7 @@ function getTransactions(address: Address) {
                 const op = new Operation(String(tx.time), parseFloat(tx.incoming.value));
                 op.setAddress(txin.address);
                 op.setTxid(tx.txid);
-                op.setType(OperationType.In)
+                op.setType("Received")
 
                 ins.push(op);
             })
@@ -76,7 +76,7 @@ function getTransactions(address: Address) {
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
                 op.setAddress(txout.address);
                 op.setTxid(tx.txid);
-                op.setType(OperationType.Out)
+                op.setType("Sent")
 
                 outs.push(op);
             })
