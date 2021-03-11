@@ -7,6 +7,8 @@ import { OwnAddresses } from "../models/ownAddresses"
 import { AddressType, GAP_LIMIT } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
+// @ts-ignore
+import sb from 'satoshi-bitcoin';
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
@@ -59,8 +61,10 @@ function scanAddresses(addressType: AddressType, xpub: string) {
       else {
         noTxCounter = 0;
       }
-      
-      totalBalance += address.getBalance();
+
+      // convert address balance into satoshis (or equivalent...)
+      // in order to avoid issue with floats addition 
+      totalBalance += sb.toSatoshi(address.getBalance());
       
       display.updateAddressDetails(address);
       
@@ -83,7 +87,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   display.logStatus(addressType.concat(" addresses scanned\n"));
   
   return {
-    balance: totalBalance,
+    balance: sb.toBitcoin(totalBalance), // convert back balance to bitcoins (or equivalent...)
     addresses
   }
 }

@@ -9,9 +9,9 @@ import * as display from "./display";
 import { getSortedOperations } from "./actions/processTransactions"
 import { checkXpub } from "./helpers";
 import { importOperations, checkImportedOperations } from "./actions/importOperations";
-import { saveJSON } from "./actions/saveAnalysis"
+import { save } from "./actions/saveAnalysis"
 
-const VERSION = '0.0.2'
+const VERSION = '0.0.3'
 
 const args = yargs
   .option('account', {
@@ -134,6 +134,6 @@ else {
   }
 
   if (args.save || args.save === '' /* allow empty arg */) {
-    saveJSON(meta, data, args.save);
+    save(meta, data, args.save);
   }
 }

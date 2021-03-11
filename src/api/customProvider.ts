@@ -4,7 +4,7 @@ import * as helpers from "../helpers";
 import { configuration } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
-import { Operation, OperationType } from "../models/operation";
+import { Operation } from "../models/operation";
 
 interface RawTransaction {
     txid: string;
