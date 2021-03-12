@@ -5,6 +5,10 @@ import { configuration, GAP_LIMIT } from '../settings';
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
 
+function toBaseUnit(amount: number) {
+    return String(sb.toSatoshi(amount))
+}
+
 function saveJSON(object: any, directory: string) {
 
     const analysisJSON = JSON.stringify(object, null, 2);
@@ -44,9 +48,9 @@ function save(meta: any, data: any, directory: string) {
                 addressType: a.addressType,
                 derivation: a.getDerivation(),
                 address: a.toString(),
-                balance: sb.toSatoshi(a.balance),
-                funded: sb.toSatoshi(a.stats.funded),
-                spent: sb.toSatoshi(a.stats.spent)
+                balance: toBaseUnit(a.balance),
+                funded: toBaseUnit(a.stats.funded),
+                spent: toBaseUnit(a.stats.spent)
             }
         )
     }
@@ -56,7 +60,7 @@ function save(meta: any, data: any, directory: string) {
         summary.push(
             {
                 addressType: s.addressType,
-                balance: sb.toSatoshi(s.balance)
+                balance: toBaseUnit(s.balance)
             }
         )
     }
@@ -66,7 +70,7 @@ function save(meta: any, data: any, directory: string) {
         transactions.push(
             {
                 date: t.date,
-                amount: sb.toSatoshi(t.amount),
+                amount: toBaseUnit(t.amount),
                 txid: t.txid,
                 block: t.block,
                 operationType: t.operationType,
@@ -82,7 +86,7 @@ function save(meta: any, data: any, directory: string) {
         if (typeof(c.imported) !== 'undefined') {
             imported = {
                 date: c.imported.date,
-                amount: sb.toSatoshi(c.imported.amount),
+                amount: toBaseUnit(c.imported.amount),
                 txid: c.imported.txid,
                 address: c.imported.address,
                 operationType: c.imported.operationType
@@ -92,7 +96,7 @@ function save(meta: any, data: any, directory: string) {
         if (typeof(c.actual) !== 'undefined') {
             actual = {
                 date: c.actual.date,
-                amount: sb.toSatoshi(c.actual.amount),
+                amount: toBaseUnit(c.actual.amount),
                 txid: c.actual.txid,
                 block: c.actual.block,
                 address: c.actual.address,
