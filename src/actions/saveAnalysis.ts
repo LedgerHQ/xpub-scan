@@ -34,84 +34,45 @@ function saveJSON(object: any, directory: string) {
 }
 
 function save(meta: any, data: any, directory: string) {
-    const addresses: any[] = [];
-    const summary: any[] = [];
-    const transactions: any[] = [];
-    const comparisons: any[] = [];
 
     // convert amounts into base unit
 
-    // addresses
-    for (const a of data.addresses) {
+    const addresses: any[] = [];
+    data.addresses.forEach((e: any) => {
         addresses.push(
             { 
-                addressType: a.addressType,
-                derivation: a.getDerivation(),
-                address: a.toString(),
-                balance: toBaseUnit(a.balance),
-                funded: toBaseUnit(a.stats.funded),
-                spent: toBaseUnit(a.stats.spent)
+                addressType: e.addressType,
+                derivation: e.getDerivation(),
+                address: e.toString(),
+                balance: toBaseUnit(e.balance),
+                funded: toBaseUnit(e.stats.funded),
+                spent: toBaseUnit(e.stats.spent)
             }
-        )
-    }
+        )  
+    });
 
-    // summary
-    for (const s of data.summary) {
-        summary.push(
-            {
-                addressType: s.addressType,
-                balance: toBaseUnit(s.balance)
-            }
-        )
-    }
+    const summary = data.summary.map((e: any) => {
+        const obj = Object.assign({}, e);
+        obj['balance'] = toBaseUnit(e.balance);
+        return obj;
+    })
 
-    // transactions
-    for (const t of data.transactions) {
-        transactions.push(
-            {
-                date: t.date,
-                amount: toBaseUnit(t.amount),
-                txid: t.txid,
-                block: t.block,
-                operationType: t.operationType,
-                address: t.address
-            }
-        )
-    }
+    const transactions = data.transactions.map((e: any) => {
+        const obj = Object.assign({}, e);
+        obj['amount'] = toBaseUnit(e.amount);
+        return obj;
+    })
 
-    // comparisons
-    for (const c of data.comparisons) {
-        let imported, actual;
-
-        if (typeof(c.imported) !== 'undefined') {
-            imported = {
-                date: c.imported.date,
-                amount: toBaseUnit(c.imported.amount),
-                txid: c.imported.txid,
-                address: c.imported.address,
-                operationType: c.imported.operationType
-            }
+    const comparisons = data.comparisons.map((e: any) => {
+        const obj = Object.assign({}, e);
+        if (typeof(e.imported) !== 'undefined') {
+            obj['imported']['amount'] = toBaseUnit(e.imported.amount);
         }
-
-        if (typeof(c.actual) !== 'undefined') {
-            actual = {
-                date: c.actual.date,
-                amount: toBaseUnit(c.actual.amount),
-                txid: c.actual.txid,
-                block: c.actual.block,
-                address: c.actual.address,
-                operationType: c.actual.operationType
-            }
+        if (typeof(e.actual) !== 'undefined') {
+            obj['actual']['amount'] = toBaseUnit(e.actual.amount);
         }
-
-        comparisons.push(
-            {
-                imported,
-                actual,
-                status: c.status
-            }
-        )
-    }
+        return obj;
+    })
 
     const object = {
         meta: {
