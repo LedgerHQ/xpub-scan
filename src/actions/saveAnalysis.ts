@@ -1,12 +1,18 @@
 import fs from 'fs';
 
 import { configuration, GAP_LIMIT } from '../settings';
+import { reportTemplate } from '../templates/report.html'
 
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
 
 function toBaseUnit(amount: number) {
     return String(sb.toSatoshi(amount))
+}
+
+// TODO
+function saveHTML(object: any, directory: string) {
+    // reportTemplate
 }
 
 function saveJSON(object: any, directory: string) {
@@ -94,6 +100,7 @@ function save(meta: any, data: any, directory: string) {
     } 
 
     saveJSON(object, directory);
+    saveHTML(object, directory);
 }
 
 export { save }
