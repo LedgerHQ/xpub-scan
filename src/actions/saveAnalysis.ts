@@ -175,47 +175,49 @@ function saveHTML(object: any, directory: string) {
         `
 
     const comparisons: string[] = [];
-    for (const e of object.comparisons) {
+    if (typeof(object.comparisons) !== 'undefined') {
+        for (const e of object.comparisons) {
 
-        let txid: string = '';
-        let opType: string = '';
+            let txid: string = '';
+            let opType: string = '';
 
-        const imported = { date: '', address: '', amount: '' };
+            const imported = { date: '', address: '', amount: '' };
 
-        if (typeof(e.imported) !== 'undefined') {
-            imported.date = e.imported.date;
-            imported.address = renderAddress(e.imported.address);
-            imported.amount = renderNumber(e.imported.amount);
-            txid = e.imported.txid;
-            opType = e.imported.operationType;
+            if (typeof(e.imported) !== 'undefined') {
+                imported.date = e.imported.date;
+                imported.address = renderAddress(e.imported.address);
+                imported.amount = renderNumber(e.imported.amount);
+                txid = e.imported.txid;
+                opType = e.imported.operationType;
+            }
+
+            const actual = { date: '', address: '', amount: '' };
+
+            if (typeof(e.actual) !== 'undefined') {
+                actual.date = e.actual.date;
+                actual.address = renderAddress(e.actual.address);
+                actual.amount = renderNumber(e.actual.amount);
+                txid = e.actual.txid;
+                opType = e.actual.operationType;
+            }
+
+            if (e.status === 'Match') {
+                comparisons.push('<tr class="comparison_match">')
+            }
+            else {
+                comparisons.push('<tr class="comparison_mismatch">')
+            }
+
+            comparisons.push('<td>' + imported.date + '</td>');
+            comparisons.push('<td>' + imported.address + '</td>');
+            comparisons.push('<td>' + imported.amount + '</td>');
+            comparisons.push('<td>' + actual.date + '</td>');
+            comparisons.push('<td>' + actual.address + '</td>');
+            comparisons.push('<td>' + actual.amount + '</td>');
+            comparisons.push('<td>' + renderTxid(txid) + '</td>');
+            comparisons.push('<td>' + createTooltip(opType) + '</td>');
+            comparisons.push('<td>' + e.status + '</td></tr>');
         }
-
-        const actual = { date: '', address: '', amount: '' };
-
-        if (typeof(e.actual) !== 'undefined') {
-            actual.date = e.actual.date;
-            actual.address = renderAddress(e.actual.address);
-            actual.amount = renderNumber(e.actual.amount);
-            txid = e.actual.txid;
-            opType = e.actual.operationType;
-        }
-
-        if (e.status === 'Match') {
-            comparisons.push('<tr class="comparison_match">')
-        }
-        else {
-            comparisons.push('<tr class="comparison_mismatch">')
-        }
-
-        comparisons.push('<td>' + imported.date + '</td>');
-        comparisons.push('<td>' + imported.address + '</td>');
-        comparisons.push('<td>' + imported.amount + '</td>');
-        comparisons.push('<td>' + actual.date + '</td>');
-        comparisons.push('<td>' + actual.address + '</td>');
-        comparisons.push('<td>' + actual.amount + '</td>');
-        comparisons.push('<td>' + renderTxid(txid) + '</td>');
-        comparisons.push('<td>' + createTooltip(opType) + '</td>');
-        comparisons.push('<td>' + e.status + '</td></tr>');
     }
 
     const comparisonTable = comparisonsTemplate.replace('{comparisons}', comparisons.join(''));
