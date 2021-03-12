@@ -37,41 +37,43 @@ function save(meta: any, data: any, directory: string) {
 
     // convert amounts into base unit
 
-    const addresses: any[] = [];
-    data.addresses.forEach((e: any) => {
-        addresses.push(
-            { 
-                addressType: e.addressType,
-                derivation: e.getDerivation(),
-                address: e.toString(),
-                balance: toBaseUnit(e.balance),
-                funded: toBaseUnit(e.stats.funded),
-                spent: toBaseUnit(e.stats.spent)
-            }
-        )  
+    const addresses: any[] = data.addresses.map((e: any) => {
+        return { 
+            addressType: e.addressType,
+            derivation: e.getDerivation(),
+            address: e.toString(),
+            balance: toBaseUnit(e.balance),
+            funded: toBaseUnit(e.stats.funded),
+            spent: toBaseUnit(e.stats.spent)
+        };
     });
 
-    const summary = data.summary.map((e: any) => {
-        const obj = Object.assign({}, e);
-        obj['balance'] = toBaseUnit(e.balance);
-        return obj;
+    const summary: any[] = data.summary.map((e: any) => {
+        return {
+            ...e,
+            balance: toBaseUnit(e.balance)
+        };
     })
 
-    const transactions = data.transactions.map((e: any) => {
-        const obj = Object.assign({}, e);
-        obj['amount'] = toBaseUnit(e.amount);
-        return obj;
+    const transactions: any[] = data.transactions.map((e: any) => {
+        return {
+            ...e,
+            amount: toBaseUnit(e.amount)
+        };
     })
 
-    const comparisons = data.comparisons.map((e: any) => {
-        const obj = Object.assign({}, e);
-        if (typeof(e.imported) !== 'undefined') {
-            obj['imported']['amount'] = toBaseUnit(e.imported.amount);
-        }
-        if (typeof(e.actual) !== 'undefined') {
-            obj['actual']['amount'] = toBaseUnit(e.actual.amount);
-        }
-        return obj;
+    const comparisons: any[] = data.comparisons.map((e: any) => {
+        return {
+            ...e,
+            imported: e.imported !== undefined ? {
+                ...e.imported,
+                amount: toBaseUnit(e.imported.amount)
+            } : undefined,
+            actual: e.actual !== undefined ? {
+                ...e.actual,
+                amount: toBaseUnit(e.actual.amount)
+            } : undefined
+        };
     })
 
     const object = {
