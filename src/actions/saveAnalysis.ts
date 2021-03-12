@@ -2,6 +2,9 @@ import fs from 'fs';
 
 import { configuration, GAP_LIMIT } from '../settings';
 
+// @ts-ignore
+import sb from 'satoshi-bitcoin';
+
 function saveJSON(object: any, directory: string) {
 
     const analysisJSON = JSON.stringify(object, null, 2);
@@ -29,16 +32,79 @@ function saveJSON(object: any, directory: string) {
 function save(meta: any, data: any, directory: string) {
     const addresses: any[] = [];
     const summary: any[] = [];
+    const transactions: any[] = [];
+    const comparisons: any[] = [];
 
+    // convert amounts into base unit
+
+    // addresses
     for (const a of data.addresses) {
         addresses.push(
             { 
                 addressType: a.addressType,
                 derivation: a.getDerivation(),
                 address: a.toString(),
-                balance: a.balance,
-                funded: a.stats.funded,
-                spent: a.stats.spent
+                balance: sb.toSatoshi(a.balance),
+                funded: sb.toSatoshi(a.stats.funded),
+                spent: sb.toSatoshi(a.stats.spent)
+            }
+        )
+    }
+
+    // summary
+    for (const s of data.summary) {
+        summary.push(
+            {
+                addressType: s.addressType,
+                balance: sb.toSatoshi(s.balance)
+            }
+        )
+    }
+
+    // transactions
+    for (const t of data.transactions) {
+        transactions.push(
+            {
+                date: t.date,
+                amount: sb.toSatoshi(t.amount),
+                txid: t.txid,
+                block: t.block,
+                operationType: t.operationType,
+                address: t.address
+            }
+        )
+    }
+
+    // comparisons
+    for (const c of data.comparisons) {
+        let imported, actual;
+
+        if (typeof(c.imported) !== 'undefined') {
+            imported = {
+                date: c.imported.date,
+                amount: sb.toSatoshi(c.imported.amount),
+                txid: c.imported.txid,
+                address: c.imported.address,
+                operationType: c.imported.operationType
+            }
+        }
+
+        if (typeof(c.actual) !== 'undefined') {
+            actual = {
+                date: c.actual.date,
+                amount: sb.toSatoshi(c.actual.amount),
+                txid: c.actual.txid,
+                block: c.actual.block,
+                address: c.actual.address,
+                operationType: c.actual.operationType
+            }
+        }
+
+        comparisons.push(
+            {
+                imported,
+                actual,
+                status: c.status
             }
         )
     }
@@ -55,9 +121,9 @@ function save(meta: any, data: any, directory: string) {
             gap_limit: GAP_LIMIT
         },
         addresses,
-        summary: data.summary,
-        transactions: data.transactions,
-        comparisons: data.comparisons
+        summary,
+        transactions,
+        comparisons
     } 
 
     saveJSON(object, directory);
