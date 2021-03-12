@@ -52,11 +52,11 @@ Example:
 Example:
 `$ node build/scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv`
 
-### Save Analysis as a JSON File (Scan Only)
+### Generate JSON and HTML Reports (Scan Only)
 
-`$ node build/scan.js <xpub> [args...] --save <directory or filename>`
+`$ node build/scan.js <xpub> [args...] --save <directory>`
 
-If no filename is specified, the file is saved as `<xpub>.json`.
+The files are saved as `<xpub>.json` and `<xpub>.html`.
 
 ## Usage 2. Check Address Against Xpub
 

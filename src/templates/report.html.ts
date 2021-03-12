@@ -220,7 +220,7 @@ export const reportTemplate = `
           </tr>
         </thead>
         <tbody>
-          $addresses$
+          {addresses}
         </tbody>
       </table>
     </div>
@@ -240,7 +240,7 @@ export const reportTemplate = `
           </tr>
         </thead>
         <tbody>
-          {transaction}
+          {transactions}
         </tbody>
       </table>
     </div>

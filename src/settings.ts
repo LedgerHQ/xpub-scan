@@ -66,6 +66,12 @@ export enum AddressType {
   SEGWIT = "SegWit"
 }
 
+// HTML REPORT
+// -----------
+
+const EXTERNAL_EXPLORER_URL = 'https://blockchair.com/{coin}/{type}/{exp}'
+
+
 Object.freeze(AddressType);
 
 dotenv.config();
@@ -84,4 +90,5 @@ export {
   BITCOIN_NETWORK,
   LITECOIN_NETWORK,
   DERIVATION_SCOPE,
+  EXTERNAL_EXPLORER_URL
 }
