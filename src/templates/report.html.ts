@@ -183,14 +183,7 @@ export const reportTemplate = `
       </ul>
     </div>
 
-    <ul>
-      <li><a href="#anchor_addresses">Active Addresses</a></li>
-      <li><a href="#anchor_transactions">Transactions</a></li>
-      <li><a href="#anchor_comparisons">Comparisons</a></li>
-    </ul>
-
-
-    <h1 id="anchor_summary">Summary</h1>
+    <h1>Summary</h1>
     <div class="summary">
       <table>
         <thead>
@@ -206,7 +199,7 @@ export const reportTemplate = `
     </div>
 
     <br />
-    <h1 id="anchor_addresses">Active Addresses</h1>
+    <h1>Active Addresses</h1>
     <div class="addresses">
       <table>
         <thead>
@@ -226,7 +219,7 @@ export const reportTemplate = `
     </div>
 
     <br />
-    <h1 id="anchor_transactions">Transactions</h1>
+    <h1>Transactions</h1>
     <div class="transactions">
       <table>
         <thead>

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import minifier from 'html-minifier'
 
 import { configuration, GAP_LIMIT, EXTERNAL_EXPLORER_URL } from '../settings';
 import { reportTemplate } from '../templates/report.html'
@@ -147,7 +148,7 @@ function saveHTML(object: any, directory: string) {
 
     // comparisons
     const comparisonsTemplate = `
-        <h1 id="anchor_comparisons">Comparisons</h1>
+        <h1>Comparisons</h1>
         <div class="comparisons">
             <table>
                 <thead>
@@ -235,7 +236,13 @@ function saveHTML(object: any, directory: string) {
             .concat(object.meta.xpub)
             .concat('.html')
 
-    fs.writeFile(filepath, report, function(err) {
+    const minifiedReport = minifier.minify(report, {
+        removeAttributeQuotes: true,
+        minifyCSS: true,
+        removeComments: true,
+    });
+
+    fs.writeFile(filepath, minifiedReport, function(err) {
         if (err) {
             console.log(err);
         }
