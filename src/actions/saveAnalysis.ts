@@ -68,19 +68,19 @@ function save(meta: any, data: any, directory: string) {
         };
     })
 
-    const comparisons: any[] = data.comparisons.map((e: any) => {
+    const comparisons: any[] = typeof(data.comparisons) !== 'undefined' ? data.comparisons.map((e: any) => {
         return {
             ...e,
-            imported: e.imported !== undefined ? {
+            imported: typeof(e.imported) !== 'undefined' ? {
                 ...e.imported,
                 amount: toBaseUnit(e.imported.amount)
             } : undefined,
-            actual: e.actual !== undefined ? {
+            actual: typeof(e.actual) !== 'undefined' ? {
                 ...e.actual,
                 amount: toBaseUnit(e.actual.amount)
             } : undefined
         };
-    })
+    }) : undefined;
 
     const object = {
         meta: {
