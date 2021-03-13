@@ -69,7 +69,7 @@ export enum AddressType {
 // HTML REPORT
 // -----------
 
-const EXTERNAL_EXPLORER_URL = 'https://blockchair.com/{coin}/{type}/{exp}'
+const EXTERNAL_EXPLORER_URL = 'https://blockchair.com/{coin}/{type}/{item}'
 
 
 Object.freeze(AddressType);

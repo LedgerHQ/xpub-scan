@@ -18,6 +18,13 @@ export const reportTemplate = `
         font-size: 1em;
       }
 
+      .warning {
+        width: 100%;
+        color: #EA5231;
+        font-size: 1.4em;
+        text-align: center;
+      }
+
       a {
         color: inherit;
         text-decoration: none;
@@ -220,6 +227,7 @@ export const reportTemplate = `
 
     <br />
     <h1>Transactions</h1>
+    <div class="warning">{warning}</div>
     <div class="transactions">
       <table>
         <thead>

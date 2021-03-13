@@ -11,45 +11,53 @@ function toBaseUnit(amount: number) {
     return String(sb.toSatoshi(amount));
 }
 
+// align float numbers or zeros
 function renderNumber(amount: number) {
     const decimalPrecision = 8;
-    const sep = '¤'; // (any non-numeric not dot char)
+    const filler = '¤'; // (any non-numeric non-dot char)
     let n;
 
-    if (amount === 0) {
-        n = '0'.padEnd(decimalPrecision + 2, sep);
+    if (amount == 0) {
+        // to align: insert filler
+        n = '0'.padEnd(decimalPrecision + 2, filler);
     }
     else {
+        // from base unit to bitcoin (or equivalent)
         n = sb.toBitcoin(amount).toFixed(decimalPrecision);
     }
 
-    n = String(n).padStart(decimalPrecision * 2, sep);
+    // to align: insert filler
+    n = String(n).padStart(decimalPrecision * 2, filler);
 
-    return '<span class="monospaced">' + n.split(sep).join('&nbsp;') + '</span>';
+    // to insert non-breaking spaces, replace the filler with `&nbsp;`
+    return '<span class="monospaced">' + n.split(filler).join('&nbsp;') + '</span>';
 }
 
+// make address clickable
 function renderAddress(address: string) {
     const url = EXTERNAL_EXPLORER_URL
         .replace('{coin}', configuration.currency.toLowerCase())
         .replace('{type}', 'address')
-        .replace('{exp}', address);
+        .replace('{item}', address);
     
     address = address.length < 45 ? address : address.substring(0, 45) + '...';
 
     return '<a class="monospaced" href="' + url + '" target=_blank>' + address + "</a>"
 }
 
+// make TXID clickable
 function renderTxid(txid: string) {
     const url = EXTERNAL_EXPLORER_URL
         .replace('{coin}', configuration.currency.toLowerCase())
         .replace('{type}', 'transaction')
-        .replace('{exp}', txid);
+        .replace('{item}', txid);
         
     txid = txid.substring(0, 10) + '...';
 
     return '<a class="monospaced" href="' + url + '" target=_blank>' + txid + "</a>"
 }
 
+// explain some operation types
 function createTooltip(opType: string) {
     if (opType === 'Sent' || opType === 'Received') {
         return opType;
@@ -90,6 +98,13 @@ function saveHTML(object: any, directory: string) {
         report = report.split('{' + key + '}').join(object.meta[key]);
     }
 
+    if (object.meta.provider === 'default') {
+        report = report.replace('{warning}', 'Default provider used: only the last ~50 operations by address are displayed');
+    }
+    else {
+        report = report.replace('{warning}', '');
+    }
+
     // summary
     const summary: string[] = [];
     for (const e of object.summary) {
@@ -97,6 +112,7 @@ function saveHTML(object: any, directory: string) {
 
         const balance = sb.toBitcoin(e.balance);
 
+        // non-strict equality required here
         if (balance === 0) {
             summary.push('<td class="summary_empty">');
         }
@@ -104,9 +120,7 @@ function saveHTML(object: any, directory: string) {
             summary.push('<td class="summary_non_empty">');
         }
 
-        summary.push(balance);
-
-        summary.push('</td></tr>')
+        summary.push(balance + '</td></tr>');
     }
 
     report = report.replace('{summary}', summary.join(''));
@@ -116,8 +130,8 @@ function saveHTML(object: any, directory: string) {
     for (const e of object.addresses) {
         addresses.push('<tr><td>' + e.addressType + '</td>');
 
-        const derivation = 'm/' + e.derivation.account + '/' + e.derivation.index;
-        addresses.push('<td>' + derivation + '</td>')
+        const derivationPath = 'm/' + e.derivation.account + '/' + e.derivation.index;
+        addresses.push('<td>' + derivationPath + '</td>')
 
         addresses.push('<td>' + renderAddress(e.address) + '</td>')
 
@@ -127,8 +141,7 @@ function saveHTML(object: any, directory: string) {
 
         addresses.push('<td>' + balance + '</td>');
         addresses.push('<td>' + funded + '</td>');
-        addresses.push('<td>' + spent + '</td>');
-        addresses.push('</tr>');
+        addresses.push('<td>' + spent + '</td></tr>');
     }
 
     report = report.replace('{addresses}', addresses.join(''));
@@ -139,7 +152,7 @@ function saveHTML(object: any, directory: string) {
         transactions.push('<tr><td>' + e.date + '</td>');
         transactions.push('<td>' + e.block + '</td>');
         transactions.push('<td>' + renderTxid(e.txid) + '</td>');
-        transactions.push('<td>' +  renderAddress(e.address) + '</td>');
+        transactions.push('<td>' + renderAddress(e.address) + '</td>');
         transactions.push('<td>' + renderNumber(e.amount) + '</td>');
         transactions.push('<td>' + createTooltip(e.operationType) + '</td></tr>');
     }
@@ -152,10 +165,10 @@ function saveHTML(object: any, directory: string) {
         <div class="comparisons">
             <table>
                 <thead>
-                    <tr>
+                    <tr style="text-align: center">
                         <th rowspan="1" colspan="3">Imported</th>
                         <th rowspan="1" colspan="3">Actual</th>
-                        <th rowspan="2" colspan="1">Tx id</th>
+                        <th rowspan="2" colspan="1">TXID</th>
                         <th rowspan="2" colspan="1">Type</th>
                         <th rowspan="2" colspan="1">Status</th>
                     </tr>
@@ -182,7 +195,8 @@ function saveHTML(object: any, directory: string) {
             let txid: string = '';
             let opType: string = '';
 
-            const imported = { date: '', address: '', amount: '' };
+            // by default: no imported operation
+            const imported = { date: '', address: '(no operation)', amount: '' };
 
             if (typeof(e.imported) !== 'undefined') {
                 imported.date = e.imported.date;
@@ -192,7 +206,8 @@ function saveHTML(object: any, directory: string) {
                 opType = e.imported.operationType;
             }
 
-            const actual = { date: '', address: '', amount: '' };
+            // by default: no actual operation
+            const actual = { date: '', address: '(no operation)', amount: '' };
 
             if (typeof(e.actual) !== 'undefined') {
                 actual.date = e.actual.date;
@@ -253,7 +268,7 @@ function saveHTML(object: any, directory: string) {
 
 function saveJSON(object: any, directory: string) {
 
-    const analysisJSON = JSON.stringify(object, null, 2);
+    const JSONobject = JSON.stringify(object, null, 2);
 
     const filepath = 
         directory
@@ -261,13 +276,13 @@ function saveJSON(object: any, directory: string) {
         .concat(object.meta.xpub)
         .concat('.json')
 
-    fs.writeFile(filepath, analysisJSON, function(err) {
+    fs.writeFile(filepath, JSONobject, function(err) {
         if (err) {
             console.log(err);
         }
     });
 
-    console.log('\nJSON report saved: '.concat(filepath));
+    console.log('\nJSON export saved: '.concat(filepath));
 }
 
 function save(meta: any, data: any, directory: string) {
@@ -322,7 +337,8 @@ function save(meta: any, data: any, directory: string) {
             currency: configuration.currency,
             provider: configuration.providerType,
             provider_url: configuration.BaseURL,
-            gap_limit: GAP_LIMIT
+            gap_limit: GAP_LIMIT,
+            unit: "Base unit (i.e., satoshis or equivalent)"
         },
         addresses,
         summary,
