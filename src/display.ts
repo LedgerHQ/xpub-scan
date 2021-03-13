@@ -25,6 +25,10 @@ function convertUnits(amount: number) {
 
 // display the active/probed address with its stats
 function updateAddressDetails(address: Address) {
+  if (configuration.quiet) {
+    return;
+  }
+
   const addressType = address.getType()
   const account = address.getDerivation().account
   const index = address.getDerivation().index
@@ -83,6 +87,10 @@ function updateAddressDetails(address: Address) {
 
 // display the list of operations sorted by date (reverse chronological order)
 function showSortedOperations(sortedOperations: Operation[]) {
+  if (configuration.quiet) {
+    return;
+  }
+
   process.stdout.write(chalk.bold('\nOperations History'))
 
   if (typeof(configuration.APIKey) === 'undefined') {
@@ -164,6 +172,10 @@ function showSortedOperations(sortedOperations: Operation[]) {
 
 // display the summary: total balance by address type
 function showSummary(addressType: string, totalBalance: number) {
+  if (configuration.quiet) {
+    return;
+  }
+
   const balance = convertUnits(totalBalance);
     
   if (balance === '0') {
@@ -187,6 +199,10 @@ function showSummary(addressType: string, totalBalance: number) {
 }
 
 function logStatus(status: string) {
+  if (configuration.quiet) {
+    return;
+  }
+
   console.log(chalk.dim(status));
 }
 
@@ -197,6 +213,10 @@ function logStatus(status: string) {
 // always check the resulting behavior in
 // Docker
 function transientLine(message?: string) {
+  if (configuration.quiet) {
+    return;
+  }
+  
   readline.cursorTo(process.stdout, 0);
 
   if (typeof(message) !== 'undefined') {
@@ -212,6 +232,10 @@ function transientLine(message?: string) {
 }
 
 function showOpsAndSummary(sortedOperations: Operation[], summary: any[]) {
+  if (configuration.quiet) {
+    return;
+  }
+
   showSortedOperations(sortedOperations);
 
   console.log(chalk.bold("\nSummary\n"));

@@ -80,7 +80,8 @@ export const configuration = {
   currency: '', 
   BaseURL: process.env.API_URL || DEFAULT_API_URL,
   APIKey: process.env.API_KEY,
-  providerType: 'default'
+  providerType: 'default',
+  quiet: false
 };
 
 export {

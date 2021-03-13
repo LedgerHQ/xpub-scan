@@ -58,6 +58,8 @@ Example:
 
 The files are saved as `<xpub>.json` and `<xpub>.html`.
 
+Note: `--save stdout` can be used to display the JSON instead of saving the files.
+
 ## Usage 2. Check Address Against Xpub
 
 *Check if an address has been derived from a master public key.*

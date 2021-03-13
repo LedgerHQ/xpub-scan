@@ -4,7 +4,7 @@ import * as display from "../display";
 
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { AddressType, GAP_LIMIT } from "../settings";
+import { configuration, AddressType, GAP_LIMIT } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
 // @ts-ignore
@@ -35,7 +35,10 @@ function scanAddresses(addressType: AddressType, xpub: string) {
       display.updateAddressDetails(address);
       
       const status = noTxCounter === 0 ? "analyzing" : "probing address gap"
-      process.stdout.write(chalk.yellow(status + "..."));
+
+      if (!configuration.quiet) {
+        process.stdout.write(chalk.yellow(status + "..."));
+      }
       
       getStats(address);
       
@@ -100,7 +103,9 @@ function run(xpub: string, account?: number, index?: number) {
     // Option A: no index has been provided:
     // scan all address types
 
-    console.log(chalk.bold("\nActive addresses\n"));
+    if (!configuration.quiet) {
+      console.log(chalk.bold("\nActive addresses\n"));
+    }
 
     [
       AddressType.LEGACY,

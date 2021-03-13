@@ -5,6 +5,7 @@ import sb from 'satoshi-bitcoin';
 
 import { Operation } from '../models/operation'
 import { Comparison, ComparisonStatus } from '../models/comparison'
+import { configuration } from '../settings';
 
 interface Txid {
     date: string,
@@ -162,12 +163,14 @@ function importOperations(path: string) : Operation[] {
         throw new Error('CSV format not recognized.')
     }
 
-    console.log(
-        chalk.grey(
-            String(operations.length)
-            .concat(' operations have been imported')
-        )
-    );
+    if (!configuration.quiet) {
+        console.log(
+            chalk.grey(
+                String(operations.length)
+                .concat(' operations have been imported')
+            )
+        );
+    }
 
     // TODO: at this point, generate a warning/error 
     // message if no operation has been imported 
@@ -239,6 +242,10 @@ function renderAddress(address: string) {
 
 // TODO?: export in a dedicated module (display.ts)?
 function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operation) {
+    if (configuration.quiet) {
+        return;
+    }
+    
     const halfColorPadding = 84;
     const fullColorPadding = 85;
 

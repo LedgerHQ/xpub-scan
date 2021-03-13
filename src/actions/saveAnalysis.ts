@@ -276,13 +276,20 @@ function saveJSON(object: any, directory: string) {
         .concat(object.meta.xpub)
         .concat('.json')
 
-    fs.writeFile(filepath, JSONobject, function(err) {
-        if (err) {
-            console.log(err);
-        }
-    });
-
-    console.log('\nJSON export saved: '.concat(filepath));
+    if (directory.toLocaleLowerCase() === 'stdout') {
+        // display
+        console.log(JSONobject);
+    }
+    else {
+        // save file
+        fs.writeFile(filepath, JSONobject, function(err) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    
+        console.log('\nJSON export saved: '.concat(filepath));
+    }
 }
 
 function save(meta: any, data: any, directory: string) {
@@ -352,7 +359,10 @@ function save(meta: any, data: any, directory: string) {
     }
 
     saveJSON(object, directory);
-    saveHTML(object, directory);
+
+    if (directory.toLocaleLowerCase() !== 'stdout') {
+        saveHTML(object, directory);
+    }
 }
 
 export { save }

@@ -7,7 +7,8 @@ import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
 import * as display from "./display";
 import { getSortedOperations } from "./actions/processTransactions"
-import { checkXpub } from "./helpers";
+import { init } from "./helpers";
+import { configuration } from "./settings";
 import { importOperations, checkImportedOperations } from "./actions/importOperations";
 import { save } from "./actions/saveAnalysis"
 
@@ -40,17 +41,28 @@ const args = yargs
     description: "Save analysis",
     demand: false,
     type: 'string',
+  })
+  .option('quiet', {
+    description: "Do not display analysis progress",
+    demand: false,
+    type: 'boolean',
+    default: false
   }).argv;
 
 const account = args.account;
 const index = args.index;
 const address = args.address
+const quiet = args.quiet
 
 const xpub = String(args._[0]);
-checkXpub(xpub);
+init(xpub, quiet);
 
 // TODO: remove once stable enough
 function displayWarning() {
+  if (configuration.quiet) {
+    return;
+  }
+
   console.log(
     chalk.redBright(
       '\nXpub scan is not stable yet (pre-alpha release): do not hesitate to double-check its output.',
