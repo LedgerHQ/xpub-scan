@@ -7,6 +7,13 @@ export const reportTemplate = `
     <style>
       body {
         font-family: Arial, Helvetica, sans-serif;
+        margin: 0px;
+      }
+
+      * {
+        margin: 0;
+        margin-bottom: 6px;
+        padding: 0;
       }
 
       .monospaced {
@@ -14,8 +21,8 @@ export const reportTemplate = `
       }
 
       .meta {
-        font-family: Optima;
         font-size: 1em;
+        margin: 2em;
       }
 
       .warning {
@@ -50,7 +57,7 @@ export const reportTemplate = `
 
       .tooltip .tooltiptext {
         visibility: hidden;
-        width: 120px;
+        width: 100px;
         background-color: black;
         color: #fff;
         text-align: center;
@@ -69,6 +76,12 @@ export const reportTemplate = `
         text-align: center;
       }
 
+      h2 {
+        text-align: center;
+        font-size: 1.1em;
+        font-weight: 100;
+      }
+    
       ul {
         list-style: none;
       }
@@ -93,7 +106,8 @@ export const reportTemplate = `
         font-style: italic;
       }
 
-      /* From    https://codepen.io/jackrugile/pen/EyABe    */
+      /* table | from https://codepen.io/jackrugile/pen/EyABe */
+
       table {
         background: #f5f5f5;
         border-collapse: collapse;
@@ -171,17 +185,72 @@ export const reportTemplate = `
 
       tr:last-of-type td:last-child {
         box-shadow: inset -1px -1px 0 #fff;
-      } 
+      }
+      
+      .tabs{
+          width: 98%;
+          display: block;
+          position: relative;
+      }
+      
+      /* tabs | from https://codepen.io/dhs/pen/diasg */
+
+      .tabs .tab{
+          float: left;
+          display: block;
+      }
+      
+      .tabs .tab>input[type="radio"] {
+          position: absolute;
+          top: -9999px;
+          left: -9999px;
+      }
+      
+      .tabs .tab>label {
+          display: block;
+          padding: 6px 21px;
+          font-size: 12px;
+          text-transform: uppercase;
+          cursor: pointer;
+          position: relative;
+          color: #FFF;
+          background: #303030;
+      }
+      
+      .tabs .content {
+          display: none;
+          overflow: hidden;
+          width: 100%;
+          position: absolute;
+          top: 27px;
+          left: 0;
+          
+          opacity:0;
+          transition: opacity 400ms ease-out;
+      }
+      
+      .tabs>.tab>[id^="tab"]:checked + label {
+          top: 0;
+          background: #4A83FD;
+          color: #F5F5F5;
+      }
+      
+      .tabs>.tab>[id^="tab"]:checked ~ [id^="tab-content"] {
+          display: block;
+        
+          opacity: 1;
+          transition: opacity 400ms ease-out;
+      }
     </style>
   </head>
 
   <body>
-
+    <br />
     <h1>Xpub Scan Report</h1>
-
+    <h2 class="monospaced">{xpub}</h2>
+    
     <div class="meta">
       <ul>
-        <li><strong>Xpub:</strong> <span class="monospaced">{xpub}</span></li>
         <li><strong>Currency:</strong> {currency}</li>
         <li><strong>Analysis date:</strong> {analysis_date}</li>
         <li><strong>Provider:</strong> {provider} ({provider_url})</li>
@@ -190,8 +259,12 @@ export const reportTemplate = `
       </ul>
     </div>
 
-    <h1>Summary</h1>
-    <div class="summary">
+    <ul class="tabs">
+
+    <li class="tab">
+    <input type="radio" name="tabs" checked="checked" id="tab1" />
+    <label for="tab1">Summary</label>
+    <div id="tab-content1" class="content">
       <table>
         <thead>
           <tr>
@@ -204,10 +277,12 @@ export const reportTemplate = `
         </tbody>
       </table>
     </div>
+    </li>
 
-    <br />
-    <h1>Active Addresses</h1>
-    <div class="addresses">
+    <li class="tab">
+    <input type="radio" name="tabs" id="tab2" />
+    <label for="tab2">Addresses</label>
+    <div id="tab-content2" class="content">
       <table>
         <thead>
           <tr>
@@ -224,11 +299,13 @@ export const reportTemplate = `
         </tbody>
       </table>
     </div>
+    </li>
 
-    <br />
-    <h1>Transactions</h1>
+    <li class="tab">
+    <input type="radio" name="tabs" id="tab3" />
+    <label for="tab3">Transactions</label>
+    <div id="tab-content3" class="content">
     <div class="warning">{warning}</div>
-    <div class="transactions">
       <table>
         <thead>
           <tr>
@@ -245,9 +322,10 @@ export const reportTemplate = `
         </tbody>
       </table>
     </div>
+    </li>
 
-    <br />
     {comparisons}
+    </ul>
 
   </body>
 

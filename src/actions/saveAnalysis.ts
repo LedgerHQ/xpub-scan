@@ -161,8 +161,10 @@ function saveHTML(object: any, directory: string) {
 
     // comparisons
     const comparisonsTemplate = `
-        <h1>Comparisons</h1>
-        <div class="comparisons">
+        <li class="tab">
+        <input type="radio" name="tabs" id="tab4" />
+        <label for="tab4">Comparisons</label>
+        <div id="tab-content4" class="content">
             <table>
                 <thead>
                     <tr style="text-align: center">
@@ -186,6 +188,7 @@ function saveHTML(object: any, directory: string) {
                 </tbody>
             </table>
         </div>
+        </li>
         `
 
     const comparisons: string[] = [];
