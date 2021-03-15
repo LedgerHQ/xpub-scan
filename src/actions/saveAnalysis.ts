@@ -8,7 +8,17 @@ import { reportTemplate } from '../templates/report.html'
 import sb from 'satoshi-bitcoin';
 
 function toBaseUnit(amount: number) {
-    return String(sb.toSatoshi(amount));
+    // to bitcoins (or equivalent unit)
+    let n = sb.toSatoshi(amount);
+
+    // if is float, truncate (no float expected)
+    // (this kind of issue can happen with imported operations
+    //  and does not affect the comparison itself)
+    if (n % 1 !== 0) {
+        n = Math.trunc(n);
+    }
+
+    return String(n);
 }
 
 // align float numbers or zeros
@@ -23,7 +33,6 @@ function renderNumber(amount: number) {
         n = '0'.padEnd(decimalPrecision + 2, filler);
     }
     else {
-        // from base unit to bitcoin (or equivalent unit)
         n = sb.toBitcoin(amount).toFixed(decimalPrecision);
     }
 
