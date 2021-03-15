@@ -65,7 +65,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
         noTxCounter = 0;
       }
 
-      // convert address balance into satoshis (or equivalent...)
+      // convert address balance into satoshis (or equivalent unit)
       // in order to avoid issue with floats addition 
       totalBalance += sb.toSatoshi(address.getBalance());
       
@@ -90,7 +90,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   display.logStatus(addressType.concat(" addresses scanned\n"));
   
   return {
-    balance: sb.toBitcoin(totalBalance), // convert back balance to bitcoins (or equivalent...)
+    balance: sb.toBitcoin(totalBalance), // convert balance back to bitcoins (or equivalent unit)
     addresses
   }
 }

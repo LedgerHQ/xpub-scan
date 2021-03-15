@@ -17,19 +17,20 @@ function renderNumber(amount: number) {
     const filler = '¤'; // (any non-numeric non-dot char)
     let n;
 
+    // non-strict equality required here
     if (amount == 0) {
-        // to align: insert filler
+        // align '0': insert filler on the right
         n = '0'.padEnd(decimalPrecision + 2, filler);
     }
     else {
-        // from base unit to bitcoin (or equivalent)
+        // from base unit to bitcoin (or equivalent unit)
         n = sb.toBitcoin(amount).toFixed(decimalPrecision);
     }
 
-    // to align: insert filler
+    // align any number: insert filler on the left
     n = String(n).padStart(decimalPrecision * 2, filler);
 
-    // to insert non-breaking spaces, replace the filler with `&nbsp;`
+    // insert non-breaking spaces by replacing the filler with `&nbsp;`
     return '<span class="monospaced">' + n.split(filler).join('&nbsp;') + '</span>';
 }
 
@@ -98,13 +99,6 @@ function saveHTML(object: any, directory: string) {
         report = report.split('{' + key + '}').join(object.meta[key]);
     }
 
-    if (object.meta.provider === 'default') {
-        report = report.replace('{warning}', 'Default provider used: only the last ~50 operations by address are displayed');
-    }
-    else {
-        report = report.replace('{warning}', '');
-    }
-
     // summary
     const summary: string[] = [];
     for (const e of object.summary) {
@@ -147,6 +141,15 @@ function saveHTML(object: any, directory: string) {
     report = report.replace('{addresses}', addresses.join(''));
 
     // transactions
+
+    // display warning if default provider is being used
+    if (object.meta.provider === 'default') {
+        report = report.replace('{warning}', 'Default provider used: only the last ~50 operations by address are displayed');
+    }
+    else {
+        report = report.replace('{warning}', '');
+    }
+
     const transactions: string[] = [];
     for (const e of object.transactions) {
         transactions.push('<tr><td>' + e.date + '</td>');
@@ -165,28 +168,28 @@ function saveHTML(object: any, directory: string) {
         <input type="radio" name="tabs" id="tab4" />
         <label for="tab4">Comparisons</label>
         <div id="tab-content4" class="content">
-            <table>
-                <thead>
-                    <tr style="text-align: center">
-                        <th rowspan="1" colspan="3">Imported</th>
-                        <th rowspan="1" colspan="3">Actual</th>
-                        <th rowspan="2" colspan="1">TXID</th>
-                        <th rowspan="2" colspan="1">Type</th>
-                        <th rowspan="2" colspan="1">Status</th>
-                    </tr>
-                    <tr>
-                        <th>Date</th>
-                        <th>Address</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Address</th>
-                        <th>Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {comparisons}
-                </tbody>
-            </table>
+        <table>
+            <thead>
+                <tr style="text-align: center">
+                    <th rowspan="1" colspan="3">Imported</th>
+                    <th rowspan="1" colspan="3">Actual</th>
+                    <th rowspan="2" colspan="1">TXID</th>
+                    <th rowspan="2" colspan="1">Type</th>
+                    <th rowspan="2" colspan="1">Status</th>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Address</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Address</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {comparisons}
+            </tbody>
+        </table>
         </div>
         </li>
         `
@@ -348,7 +351,7 @@ function save(meta: any, data: any, directory: string) {
             provider: configuration.providerType,
             provider_url: configuration.BaseURL,
             gap_limit: GAP_LIMIT,
-            unit: "Base unit (i.e., satoshis or equivalent)"
+            unit: "Base unit (i.e., satoshis or equivalent unit)"
         },
         addresses,
         summary,

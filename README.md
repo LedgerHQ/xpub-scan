@@ -58,7 +58,7 @@ Example:
 
 The files are saved as `<xpub>.json` and `<xpub>.html`.
 
-Note: `--save stdout` can be used to display the JSON instead of saving the files.
+Note: `--save stdout` can be used to display the JSON instead of saving the files. Furthermore, the `--quiet` option does not display the analysis progress.
 
 ## Usage 2. Check Address Against Xpub
 
