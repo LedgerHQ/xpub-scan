@@ -4,9 +4,11 @@ import * as display from "../display";
 
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { AddressType, GAP_LIMIT } from "../settings";
+import { configuration, AddressType, GAP_LIMIT } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
+// @ts-ignore
+import sb from 'satoshi-bitcoin';
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
@@ -33,7 +35,10 @@ function scanAddresses(addressType: AddressType, xpub: string) {
       display.updateAddressDetails(address);
       
       const status = noTxCounter === 0 ? "analyzing" : "probing address gap"
-      process.stdout.write(chalk.yellow(status + "..."));
+
+      if (!configuration.quiet) {
+        process.stdout.write(chalk.yellow(status + "..."));
+      }
       
       getStats(address);
       
@@ -59,8 +64,10 @@ function scanAddresses(addressType: AddressType, xpub: string) {
       else {
         noTxCounter = 0;
       }
-      
-      totalBalance += address.getBalance();
+
+      // convert address balance into satoshis (or equivalent unit)
+      // in order to avoid issue with floats addition 
+      totalBalance += sb.toSatoshi(address.getBalance());
       
       display.updateAddressDetails(address);
       
@@ -83,7 +90,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   display.logStatus(addressType.concat(" addresses scanned\n"));
   
   return {
-    balance: totalBalance,
+    balance: sb.toBitcoin(totalBalance), // convert balance back to bitcoins (or equivalent unit)
     addresses
   }
 }
@@ -96,7 +103,9 @@ function run(xpub: string, account?: number, index?: number) {
     // Option A: no index has been provided:
     // scan all address types
 
-    console.log(chalk.bold("\nActive addresses\n"));
+    if (!configuration.quiet) {
+      console.log(chalk.bold("\nActive addresses\n"));
+    }
 
     [
       AddressType.LEGACY,

@@ -64,6 +64,10 @@ function checkXpub(xpub: string) {
     configuration.providerType = 'custom';
   }
 
+  if (configuration.quiet) {
+    return;
+  }
+
   console.log(
     chalk.grey(
       '(Data fetched from the '
@@ -73,7 +77,12 @@ function checkXpub(xpub: string) {
   );
 }
 
+function init(xpub: string, quiet: boolean) {
+  configuration.quiet = quiet;
+  checkXpub(xpub);
+}
+
 export {
   getJSON,
-  checkXpub
+  init
 }
