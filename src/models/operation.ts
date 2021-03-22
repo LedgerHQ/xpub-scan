@@ -1,3 +1,5 @@
+import { BITCOIN_CASH_NETWORK, configuration } from "../settings";
+
 type OperationType = 
             "Received"                              // Received - common case
         |   "Received (non-sibling to change)"      // Received - edge case: address not belonging to the xpub
@@ -37,6 +39,10 @@ class Operation {
     }
 
     setAddress(address: string) {
+        if (configuration.network === BITCOIN_CASH_NETWORK) {
+            address = address.replace('bitcoincash:', '');
+        }
+        
         this.address = address;
     }
 
