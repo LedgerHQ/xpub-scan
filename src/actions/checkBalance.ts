@@ -4,15 +4,11 @@ import * as display from "../display";
 
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { configuration, AddressType, GAP_LIMIT, BITCOIN_CASH_NETWORK } from "../settings";
+import { configuration, AddressType, GAP_LIMIT, NETWORKS } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
-
-// @ts-ignore
-import bchaddr from "bchaddrjs";
-
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
@@ -109,7 +105,7 @@ function run(xpub: string, account?: number, index?: number) {
     AddressType.NATIVE
   ];
 
-  if (configuration.network === BITCOIN_CASH_NETWORK) {
+  if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
     addressTypes = [ AddressType.BCH ];
   }
 

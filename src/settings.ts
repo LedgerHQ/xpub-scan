@@ -55,10 +55,11 @@ const DERIVATION_SCOPE = {
 
 // DERIVATION PARAMETERS
 // ---------------------
-
-const BITCOIN_NETWORK = coininfo.bitcoin.main.toBitcoinJS()
-const BITCOIN_CASH_NETWORK = coininfo.bitcoincash.main.toBitcoinJS()
-const LITECOIN_NETWORK = coininfo.litecoin.main.toBitcoinJS();
+const NETWORKS = {
+  bitcoin_mainnet: coininfo.bitcoin.main.toBitcoinJS(),
+  bitcoin_cash_mainnet: coininfo.bitcoincash.main.toBitcoinJS(),
+  litecoin_mainnet: coininfo.litecoin.main.toBitcoinJS()
+}
 
 export enum AddressType {
   LEGACY = "Legacy",
@@ -89,9 +90,7 @@ export {
   DEFAULT_API_URL,
   GAP_LIMIT,
   VERBOSE,
-  BITCOIN_NETWORK,
-  BITCOIN_CASH_NETWORK,
-  LITECOIN_NETWORK,
+  NETWORKS,
   DERIVATION_SCOPE,
   EXTERNAL_EXPLORER_URL
 }

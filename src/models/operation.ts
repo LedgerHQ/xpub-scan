@@ -1,4 +1,4 @@
-import { BITCOIN_CASH_NETWORK, configuration } from "../settings";
+import { NETWORKS, configuration } from '../settings';
 
 type OperationType = 
             "Received"                              // Received - common case
@@ -39,7 +39,7 @@ class Operation {
     }
 
     setAddress(address: string) {
-        if (configuration.network === BITCOIN_CASH_NETWORK) {
+        if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
             address = address.replace('bitcoincash:', '');
         }
         

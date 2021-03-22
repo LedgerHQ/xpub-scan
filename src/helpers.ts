@@ -4,9 +4,7 @@ import * as bip32 from 'bip32';
 import chalk from "chalk";
 
 import { 
-  BITCOIN_NETWORK, 
-  BITCOIN_CASH_NETWORK, 
-  LITECOIN_NETWORK,
+  NETWORKS,
   configuration 
 } from "./settings";
 
@@ -40,11 +38,11 @@ function setNetwork(xpub: string, currency?: string) {
     const prefix = xpub.substring(0, 4);
   
     if (prefix === 'xpub') {
-      configuration.network = BITCOIN_NETWORK;
+      configuration.network = NETWORKS.bitcoin_mainnet;
       configuration.currency = 'Bitcoin'
     }
     else if (prefix === 'Ltub') {
-      configuration.network = LITECOIN_NETWORK;
+      configuration.network = NETWORKS.litecoin_mainnet;
       configuration.currency = 'Litecoin'
     }
     else {
@@ -54,7 +52,7 @@ function setNetwork(xpub: string, currency?: string) {
   else {
     // Bitcoin Cash
     if (currency.toLowerCase().includes('cash')) {
-      configuration.network = BITCOIN_CASH_NETWORK;
+      configuration.network = NETWORKS.bitcoin_cash_mainnet;
       configuration.currency = 'Bitcoin Cash'
     }
   }
