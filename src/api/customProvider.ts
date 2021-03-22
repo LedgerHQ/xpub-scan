@@ -96,7 +96,7 @@ function getTransactions(address: Address) {
         // 1. Detect operation type
         for (const txin of tx.txins) {
             for (const inAddress of txin.addresses) {
-                if (inAddress === address.toString()) {
+                if (inAddress.includes(address.toString())) {
                     processOut = true;
                     break;
                 }
@@ -105,7 +105,7 @@ function getTransactions(address: Address) {
 
         for (const txout of tx.txouts) {
             for (const outAddress of txout.addresses) {
-                if (outAddress === address.toString()) {
+                if (outAddress.includes(address.toString())) {
                     // when IN op, amount corresponds to txout
                     amount = parseFloat(txout.amount); 
                     processIn = true;
@@ -115,8 +115,9 @@ function getTransactions(address: Address) {
         }
         
         // 2. Process operations
-        if (processIn) {   
+        if (processIn) {
             tx.txins.forEach(txin => {
+
                 txin.addresses.forEach(inAddress => {
                     const op = new Operation(String(tx.timestamp), amount);
                     op.setAddress(inAddress);

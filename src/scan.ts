@@ -47,15 +47,21 @@ const args = yargs
     demand: false,
     type: 'boolean',
     default: false
+  })
+  .option('currency', {
+    description: "currency",
+    demand: false,
+    type: 'string',
   }).argv;
 
 const account = args.account;
 const index = args.index;
 const address = args.address
 const quiet = args.quiet
+const currency = args.currency
 
 const xpub = String(args._[0]);
-init(xpub, quiet);
+init(xpub, quiet, currency);
 
 // TODO: remove once stable enough
 function displayWarning() {

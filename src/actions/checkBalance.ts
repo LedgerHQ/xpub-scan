@@ -4,11 +4,15 @@ import * as display from "../display";
 
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { configuration, AddressType, GAP_LIMIT } from "../settings";
+import { configuration, AddressType, GAP_LIMIT, BITCOIN_CASH_NETWORK } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
+
+// @ts-ignore
+import bchaddr from "bchaddrjs";
+
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
@@ -99,6 +103,16 @@ function run(xpub: string, account?: number, index?: number) {
   let activeAddresses: Address[] = [];
   let summary: any[] = [];
   
+  let addressTypes: AddressType[] = [
+    AddressType.LEGACY,
+    AddressType.SEGWIT,
+    AddressType.NATIVE
+  ];
+
+  if (configuration.network === BITCOIN_CASH_NETWORK) {
+    addressTypes = [ AddressType.BCH ];
+  }
+
   if (typeof(account) === 'undefined') {
     // Option A: no index has been provided:
     // scan all address types
@@ -107,11 +121,7 @@ function run(xpub: string, account?: number, index?: number) {
       console.log(chalk.bold("\nActive addresses\n"));
     }
 
-    [
-      AddressType.LEGACY,
-      AddressType.SEGWIT,
-      AddressType.NATIVE
-    ].forEach(addressType => {
+    addressTypes.forEach(addressType => {
       const results = scanAddresses(addressType, xpub);
       
       activeAddresses = activeAddresses.concat(results.addresses);
@@ -129,11 +139,7 @@ function run(xpub: string, account?: number, index?: number) {
     // check their respective balances
     let ownAddresses = new OwnAddresses();
 
-    [
-      AddressType.LEGACY,
-      AddressType.SEGWIT,
-      AddressType.NATIVE
-    ].forEach(addressType => {
+    addressTypes.forEach(addressType => {
       const address = new Address(addressType, xpub, account, (index || 0));
       
       display.updateAddressDetails(address);

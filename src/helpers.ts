@@ -5,6 +5,7 @@ import chalk from "chalk";
 
 import { 
   BITCOIN_NETWORK, 
+  BITCOIN_CASH_NETWORK, 
   LITECOIN_NETWORK,
   configuration 
 } from "./settings";
@@ -34,25 +35,36 @@ function getJSON(url: string, APIKey?: string) {
   return JSON.parse(res.getBody('utf-8'));
 }
 
+function setNetwork(xpub: string, currency?: string) {
+  if (typeof(currency) === 'undefined') {
+    const prefix = xpub.substring(0, 4);
+  
+    if (prefix === 'xpub') {
+      configuration.network = BITCOIN_NETWORK;
+      configuration.currency = 'Bitcoin'
+    }
+    else if (prefix === 'Ltub') {
+      configuration.network = LITECOIN_NETWORK;
+      configuration.currency = 'Litecoin'
+    }
+    else {
+      throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
+    }
+  }
+  else {
+    // Bitcoin Cash
+    if (currency.toLowerCase().includes('cash')) {
+      configuration.network = BITCOIN_CASH_NETWORK;
+      configuration.currency = 'Bitcoin Cash'
+    }
+  }
+}
+
 // ensure that the xpub is a valid one
 // and select the relevant network
 //
 // TODO: extend to ypub, zpub...
 function checkXpub(xpub: string) {
-  const prefix = xpub.substring(0, 4);
-
-  if (prefix === 'xpub') {
-    configuration.network = BITCOIN_NETWORK;
-    configuration.currency = 'Bitcoin'
-  }
-  else if (prefix === 'Ltub') {
-    configuration.network = LITECOIN_NETWORK;
-    configuration.currency = 'Litecoin'
-  }
-  else {
-    throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
-  }
-
   try {
     bip32.fromBase58(xpub, configuration.network);
   }
@@ -77,8 +89,9 @@ function checkXpub(xpub: string) {
   );
 }
 
-function init(xpub: string, quiet: boolean) {
+function init(xpub: string, quiet: boolean, currency?: string) {
   configuration.quiet = quiet;
+  setNetwork(xpub, currency);
   checkXpub(xpub);
 }
 

@@ -1,7 +1,10 @@
 import * as bjs from "bitcoinjs-lib";
 import * as bip32 from 'bip32';
 
-import { AddressType, configuration } from "../settings";
+// @ts-ignore
+const bitcoincashPayments = require('bitcoin-cash-payments')()
+
+import { AddressType, configuration } from '../settings';
 
 // derive legacy address at account and index positions
 function getLegacyAddress(xpub: string, account: number, index: number) : string {
@@ -44,6 +47,10 @@ function getSegWitAddress(xpub: string, account: number, index: number) : string
   return String(address);
 }
 
+function getBitcoinCashAddress(xpub: string, index: number) : string {
+  return bitcoincashPayments.bip44(xpub, index);
+}
+
 // get address given an address type
 function getAddress(addressType: AddressType, xpub: string, account: number, index: number) : string {
   switch(addressType) {
@@ -53,6 +60,8 @@ function getAddress(addressType: AddressType, xpub: string, account: number, ind
       return getSegWitAddress(xpub, account, index);
     case AddressType.NATIVE:
       return getNativeSegWitAddress(xpub, account, index);
+    case AddressType.BCH:
+      return getBitcoinCashAddress(xpub, index);
   }
 
   throw new Error("Should not be reachable");

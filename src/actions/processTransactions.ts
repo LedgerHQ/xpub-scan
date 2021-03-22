@@ -1,4 +1,4 @@
-import { VERBOSE, BITCOIN_NETWORK, LITECOIN_NETWORK, configuration } from "../settings";
+import { VERBOSE, BITCOIN_NETWORK, BITCOIN_CASH_NETWORK, LITECOIN_NETWORK, configuration } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
 import { Operation } from "../models/operation"
@@ -11,20 +11,30 @@ function getStats(address: Address) {
 
     switch(configuration.providerType) {
         case 'default':
-            if (network === BITCOIN_NETWORK) {
-                defaultProvider.getStats(address, 'BTC');
-            }
-            else if (network === LITECOIN_NETWORK) {
-                defaultProvider.getStats(address, 'LTC');
+            switch(network) {
+                case BITCOIN_NETWORK:
+                    defaultProvider.getStats(address, 'BTC');
+                    break;
+                case BITCOIN_CASH_NETWORK:
+                    defaultProvider.getStats(address, 'BCH');
+                    break;
+                case LITECOIN_NETWORK:
+                    defaultProvider.getStats(address, 'LTC');
+                    break;
             }
             break;
 
         case 'custom':
-            if (network === BITCOIN_NETWORK) {
-                customProvider.getStats(address, 'btc');
-            }
-            else if (network === LITECOIN_NETWORK) {
-                customProvider.getStats(address, 'ltc');
+            switch(network) {
+                case BITCOIN_NETWORK:
+                    customProvider.getStats(address, 'btc');
+                    break;
+                case BITCOIN_CASH_NETWORK:
+                    customProvider.getStats(address, 'bch');
+                    break;
+                case LITECOIN_NETWORK:
+                    customProvider.getStats(address, 'ltc');
+                    break;
             }
             break;
 

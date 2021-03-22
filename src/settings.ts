@@ -57,13 +57,14 @@ const DERIVATION_SCOPE = {
 // ---------------------
 
 const BITCOIN_NETWORK = coininfo.bitcoin.main.toBitcoinJS()
-
+const BITCOIN_CASH_NETWORK = coininfo.bitcoincash.main.toBitcoinJS()
 const LITECOIN_NETWORK = coininfo.litecoin.main.toBitcoinJS();
 
 export enum AddressType {
   LEGACY = "Legacy",
   NATIVE = "Native SegWit",
-  SEGWIT = "SegWit"
+  SEGWIT = "SegWit",
+  BCH    = "Bitcoin Cash"
 }
 
 // HTML REPORT
@@ -89,6 +90,7 @@ export {
   GAP_LIMIT,
   VERBOSE,
   BITCOIN_NETWORK,
+  BITCOIN_CASH_NETWORK,
   LITECOIN_NETWORK,
   DERIVATION_SCOPE,
   EXTERNAL_EXPLORER_URL

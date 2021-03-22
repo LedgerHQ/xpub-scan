@@ -1,6 +1,6 @@
 import { AddressType } from "../settings";
 import { Transaction } from "./transaction";
-import { Operation, OperationType } from "./operation";
+import { Operation } from "./operation";
 import { Stats } from "./stats";
 import { getAddress } from "../actions/deriveAddresses"
 
