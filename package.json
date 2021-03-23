@@ -39,6 +39,7 @@
   "devDependencies": {
     "@babel/core": "^7.13.1",
     "@babel/eslint-parser": "^7.13.4",
+    "@types/bchaddrjs": "^0.4.0",
     "@types/bip32": "^2.0.0",
     "@types/chalk": "^2.2.0",
     "@types/dateformat": "^3.0.1",

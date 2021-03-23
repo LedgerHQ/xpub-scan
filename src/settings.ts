@@ -11,7 +11,10 @@ const VERBOSE = false;
 
 // Providers
 // (use {coin} and {address} as placeholders for the coin name and the address)
-const DEFAULT_API_URL = 'https://sochain.com/api/v2/address/{coin}/{address}';
+const DEFAULT_API_URLS = {
+  general: 'https://sochain.com/api/v2/address/{coin}/{address}',
+  bch: 'https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}'
+}
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
@@ -70,7 +73,6 @@ export enum AddressType {
 
 // HTML REPORT
 // -----------
-
 const EXTERNAL_EXPLORER_URL = 'https://blockchair.com/{coin}/{type}/{item}'
 
 
@@ -79,15 +81,16 @@ Object.freeze(AddressType);
 dotenv.config();
 export const configuration = {
   network: undefined, 
-  currency: '', 
-  BaseURL: process.env.API_URL || DEFAULT_API_URL,
+  currency: '',
+  defaultAPI: DEFAULT_API_URLS,
+  customAPI: process.env.API_URL,
   APIKey: process.env.API_KEY,
   providerType: 'default',
   quiet: false
 };
 
 export {
-  DEFAULT_API_URL,
+  DEFAULT_API_URLS,
   GAP_LIMIT,
   VERBOSE,
   NETWORKS,

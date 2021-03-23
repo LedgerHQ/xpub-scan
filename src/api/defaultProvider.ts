@@ -1,10 +1,12 @@
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
-import { configuration } from "../settings";
+import { configuration, NETWORKS } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
+
+import bchaddr from 'bchaddrjs';
 
 interface RawTransaction {
     txid: string;
@@ -26,10 +28,31 @@ interface RawTransaction {
     };
 }
 
+interface BchRawTransaction {
+    txid: string;
+    blockheight: number;
+    confirmations: number;
+    time: number;
+    vin: {
+        value: string;
+        addr: string;
+    }[];
+    vout: {
+        value: string;
+        scriptPubKey: {
+            addresses: string[];
+        };
+    }[];
+}
+
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 function getStats(address: Address, coin: string) {
-    const url = configuration.BaseURL
+    if (coin === 'BCH') {
+        return getBchStats(address);
+    }
+
+    const url = configuration.defaultAPI.general
                 .replace('{coin}', coin)
                 .replace('{address}', address.toString());
 
@@ -46,11 +69,31 @@ function getStats(address: Address, coin: string) {
     address.setRawTransactions(JSON.stringify(res.data.txs));
 }
 
+function getBchStats(address: Address) {
+    const url = configuration.defaultAPI.bch
+                .replace('{type}', 'details')
+                .replace('{address}', address.toString());
+
+    const res = helpers.getJSON(url);
+    
+    // TODO: check potential errors here (API returning invalid data...)
+    const fundedSum = parseFloat(res.totalReceived);
+    const balance = parseFloat(res.balance);
+    const spentSum = parseFloat(res.totalSent);
+    
+    address.setStats(res.txApperances, fundedSum, spentSum);
+    address.setBalance(balance);
+}
+
 // transforms raw transactions associated with an address
 // into an array of processed transactions:
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getTransactions(address: Address) {
     // 1. get raw transactions
+    if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+        return getBchTransactions(address);
+    }
+
     const rawTransactions = JSON.parse(address.getRawTransactions());
     
     // 2. parse raw transactions
@@ -97,6 +140,92 @@ function getTransactions(address: Address) {
     });
 
     address.setTransactions(transactions);
+}
+
+// TODO: check the `<- c` transactions (compare with custom provider)
+function getBchTransactions(address: Address) {
+    // 1. get raw transactions
+    const url = configuration.defaultAPI.bch
+                .replace('{type}', 'transactions')
+                .replace('{address}', address.toString());
+
+    const rawTransactions = helpers.getJSON(url).txs;
+    
+    // 2. parse raw transactions
+    let transactions: Transaction[] = [];
+    
+    rawTransactions.forEach( (tx: BchRawTransaction) => {
+        let ins: Operation[] = [];
+        let outs: Operation[] = [];
+        let amount = 0.0;
+        let processIn: boolean = false;
+        let processOut: boolean = false;
+
+        // 1. Detect operation type
+        for (const txin of tx.vin) {
+            const cashAddress = bchaddr.toCashAddress(txin.addr).replace('bitcoincash:', '');
+            if (cashAddress.includes(address.toString())) {
+                processOut = true;
+                break;
+            }
+        }
+
+        for (const txout of tx.vout) {
+            if (typeof(txout.scriptPubKey.addresses) === 'undefined') {
+                break;
+            }
+            for (const outAddress of txout.scriptPubKey.addresses) {
+                const cashAddress = bchaddr.toCashAddress(outAddress).replace('bitcoincash:', '');
+                if (cashAddress.includes(address.toString())) {
+                    // when IN op, amount corresponds to txout
+                    amount = parseFloat(txout.value); 
+                    processIn = true;
+                    break;
+                }
+            }
+        }
+        
+        if (processIn) {
+            tx.vin.forEach(txin => {
+                const op = new Operation(String(tx.time), amount);
+                op.setAddress(bchaddr.toCashAddress(txin.addr).replace('bitcoincash:', ''));
+                op.setTxid(tx.txid);
+                op.setType("Received")
+
+                ins.push(op);
+            })
+        }
+        
+        if (processOut) {
+            tx.vout.forEach(txout => {  
+                if (parseFloat(txout.value) == 0) {
+                    return;
+                }
+
+                const op = new Operation(String(tx.time), parseFloat(txout.value));
+                op.setAddress(bchaddr.toCashAddress(txout.scriptPubKey.addresses[0]).replace('bitcoincash:', ''));
+                op.setTxid(tx.txid);
+                op.setType("Sent")
+
+                outs.push(op);
+            })
+        }
+
+        transactions.push(
+            new Transaction(
+                    tx.blockheight,
+                    String(
+                        dateFormat(new Date(tx.time * 1000), "yyyy-mm-dd HH:MM:ss")
+                        ), // unix time to readable format
+                    tx.txid,
+                    ins,
+                    outs
+                )
+        )
+        
+    });
+
+    address.setTransactions(transactions);    
 }
 
 export { getStats, getTransactions }

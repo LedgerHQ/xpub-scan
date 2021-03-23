@@ -358,7 +358,7 @@ function save(meta: any, data: any, directory: string) {
             analysis_date: meta.date,
             currency: configuration.currency,
             provider: configuration.providerType,
-            provider_url: configuration.BaseURL,
+            //provider_url: configuration.customAPI | configuration.defaultAPI.general,
             gap_limit: GAP_LIMIT,
             unit: "Base unit (i.e., satoshis or equivalent unit)"
         },

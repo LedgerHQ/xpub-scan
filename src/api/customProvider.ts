@@ -26,7 +26,7 @@ interface RawTransaction {
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 function getStats(address: Address, coinDenomination: string) {
-    const url = configuration.BaseURL
+    const url = configuration.customAPI!
                 .replace('{coin}', coinDenomination)
                 .replace('{address}', address.toString());
                 
@@ -41,7 +41,7 @@ function getStats(address: Address, coinDenomination: string) {
     address.setBalance(balance);
 
     if (res.payload.txsCount > 0) {
-        const getTxsURLTemplate = configuration.BaseURL
+        const getTxsURLTemplate = configuration.customAPI!
             .replace('{coin}', coinDenomination)
             .replace('{address}', address.toString())
             .concat('/transactions?index={index}&limit={limit}')
@@ -83,7 +83,6 @@ function getStats(address: Address, coinDenomination: string) {
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getTransactions(address: Address) {
     const rawTransactions = JSON.parse(address.getRawTransactions());
-
     const transactions: Transaction[] = [];
     
     rawTransactions.forEach( (tx: RawTransaction) => {
@@ -117,7 +116,6 @@ function getTransactions(address: Address) {
         // 2. Process operations
         if (processIn) {
             tx.txins.forEach(txin => {
-
                 txin.addresses.forEach(inAddress => {
                     const op = new Operation(String(tx.timestamp), amount);
                     op.setAddress(inAddress);
