@@ -39,11 +39,13 @@ function setNetwork(xpub: string, currency?: string) {
   
     if (prefix === 'xpub') {
       configuration.network = NETWORKS.bitcoin_mainnet;
-      configuration.currency = 'Bitcoin'
+      configuration.currency = 'Bitcoin';
+      configuration.symbol = 'BTC';
     }
     else if (prefix === 'Ltub') {
       configuration.network = NETWORKS.litecoin_mainnet;
-      configuration.currency = 'Litecoin'
+      configuration.currency = 'Litecoin';
+      configuration.symbol = 'LTC';
     }
     else {
       throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
@@ -54,7 +56,8 @@ function setNetwork(xpub: string, currency?: string) {
     // Bitcoin Cash
     if (currency.includes('cash') || currency === 'bch') {
       configuration.network = NETWORKS.bitcoin_cash_mainnet;
-      configuration.currency = 'Bitcoin Cash'
+      configuration.currency = 'Bitcoin Cash';
+      configuration.symbol = 'BCH';
     }
   }
 }

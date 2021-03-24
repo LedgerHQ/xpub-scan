@@ -144,6 +144,10 @@ function getTransactions(address: Address) {
     address.setTransactions(transactions);
 }
 
+function toCashAddress(address: string) {
+    return bchaddr.toCashAddress(address).replace('bitcoincash:', '');
+}
+
 function getBchTransactions(address: Address) {
     // 1. get raw transactions
     const url = configuration.defaultAPI.bch
@@ -164,7 +168,7 @@ function getBchTransactions(address: Address) {
 
         // 1. Detect operation type
         for (const txin of tx.vin) {
-            const cashAddress = bchaddr.toCashAddress(txin.addr).replace('bitcoincash:', '');
+            const cashAddress = toCashAddress(txin.addr);
             if (cashAddress.includes(address.toString())) {
                 processOut = true;
                 break;
@@ -176,7 +180,7 @@ function getBchTransactions(address: Address) {
                 continue;
             }
             for (const outAddress of txout.scriptPubKey.addresses) {
-                const cashAddress = bchaddr.toCashAddress(outAddress).replace('bitcoincash:', '');
+                const cashAddress = toCashAddress(outAddress);
                 if (cashAddress.includes(address.toString())) {
                     // when IN op, amount corresponds to txout
                     amount = parseFloat(txout.value); 
@@ -189,7 +193,7 @@ function getBchTransactions(address: Address) {
         if (processIn) {
             tx.vin.forEach(txin => {
                 const op = new Operation(String(tx.time), amount);
-                op.setAddress(bchaddr.toCashAddress(txin.addr).replace('bitcoincash:', ''));
+                op.setAddress(toCashAddress(txin.addr));
                 op.setTxid(tx.txid);
                 op.setType("Received")
 
@@ -204,7 +208,7 @@ function getBchTransactions(address: Address) {
                 }
 
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
-                op.setAddress(bchaddr.toCashAddress(txout.scriptPubKey.addresses[0]).replace('bitcoincash:', ''));
+                op.setAddress(toCashAddress(txout.scriptPubKey.addresses[0]));
                 op.setTxid(tx.txid);
                 op.setType("Sent")
 

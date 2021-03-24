@@ -44,6 +44,12 @@ function renderNumber(amount: number) {
     return '<span class="monospaced">' + n.split(filler).join('&nbsp;') + '</span>';
 }
 
+// mapping between the currency and the default external explorer
+// expected coin name
+function getCoinName() {
+    return configuration.currency.toLowerCase().replace(' ', '-');
+}
+
 // make address clickable
 function renderAddress(address: string) {
     // if no address, return empty string
@@ -53,7 +59,7 @@ function renderAddress(address: string) {
     }
 
     const url = EXTERNAL_EXPLORER_URL
-        .replace('{coin}', configuration.currency.toLowerCase())
+        .replace('{coin}', getCoinName())
         .replace('{type}', 'address')
         .replace('{item}', address);
     
@@ -65,7 +71,7 @@ function renderAddress(address: string) {
 // make TXID clickable
 function renderTxid(txid: string) {
     const url = EXTERNAL_EXPLORER_URL
-        .replace('{coin}', configuration.currency.toLowerCase())
+        .replace('{coin}', getCoinName())
         .replace('{type}', 'transaction')
         .replace('{item}', txid);
         

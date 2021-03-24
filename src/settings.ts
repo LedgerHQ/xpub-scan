@@ -82,6 +82,7 @@ dotenv.config();
 export const configuration = {
   network: undefined, 
   currency: '',
+  symbol: '',
   defaultAPI: DEFAULT_API_URLS,
   customAPI: process.env.API_URL,
   APIKey: process.env.API_KEY,

@@ -1,4 +1,4 @@
-import { VERBOSE, NETWORKS, configuration } from "../settings";
+import { VERBOSE, configuration } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
 import { Operation } from "../models/operation"
@@ -7,35 +7,13 @@ import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
 
 function getStats(address: Address) {
-    const network = configuration.network;
-
     switch(configuration.providerType) {
         case 'default':
-            switch(network) {
-                case NETWORKS.bitcoin_mainnet:
-                    defaultProvider.getStats(address, 'BTC');
-                    break;
-                case NETWORKS.bitcoin_cash_mainnet:
-                    defaultProvider.getStats(address, 'BCH');
-                    break;
-                case NETWORKS.litecoin_mainnet:
-                    defaultProvider.getStats(address, 'LTC');
-                    break;
-            }
+            defaultProvider.getStats(address, configuration.symbol.toUpperCase());
             break;
 
         case 'custom':
-            switch(network) {
-                case NETWORKS.bitcoin_mainnet:
-                    customProvider.getStats(address, 'btc');
-                    break;
-                case NETWORKS.bitcoin_cash_mainnet:
-                    customProvider.getStats(address, 'bch');
-                    break;
-                case NETWORKS.litecoin_mainnet:
-                    customProvider.getStats(address, 'ltc');
-                    break;
-            }
+            customProvider.getStats(address, configuration.symbol.toLowerCase());
             break;
 
         default:
