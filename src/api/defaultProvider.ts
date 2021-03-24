@@ -172,7 +172,7 @@ function getBchTransactions(address: Address) {
 
         for (const txout of tx.vout) {
             if (typeof(txout.scriptPubKey.addresses) === 'undefined') {
-                break;
+                continue;
             }
             for (const outAddress of txout.scriptPubKey.addresses) {
                 const cashAddress = bchaddr.toCashAddress(outAddress).replace('bitcoincash:', '');
