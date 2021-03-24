@@ -1,7 +1,7 @@
 import fs from 'fs';
 import minifier from 'html-minifier'
 
-import { configuration, GAP_LIMIT, EXTERNAL_EXPLORER_URL } from '../settings';
+import { configuration, GAP_LIMIT, EXTERNAL_EXPLORER_URL, NETWORKS } from '../settings';
 import { reportTemplate } from '../templates/report.html'
 
 // @ts-ignore
@@ -28,6 +28,7 @@ function renderNumber(amount: number) {
     let n;
 
     // non-strict equality required here
+    // tslint:disable-next-line
     if (amount == 0) {
         // align '0': insert filler on the right
         n = '0'.padEnd(decimalPrecision + 2, filler);
@@ -45,6 +46,12 @@ function renderNumber(amount: number) {
 
 // make address clickable
 function renderAddress(address: string) {
+    // if no address, return empty string
+    // (used for CSV files that do not contain any address)
+    if (typeof(address) === 'undefined') {
+        return '';
+    }
+
     const url = EXTERNAL_EXPLORER_URL
         .replace('{coin}', configuration.currency.toLowerCase())
         .replace('{type}', 'address')
@@ -350,6 +357,17 @@ function save(meta: any, data: any, directory: string) {
         };
     }) : undefined;
 
+    let providerURL;
+    if (typeof(configuration.customAPI) !== 'undefined') {
+        providerURL = configuration.customAPI;
+    }
+    else if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+        providerURL = configuration.defaultAPI.bch;
+    }
+    else {
+        providerURL = configuration.defaultAPI.general;
+    }
+
     const object = {
         meta: {
             by: "xpub scan <https://github.com/LedgerHQ/xpub-scan>",
@@ -358,7 +376,7 @@ function save(meta: any, data: any, directory: string) {
             analysis_date: meta.date,
             currency: configuration.currency,
             provider: configuration.providerType,
-            //provider_url: configuration.customAPI | configuration.defaultAPI.general,
+            provider_url: providerURL,
             gap_limit: GAP_LIMIT,
             unit: "Base unit (i.e., satoshis or equivalent unit)"
         },

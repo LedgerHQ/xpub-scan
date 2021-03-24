@@ -8,6 +8,7 @@ import { Operation } from "../models/operation";
 
 import bchaddr from 'bchaddrjs';
 
+// raw transactions provided by default API
 interface RawTransaction {
     txid: string;
     block_no: number;
@@ -28,6 +29,7 @@ interface RawTransaction {
     };
 }
 
+// raw transactions provided by BCH API
 interface BchRawTransaction {
     txid: string;
     blockheight: number;
@@ -97,11 +99,11 @@ function getTransactions(address: Address) {
     const rawTransactions = JSON.parse(address.getRawTransactions());
     
     // 2. parse raw transactions
-    let transactions: Transaction[] = [];
+    const transactions: Transaction[] = [];
     
     rawTransactions.forEach( (tx: RawTransaction) => {
-        let ins: Operation[] = [];
-        let outs: Operation[] = [];
+        const ins: Operation[] = [];
+        const outs: Operation[] = [];
         
         if (typeof(tx.incoming) !== 'undefined') {   
             tx.incoming.inputs.forEach(txin => {
@@ -142,7 +144,6 @@ function getTransactions(address: Address) {
     address.setTransactions(transactions);
 }
 
-// TODO: check the `<- c` transactions (compare with custom provider)
 function getBchTransactions(address: Address) {
     // 1. get raw transactions
     const url = configuration.defaultAPI.bch
@@ -152,11 +153,11 @@ function getBchTransactions(address: Address) {
     const rawTransactions = helpers.getJSON(url).txs;
     
     // 2. parse raw transactions
-    let transactions: Transaction[] = [];
+    const transactions: Transaction[] = [];
     
     rawTransactions.forEach( (tx: BchRawTransaction) => {
-        let ins: Operation[] = [];
-        let outs: Operation[] = [];
+        const ins: Operation[] = [];
+        const outs: Operation[] = [];
         let amount = 0.0;
         let processIn: boolean = false;
         let processOut: boolean = false;
@@ -198,7 +199,7 @@ function getBchTransactions(address: Address) {
         
         if (processOut) {
             tx.vout.forEach(txout => {  
-                if (parseFloat(txout.value) == 0) {
+                if (parseFloat(txout.value) === 0) {
                     return;
                 }
 
