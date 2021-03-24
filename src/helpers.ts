@@ -50,8 +50,9 @@ function setNetwork(xpub: string, currency?: string) {
     }
   }
   else {
+    currency = currency.toLowerCase()
     // Bitcoin Cash
-    if (currency.toLowerCase().includes('cash')) {
+    if (currency.includes('cash') || currency === 'bch') {
       configuration.network = NETWORKS.bitcoin_cash_mainnet;
       configuration.currency = 'Bitcoin Cash'
     }
