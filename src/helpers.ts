@@ -58,7 +58,10 @@ function setNetwork(xpub: string, currency?: string) {
       configuration.network = NETWORKS.bitcoin_cash_mainnet;
       configuration.currency = 'Bitcoin Cash';
       configuration.symbol = 'BCH';
+      return;
     }
+
+    throw new Error("INVALID CURRENCY: '" + currency + "' is not supported");
   }
 }
 

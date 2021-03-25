@@ -31,7 +31,7 @@ function getFileLines(path: string) {
 //
 // TODO: use a CSV parser instead
 function importFromCSVTypeA(lines: string[]) : Operation[] {
-    let operations: Operation[] = [];
+    const operations: Operation[] = [];
     
     lines.slice(1).forEach(line => {
         // split using delimiter ',' except when between double quotes
@@ -96,7 +96,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
 //
 // TODO: use a CSV parser instead
 function importFromCSVTypeB(lines: string[]) : Operation[] {
-    let operations: Operation[] = [];
+    const operations: Operation[] = [];
     
     lines.slice(1).forEach( (line: string) => {
         const tokens = line.split(/,/);
@@ -175,6 +175,9 @@ function importOperations(path: string) : Operation[] {
     // TODO: at this point, generate a warning/error 
     // message if no operation has been imported 
     // (file parsing issue?)
+
+    // $$$
+    console.dir(operations, {depth:null});
 
     return operations;
 }
@@ -317,8 +320,8 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
     console.log(chalk.grey('imported operations\t\t\t\t\t\t\t\t     actual operations'));
 
     // eslint-disable-next-line no-undef
-    let allTxids: Txid[] = []; // TODO: convert into a Set as they have to be unique
-    let comparisons: Comparison[] = [];
+    const allTxids: Txid[] = []; // TODO: convert into a Set as they have to be unique
+    const comparisons: Comparison[] = [];
 
     importedOperations.forEach(op => {
         // only add txid once
@@ -347,7 +350,7 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
         // (see: type A CSV) that have to be reduced to only one: 
         // the one corresponding to that of an actual operation from the same 
         // block and with the same amount
-        for (let imported of importedOps) {
+        for (const imported of importedOps) {
             // do not continue if no address (see: type B CSVs): not relevant
             if (!imported.address) {
                 break;

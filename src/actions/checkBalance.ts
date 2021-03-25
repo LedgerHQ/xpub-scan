@@ -97,7 +97,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
 
 function run(xpub: string, account?: number, index?: number) {  
   let activeAddresses: Address[] = [];
-  let summary: any[] = [];
+  const summary: any[] = [];
   
   let addressTypes: AddressType[] = [
     AddressType.LEGACY,
