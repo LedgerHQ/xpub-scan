@@ -3,8 +3,7 @@ import { Transaction } from "./transaction";
 import { Operation } from "./operation";
 import { Stats } from "./stats";
 import { getAddress } from "../actions/deriveAddresses"
-
-import bchaddr from 'bchaddrjs';
+import { toUnprefixedCashAddress } from "../helpers";
 
 class Address {
   address: string;
@@ -69,7 +68,7 @@ class Address {
   // render as Cash Address (Bitcoin Cash)
   asCashAddress() {
     if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
-      return bchaddr.toCashAddress(this.address).replace('bitcoincash:', '');
+      return toUnprefixedCashAddress(this.address);
     }
 
     return undefined;

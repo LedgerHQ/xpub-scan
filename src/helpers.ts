@@ -2,6 +2,7 @@ import request from "sync-request";
 
 import * as bip32 from 'bip32';
 import chalk from "chalk";
+import bchaddr from 'bchaddrjs';
 
 import { 
   NETWORKS,
@@ -100,7 +101,16 @@ function init(xpub: string, quiet: boolean, currency?: string) {
   checkXpub(xpub);
 }
 
+function toUnprefixedCashAddress(address: string) {
+  if (!bchaddr.isCashAddress(address)) {
+    address = bchaddr.toCashAddress(address);  
+  }
+  
+  return address.replace('bitcoincash:', '');
+}
+
 export {
   getJSON,
-  init
+  init,
+  toUnprefixedCashAddress
 }

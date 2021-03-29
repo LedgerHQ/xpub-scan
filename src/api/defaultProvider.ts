@@ -1,6 +1,6 @@
 import dateFormat from "dateformat";
 
-import * as helpers from "../helpers";
+import { getJSON, toUnprefixedCashAddress } from "../helpers";
 import { configuration, NETWORKS } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
@@ -56,7 +56,7 @@ function getStats(address: Address, coin: string) {
                 .replace('{coin}', coin)
                 .replace('{address}', address.toString());
 
-    const res = helpers.getJSON(url);
+    const res = getJSON(url);
     
     // TODO: check potential errors here (API returning invalid data...)
     const fundedSum = parseFloat(res.data.received_value);
@@ -74,7 +74,7 @@ function getBchStats(address: Address) {
                 .replace('{type}', 'details')
                 .replace('{address}', address.asCashAddress()!);
 
-    const res = helpers.getJSON(urlStats);
+    const res = getJSON(urlStats);
     
     // TODO: check potential errors here (API returning invalid data...)
     const fundedSum = parseFloat(res.totalReceived);
@@ -88,7 +88,7 @@ function getBchStats(address: Address) {
                 .replace('{type}', 'transactions')
                 .replace('{address}', address.asCashAddress()!);
 
-    const rawTransactions = helpers.getJSON(urlTxs).txs;
+    const rawTransactions = getJSON(urlTxs).txs;
 
     address.setRawTransactions(JSON.stringify(rawTransactions));
 }
@@ -150,10 +150,6 @@ function getTransactions(address: Address) {
     address.setTransactions(transactions);
 }
 
-function removeBchAddressPrefix(address: string) {
-    return address.replace('bitcoincash:', '');
-}
-
 function getBchTransactions(address: Address) {
     // 1. get raw transactions
     const rawTransactions = JSON.parse(address.getRawTransactions());
@@ -170,7 +166,7 @@ function getBchTransactions(address: Address) {
 
         // 1. Detect operation type
         for (const txin of tx.vin) {
-            const cashAddress = removeBchAddressPrefix(txin.addr);
+            const cashAddress = toUnprefixedCashAddress(txin.addr);
             if (cashAddress.includes(address.toString())) {
                 processOut = true;
                 break;
@@ -182,7 +178,7 @@ function getBchTransactions(address: Address) {
                 continue;
             }
             for (const outAddress of txout.scriptPubKey.addresses) {
-                const cashAddress = removeBchAddressPrefix(outAddress);
+                const cashAddress = toUnprefixedCashAddress(outAddress);
                 if (cashAddress.includes(address.toString())) {
                     // when IN op, amount corresponds to txout
                     amount = parseFloat(txout.value); 
@@ -195,7 +191,7 @@ function getBchTransactions(address: Address) {
         if (processIn) {
             tx.vin.forEach(txin => {
                 const op = new Operation(String(tx.time), amount);
-                op.setAddress(removeBchAddressPrefix(txin.addr));
+                op.setAddress(toUnprefixedCashAddress(txin.addr));
                 op.setTxid(tx.txid);
                 op.setType("Received")
 
@@ -210,7 +206,7 @@ function getBchTransactions(address: Address) {
                 }
 
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
-                op.setAddress(removeBchAddressPrefix(txout.scriptPubKey.addresses[0]));
+                op.setAddress(toUnprefixedCashAddress(txout.scriptPubKey.addresses[0]));
                 op.setTxid(tx.txid);
                 op.setType("Sent")
 

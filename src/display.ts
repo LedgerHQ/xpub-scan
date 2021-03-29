@@ -130,8 +130,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
       .concat(String(op.block).padEnd(8, ' '))
       .concat('\t')
       .concat(op.address.padEnd(42, ' '))
-      .concat('\t')
-      
+      .concat('\t');
   
     if (op.operationType === "Received" || op.operationType === "Received (non-sibling to change)") {
       // ... +{amount} ←

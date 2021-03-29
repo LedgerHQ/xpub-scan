@@ -3,6 +3,7 @@ import minifier from 'html-minifier'
 
 import { configuration, GAP_LIMIT, EXTERNAL_EXPLORER_URL, NETWORKS } from '../settings';
 import { reportTemplate } from '../templates/report.html'
+import { toUnprefixedCashAddress } from "../helpers";
 
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
@@ -51,7 +52,7 @@ function getCoinName() {
 }
 
 // make address clickable
-function generateAddressLink(address: string) {
+function addressAsLink(address: string) {
     // if no address, return empty string
     // (used for CSV files that do not contain any address)
     if (typeof(address) === 'undefined') {
@@ -69,12 +70,12 @@ function generateAddressLink(address: string) {
 }
 
 function renderAddress(address: string, cashAddress?: string) {
-    let renderedAddress = generateAddressLink(address);
+    let renderedAddress = addressAsLink(address);
 
     if (cashAddress === null) {
         return renderedAddress;
     } else {
-        return renderedAddress.concat('</br>').concat(generateAddressLink(cashAddress!));
+        return renderedAddress.concat('</br>').concat(addressAsLink(cashAddress!));
     }
 }
 
@@ -188,7 +189,7 @@ function saveHTML(object: any, directory: string) {
         transactions.push('<tr><td>' + e.date + '</td>');
         transactions.push('<td>' + e.block + '</td>');
         transactions.push('<td>' + renderTxid(e.txid) + '</td>');
-        transactions.push('<td>' + renderAddress(e.address) + '</td>');
+        transactions.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>');
         transactions.push('<td>' + renderNumber(e.amount) + '</td>');
         transactions.push('<td>' + createTooltip(e.operationType) + '</td></tr>');
     }
@@ -250,7 +251,7 @@ function saveHTML(object: any, directory: string) {
 
             if (typeof(e.actual) !== 'undefined') {
                 actual.date = e.actual.date;
-                actual.address = renderAddress(e.actual.address);
+                actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
                 actual.amount = renderNumber(e.actual.amount);
                 txid = e.actual.txid;
                 opType = e.actual.operationType;
@@ -356,6 +357,7 @@ function save(meta: any, data: any, directory: string) {
     const transactions: any[] = data.transactions.map((e: any) => {
         return {
             ...e,
+            cashAddress: toUnprefixedCashAddress(e.address),
             amount: toBaseUnit(e.amount)
         };
     })
@@ -369,6 +371,7 @@ function save(meta: any, data: any, directory: string) {
             } : undefined,
             actual: typeof(e.actual) !== 'undefined' ? {
                 ...e.actual,
+                cashAddress: toUnprefixedCashAddress(e.actual.address),
                 amount: toBaseUnit(e.actual.amount)
             } : undefined
         };
