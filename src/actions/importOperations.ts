@@ -176,9 +176,6 @@ function importOperations(path: string) : Operation[] {
     // message if no operation has been imported 
     // (file parsing issue?)
 
-    // $$$
-    console.dir(operations, {depth:null});
-
     return operations;
 }
 

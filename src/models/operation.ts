@@ -1,4 +1,5 @@
 import { NETWORKS, configuration } from '../settings';
+import bchaddr from 'bchaddrjs';
 
 type OperationType = 
             "Received"                              // Received - common case
@@ -39,10 +40,6 @@ class Operation {
     }
 
     setAddress(address: string) {
-        if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
-            address = address.replace('bitcoincash:', '');
-        }
-        
         this.address = address;
     }
 

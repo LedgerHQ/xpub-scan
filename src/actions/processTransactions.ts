@@ -1,4 +1,4 @@
-import { VERBOSE, configuration } from "../settings";
+import { VERBOSE, configuration, NETWORKS } from "../settings";
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
 import { Operation } from "../models/operation"

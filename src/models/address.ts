@@ -1,8 +1,10 @@
-import { AddressType } from "../settings";
+import { AddressType, configuration, NETWORKS } from "../settings";
 import { Transaction } from "./transaction";
 import { Operation } from "./operation";
 import { Stats } from "./stats";
 import { getAddress } from "../actions/deriveAddresses"
+
+import bchaddr from 'bchaddrjs';
 
 class Address {
   address: string;
@@ -62,6 +64,15 @@ class Address {
 
   toString() {
     return this.address;
+  }
+
+  // render as Cash Address (Bitcoin Cash)
+  asCashAddress() {
+    if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+      return bchaddr.toCashAddress(this.address).replace('bitcoincash:', '');
+    }
+
+    return undefined;
   }
 
   getType() {

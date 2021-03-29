@@ -47,7 +47,20 @@ function updateAddressDetails(address: Address) {
       '  '
       .concat(chalk.italic(addressType.padEnd(16, ' ')))
       .concat(derivationPath.padEnd(12, ' '))
-      .concat(address.toString().padEnd(46, ' '));
+
+  const cashAddress = address.asCashAddress();
+
+  if (typeof(cashAddress) !== 'undefined') {
+    stats =
+      stats
+        .concat(address.toString().padEnd(36, ' '))
+        .concat(cashAddress.padEnd(46, ' '));
+  }
+  else {
+    stats =
+      stats
+        .concat(address.toString().padEnd(46, ' '))
+  }
 
   if (typeof(address.getStats()) === 'undefined') {
     // if no stats, display just half of the line
@@ -226,7 +239,7 @@ function transientLine(message?: string) {
     // blank line
     // ! solution implemented this way to be
     // ! compatible with Docker
-    process.stdout.write(''.padEnd(100, ' '));
+    process.stdout.write(''.padEnd(140, ' '));
     readline.cursorTo(process.stdout, 0);
   }
 }

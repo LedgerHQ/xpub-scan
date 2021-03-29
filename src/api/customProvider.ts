@@ -1,10 +1,12 @@
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
-import { configuration } from "../settings";
+import { configuration, NETWORKS } from "../settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
+
+import bchaddr from 'bchaddrjs';
 
 interface RawTransaction {
     txid: string;
@@ -29,7 +31,7 @@ function getStats(address: Address, coinDenomination: string) {
     const url = configuration.customAPI!
                 .replace('{coin}', coinDenomination)
                 .replace('{address}', address.toString());
-                
+
     const res = helpers.getJSON(url, configuration.APIKey);
     
     // TODO: check potential errors here (API returning invalid data...)
@@ -94,8 +96,15 @@ function getTransactions(address: Address) {
 
         // 1. Detect operation type
         for (const txin of tx.txins) {
-            for (const inAddress of txin.addresses) {
-                if (inAddress.includes(address.toString())) {
+            for (let inAddress of txin.addresses) {
+
+                // provider Bitcoin Cash addresses are expressed as cash addresses:
+                // they have to be converted into legacy ones
+                if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+                    inAddress = bchaddr.toLegacyAddress(inAddress)
+                }
+
+                if (inAddress.includes(address.toString()!)) {
                     processOut = true;
                     break;
                 }
@@ -103,8 +112,15 @@ function getTransactions(address: Address) {
         }
 
         for (const txout of tx.txouts) {
-            for (const outAddress of txout.addresses) {
-                if (outAddress.includes(address.toString())) {
+            for (let outAddress of txout.addresses) {
+
+                // provider Bitcoin Cash addresses are expressed as cash addresses:
+                // they have to be converted into legacy ones
+                if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+                    outAddress = bchaddr.toLegacyAddress(outAddress)
+                }
+
+                if (outAddress.includes(address.toString()!)) {
                     // when IN op, amount corresponds to txout
                     amount = parseFloat(txout.amount); 
                     processIn = true;
@@ -118,7 +134,11 @@ function getTransactions(address: Address) {
             tx.txins.forEach(txin => {
                 txin.addresses.forEach(inAddress => {
                     const op = new Operation(String(tx.timestamp), amount);
-                    op.setAddress(inAddress);
+
+                    // provider Bitcoin Cash addresses are expressed as cash addresses:
+                    // they have to be converted into legacy ones
+                    op.setAddress(bchaddr.toLegacyAddress(inAddress));
+                    
                     op.setTxid(tx.txid);
                     op.setType("Received")
     
@@ -131,7 +151,11 @@ function getTransactions(address: Address) {
             tx.txouts.forEach(txout => {  
                 txout.addresses.forEach(outAddress => {
                     const op = new Operation(String(tx.timestamp), parseFloat(txout.amount));
-                    op.setAddress(outAddress);
+
+                    // provider Bitcoin Cash addresses are expressed as cash addresses:
+                    // they have to be converted into legacy ones
+                    op.setAddress(bchaddr.toLegacyAddress(outAddress));
+
                     op.setTxid(tx.txid);
                     op.setType("Sent")
     

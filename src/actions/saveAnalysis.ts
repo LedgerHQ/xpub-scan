@@ -51,7 +51,7 @@ function getCoinName() {
 }
 
 // make address clickable
-function renderAddress(address: string) {
+function generateAddressLink(address: string) {
     // if no address, return empty string
     // (used for CSV files that do not contain any address)
     if (typeof(address) === 'undefined') {
@@ -66,6 +66,16 @@ function renderAddress(address: string) {
     address = address.length < 45 ? address : address.substring(0, 45) + '...';
 
     return '<a class="monospaced" href="' + url + '" target=_blank>' + address + "</a>"
+}
+
+function renderAddress(address: string, cashAddress?: string) {
+    let renderedAddress = generateAddressLink(address);
+
+    if (cashAddress === null) {
+        return renderedAddress;
+    } else {
+        return renderedAddress.concat('</br>').concat(generateAddressLink(cashAddress!));
+    }
 }
 
 // make TXID clickable
@@ -143,13 +153,14 @@ function saveHTML(object: any, directory: string) {
     
     // addresses
     const addresses: string[] = [];
+    
     for (const e of object.addresses) {
         addresses.push('<tr><td>' + e.addressType + '</td>');
 
         const derivationPath = 'm/' + e.derivation.account + '/' + e.derivation.index;
         addresses.push('<td>' + derivationPath + '</td>')
 
-        addresses.push('<td>' + renderAddress(e.address) + '</td>')
+        addresses.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>')
 
         const balance = renderNumber(e.balance);
         const funded = renderNumber(e.funded);
@@ -323,12 +334,12 @@ function saveJSON(object: any, directory: string) {
 function save(meta: any, data: any, directory: string) {
 
     // convert amounts into base unit
-
     const addresses: any[] = data.addresses.map((e: any) => {
         return { 
             addressType: e.addressType,
             derivation: e.getDerivation(),
             address: e.toString(),
+            cashAddress: e.asCashAddress(),
             balance: toBaseUnit(e.balance),
             funded: toBaseUnit(e.stats.funded),
             spent: toBaseUnit(e.stats.spent)

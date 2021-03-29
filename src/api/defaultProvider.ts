@@ -6,8 +6,6 @@ import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
 
-import bchaddr from 'bchaddrjs';
-
 // raw transactions provided by default API
 interface RawTransaction {
     txid: string;
@@ -72,11 +70,11 @@ function getStats(address: Address, coin: string) {
 }
 
 function getBchStats(address: Address) {
-    const url = configuration.defaultAPI.bch
+    const urlStats = configuration.defaultAPI.bch
                 .replace('{type}', 'details')
-                .replace('{address}', address.toString());
+                .replace('{address}', address.asCashAddress()!);
 
-    const res = helpers.getJSON(url);
+    const res = helpers.getJSON(urlStats);
     
     // TODO: check potential errors here (API returning invalid data...)
     const fundedSum = parseFloat(res.totalReceived);
@@ -85,6 +83,14 @@ function getBchStats(address: Address) {
     
     address.setStats(res.txApperances, fundedSum, spentSum);
     address.setBalance(balance);
+
+    const urlTxs = configuration.defaultAPI.bch
+                .replace('{type}', 'transactions')
+                .replace('{address}', address.asCashAddress()!);
+
+    const rawTransactions = helpers.getJSON(urlTxs).txs;
+
+    address.setRawTransactions(JSON.stringify(rawTransactions));
 }
 
 // transforms raw transactions associated with an address
@@ -144,18 +150,14 @@ function getTransactions(address: Address) {
     address.setTransactions(transactions);
 }
 
-function toCashAddress(address: string) {
-    return bchaddr.toCashAddress(address).replace('bitcoincash:', '');
+function removeBchAddressPrefix(address: string) {
+    return address.replace('bitcoincash:', '');
 }
 
 function getBchTransactions(address: Address) {
     // 1. get raw transactions
-    const url = configuration.defaultAPI.bch
-                .replace('{type}', 'transactions')
-                .replace('{address}', address.toString());
+    const rawTransactions = JSON.parse(address.getRawTransactions());
 
-    const rawTransactions = helpers.getJSON(url).txs;
-    
     // 2. parse raw transactions
     const transactions: Transaction[] = [];
     
@@ -168,7 +170,7 @@ function getBchTransactions(address: Address) {
 
         // 1. Detect operation type
         for (const txin of tx.vin) {
-            const cashAddress = toCashAddress(txin.addr);
+            const cashAddress = removeBchAddressPrefix(txin.addr);
             if (cashAddress.includes(address.toString())) {
                 processOut = true;
                 break;
@@ -180,7 +182,7 @@ function getBchTransactions(address: Address) {
                 continue;
             }
             for (const outAddress of txout.scriptPubKey.addresses) {
-                const cashAddress = toCashAddress(outAddress);
+                const cashAddress = removeBchAddressPrefix(outAddress);
                 if (cashAddress.includes(address.toString())) {
                     // when IN op, amount corresponds to txout
                     amount = parseFloat(txout.value); 
@@ -193,7 +195,7 @@ function getBchTransactions(address: Address) {
         if (processIn) {
             tx.vin.forEach(txin => {
                 const op = new Operation(String(tx.time), amount);
-                op.setAddress(toCashAddress(txin.addr));
+                op.setAddress(removeBchAddressPrefix(txin.addr));
                 op.setTxid(tx.txid);
                 op.setType("Received")
 
@@ -208,7 +210,7 @@ function getBchTransactions(address: Address) {
                 }
 
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
-                op.setAddress(toCashAddress(txout.scriptPubKey.addresses[0]));
+                op.setAddress(removeBchAddressPrefix(txout.scriptPubKey.addresses[0]));
                 op.setTxid(tx.txid);
                 op.setType("Sent")
 
