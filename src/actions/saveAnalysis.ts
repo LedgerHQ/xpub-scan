@@ -23,7 +23,7 @@ function toBaseUnit(amount: number) {
 }
 
 // align float numbers or zeros
-function renderNumber(amount: number) {
+function renderAmount(amount: number) {
     const decimalPrecision = 8;
     const filler = '¤'; // (any non-numeric non-dot char)
     let n;
@@ -72,10 +72,13 @@ function addressAsLink(address: string) {
 function renderAddress(address: string, cashAddress?: string) {
     let renderedAddress = addressAsLink(address);
 
-    if (cashAddress === null) {
+    if (configuration.symbol !== 'BCH' || !cashAddress) {
         return renderedAddress;
     } else {
-        return renderedAddress.concat('</br>').concat(addressAsLink(cashAddress!));
+        // Bitcoin Cash: handle Legacy/Cash address duality:
+        //  {legacy}
+        //  {Cash address}
+        return renderedAddress.concat('</br>').concat(addressAsLink(cashAddress));
     }
 }
 
@@ -163,9 +166,9 @@ function saveHTML(object: any, directory: string) {
 
         addresses.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>')
 
-        const balance = renderNumber(e.balance);
-        const funded = renderNumber(e.funded);
-        const spent = renderNumber(e.spent);
+        const balance = renderAmount(e.balance);
+        const funded = renderAmount(e.funded);
+        const spent = renderAmount(e.spent);
 
         addresses.push('<td>' + balance + '</td>');
         addresses.push('<td>' + funded + '</td>');
@@ -190,7 +193,7 @@ function saveHTML(object: any, directory: string) {
         transactions.push('<td>' + e.block + '</td>');
         transactions.push('<td>' + renderTxid(e.txid) + '</td>');
         transactions.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>');
-        transactions.push('<td>' + renderNumber(e.amount) + '</td>');
+        transactions.push('<td>' + renderAmount(e.amount) + '</td>');
         transactions.push('<td>' + createTooltip(e.operationType) + '</td></tr>');
     }
     
@@ -241,7 +244,7 @@ function saveHTML(object: any, directory: string) {
             if (typeof(e.imported) !== 'undefined') {
                 imported.date = e.imported.date;
                 imported.address = renderAddress(e.imported.address);
-                imported.amount = renderNumber(e.imported.amount);
+                imported.amount = renderAmount(e.imported.amount);
                 txid = e.imported.txid;
                 opType = e.imported.operationType;
             }
@@ -252,7 +255,7 @@ function saveHTML(object: any, directory: string) {
             if (typeof(e.actual) !== 'undefined') {
                 actual.date = e.actual.date;
                 actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
-                actual.amount = renderNumber(e.actual.amount);
+                actual.amount = renderAmount(e.actual.amount);
                 txid = e.actual.txid;
                 opType = e.actual.operationType;
             }

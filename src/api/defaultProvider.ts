@@ -97,11 +97,14 @@ function getBchStats(address: Address) {
 // into an array of processed transactions:
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getTransactions(address: Address) {
-    // 1. get raw transactions
+
+    // Because the general default API is not compatible with Bitcoin Cash,
+    // these transactions have to be specifically handled
     if (configuration.symbol === 'BCH') {
         return getBchTransactions(address);
     }
 
+    // 1. get raw transactions
     const rawTransactions = JSON.parse(address.getRawTransactions());
     
     // 2. parse raw transactions
@@ -150,6 +153,9 @@ function getTransactions(address: Address) {
     address.setTransactions(transactions);
 }
 
+// transforms raw Bitcoin Cash transactions associated with an address
+// into an array of processed transactions:
+// [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getBchTransactions(address: Address) {
     // 1. get raw transactions
     const rawTransactions = JSON.parse(address.getRawTransactions());
@@ -166,7 +172,7 @@ function getBchTransactions(address: Address) {
 
         // 1. Detect operation type
         for (const txin of tx.vin) {
-            const cashAddress = toUnprefixedCashAddress(txin.addr);
+            const cashAddress = toUnprefixedCashAddress(txin.addr)!;
             if (cashAddress.includes(address.toString())) {
                 processOut = true;
                 break;
@@ -178,7 +184,7 @@ function getBchTransactions(address: Address) {
                 continue;
             }
             for (const outAddress of txout.scriptPubKey.addresses) {
-                const cashAddress = toUnprefixedCashAddress(outAddress);
+                const cashAddress = toUnprefixedCashAddress(outAddress)!;
                 if (cashAddress.includes(address.toString())) {
                     // when IN op, amount corresponds to txout
                     amount = parseFloat(txout.value); 
@@ -191,7 +197,7 @@ function getBchTransactions(address: Address) {
         if (processIn) {
             tx.vin.forEach(txin => {
                 const op = new Operation(String(tx.time), amount);
-                op.setAddress(toUnprefixedCashAddress(txin.addr));
+                op.setAddress(toUnprefixedCashAddress(txin.addr)!);
                 op.setTxid(tx.txid);
                 op.setType("Received")
 
@@ -206,7 +212,7 @@ function getBchTransactions(address: Address) {
                 }
 
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
-                op.setAddress(toUnprefixedCashAddress(txout.scriptPubKey.addresses[0]));
+                op.setAddress(toUnprefixedCashAddress(txout.scriptPubKey.addresses[0])!);
                 op.setTxid(tx.txid);
                 op.setType("Sent")
 
@@ -231,4 +237,4 @@ function getBchTransactions(address: Address) {
     address.setTransactions(transactions);    
 }
 
-export { getStats, getTransactions }
+export { getStats, getTransactions, getBchTransactions }

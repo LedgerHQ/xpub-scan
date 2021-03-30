@@ -311,7 +311,7 @@ function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operatio
 
 // compare the imported operations with the actual ones
 // 
-// returns an array of errors
+// TODO: handle aggregated operations
 function checkImportedOperations(importedOperations: Operation[], actualOperations: Operation[]) : Comparison[] {
     console.log(chalk.bold.whiteBright('\nComparison between imported and actual operations\n'));
     console.log(chalk.grey('imported operations\t\t\t\t\t\t\t\t     actual operations'));
