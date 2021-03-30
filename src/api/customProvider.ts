@@ -101,10 +101,10 @@ function getTransactions(address: Address) {
                 // provider Bitcoin Cash addresses are expressed as cash addresses:
                 // they have to be converted into legacy ones
                 if (configuration.symbol === 'BCH') {
-                    inAddress = bchaddr.toLegacyAddress(inAddress)
+                    inAddress = bchaddr.toLegacyAddress(inAddress);
                 }
 
-                if (inAddress.includes(address.toString()!)) {
+                if (inAddress.includes(address.toString())) {
                     processOut = true;
                     break;
                 }

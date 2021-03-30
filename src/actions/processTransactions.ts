@@ -48,30 +48,34 @@ function preprocessTransactions(address: Address) {
 function processFundedTransactions(address: Address, ownAddresses: OwnAddresses) {
 
     const transactions = address.getTransactions();
-
     const allOwnAddresses = ownAddresses.getAllAddresses();
     const accountNumber = address.getDerivation().account;
-    
+    let isFunded: boolean;
+
     for (const tx of transactions) {
+        isFunded = true;
         if (typeof(tx.ins) !== 'undefined' && tx.ins.length > 0) {
 
             // if account is internal (i.e., 1), and
-            //     - has a sibling as sender: return (expected behavior: sent to change)
+            //     - has a sibling as sender: not externally funded (expected behavior: sent to change)
             //     - has no sibling as sender: process the operation (edge case: non-sibling to change)
             if (accountNumber === 1) {
                 for (const txin of tx.ins) {
                     if (allOwnAddresses.includes(txin.address)) {
-                        return;
+                        isFunded = false;
+                        break;
                     }
                 }
             }
-                
-            const op = new Operation(tx.date, tx.ins[0].amount);
-            op.setTxid(tx.txid);
-            op.setBlockNumber(tx.blockHeight);
-            op.setType(accountNumber !== 1 ? "Received" : "Received (non-sibling to change)")
-    
-            address.addFundedOperation(op);
+
+            if (isFunded) {
+                const op = new Operation(tx.date, tx.ins[0].amount);
+                op.setTxid(tx.txid);
+                op.setBlockNumber(tx.blockHeight);
+                op.setType(accountNumber !== 1 ? "Received" : "Received (non-sibling to change)")
+        
+                address.addFundedOperation(op);
+            }
         }
     }
         

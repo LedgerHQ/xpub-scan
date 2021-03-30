@@ -100,8 +100,6 @@ function getBchStats(address: Address) {
     // flatten the payloads
     const rawTransactions = [].concat.apply([], payloads);
 
-    console.dir(rawTransactions);
-
     address.setRawTransactions(JSON.stringify(rawTransactions));
 }
 
