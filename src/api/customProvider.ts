@@ -100,7 +100,7 @@ function getTransactions(address: Address) {
 
                 // provider Bitcoin Cash addresses are expressed as cash addresses:
                 // they have to be converted into legacy ones
-                if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+                if (configuration.symbol === 'BCH') {
                     inAddress = bchaddr.toLegacyAddress(inAddress)
                 }
 
@@ -116,7 +116,7 @@ function getTransactions(address: Address) {
 
                 // provider Bitcoin Cash addresses are expressed as cash addresses:
                 // they have to be converted into legacy ones
-                if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+                if (configuration.symbol === 'BCH') {
                     outAddress = bchaddr.toLegacyAddress(outAddress)
                 }
 
@@ -135,10 +135,13 @@ function getTransactions(address: Address) {
                 txin.addresses.forEach(inAddress => {
                     const op = new Operation(String(tx.timestamp), amount);
 
-                    // provider Bitcoin Cash addresses are expressed as cash addresses:
-                    // they have to be converted into legacy ones
-                    op.setAddress(bchaddr.toLegacyAddress(inAddress));
+                    if (configuration.symbol === 'BCH') {
+                        // provider Bitcoin Cash addresses are expressed as cash addresses:
+                        // they have to be converted into legacy ones
+                        inAddress = bchaddr.toLegacyAddress(inAddress);
+                    }
                     
+                    op.setAddress(inAddress);
                     op.setTxid(tx.txid);
                     op.setType("Received")
     
@@ -152,10 +155,13 @@ function getTransactions(address: Address) {
                 txout.addresses.forEach(outAddress => {
                     const op = new Operation(String(tx.timestamp), parseFloat(txout.amount));
 
-                    // provider Bitcoin Cash addresses are expressed as cash addresses:
-                    // they have to be converted into legacy ones
-                    op.setAddress(bchaddr.toLegacyAddress(outAddress));
+                    if (configuration.symbol === 'BCH') {
+                        // provider Bitcoin Cash addresses are expressed as cash addresses:
+                        // they have to be converted into legacy ones
+                        outAddress = bchaddr.toLegacyAddress(outAddress);
+                    }
 
+                    op.setAddress(outAddress);
                     op.setTxid(tx.txid);
                     op.setType("Sent")
     

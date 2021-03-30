@@ -98,7 +98,7 @@ function getBchStats(address: Address) {
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getTransactions(address: Address) {
     // 1. get raw transactions
-    if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+    if (configuration.symbol === 'BCH') {
         return getBchTransactions(address);
     }
 

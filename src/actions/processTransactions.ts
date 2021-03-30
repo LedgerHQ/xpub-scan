@@ -154,14 +154,24 @@ function getSortedOperations(...addresses: any) : Operation[] {
     [].concat.apply([], addresses).forEach( (address: Address) => {
   
         address.getFundedOperations().forEach( (op: Operation) => {
-            op.setAddress(address.toString())
+            op.setAddress(address.toString());
+
+            if (configuration.symbol === 'BCH') {
+                op.setCashAddress(address.asCashAddress());
+            }
+
             operations.push(op);
         });
     
         address.getSpentOperations().forEach( (op: Operation) => {  
             // only process a given txid once
             if (!processedTxids.includes(op.txid)) {
-                op.setAddress(address.toString())
+                op.setAddress(address.toString());
+
+                if (configuration.symbol === 'BCH') {
+                    op.setCashAddress(address.asCashAddress());
+                }
+
                 operations.push(op);
                 processedTxids.push(op.txid);
             }

@@ -1,6 +1,3 @@
-import { NETWORKS, configuration } from '../settings';
-import bchaddr from 'bchaddrjs';
-
 type OperationType = 
             "Received"                              // Received - common case
         |   "Received (non-sibling to change)"      // Received - edge case: address not belonging to the xpub
@@ -16,6 +13,7 @@ class Operation {
     date: string;
     block: number;
     address: string;
+    cashAddress: string | undefined; // Bitcoin Cash: Cash Address format
     amount: number;
 
     constructor(date: string, amount: number) {
@@ -41,6 +39,10 @@ class Operation {
 
     setAddress(address: string) {
         this.address = address;
+    }
+
+    setCashAddress(cashAddress: string | undefined) {
+        this.cashAddress = cashAddress;
     }
 
     getAddress() {

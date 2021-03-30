@@ -67,7 +67,7 @@ class Address {
 
   // render as Cash Address (Bitcoin Cash)
   asCashAddress() {
-    if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+    if (configuration.symbol === 'BCH') {
       return toUnprefixedCashAddress(this.address);
     }
 

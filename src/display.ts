@@ -43,7 +43,7 @@ function updateAddressDetails(address: Address) {
 
   // _type_  path  address ...
   let stats = 
-    //    _{address type}_  {derivation path}  {address}...
+    //    _{address type}_  {derivation path}  {address}  [{cash address}]...
       '  '
       .concat(chalk.italic(addressType.padEnd(16, ' ')))
       .concat(derivationPath.padEnd(12, ' '))
@@ -123,14 +123,28 @@ function showSortedOperations(sortedOperations: Operation[]) {
   sortedOperations.forEach(op => {    
     const amount = convertUnits(op.amount).padEnd(12, ' ');
 
-    // {date} {block} {address}
+    // {date} {block} {address} [{cash address}]
     let status = 
       op.date.padEnd(20, ' ')
       .concat('\t')
-      .concat(String(op.block).padEnd(8, ' '))
-      .concat('\t')
-      .concat(op.address.padEnd(42, ' '))
-      .concat('\t');
+      .concat(String(op.block).padEnd(8, ' '));
+
+    const address = op.address;
+    const cashAddress = op.cashAddress;
+
+    if (typeof(cashAddress) !== 'undefined') {
+      status =
+        status
+          .concat(address.padEnd(36, ' '))
+          .concat(cashAddress.padEnd(46, ' '));
+    }
+    else {
+      status =
+        status
+          .concat('\t')
+          .concat(address.padEnd(42, ' '))
+          .concat('\t');
+    }
   
     if (op.operationType === "Received" || op.operationType === "Received (non-sibling to change)") {
       // ... +{amount} ←

@@ -105,7 +105,7 @@ function run(xpub: string, account?: number, index?: number) {
     AddressType.NATIVE
   ];
 
-  if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+  if (configuration.symbol === 'BCH') {
     addressTypes = [ AddressType.BCH ];
   }
 

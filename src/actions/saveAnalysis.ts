@@ -381,7 +381,7 @@ function save(meta: any, data: any, directory: string) {
     if (typeof(configuration.customAPI) !== 'undefined') {
         providerURL = configuration.customAPI;
     }
-    else if (configuration.network === NETWORKS.bitcoin_cash_mainnet) {
+    else if (configuration.symbol === 'BCH') {
         providerURL = configuration.defaultAPI.bch;
     }
     else {

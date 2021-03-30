@@ -33,7 +33,7 @@ By default, Bitcoin xpubs and Litecoin ltubs are automatically detected.
 
 To scan Bitcoin Cash xpubs, use the `--currency bch` argument:
 
-`$ node build/scan.js <xpub> --currency bch …`
+`$ node build/scan.js --currency bch <xpub> …`
 
 ## Usage 1. Check Balances
 
