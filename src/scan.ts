@@ -12,7 +12,7 @@ import { configuration } from "./settings";
 import { importOperations, checkImportedOperations } from "./actions/importOperations";
 import { save } from "./actions/saveAnalysis"
 
-const VERSION = '0.0.3'
+const VERSION = '0.0.4'
 
 const args = yargs
   .option('account', {
