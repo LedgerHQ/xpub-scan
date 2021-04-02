@@ -2,10 +2,10 @@ import request from "sync-request";
 
 import * as bip32 from 'bip32';
 import chalk from "chalk";
+import bchaddr from 'bchaddrjs';
 
 import { 
-  BITCOIN_NETWORK, 
-  LITECOIN_NETWORK,
+  NETWORKS,
   configuration 
 } from "./settings";
 
@@ -34,25 +34,43 @@ function getJSON(url: string, APIKey?: string) {
   return JSON.parse(res.getBody('utf-8'));
 }
 
+function setNetwork(xpub: string, currency?: string) {
+  if (typeof(currency) === 'undefined') {
+    const prefix = xpub.substring(0, 4);
+  
+    if (prefix === 'xpub') {
+      configuration.network = NETWORKS.bitcoin_mainnet;
+      configuration.currency = 'Bitcoin';
+      configuration.symbol = 'BTC';
+    }
+    else if (prefix === 'Ltub') {
+      configuration.network = NETWORKS.litecoin_mainnet;
+      configuration.currency = 'Litecoin';
+      configuration.symbol = 'LTC';
+    }
+    else {
+      throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
+    }
+  }
+  else {
+    currency = currency.toLowerCase()
+    // Bitcoin Cash
+    if (currency.includes('cash') || currency === 'bch') {
+      configuration.network = NETWORKS.bitcoin_cash_mainnet;
+      configuration.currency = 'Bitcoin Cash';
+      configuration.symbol = 'BCH';
+      return;
+    }
+
+    throw new Error("INVALID CURRENCY: '" + currency + "' is not supported");
+  }
+}
+
 // ensure that the xpub is a valid one
 // and select the relevant network
 //
 // TODO: extend to ypub, zpub...
 function checkXpub(xpub: string) {
-  const prefix = xpub.substring(0, 4);
-
-  if (prefix === 'xpub') {
-    configuration.network = BITCOIN_NETWORK;
-    configuration.currency = 'Bitcoin'
-  }
-  else if (prefix === 'Ltub') {
-    configuration.network = LITECOIN_NETWORK;
-    configuration.currency = 'Litecoin'
-  }
-  else {
-    throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
-  }
-
   try {
     bip32.fromBase58(xpub, configuration.network);
   }
@@ -77,12 +95,27 @@ function checkXpub(xpub: string) {
   );
 }
 
-function init(xpub: string, quiet: boolean) {
+function init(xpub: string, quiet: boolean, currency?: string) {
   configuration.quiet = quiet;
+  setNetwork(xpub, currency);
   checkXpub(xpub);
+}
+
+// remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
+function toUnprefixedCashAddress(address: string) {
+  if (configuration.symbol !== 'BCH') {
+    return undefined;
+  }
+
+  if (!bchaddr.isCashAddress(address)) {
+    address = bchaddr.toCashAddress(address);  
+  }
+  
+  return address.replace('bitcoincash:', '');
 }
 
 export {
   getJSON,
-  init
+  init,
+  toUnprefixedCashAddress
 }

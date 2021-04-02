@@ -27,6 +27,14 @@ $ npm i
 $ tsc -p .
 ```
 
+### Currencies
+
+By default, Bitcoin xpubs and Litecoin ltubs are automatically detected.
+
+To scan Bitcoin Cash xpubs, use the `--currency bch` argument:
+
+`$ node build/scan.js --currency bch <xpub> …`
+
 ## Usage 1. Check Balances
 
 *In the following instructions, the generic `xpub` term is used to designate a master public key. It can be substituted with another type of supported public key, such as `Ltub` (Litecoin).*

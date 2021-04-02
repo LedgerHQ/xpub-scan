@@ -1,7 +1,11 @@
 import * as bjs from "bitcoinjs-lib";
 import * as bip32 from 'bip32';
 
-import { AddressType, configuration } from "../settings";
+// @ts-ignore
+import * as bch from 'bitcoincashjs';
+import bchaddr from 'bchaddrjs';
+
+import { AddressType, configuration } from '../settings';
 
 // derive legacy address at account and index positions
 function getLegacyAddress(xpub: string, account: number, index: number) : string {
@@ -44,6 +48,21 @@ function getSegWitAddress(xpub: string, account: number, index: number) : string
   return String(address);
 }
 
+// Based on https://github.com/go-faast/bitcoin-cash-payments/blob/54397eb97c7a9bf08b32e10bef23d5f27aa5ab01/index.js#L63-L73
+function getLegacyBitcoinCashAddress(xpub: string, account: number, index: number) : string {
+  const CASH_ADDR_FORMAT = bch.Address.CashAddrFormat
+
+  const node = new bch.HDPublicKey(xpub);
+  const child = node.derive(account).derive(index);
+  const address = new bch.Address(child.publicKey, bch.Networks.livenet);
+  const addrstr = address.toString(CASH_ADDR_FORMAT).split(':');
+  if (addrstr.length === 2) {
+    return bchaddr.toLegacyAddress(addrstr[1]);
+  } else {
+    throw new Error('Unable to derive cash address for ' + address);
+  }
+}
+
 // get address given an address type
 function getAddress(addressType: AddressType, xpub: string, account: number, index: number) : string {
   switch(addressType) {
@@ -53,6 +72,8 @@ function getAddress(addressType: AddressType, xpub: string, account: number, ind
       return getSegWitAddress(xpub, account, index);
     case AddressType.NATIVE:
       return getNativeSegWitAddress(xpub, account, index);
+    case AddressType.BCH:
+      return getLegacyBitcoinCashAddress(xpub, account, index);
   }
 
   throw new Error("Should not be reachable");

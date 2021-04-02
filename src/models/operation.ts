@@ -13,6 +13,7 @@ class Operation {
     date: string;
     block: number;
     address: string;
+    cashAddress: string | undefined; // Bitcoin Cash: Cash Address format
     amount: number;
 
     constructor(date: string, amount: number) {
@@ -38,6 +39,10 @@ class Operation {
 
     setAddress(address: string) {
         this.address = address;
+    }
+
+    setCashAddress(cashAddress: string | undefined) {
+        this.cashAddress = cashAddress;
     }
 
     getAddress() {

@@ -4,7 +4,7 @@ import * as display from "../display";
 
 import { Address } from "../models/address"
 import { OwnAddresses } from "../models/ownAddresses"
-import { configuration, AddressType, GAP_LIMIT } from "../settings";
+import { configuration, AddressType, GAP_LIMIT, NETWORKS } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
 // @ts-ignore
@@ -97,8 +97,18 @@ function scanAddresses(addressType: AddressType, xpub: string) {
 
 function run(xpub: string, account?: number, index?: number) {  
   let activeAddresses: Address[] = [];
-  let summary: any[] = [];
+  const summary: any[] = [];
   
+  let addressTypes: AddressType[] = [
+    AddressType.LEGACY,
+    AddressType.SEGWIT,
+    AddressType.NATIVE
+  ];
+
+  if (configuration.symbol === 'BCH') {
+    addressTypes = [ AddressType.BCH ];
+  }
+
   if (typeof(account) === 'undefined') {
     // Option A: no index has been provided:
     // scan all address types
@@ -107,11 +117,7 @@ function run(xpub: string, account?: number, index?: number) {
       console.log(chalk.bold("\nActive addresses\n"));
     }
 
-    [
-      AddressType.LEGACY,
-      AddressType.SEGWIT,
-      AddressType.NATIVE
-    ].forEach(addressType => {
+    addressTypes.forEach(addressType => {
       const results = scanAddresses(addressType, xpub);
       
       activeAddresses = activeAddresses.concat(results.addresses);
@@ -129,11 +135,7 @@ function run(xpub: string, account?: number, index?: number) {
     // check their respective balances
     let ownAddresses = new OwnAddresses();
 
-    [
-      AddressType.LEGACY,
-      AddressType.SEGWIT,
-      AddressType.NATIVE
-    ].forEach(addressType => {
+    addressTypes.forEach(addressType => {
       const address = new Address(addressType, xpub, account, (index || 0));
       
       display.updateAddressDetails(address);

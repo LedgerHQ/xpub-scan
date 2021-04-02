@@ -1,8 +1,9 @@
 import fs from 'fs';
 import minifier from 'html-minifier'
 
-import { configuration, GAP_LIMIT, EXTERNAL_EXPLORER_URL } from '../settings';
+import { configuration, GAP_LIMIT, EXTERNAL_EXPLORER_URL, NETWORKS } from '../settings';
 import { reportTemplate } from '../templates/report.html'
+import { toUnprefixedCashAddress } from "../helpers";
 
 // @ts-ignore
 import sb from 'satoshi-bitcoin';
@@ -22,12 +23,13 @@ function toBaseUnit(amount: number) {
 }
 
 // align float numbers or zeros
-function renderNumber(amount: number) {
+function renderAmount(amount: number) {
     const decimalPrecision = 8;
     const filler = '¤'; // (any non-numeric non-dot char)
     let n;
 
     // non-strict equality required here
+    // tslint:disable-next-line
     if (amount == 0) {
         // align '0': insert filler on the right
         n = '0'.padEnd(decimalPrecision + 2, filler);
@@ -43,10 +45,22 @@ function renderNumber(amount: number) {
     return '<span class="monospaced">' + n.split(filler).join('&nbsp;') + '</span>';
 }
 
+// mapping between the currency and the default external explorer
+// expected coin name
+function getCoinName() {
+    return configuration.currency.toLowerCase().replace(' ', '-');
+}
+
 // make address clickable
-function renderAddress(address: string) {
+function addressAsLink(address: string) {
+    // if no address, return empty string
+    // (used for CSV files that do not contain any address)
+    if (typeof(address) === 'undefined') {
+        return '';
+    }
+
     const url = EXTERNAL_EXPLORER_URL
-        .replace('{coin}', configuration.currency.toLowerCase())
+        .replace('{coin}', getCoinName())
         .replace('{type}', 'address')
         .replace('{item}', address);
     
@@ -55,10 +69,23 @@ function renderAddress(address: string) {
     return '<a class="monospaced" href="' + url + '" target=_blank>' + address + "</a>"
 }
 
+function renderAddress(address: string, cashAddress?: string) {
+    let renderedAddress = addressAsLink(address);
+
+    if (configuration.symbol !== 'BCH' || !cashAddress) {
+        return renderedAddress;
+    } else {
+        // Bitcoin Cash: handle Legacy/Cash address duality:
+        //  {legacy}
+        //  {Cash address}
+        return renderedAddress.concat('</br>').concat(addressAsLink(cashAddress));
+    }
+}
+
 // make TXID clickable
 function renderTxid(txid: string) {
     const url = EXTERNAL_EXPLORER_URL
-        .replace('{coin}', configuration.currency.toLowerCase())
+        .replace('{coin}', getCoinName())
         .replace('{type}', 'transaction')
         .replace('{item}', txid);
         
@@ -130,17 +157,18 @@ function saveHTML(object: any, directory: string) {
     
     // addresses
     const addresses: string[] = [];
+    
     for (const e of object.addresses) {
         addresses.push('<tr><td>' + e.addressType + '</td>');
 
         const derivationPath = 'm/' + e.derivation.account + '/' + e.derivation.index;
         addresses.push('<td>' + derivationPath + '</td>')
 
-        addresses.push('<td>' + renderAddress(e.address) + '</td>')
+        addresses.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>')
 
-        const balance = renderNumber(e.balance);
-        const funded = renderNumber(e.funded);
-        const spent = renderNumber(e.spent);
+        const balance = renderAmount(e.balance);
+        const funded = renderAmount(e.funded);
+        const spent = renderAmount(e.spent);
 
         addresses.push('<td>' + balance + '</td>');
         addresses.push('<td>' + funded + '</td>');
@@ -164,8 +192,8 @@ function saveHTML(object: any, directory: string) {
         transactions.push('<tr><td>' + e.date + '</td>');
         transactions.push('<td>' + e.block + '</td>');
         transactions.push('<td>' + renderTxid(e.txid) + '</td>');
-        transactions.push('<td>' + renderAddress(e.address) + '</td>');
-        transactions.push('<td>' + renderNumber(e.amount) + '</td>');
+        transactions.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>');
+        transactions.push('<td>' + renderAmount(e.amount) + '</td>');
         transactions.push('<td>' + createTooltip(e.operationType) + '</td></tr>');
     }
     
@@ -216,7 +244,7 @@ function saveHTML(object: any, directory: string) {
             if (typeof(e.imported) !== 'undefined') {
                 imported.date = e.imported.date;
                 imported.address = renderAddress(e.imported.address);
-                imported.amount = renderNumber(e.imported.amount);
+                imported.amount = renderAmount(e.imported.amount);
                 txid = e.imported.txid;
                 opType = e.imported.operationType;
             }
@@ -226,8 +254,8 @@ function saveHTML(object: any, directory: string) {
 
             if (typeof(e.actual) !== 'undefined') {
                 actual.date = e.actual.date;
-                actual.address = renderAddress(e.actual.address);
-                actual.amount = renderNumber(e.actual.amount);
+                actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
+                actual.amount = renderAmount(e.actual.amount);
                 txid = e.actual.txid;
                 opType = e.actual.operationType;
             }
@@ -310,12 +338,12 @@ function saveJSON(object: any, directory: string) {
 function save(meta: any, data: any, directory: string) {
 
     // convert amounts into base unit
-
     const addresses: any[] = data.addresses.map((e: any) => {
         return { 
             addressType: e.addressType,
             derivation: e.getDerivation(),
             address: e.toString(),
+            cashAddress: e.asCashAddress(),
             balance: toBaseUnit(e.balance),
             funded: toBaseUnit(e.stats.funded),
             spent: toBaseUnit(e.stats.spent)
@@ -332,6 +360,7 @@ function save(meta: any, data: any, directory: string) {
     const transactions: any[] = data.transactions.map((e: any) => {
         return {
             ...e,
+            cashAddress: toUnprefixedCashAddress(e.address),
             amount: toBaseUnit(e.amount)
         };
     })
@@ -345,10 +374,22 @@ function save(meta: any, data: any, directory: string) {
             } : undefined,
             actual: typeof(e.actual) !== 'undefined' ? {
                 ...e.actual,
+                cashAddress: toUnprefixedCashAddress(e.actual.address),
                 amount: toBaseUnit(e.actual.amount)
             } : undefined
         };
     }) : undefined;
+
+    let providerURL;
+    if (typeof(configuration.customAPI) !== 'undefined') {
+        providerURL = configuration.customAPI;
+    }
+    else if (configuration.symbol === 'BCH') {
+        providerURL = configuration.defaultAPI.bch;
+    }
+    else {
+        providerURL = configuration.defaultAPI.general;
+    }
 
     const object = {
         meta: {
@@ -358,7 +399,7 @@ function save(meta: any, data: any, directory: string) {
             analysis_date: meta.date,
             currency: configuration.currency,
             provider: configuration.providerType,
-            provider_url: configuration.BaseURL,
+            provider_url: providerURL,
             gap_limit: GAP_LIMIT,
             unit: "Base unit (i.e., satoshis or equivalent unit)"
         },

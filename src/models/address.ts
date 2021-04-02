@@ -1,8 +1,9 @@
-import { AddressType } from "../settings";
+import { AddressType, configuration, NETWORKS } from "../settings";
 import { Transaction } from "./transaction";
-import { Operation, OperationType } from "./operation";
+import { Operation } from "./operation";
 import { Stats } from "./stats";
 import { getAddress } from "../actions/deriveAddresses"
+import { toUnprefixedCashAddress } from "../helpers";
 
 class Address {
   address: string;
@@ -62,6 +63,15 @@ class Address {
 
   toString() {
     return this.address;
+  }
+
+  // render as Cash Address (Bitcoin Cash)
+  asCashAddress() {
+    if (configuration.symbol === 'BCH') {
+      return toUnprefixedCashAddress(this.address);
+    }
+
+    return undefined;
   }
 
   getType() {

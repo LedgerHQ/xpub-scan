@@ -43,11 +43,24 @@ function updateAddressDetails(address: Address) {
 
   // _type_  path  address ...
   let stats = 
-    //    _{address type}_  {derivation path}  {address}...
+    //    _{address type}_  {derivation path}  {address}  [{cash address}]...
       '  '
       .concat(chalk.italic(addressType.padEnd(16, ' ')))
       .concat(derivationPath.padEnd(12, ' '))
-      .concat(address.toString().padEnd(46, ' '));
+
+  const cashAddress = address.asCashAddress();
+
+  if (typeof(cashAddress) !== 'undefined') {
+    stats =
+      stats
+        .concat(address.toString().padEnd(36, ' '))
+        .concat(cashAddress.padEnd(46, ' '));
+  }
+  else {
+    stats =
+      stats
+        .concat(address.toString().padEnd(46, ' '))
+  }
 
   if (typeof(address.getStats()) === 'undefined') {
     // if no stats, display just half of the line
@@ -110,15 +123,28 @@ function showSortedOperations(sortedOperations: Operation[]) {
   sortedOperations.forEach(op => {    
     const amount = convertUnits(op.amount).padEnd(12, ' ');
 
-    // {date} {block} {address}
+    // {date} {block} {address} [{cash address}]
     let status = 
       op.date.padEnd(20, ' ')
       .concat('\t')
-      .concat(String(op.block).padEnd(8, ' '))
-      .concat('\t')
-      .concat(op.address.padEnd(42, ' '))
-      .concat('\t')
-      
+      .concat(String(op.block).padEnd(8, ' '));
+
+    const address = op.address;
+    const cashAddress = op.cashAddress;
+
+    if (typeof(cashAddress) !== 'undefined') {
+      status =
+        status
+          .concat(address.padEnd(36, ' '))
+          .concat(cashAddress.padEnd(46, ' '));
+    }
+    else {
+      status =
+        status
+          .concat('\t')
+          .concat(address.padEnd(42, ' '))
+          .concat('\t');
+    }
   
     if (op.operationType === "Received" || op.operationType === "Received (non-sibling to change)") {
       // ... +{amount} ←
@@ -226,7 +252,7 @@ function transientLine(message?: string) {
     // blank line
     // ! solution implemented this way to be
     // ! compatible with Docker
-    process.stdout.write(''.padEnd(100, ' '));
+    process.stdout.write(''.padEnd(140, ' '));
     readline.cursorTo(process.stdout, 0);
   }
 }

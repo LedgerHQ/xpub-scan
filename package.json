@@ -21,6 +21,8 @@
     "@types/dotenv": "^8.2.0",
     "@types/lodash": "^4.14.168",
     "@types/yargs": "^16.0.0",
+    "bchaddrjs": "^0.5.2",
+    "bitcoin-cash-payments": "^0.2.0",
     "bitcoinjs-lib": "^5.2.0",
     "chalk": "^4.1.0",
     "es6-promise": "^4.2.8",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "@babel/core": "^7.13.1",
     "@babel/eslint-parser": "^7.13.4",
+    "@types/bchaddrjs": "^0.4.0",
     "@types/bip32": "^2.0.0",
     "@types/chalk": "^2.2.0",
     "@types/dateformat": "^3.0.1",
