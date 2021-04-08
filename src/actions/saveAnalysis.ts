@@ -1,7 +1,7 @@
 import fs from 'fs';
 import minifier from 'html-minifier'
 
-import { configuration, GAP_LIMIT, EXTERNAL_EXPLORER_URL, NETWORKS } from '../settings';
+import { configuration, GAP_LIMIT, EXTERNAL_EXPLORERS_URLS } from '../settings';
 import { reportTemplate } from '../templates/report.html'
 import { toUnprefixedCashAddress } from "../helpers";
 
@@ -45,10 +45,46 @@ function renderAmount(amount: number) {
     return '<span class="monospaced">' + n.split(filler).join('&nbsp;') + '</span>';
 }
 
-// mapping between the currency and the default external explorer
-// expected coin name
-function getCoinName() {
-    return configuration.currency.toLowerCase().replace(' ', '-');
+// generate the url to an external explorer allowing to get more info
+// regarding an item (address or transaction)
+function getUrl(itemType: string, item: string) {
+    
+    // general case (Bitcoin, Litecoin)
+    // --------------------------------
+    let url = EXTERNAL_EXPLORERS_URLS.general;
+    let itemTypes = {
+        address: 'address',
+        transaction: 'tx'
+    }
+
+    // exception(s)
+    // ------------
+
+    // Bitcoin Cash
+    //
+    // coin:        "bitcoin-cash"
+    // item types:  "address" | "transaction"
+    if (configuration.symbol === 'BCH') {
+        url = EXTERNAL_EXPLORERS_URLS.bch;
+        url = url.replace('{coin}', 'bitcoin-cash');
+        itemTypes.transaction = 'transaction'; 
+    }
+
+    // specify item type
+    switch(itemType) {
+        case 'address':
+            url = url.replace('{type}', itemTypes.address);
+            break;
+        case 'transaction':
+            url = url.replace('{type}', itemTypes.transaction);
+            break;
+        default:
+            throw new Error('Unrecognized item type "' + itemType + '" (expected: "address" or "transaction")');
+    }
+
+    return url
+        .replace('{coin}', configuration.symbol.toLowerCase())
+        .replace('{item}', item);
 }
 
 // make address clickable
@@ -59,10 +95,7 @@ function addressAsLink(address: string) {
         return '';
     }
 
-    const url = EXTERNAL_EXPLORER_URL
-        .replace('{coin}', getCoinName())
-        .replace('{type}', 'address')
-        .replace('{item}', address);
+    const url = getUrl('address', address);
     
     address = address.length < 45 ? address : address.substring(0, 45) + '...';
 
@@ -84,10 +117,7 @@ function renderAddress(address: string, cashAddress?: string) {
 
 // make TXID clickable
 function renderTxid(txid: string) {
-    const url = EXTERNAL_EXPLORER_URL
-        .replace('{coin}', getCoinName())
-        .replace('{type}', 'transaction')
-        .replace('{item}', txid);
+    const url = getUrl('transaction', txid);
         
     txid = txid.substring(0, 10) + '...';
 
