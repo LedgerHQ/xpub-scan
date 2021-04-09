@@ -73,8 +73,10 @@ export enum AddressType {
 
 // HTML REPORT
 // -----------
-const EXTERNAL_EXPLORER_URL = 'https://blockchair.com/{coin}/{type}/{item}'
-
+const EXTERNAL_EXPLORERS_URLS = {
+  general: 'https://live.blockcypher.com/{coin}/{type}/{item}',
+  bch: 'https://blockchair.com/{coin}/{type}/{item}'
+}
 
 Object.freeze(AddressType);
 
@@ -96,5 +98,5 @@ export {
   VERBOSE,
   NETWORKS,
   DERIVATION_SCOPE,
-  EXTERNAL_EXPLORER_URL
+  EXTERNAL_EXPLORERS_URLS
 }
