@@ -66,7 +66,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 // ensure that an operation without address results in a mismatch
                 op.setAddress(recipient || '(no address)'); 
                                                             
-                op.setType("Received")
+                op.setType("Received");
 
                 operations.push(op);
             }
@@ -80,7 +80,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 // ensure that an operation without address results in a mismatch
                 op.setAddress(sender || '(no address)');
 
-                op.setType("Sent")
+                op.setType("Sent");
 
                 operations.push(op);
             }
@@ -118,18 +118,18 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
         if (type === 'IN') {
             const op = new Operation(date[0], amount);
             op.setTxid(txid);
-            op.setType("Received")
+            op.setType("Received");
 
             operations.push(op);
         }
         else if (type === 'OUT') {
             // out transactions: substract fees from amount (in satoshis)...
             const amountInSatoshis = sb.toSatoshi(amount) - sb.toSatoshi(fees);
-            // ... and couvert the total back to Bitcoin
+            // ... and convert the total back to Bitcoin
             // (otherwise, there would be floating number issues)
             const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
             op.setTxid(txid);
-            op.setType("Sent")
+            op.setType("Sent");
 
             operations.push(op);
         }
@@ -137,6 +137,60 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
 
     return operations;
 }
+
+// import transactions from a type B JSON
+//
+// returns an array of type B imported transactions
+function importFromJSONTypeB(lines: string[]) : Operation[] {
+    const operations: Operation[] = [];
+
+    let ops;
+
+    try {
+        ops = JSON.parse(lines.join('')).operations;
+    } 
+    catch(err) {
+        throw new Error('JSON parsing error');
+    }
+
+    for (const operation of ops) {
+        const type              = operation.type;
+        
+        const date              = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
+                                    .exec(operation.date) || '';
+
+        const txid              = operation.hash;
+        const valueInSatoshis   = parseFloat(operation.value);      // in satoshis
+        const feesInSatoshis    = parseFloat(operation.fee);        // in satoshis
+        const recipient         = operation.recipients.join(',');
+        const sender            = operation.senders.join(',');
+
+        if (type === 'IN') {
+            const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+            op.setTxid(txid);
+            op.setType("Received");
+            op.setAddress(recipient || '(no address)');
+
+            operations.push(op);
+        }
+        else if (type === 'OUT') {
+            // out transactions: substract fees from amount (in satoshis)...
+            const amountInSatoshis = valueInSatoshis - feesInSatoshis;
+            // ... and convert the total back to Bitcoin
+            // (otherwise, there would be floating number issues)
+            const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
+            op.setTxid(txid);
+            op.setType("Sent");
+            op.setAddress(sender || '(no address)');
+
+            operations.push(op);
+        }
+
+    }
+
+    return operations;
+}
+
 
 // dispatcher: detect the type of the imported file
 // based on its contents
@@ -159,8 +213,15 @@ function importOperations(path: string) : Operation[] {
     else if (firstLine.substring(0, 9) === 'Operation') {
         operations = importFromCSVTypeB(lines);
     }
+    // JSON files
+    else if (firstLine === '{' || firstLine === '[') {
+        // type B JSON
+        if (lines.some(line => line.includes('libcore'))) {
+            operations = importFromJSONTypeB(lines);
+        }
+    }
     else {
-        throw new Error('CSV format not recognized.')
+        throw new Error('CSV format not recognized.');
     }
 
     if (!configuration.quiet) {
