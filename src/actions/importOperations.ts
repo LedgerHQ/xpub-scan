@@ -149,7 +149,7 @@ function importFromJSONTypeB(lines: string[]) : Operation[] {
     try {
         ops = JSON.parse(lines.join('')).operations;
     } 
-    catch(err) {
+    catch (err) {
         throw new Error('JSON parsing error');
     }
 
@@ -169,7 +169,7 @@ function importFromJSONTypeB(lines: string[]) : Operation[] {
             const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
             op.setTxid(txid);
             op.setType("Received");
-            op.setAddress(recipient || '(no address)');
+            op.setAddress(recipient);
 
             operations.push(op);
         }
@@ -181,11 +181,74 @@ function importFromJSONTypeB(lines: string[]) : Operation[] {
             const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
             op.setTxid(txid);
             op.setType("Sent");
-            op.setAddress(sender || '(no address)');
+            op.setAddress(sender);
 
             operations.push(op);
         }
 
+    }
+
+    return operations;
+}
+
+function importFromJSONTypeA(lines: string[]) : Operation[] {    
+    const operations: Operation[] = [];
+
+    let ops;
+
+    try {
+        ops = JSON.parse(lines.join('')).operations;
+    } 
+    catch (err) {
+        throw new Error('JSON parsing error');
+    }
+
+    for (const operation of ops) {
+        const type              = operation.operation_type;
+        
+        const date              = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
+                                    .exec(operation.transaction.received_at) || '';
+
+        const txid              = operation.hash;
+        const valueInSatoshis   = parseFloat(operation.amount);      // in satoshis
+        const feesInSatoshis    = parseFloat(operation.fees);        // in satoshis
+
+        if (type === 'receive') {
+            const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+            op.setTxid(txid);
+            op.setType("Received");
+            
+            let addresses = [];
+            for (const output of operation.transaction.outputs) {
+                if (output.derivation !== null) {
+                    addresses.push(output.address);
+                }
+            }
+
+            op.setAddress(addresses.join(','));
+
+            operations.push(op);
+        }
+        else if (type === 'send') {
+            // out transactions: substract fees from amount (in satoshis)...
+            const amountInSatoshis = valueInSatoshis - feesInSatoshis;
+            // ... and convert the total back to Bitcoin
+            // (otherwise, there would be floating number issues)
+            const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
+            op.setTxid(txid);
+            op.setType("Sent");
+
+            let addresses = [];
+            for (const input of operation.transaction.inputs) {
+                if (input.derivation !== null) {
+                    addresses.push(input.address);
+                }
+            }
+
+            op.setAddress(addresses.join(','));
+
+            operations.push(op);
+        }
     }
 
     return operations;
@@ -215,8 +278,12 @@ function importOperations(path: string) : Operation[] {
     }
     // JSON files
     else if (firstLine === '{' || firstLine === '[') {
+        // type A JSON
+        if (lines.some(line => line.includes('cursor'))) {
+            operations = importFromJSONTypeA(lines);
+        }
         // type B JSON
-        if (lines.some(line => line.includes('libcore'))) {
+        else if (lines.some(line => line.includes('libcore'))) {
             operations = importFromJSONTypeB(lines);
         }
     }

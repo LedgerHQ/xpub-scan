@@ -37,8 +37,13 @@ class Operation {
         return this.block;
     }
 
-    setAddress(address: string) {
-        this.address = address;
+    setAddress(address?: string) {
+        if (!address || address === '') {
+            this.address = '(no address)'
+        }
+        else {
+            this.address = address;
+        }
     }
 
     setCashAddress(cashAddress: string | undefined) {
