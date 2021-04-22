@@ -157,6 +157,110 @@ function createTooltip(opType: string) {
     return '<div class="tooltip">' + opType + tooltip + '</div>'
 }
 
+function makeComparisonsTable(object: any, onlyDiff?: boolean) {
+    let comparisonsTemplate = `
+    <li class="tab">
+    <input type="radio" name="tabs" id="tab{id}" />
+    <label for="tab{id}">{label}</label>
+    <div id="tab-content{id}" class="content">
+    <table>
+        <thead>
+            <tr style="text-align: center">
+                <th rowspan="1" colspan="3">Imported</th>
+                <th rowspan="1" colspan="3">Actual</th>
+                <th rowspan="2" colspan="1">TXID</th>
+                <th rowspan="2" colspan="1">Type</th>
+                <th rowspan="2" colspan="1">Status</th>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <th>Address</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Address</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {comparisons}
+        </tbody>
+    </table>
+    </div>
+    </li>
+    `
+
+    let comp;
+
+    if (!onlyDiff) {
+        comp = object.comparisons;
+        comparisonsTemplate = comparisonsTemplate.replace('{label}', 'Comparisons:all');
+        comparisonsTemplate = comparisonsTemplate.split('{id}').join('4'); // comparisons:all has id 4
+    }
+    else {
+        comp = object.diffs;
+        comparisonsTemplate = comparisonsTemplate.replace('{label}', 'Comparisons:diff');
+        comparisonsTemplate = comparisonsTemplate.split('{id}').join('5'); // comparisons:diff has id 5
+    }
+
+    const comparisons: string[] = [];
+    if (typeof(comp) !== 'undefined') {
+        for (const e of comp) {
+
+            let txid: string = '';
+            let opType: string = '';
+
+            // by default: no imported operation
+            const imported = { date: '', address: '(no operation)', amount: '' };
+
+            if (typeof(e.imported) !== 'undefined') {
+                imported.date = e.imported.date;
+                imported.address = renderAddress(e.imported.address);
+                imported.amount = renderAmount(e.imported.amount);
+                txid = e.imported.txid;
+                opType = e.imported.operationType;
+            }
+
+            // by default: no actual operation
+            const actual = { date: '', address: '(no operation)', amount: '' };
+
+            if (typeof(e.actual) !== 'undefined') {
+                actual.date = e.actual.date;
+                actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
+                actual.amount = renderAmount(e.actual.amount);
+                txid = e.actual.txid;
+                opType = e.actual.operationType;
+            }
+
+            if (e.status === 'Match') {
+                if (onlyDiff) {
+                    continue; // if diff: ignore matches
+                }
+                comparisons.push('<tr class="comparison_match">')
+            }
+            else {
+                comparisons.push('<tr class="comparison_mismatch">')
+            }
+
+            comparisons.push('<td>' + imported.date + '</td>');
+            comparisons.push('<td>' + imported.address + '</td>');
+            comparisons.push('<td>' + imported.amount + '</td>');
+            comparisons.push('<td>' + actual.date + '</td>');
+            comparisons.push('<td>' + actual.address + '</td>');
+            comparisons.push('<td>' + actual.amount + '</td>');
+            comparisons.push('<td>' + renderTxid(txid) + '</td>');
+            comparisons.push('<td>' + createTooltip(opType) + '</td>');
+            comparisons.push('<td>' + e.status + '</td></tr>');
+        }
+    }
+
+    if (comparisons.length > 0) {
+        return comparisonsTemplate.replace('{comparisons}', comparisons.join(''));
+    }
+    else {
+        return '';
+    }
+}
+
 function saveHTML(object: any, directory: string) {
     let report = reportTemplate;
 
@@ -229,93 +333,14 @@ function saveHTML(object: any, directory: string) {
     
     report = report.replace('{transactions}', transactions.join(''));
 
-    // comparisons
-    const comparisonsTemplate = `
-        <li class="tab">
-        <input type="radio" name="tabs" id="tab4" />
-        <label for="tab4">Comparisons</label>
-        <div id="tab-content4" class="content">
-        <table>
-            <thead>
-                <tr style="text-align: center">
-                    <th rowspan="1" colspan="3">Imported</th>
-                    <th rowspan="1" colspan="3">Actual</th>
-                    <th rowspan="2" colspan="1">TXID</th>
-                    <th rowspan="2" colspan="1">Type</th>
-                    <th rowspan="2" colspan="1">Status</th>
-                </tr>
-                <tr>
-                    <th>Date</th>
-                    <th>Address</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Address</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {comparisons}
-            </tbody>
-        </table>
-        </div>
-        </li>
-        `
-
-    const comparisons: string[] = [];
-    if (typeof(object.comparisons) !== 'undefined') {
-        for (const e of object.comparisons) {
-
-            let txid: string = '';
-            let opType: string = '';
-
-            // by default: no imported operation
-            const imported = { date: '', address: '(no operation)', amount: '' };
-
-            if (typeof(e.imported) !== 'undefined') {
-                imported.date = e.imported.date;
-                imported.address = renderAddress(e.imported.address);
-                imported.amount = renderAmount(e.imported.amount);
-                txid = e.imported.txid;
-                opType = e.imported.operationType;
-            }
-
-            // by default: no actual operation
-            const actual = { date: '', address: '(no operation)', amount: '' };
-
-            if (typeof(e.actual) !== 'undefined') {
-                actual.date = e.actual.date;
-                actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
-                actual.amount = renderAmount(e.actual.amount);
-                txid = e.actual.txid;
-                opType = e.actual.operationType;
-            }
-
-            if (e.status === 'Match') {
-                comparisons.push('<tr class="comparison_match">')
-            }
-            else {
-                comparisons.push('<tr class="comparison_mismatch">')
-            }
-
-            comparisons.push('<td>' + imported.date + '</td>');
-            comparisons.push('<td>' + imported.address + '</td>');
-            comparisons.push('<td>' + imported.amount + '</td>');
-            comparisons.push('<td>' + actual.date + '</td>');
-            comparisons.push('<td>' + actual.address + '</td>');
-            comparisons.push('<td>' + actual.amount + '</td>');
-            comparisons.push('<td>' + renderTxid(txid) + '</td>');
-            comparisons.push('<td>' + createTooltip(opType) + '</td>');
-            comparisons.push('<td>' + e.status + '</td></tr>');
-        }
-    }
-
-    const comparisonTable = comparisonsTemplate.replace('{comparisons}', comparisons.join(''));
-
-    if (comparisons.length === 0) {
+    // comparisons and diff
+    if (object.comparisons.length === 0) {
         report = report.replace('{comparisons}', '');
+        report = report.replace('{diff}', '');
     }
     else {
-        report = report.replace('{comparisons}', comparisonTable);
+        report = report.replace('{comparisons}', makeComparisonsTable(object));
+        report = report.replace('{diff}', makeComparisonsTable(object, true));
     }
 
     const filepath = 
@@ -330,11 +355,7 @@ function saveHTML(object: any, directory: string) {
         removeComments: true,
     });
 
-    fs.writeFile(filepath, minifiedReport, function(err) {
-        if (err) {
-            console.log(err);
-        }
-    });
+    fs.writeFileSync(filepath, minifiedReport);
 
     console.log('HTML report saved: '.concat(filepath));
 }
@@ -355,11 +376,7 @@ function saveJSON(object: any, directory: string) {
     }
     else {
         // save file
-        fs.writeFile(filepath, JSONobject, function(err) {
-            if (err) {
-                console.log(err);
-            }
-        });
+        fs.writeFileSync(filepath, JSONobject);
     
         console.log('\nJSON export saved: '.concat(filepath));
     }
@@ -436,7 +453,8 @@ function save(meta: any, data: any, directory: string) {
         addresses,
         summary,
         transactions,
-        comparisons
+        comparisons,
+        diffs: comparisons.filter(comparison => comparison.status !== 'Match')
     } 
 
     // if no filepath/filename specify -> set to current directory
@@ -449,6 +467,9 @@ function save(meta: any, data: any, directory: string) {
     if (directory.toLocaleLowerCase() !== 'stdout') {
         saveHTML(object, directory);
     }
+
+    // add empty line to separate this text block from potential check results
+    console.log();
 }
 
 export { save }

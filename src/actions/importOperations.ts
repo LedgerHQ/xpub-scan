@@ -64,7 +64,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 // ! for this type of CSV, this field is required and should 
                 // default to a non-empty string (here: `(no address)`) to 
                 // ensure that an operation without address results in a mismatch
-                op.setAddress(recipient || '(no address)'); 
+                op.setAddress(recipient); 
                                                             
                 op.setType("Received");
 
@@ -78,7 +78,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
                 // ! for this type of CSV, this field is required and should 
                 // default to a non-empty string (here: `(no address)`) to 
                 // ensure that an operation without address results in a mismatch
-                op.setAddress(sender || '(no address)');
+                op.setAddress(sender);
 
                 op.setType("Sent");
 
@@ -191,7 +191,7 @@ function importFromJSONTypeA(lines: string[]) : Operation[] {
             let addresses = [];
             for (const input of operation.transaction.inputs) {
                 if (input.derivation !== null) {
-                    addresses.push(input.address);
+                        addresses.push(input.address);
                 }
             }
 
@@ -270,22 +270,26 @@ function importOperations(path: string) : Operation[] {
 
     let operations: Operation[] = [];
 
-    // type A CSV: 'Creation' is the first token
+    // CSV FILES
     if (firstLine.substring(0, 8) === 'Creation') {
+        // type A CSV: 'Creation' is the first token
         operations = importFromCSVTypeA(lines);
     }
-    // type B CSV: 'Operation' is the first token
     else if (firstLine.substring(0, 9) === 'Operation') {
+        // type B CSV: 'Operation' is the first token
         operations = importFromCSVTypeB(lines);
     }
-    // JSON files
-    else if (firstLine === '{' || firstLine === '[') {
-        // type A JSON
+
+    // JSON FILES
+    else if (firstLine.startsWith('{') || firstLine.startsWith('[')) {
         if (lines.some(line => line.includes('cursor'))) {
+            // type A JSON: contains a reference to 'cursor',
+            //              an ambiguous term, but sufficient to 
+            //              distinguish it from type B JSON files
             operations = importFromJSONTypeA(lines);
         }
-        // type B JSON
         else if (lines.some(line => line.includes('libcore'))) {
+            // type B JSON: contains an explicit reference to 'libcore'
             operations = importFromJSONTypeB(lines);
         }
     }
@@ -556,4 +560,51 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
     return comparisons;
 }
 
-export { importOperations, checkImportedOperations }
+function showDiff(actualBalance: number, importedBalance?: number, comparisons?: Comparison[], diff?: boolean) {
+    let exitCode = 0
+
+    // check operations
+    if (comparisons && diff) {
+        const operationsMismatches = comparisons.filter(comparison => comparison.status !== 'Match');
+
+        if (operationsMismatches.length > 0) {
+            console.log(chalk.redBright('Diff: operations mismatches'));
+            console.dir(operationsMismatches);
+        }
+        else {
+            console.log(
+                chalk.greenBright('Diff: operations match')
+            );
+        }
+    }
+
+    // check balance
+    if (importedBalance) {
+
+      // the actual balance has to be converted into satoshis or similar units
+      actualBalance = sb.toSatoshi(actualBalance);
+
+      if (actualBalance !== importedBalance) {
+        console.log(chalk.redBright('Diff: balances mismatch'));
+
+        console.log('Imported balance:', importedBalance);
+        console.log('Actual balance:  ', actualBalance);
+
+        exitCode += 2;
+      }
+      else {
+        console.log(
+          chalk.greenBright('Diff: balances match: '.concat(actualBalance.toString()))
+          );
+      }
+    }
+
+    // exit codes:
+    //  0: OK
+    //  1: operation(s) mismatch(es)
+    //  2: balance mismatch
+    //  3: operation(s) _and_ balance mismatches
+    return exitCode;
+}
+
+export { importOperations, checkImportedOperations, showDiff }

@@ -8,8 +8,7 @@ import * as compare from "./actions/checkAddress";
 import * as display from "./display";
 import { getSortedOperations } from "./actions/processTransactions"
 import { init } from "./helpers";
-import { configuration } from "./settings";
-import { importOperations, checkImportedOperations } from "./actions/importOperations";
+import { importOperations, checkImportedOperations, showDiff } from "./actions/importOperations";
 import { save } from "./actions/saveAnalysis"
 
 const VERSION = '0.0.5'
@@ -37,6 +36,16 @@ const args = yargs
     demand: false,
     type: 'string'
   })
+  .option('balance', {
+    description: "Import balance for comparison (as to be in satoshis or similar base unit)",
+    demand: false,
+    type: 'number'
+  })
+  .option('diff', {
+    description: "Show diffs",
+    demand: false,
+    type: 'boolean'
+  })
   .option('save', {
     description: "Save analysis",
     demand: false,
@@ -63,27 +72,13 @@ const currency = args.currency
 const xpub = String(args._[0]);
 init(xpub, quiet, currency);
 
-// TODO: remove once stable enough
-function displayWarning() {
-  if (configuration.quiet) {
-    return;
-  }
+const now = new Date();
 
-  console.log(
-    chalk.redBright(
-      '\nXpub scan is not stable yet (pre-alpha release): do not hesitate to double-check its output.',
-      '\nIf you notice any error, please open an issue at: https://github.com/LedgerHQ/xpub-scan/issues',
-      '\nThank you.'
-      )
-    );
-}
-
-const now = new Date()
+let exitCode = 0;
 
 if (address) {
   // comparison mode
   compare.run(xpub, address);
-  displayWarning();
 }
 else {
   let actualAddresses;
@@ -101,7 +96,6 @@ else {
     actualTransactions = getSortedOperations(actualAddresses);
 
     display.showOpsAndSummary(actualTransactions, summary);
-    displayWarning();
   }
   else {
     // scan mode
@@ -134,8 +128,6 @@ else {
     if (typeof(importedTransactions) !== 'undefined') {
       comparisonResults = checkImportedOperations(importedTransactions, actualTransactions);
     }
-
-    displayWarning();
   }
 
   const meta = {
@@ -154,4 +146,11 @@ else {
   if (args.save || args.save === '' /* allow empty arg */) {
     save(meta, data, args.save);
   }
+
+  if (args.diff || args.balance) {
+    let actualBalance = summary.reduce((accumulator, s) => accumulator + s.balance, 0);
+    exitCode = showDiff(actualBalance, args.balance, comparisonResults, args.diff);
+  }
+
+  process.exit(exitCode);
 }

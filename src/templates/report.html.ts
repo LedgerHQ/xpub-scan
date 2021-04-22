@@ -325,6 +325,7 @@ export const reportTemplate = `
     </li>
 
     {comparisons}
+    {diff}
     </ul>
 
   </body>
