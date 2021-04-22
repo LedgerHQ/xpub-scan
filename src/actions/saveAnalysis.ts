@@ -334,7 +334,7 @@ function saveHTML(object: any, directory: string) {
     report = report.replace('{transactions}', transactions.join(''));
 
     // comparisons and diff
-    if (object.comparisons.length === 0) {
+    if (typeof(object.comparisons) === 'undefined' || object.comparisons.length === 0) {
         report = report.replace('{comparisons}', '');
         report = report.replace('{diff}', '');
     }
@@ -438,6 +438,12 @@ function save(meta: any, data: any, directory: string) {
         providerURL = configuration.defaultAPI.general;
     }
 
+    let diffs = [];
+
+    if (typeof(comparisons) !== 'undefined') {
+        diffs = comparisons.filter(comparison => comparison.status !== 'Match') || []
+    }
+
     const object = {
         meta: {
             by: "xpub scan <https://github.com/LedgerHQ/xpub-scan>",
@@ -454,7 +460,7 @@ function save(meta: any, data: any, directory: string) {
         summary,
         transactions,
         comparisons,
-        diffs: comparisons.filter(comparison => comparison.status !== 'Match')
+        diffs: diffs
     } 
 
     // if no filepath/filename specify -> set to current directory
