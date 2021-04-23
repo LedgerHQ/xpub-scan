@@ -294,7 +294,7 @@ function importOperations(path: string) : Operation[] {
         }
     }
     else {
-        throw new Error('CSV format not recognized.');
+        throw new Error('Format not recognized.');
     }
 
     if (!configuration.quiet) {
@@ -570,6 +570,7 @@ function showDiff(actualBalance: number, importedBalance?: number, comparisons?:
         if (operationsMismatches.length > 0) {
             console.log(chalk.redBright('Diff: operations mismatches'));
             console.dir(operationsMismatches);
+            exitCode += 1;
         }
         else {
             console.log(
