@@ -1,12 +1,12 @@
-import fs from 'fs';
-import minifier from 'html-minifier'
+import fs from "fs";
+import minifier from "html-minifier";
 
-import { configuration, GAP_LIMIT, EXTERNAL_EXPLORERS_URLS } from '../settings';
-import { reportTemplate } from '../templates/report.html'
+import { configuration, GAP_LIMIT, EXTERNAL_EXPLORERS_URLS } from "../settings";
+import { reportTemplate } from "../templates/report.html";
 import { toUnprefixedCashAddress } from "../helpers";
 
 // @ts-ignore
-import sb from 'satoshi-bitcoin';
+import sb from "satoshi-bitcoin";
 
 function toBaseUnit(amount: number) {
     // to bitcoins (or equivalent unit)
@@ -25,14 +25,14 @@ function toBaseUnit(amount: number) {
 // align float numbers or zeros
 function renderAmount(amount: number) {
     const decimalPrecision = 8;
-    const filler = '¤'; // (any non-numeric non-dot char)
+    const filler = "¤"; // (any non-numeric non-dot char)
     let n;
 
     // non-strict equality required here
     // tslint:disable-next-line
     if (amount == 0) {
         // align '0': insert filler on the right
-        n = '0'.padEnd(decimalPrecision + 2, filler);
+        n = "0".padEnd(decimalPrecision + 2, filler);
     }
     else {
         n = sb.toBitcoin(amount).toFixed(decimalPrecision);
@@ -42,7 +42,7 @@ function renderAmount(amount: number) {
     n = String(n).padStart(decimalPrecision * 2, filler);
 
     // insert non-breaking spaces by replacing the filler with `&nbsp;`
-    return '<span class="monospaced">' + n.split(filler).join('&nbsp;') + '</span>';
+    return "<span class=\"monospaced\">" + n.split(filler).join("&nbsp;") + "</span>";
 }
 
 // generate the url to an external explorer allowing to get more info
@@ -52,9 +52,9 @@ function getUrl(itemType: string, item: string) {
     // general case (Bitcoin, Litecoin)
     // --------------------------------
     let url = EXTERNAL_EXPLORERS_URLS.general;
-    let itemTypes = {
-        address: 'address',
-        transaction: 'tx'
+    const itemTypes = {
+        address: "address",
+        transaction: "tx"
     }
 
     // exception(s)
@@ -64,89 +64,89 @@ function getUrl(itemType: string, item: string) {
     //
     // coin:        "bitcoin-cash"
     // item types:  "address" | "transaction"
-    if (configuration.symbol === 'BCH') {
+    if (configuration.symbol === "BCH") {
         url = EXTERNAL_EXPLORERS_URLS.bch;
-        url = url.replace('{coin}', 'bitcoin-cash');
-        itemTypes.transaction = 'transaction'; 
+        url = url.replace("{coin}", "bitcoin-cash");
+        itemTypes.transaction = "transaction"; 
     }
 
     // specify item type
     switch(itemType) {
-        case 'address':
-            url = url.replace('{type}', itemTypes.address);
+        case "address":
+            url = url.replace("{type}", itemTypes.address);
             break;
-        case 'transaction':
-            url = url.replace('{type}', itemTypes.transaction);
+        case "transaction":
+            url = url.replace("{type}", itemTypes.transaction);
             break;
         default:
-            throw new Error('Unrecognized item type "' + itemType + '" (expected: "address" or "transaction")');
+            throw new Error("Unrecognized item type \"" + itemType + "\" (expected: 'address' or 'transaction')");
     }
 
     return url
-        .replace('{coin}', configuration.symbol.toLowerCase())
-        .replace('{item}', item);
+        .replace("{coin}", configuration.symbol.toLowerCase())
+        .replace("{item}", item);
 }
 
 // make address clickable
 function addressAsLink(address: string) {
     // if no address, return empty string
     // (used for CSV files that do not contain any address)
-    if (typeof(address) === 'undefined') {
-        return '';
+    if (typeof(address) === "undefined") {
+        return "";
     }
 
-    const url = getUrl('address', address);
+    const url = getUrl("address", address);
     
-    address = address.length < 45 ? address : address.substring(0, 45) + '...';
+    address = address.length < 45 ? address : address.substring(0, 45) + "...";
 
-    return '<a class="monospaced" href="' + url + '" target=_blank>' + address + "</a>"
+    return "<a class=\"monospaced\" href=\"" + url + "\" target=_blank>" + address + "</a>"
 }
 
 function renderAddress(address: string, cashAddress?: string) {
-    let renderedAddress = addressAsLink(address);
+    const renderedAddress = addressAsLink(address);
 
-    if (configuration.symbol !== 'BCH' || !cashAddress) {
+    if (configuration.symbol !== "BCH" || !cashAddress) {
         return renderedAddress;
     } else {
         // Bitcoin Cash: handle Legacy/Cash address duality:
         //  {legacy}
         //  {Cash address}
-        return renderedAddress.concat('</br>').concat(addressAsLink(cashAddress));
+        return renderedAddress.concat("</br>").concat(addressAsLink(cashAddress));
     }
 }
 
 // make TXID clickable
 function renderTxid(txid: string) {
-    const url = getUrl('transaction', txid);
+    const url = getUrl("transaction", txid);
         
-    txid = txid.substring(0, 10) + '...';
+    txid = txid.substring(0, 10) + "...";
 
-    return '<a class="monospaced" href="' + url + '" target=_blank>' + txid + "</a>"
+    return "<a class=\"monospaced\" href=\"" + url + "\" target=_blank>" + txid + "</a>"
 }
 
 // explain some operation types
 function createTooltip(opType: string) {
-    if (opType === 'Sent' || opType === 'Received') {
+    if (opType === "Sent" || opType === "Received") {
         return opType;
     }
 
-    let tooltip: string = '';
+    let tooltip: string = "";
 
-    if (opType === 'Received (non-sibling to change)') {
+    if (opType === "Received (non-sibling to change)") {
         tooltip = `
         <span class="tooltiptext">
             Change address that received funds from an address NOT belonging to the same xpub
         </span>
         `
     }
-    else if (opType === 'Sent to self') {
+    else if (opType === "Sent to self") {
         tooltip = `
         <span class="tooltiptext">
             Sent to itself (same address)
         </span>
         ` 
     }
-    else if (opType === 'Sent to sibling') {
+    else if (opType === "Sent to sibling") {
         tooltip = `
         <span class="tooltiptext">
             Sent to another address, belonging to the same xpub (sibling)
@@ -154,7 +154,7 @@ function createTooltip(opType: string) {
         ` 
     }
 
-    return '<div class="tooltip">' + opType + tooltip + '</div>'
+    return "<div class=\"tooltip\">" + opType + tooltip + "</div>";
 }
 
 function makeComparisonsTable(object: any, onlyDiff?: boolean) {
@@ -193,26 +193,26 @@ function makeComparisonsTable(object: any, onlyDiff?: boolean) {
 
     if (!onlyDiff) {
         comp = object.comparisons;
-        comparisonsTemplate = comparisonsTemplate.replace('{label}', 'Comparisons:all');
-        comparisonsTemplate = comparisonsTemplate.split('{id}').join('4'); // comparisons:all has id 4
+        comparisonsTemplate = comparisonsTemplate.replace("{label}", "Comparisons:all");
+        comparisonsTemplate = comparisonsTemplate.split("{id}").join("4"); // comparisons:all has id 4
     }
     else {
         comp = object.diffs;
-        comparisonsTemplate = comparisonsTemplate.replace('{label}', 'Comparisons:diff');
-        comparisonsTemplate = comparisonsTemplate.split('{id}').join('5'); // comparisons:diff has id 5
+        comparisonsTemplate = comparisonsTemplate.replace("{label}", "Comparisons:diff");
+        comparisonsTemplate = comparisonsTemplate.split("{id}").join("5"); // comparisons:diff has id 5
     }
 
     const comparisons: string[] = [];
-    if (typeof(comp) !== 'undefined') {
+    if (typeof(comp) !== "undefined") {
         for (const e of comp) {
 
-            let txid: string = '';
-            let opType: string = '';
+            let txid: string = "";
+            let opType: string = "";
 
             // by default: no imported operation
-            const imported = { date: '', address: '(no operation)', amount: '' };
+            const imported = { date: "", address: "(no operation)", amount: "" };
 
-            if (typeof(e.imported) !== 'undefined') {
+            if (typeof(e.imported) !== "undefined") {
                 imported.date = e.imported.date;
                 imported.address = renderAddress(e.imported.address);
                 imported.amount = renderAmount(e.imported.amount);
@@ -221,9 +221,9 @@ function makeComparisonsTable(object: any, onlyDiff?: boolean) {
             }
 
             // by default: no actual operation
-            const actual = { date: '', address: '(no operation)', amount: '' };
+            const actual = { date: "", address: "(no operation)", amount: "" };
 
-            if (typeof(e.actual) !== 'undefined') {
+            if (typeof(e.actual) !== "undefined") {
                 actual.date = e.actual.date;
                 actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
                 actual.amount = renderAmount(e.actual.amount);
@@ -231,33 +231,33 @@ function makeComparisonsTable(object: any, onlyDiff?: boolean) {
                 opType = e.actual.operationType;
             }
 
-            if (e.status === 'Match') {
+            if (e.status === "Match") {
                 if (onlyDiff) {
                     continue; // if diff: ignore matches
                 }
-                comparisons.push('<tr class="comparison_match">')
+                comparisons.push("<tr class=\"comparison_match\">");
             }
             else {
-                comparisons.push('<tr class="comparison_mismatch">')
+                comparisons.push("<tr class=\"comparison_mismatch\">");
             }
 
-            comparisons.push('<td>' + imported.date + '</td>');
-            comparisons.push('<td>' + imported.address + '</td>');
-            comparisons.push('<td>' + imported.amount + '</td>');
-            comparisons.push('<td>' + actual.date + '</td>');
-            comparisons.push('<td>' + actual.address + '</td>');
-            comparisons.push('<td>' + actual.amount + '</td>');
-            comparisons.push('<td>' + renderTxid(txid) + '</td>');
-            comparisons.push('<td>' + createTooltip(opType) + '</td>');
-            comparisons.push('<td>' + e.status + '</td></tr>');
+            comparisons.push("<td>" + imported.date + "</td>");
+            comparisons.push("<td>" + imported.address + "</td>");
+            comparisons.push("<td>" + imported.amount + "</td>");
+            comparisons.push("<td>" + actual.date + "</td>");
+            comparisons.push("<td>" + actual.address + "</td>");
+            comparisons.push("<td>" + actual.amount + "</td>");
+            comparisons.push("<td>" + renderTxid(txid) + "</td>");
+            comparisons.push("<td>" + createTooltip(opType) + "</td>");
+            comparisons.push("<td>" + e.status + "</td></tr>");
         }
     }
 
     if (comparisons.length > 0) {
-        return comparisonsTemplate.replace('{comparisons}', comparisons.join(''));
+        return comparisonsTemplate.replace("{comparisons}", comparisons.join(""));
     }
     else {
-        return '';
+        return "";
     }
 }
 
@@ -266,88 +266,88 @@ function saveHTML(object: any, directory: string) {
 
     // meta
     for (const key of Object.keys(object.meta)) {
-        report = report.split('{' + key + '}').join(object.meta[key]);
+        report = report.split("{" + key + "}").join(object.meta[key]);
     }
 
     // summary
     const summary: string[] = [];
     for (const e of object.summary) {
-        summary.push('<tr><td>' + e.addressType + '</td>');
+        summary.push("<tr><td>" + e.addressType + "</td>");
 
         const balance = sb.toBitcoin(e.balance);
 
         // non-strict equality required here
         if (balance === 0) {
-            summary.push('<td class="summary_empty">');
+            summary.push("<td class=\"summary_empty\">");
         }
         else {
-            summary.push('<td class="summary_non_empty">');
+            summary.push("<td class=\"summary_non_empty\">");
         }
 
-        summary.push(balance + '</td></tr>');
+        summary.push(balance + "</td></tr>");
     }
 
-    report = report.replace('{summary}', summary.join(''));
+    report = report.replace("{summary}", summary.join(""));
     
     // addresses
     const addresses: string[] = [];
     
     for (const e of object.addresses) {
-        addresses.push('<tr><td>' + e.addressType + '</td>');
+        addresses.push("<tr><td>" + e.addressType + "</td>");
 
-        const derivationPath = 'm/' + e.derivation.account + '/' + e.derivation.index;
-        addresses.push('<td>' + derivationPath + '</td>')
+        const derivationPath = "m/" + e.derivation.account + "/" + e.derivation.index;
+        addresses.push("<td>" + derivationPath + "</td>")
 
-        addresses.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>')
+        addresses.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>")
 
         const balance = renderAmount(e.balance);
         const funded = renderAmount(e.funded);
         const spent = renderAmount(e.spent);
 
-        addresses.push('<td>' + balance + '</td>');
-        addresses.push('<td>' + funded + '</td>');
-        addresses.push('<td>' + spent + '</td></tr>');
+        addresses.push("<td>" + balance + "</td>");
+        addresses.push("<td>" + funded + "</td>");
+        addresses.push("<td>" + spent + "</td></tr>");
     }
 
-    report = report.replace('{addresses}', addresses.join(''));
+    report = report.replace("{addresses}", addresses.join(""));
 
     // transactions
 
     // display warning if default provider is being used
-    if (object.meta.provider === 'default') {
-        report = report.replace('{warning}', 'Default provider used: only the last ~50 operations by address are displayed');
+    if (object.meta.provider === "default") {
+        report = report.replace("{warning}", "Default provider used: only the last ~50 operations by address are displayed");
     }
     else {
-        report = report.replace('{warning}', '');
+        report = report.replace("{warning}", "");
     }
 
     const transactions: string[] = [];
     for (const e of object.transactions) {
-        transactions.push('<tr><td>' + e.date + '</td>');
-        transactions.push('<td>' + e.block + '</td>');
-        transactions.push('<td>' + renderTxid(e.txid) + '</td>');
-        transactions.push('<td>' + renderAddress(e.address, e.cashAddress) + '</td>');
-        transactions.push('<td>' + renderAmount(e.amount) + '</td>');
-        transactions.push('<td>' + createTooltip(e.operationType) + '</td></tr>');
+        transactions.push("<tr><td>" + e.date + "</td>");
+        transactions.push("<td>" + e.block + "</td>");
+        transactions.push("<td>" + renderTxid(e.txid) + "</td>");
+        transactions.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
+        transactions.push("<td>" + renderAmount(e.amount) + "</td>");
+        transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
     }
     
-    report = report.replace('{transactions}', transactions.join(''));
+    report = report.replace("{transactions}", transactions.join(""));
 
     // comparisons and diff
-    if (typeof(object.comparisons) === 'undefined' || object.comparisons.length === 0) {
-        report = report.replace('{comparisons}', '');
-        report = report.replace('{diff}', '');
+    if (typeof(object.comparisons) === "undefined" || object.comparisons.length === 0) {
+        report = report.replace("{comparisons}", "");
+        report = report.replace("{diff}", "");
     }
     else {
-        report = report.replace('{comparisons}', makeComparisonsTable(object));
-        report = report.replace('{diff}', makeComparisonsTable(object, true));
+        report = report.replace("{comparisons}", makeComparisonsTable(object));
+        report = report.replace("{diff}", makeComparisonsTable(object, true));
     }
 
     const filepath = 
         directory
-            .concat('/')
+            .concat("/")
             .concat(object.meta.xpub)
-            .concat('.html')
+            .concat(".html")
 
     const minifiedReport = minifier.minify(report, {
         removeAttributeQuotes: true,
@@ -357,7 +357,7 @@ function saveHTML(object: any, directory: string) {
 
     fs.writeFileSync(filepath, minifiedReport);
 
-    console.log('HTML report saved: '.concat(filepath));
+    console.log("HTML report saved: ".concat(filepath));
 }
 
 function saveJSON(object: any, directory: string) {
@@ -366,11 +366,11 @@ function saveJSON(object: any, directory: string) {
 
     const filepath = 
         directory
-        .concat('/')
+        .concat("/")
         .concat(object.meta.xpub)
-        .concat('.json')
+        .concat(".json")
 
-    if (directory.toLocaleLowerCase() === 'stdout') {
+    if (directory.toLocaleLowerCase() === "stdout") {
         // display
         console.log(JSONobject);
     }
@@ -378,7 +378,7 @@ function saveJSON(object: any, directory: string) {
         // save file
         fs.writeFileSync(filepath, JSONobject);
     
-        console.log('\nJSON export saved: '.concat(filepath));
+        console.log("\nJSON export saved: ".concat(filepath));
     }
 }
 
@@ -412,14 +412,14 @@ function save(meta: any, data: any, directory: string) {
         };
     })
 
-    const comparisons: any[] = typeof(data.comparisons) !== 'undefined' ? data.comparisons.map((e: any) => {
+    const comparisons: any[] = typeof(data.comparisons) !== "undefined" ? data.comparisons.map((e: any) => {
         return {
             ...e,
-            imported: typeof(e.imported) !== 'undefined' ? {
+            imported: typeof(e.imported) !== "undefined" ? {
                 ...e.imported,
                 amount: toBaseUnit(e.imported.amount)
             } : undefined,
-            actual: typeof(e.actual) !== 'undefined' ? {
+            actual: typeof(e.actual) !== "undefined" ? {
                 ...e.actual,
                 cashAddress: toUnprefixedCashAddress(e.actual.address),
                 amount: toBaseUnit(e.actual.amount)
@@ -428,10 +428,10 @@ function save(meta: any, data: any, directory: string) {
     }) : undefined;
 
     let providerURL;
-    if (typeof(configuration.customAPI) !== 'undefined') {
+    if (typeof(configuration.customAPI) !== "undefined") {
         providerURL = configuration.customAPI;
     }
-    else if (configuration.symbol === 'BCH') {
+    else if (configuration.symbol === "BCH") {
         providerURL = configuration.defaultAPI.bch;
     }
     else {
@@ -440,8 +440,8 @@ function save(meta: any, data: any, directory: string) {
 
     let diffs = [];
 
-    if (typeof(comparisons) !== 'undefined') {
-        diffs = comparisons.filter(comparison => comparison.status !== 'Match') || []
+    if (typeof(comparisons) !== "undefined") {
+        diffs = comparisons.filter(comparison => comparison.status !== "Match") || []
     }
 
     const object = {
@@ -460,17 +460,17 @@ function save(meta: any, data: any, directory: string) {
         summary,
         transactions,
         comparisons,
-        diffs: diffs
+        diffs
     } 
 
     // if no filepath/filename specify -> set to current directory
-    if (directory === '') {
+    if (directory === "") {
         directory = __dirname;
     }
 
     saveJSON(object, directory);
 
-    if (directory.toLocaleLowerCase() !== 'stdout') {
+    if (directory.toLocaleLowerCase() !== "stdout") {
         saveHTML(object, directory);
     }
 

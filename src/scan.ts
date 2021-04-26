@@ -11,56 +11,56 @@ import { init } from "./helpers";
 import { importOperations, checkImportedOperations, showDiff } from "./actions/importOperations";
 import { save } from "./actions/saveAnalysis"
 
-const VERSION = '0.0.5'
+const VERSION = "0.0.5"
 
 const args = yargs
-  .option('account', {
-      alias: 'a',
+  .option("account", {
+      alias: "a",
       description: "Account number",
       demand: false,
-      type: 'number'
+      type: "number"
   })
-  .option('index', {
-      alias: 'i',
+  .option("index", {
+      alias: "i",
       description: "Index number",
       demand: false,
-      type: 'number'
+      type: "number"
   })
-  .option('address', {
+  .option("address", {
       description: "Address",
       demand: false,
-      type: 'string'
+      type: "string"
   })
-  .option('import', {
+  .option("import", {
     description: "Import transactions",
     demand: false,
-    type: 'string'
+    type: "string"
   })
-  .option('balance', {
+  .option("balance", {
     description: "Import balance for comparison (as to be in satoshis or similar base unit)",
     demand: false,
-    type: 'number'
+    type: "number"
   })
-  .option('diff', {
+  .option("diff", {
     description: "Show diffs",
     demand: false,
-    type: 'boolean'
+    type: "boolean"
   })
-  .option('save', {
+  .option("save", {
     description: "Save analysis",
     demand: false,
-    type: 'string',
+    type: "string",
   })
-  .option('quiet', {
+  .option("quiet", {
     description: "Do not display analysis progress",
     demand: false,
-    type: 'boolean',
+    type: "boolean",
     default: false
   })
-  .option('currency', {
+  .option("currency", {
     description: "currency",
     demand: false,
-    type: 'string',
+    type: "string",
   }).argv;
 
 const account = args.account;
@@ -86,7 +86,7 @@ else {
   let actualTransactions;
   let comparisonResults;
 
-  if (typeof(account) !== 'undefined' && typeof(index) !== 'undefined') {
+  if (typeof(account) !== "undefined" && typeof(index) !== "undefined") {
     // specific derivation mode
     const scanResult = check_balances.run(xpub, account, index);
 
@@ -106,7 +106,7 @@ else {
       // been specified
       if (args._.length > 1) {
         console.log(
-          chalk.red('Only 1 arg expected (xpub). Please check the documentation.')
+          chalk.red("Only 1 arg expected (xpub). Please check the documentation.")
         )
         process.exit(1);
       }
@@ -125,7 +125,7 @@ else {
 
     display.showOpsAndSummary(actualTransactions, summary);
 
-    if (typeof(importedTransactions) !== 'undefined') {
+    if (typeof(importedTransactions) !== "undefined") {
       comparisonResults = checkImportedOperations(importedTransactions, actualTransactions);
     }
   }
@@ -143,12 +143,12 @@ else {
     comparisons: comparisonResults
   }
 
-  if (args.save || args.save === '' /* allow empty arg */) {
+  if (args.save || args.save === "" /* allow empty arg */) {
     save(meta, data, args.save);
   }
 
   if (args.diff || args.balance) {
-    let actualBalance = summary.reduce((accumulator, s) => accumulator + s.balance, 0);
+    const actualBalance = summary.reduce((accumulator, s) => accumulator + s.balance, 0);
     exitCode = showDiff(actualBalance, args.balance, comparisonResults, args.diff);
   }
 

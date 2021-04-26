@@ -38,8 +38,8 @@ class Operation {
     }
 
     setAddress(address?: string) {
-        if (!address || address === '') {
-            this.address = '(no address)'
+        if (!address || address === "") {
+            this.address = "(no address)"
         }
         else {
             this.address = address;

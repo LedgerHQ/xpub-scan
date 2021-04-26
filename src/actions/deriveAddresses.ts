@@ -1,11 +1,11 @@
 import * as bjs from "bitcoinjs-lib";
-import * as bip32 from 'bip32';
+import * as bip32 from "bip32";
 
 // @ts-ignore
-import * as bch from 'bitcoincashjs';
-import bchaddr from 'bchaddrjs';
+import * as bch from "bitcoincashjs";
+import bchaddr from "bchaddrjs";
 
-import { AddressType, configuration } from '../settings';
+import { AddressType, configuration } from "../settings";
 
 // derive legacy address at account and index positions
 function getLegacyAddress(xpub: string, account: number, index: number) : string {
@@ -55,11 +55,11 @@ function getLegacyBitcoinCashAddress(xpub: string, account: number, index: numbe
   const node = new bch.HDPublicKey(xpub);
   const child = node.derive(account).derive(index);
   const address = new bch.Address(child.publicKey, bch.Networks.livenet);
-  const addrstr = address.toString(CASH_ADDR_FORMAT).split(':');
+  const addrstr = address.toString(CASH_ADDR_FORMAT).split(":");
   if (addrstr.length === 2) {
     return bchaddr.toLegacyAddress(addrstr[1]);
   } else {
-    throw new Error('Unable to derive cash address for ' + address);
+    throw new Error("Unable to derive cash address for " + address);
   }
 }
 
@@ -85,13 +85,13 @@ function getAddress(addressType: AddressType, xpub: string, account: number, ind
 // correspond to the actual type (currently, a `ltc1` prefix 
 // could match a native Bitcoin address type for instance)
 function getAddressType(address: string) {
-  if (address.match('^(bc1|ltc1).*')) {
+  if (address.match("^(bc1|ltc1).*")) {
     return AddressType.NATIVE;
   }
-  else if (address.match('^(3|M).*')) {
+  else if (address.match("^(3|M).*")) {
     return AddressType.SEGWIT;
   }
-  else if (address.match('^(1|L).*')) {
+  else if (address.match("^(1|L).*")) {
     return AddressType.LEGACY;
   }
   else {

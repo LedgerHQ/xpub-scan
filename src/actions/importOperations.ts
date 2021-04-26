@@ -1,11 +1,12 @@
-import fs from 'fs';
-import chalk from 'chalk';
-// @ts-ignore
-import sb from 'satoshi-bitcoin';
+import fs from "fs";
+import chalk from "chalk";
 
-import { Operation } from '../models/operation'
-import { Comparison, ComparisonStatus } from '../models/comparison'
-import { configuration } from '../settings';
+// @ts-ignore
+import sb from "satoshi-bitcoin";
+
+import { Operation } from "../models/operation";
+import { Comparison, ComparisonStatus } from "../models/comparison";
+import { configuration } from "../settings";
 
 interface Txid {
     date: string,
@@ -16,11 +17,11 @@ interface Txid {
 // TODO: properly rework this function
 function getFileLines(path: string) {
     try {
-        const contents = fs.readFileSync(path, 'utf-8');
+        const contents = fs.readFileSync(path, "utf-8");
         return contents.split(/\r?\n/);
     }
     catch (err) {
-        console.log(chalk.red('File error'));
+        console.log(chalk.red("File error"));
         throw new Error(err);
     }
 }
@@ -45,18 +46,18 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
 
         // expected date format: yyyy-MM-dd HH:mm:ss
         const date =        /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/ig
-                            .exec(tokens[0]) || '';
+                            .exec(tokens[0]) || "";
 
         const type =        String(tokens[2]);      // CREDIT || DEBIT
         const status =      String(tokens[4]);      // CONFIRMED || ABORTED
         const amount =      parseFloat(tokens[8]);  // in bitcoins
         const txid =        tokens[16];
-        const sender =      String(tokens[17]).replace('"', '');
-        const recipient =   String(tokens[18]).replace('"', '');
+        const sender =      String(tokens[17]).replace("\"", "");
+        const recipient =   String(tokens[18]).replace("\"", "");
 
         // process only confirmed transactions
-        if (status === 'CONFIRMED') {
-            if (type === 'CREDIT') {
+        if (status === "CONFIRMED") {
+            if (type === "CREDIT") {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
 
@@ -70,7 +71,7 @@ function importFromCSVTypeA(lines: string[]) : Operation[] {
 
                 operations.push(op);
             }
-            else if (type === 'DEBIT') {
+            else if (type === "DEBIT") {
                 const op = new Operation(date[0], amount);
                 op.setTxid(txid);
 
@@ -107,7 +108,7 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
 
         // expected date format: yyyy-MM-dd HH:mm:ss
         const date =        /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
-                            .exec(tokens[0]) || '';
+                            .exec(tokens[0]) || "";
 
         const type =        String(tokens[2]);      // IN | OUT
         const amount =      parseFloat(tokens[3]);  // in bitcoins
@@ -115,14 +116,14 @@ function importFromCSVTypeB(lines: string[]) : Operation[] {
         const txid =        tokens[5];
 
         // note: type B CSV does not refer to addresses
-        if (type === 'IN') {
+        if (type === "IN") {
             const op = new Operation(date[0], amount);
             op.setTxid(txid);
             op.setType("Received");
 
             operations.push(op);
         }
-        else if (type === 'OUT') {
+        else if (type === "OUT") {
             // out transactions: substract fees from amount (in satoshis)...
             const amountInSatoshis = sb.toSatoshi(amount) - sb.toSatoshi(fees);
             // ... and convert the total back to Bitcoin
@@ -147,39 +148,39 @@ function importFromJSONTypeA(lines: string[]) : Operation[] {
     let ops;
 
     try {
-        ops = JSON.parse(lines.join('')).operations;
+        ops = JSON.parse(lines.join("")).operations;
     } 
     catch (err) {
-        throw new Error('JSON parsing error');
+        throw new Error("JSON parsing error");
     }
 
     for (const operation of ops) {
         const type              = operation.operation_type;
         
         const date              = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
-                                    .exec(operation.transaction.received_at) || '';
+                                    .exec(operation.transaction.received_at) || "";
 
         const txid              = operation.hash;
         const valueInSatoshis   = parseFloat(operation.amount);      // in satoshis
         const feesInSatoshis    = parseFloat(operation.fees);        // in satoshis
 
-        if (type === 'receive') {
+        if (type === "receive") {
             const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
             op.setTxid(txid);
             op.setType("Received");
             
-            let addresses = [];
+            const addresses = [];
             for (const output of operation.transaction.outputs) {
                 if (output.derivation !== null) {
                     addresses.push(output.address);
                 }
             }
 
-            op.setAddress(addresses.join(','));
+            op.setAddress(addresses.join(","));
 
             operations.push(op);
         }
-        else if (type === 'send') {
+        else if (type === "send") {
             // out transactions: substract fees from amount (in satoshis)...
             const amountInSatoshis = valueInSatoshis - feesInSatoshis;
             // ... and convert the total back to Bitcoin
@@ -188,14 +189,14 @@ function importFromJSONTypeA(lines: string[]) : Operation[] {
             op.setTxid(txid);
             op.setType("Sent");
 
-            let addresses = [];
+            const addresses = [];
             for (const input of operation.transaction.inputs) {
                 if (input.derivation !== null) {
                         addresses.push(input.address);
                 }
             }
 
-            op.setAddress(addresses.join(','));
+            op.setAddress(addresses.join(","));
 
             operations.push(op);
         }
@@ -213,25 +214,25 @@ function importFromJSONTypeB(lines: string[]) : Operation[] {
     let ops;
 
     try {
-        ops = JSON.parse(lines.join('')).operations;
+        ops = JSON.parse(lines.join("")).operations;
     } 
     catch (err) {
-        throw new Error('JSON parsing error');
+        throw new Error("JSON parsing error");
     }
 
     for (const operation of ops) {
         const type              = operation.type;
         
         const date              = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
-                                    .exec(operation.date) || '';
+                                    .exec(operation.date) || "";
 
         const txid              = operation.hash;
         const valueInSatoshis   = parseFloat(operation.value);      // in satoshis
         const feesInSatoshis    = parseFloat(operation.fee);        // in satoshis
-        const recipient         = operation.recipients.join(',');
-        const sender            = operation.senders.join(',');
+        const recipient         = operation.recipients.join(",");
+        const sender            = operation.senders.join(",");
 
-        if (type === 'IN') {
+        if (type === "IN") {
             const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
             op.setTxid(txid);
             op.setType("Received");
@@ -239,7 +240,7 @@ function importFromJSONTypeB(lines: string[]) : Operation[] {
 
             operations.push(op);
         }
-        else if (type === 'OUT') {
+        else if (type === "OUT") {
             // out transactions: substract fees from amount (in satoshis)...
             const amountInSatoshis = valueInSatoshis - feesInSatoshis;
             // ... and convert the total back to Bitcoin
@@ -266,42 +267,42 @@ function importFromJSONTypeB(lines: string[]) : Operation[] {
 //  - address (optional)
 function importOperations(path: string) : Operation[] {
     const lines = getFileLines(path);
-    const firstLine = lines[0].replace('"', '');
+    const firstLine = lines[0].replace("\"", "");
 
     let operations: Operation[] = [];
 
     // CSV FILES
-    if (firstLine.substring(0, 8) === 'Creation') {
+    if (firstLine.substring(0, 8) === "Creation") {
         // type A CSV: 'Creation' is the first token
         operations = importFromCSVTypeA(lines);
     }
-    else if (firstLine.substring(0, 9) === 'Operation') {
+    else if (firstLine.substring(0, 9) === "Operation") {
         // type B CSV: 'Operation' is the first token
         operations = importFromCSVTypeB(lines);
     }
 
     // JSON FILES
-    else if (firstLine.startsWith('{') || firstLine.startsWith('[')) {
-        if (lines.some(line => line.includes('cursor'))) {
+    else if (firstLine.startsWith("{") || firstLine.startsWith("[")) {
+        if (lines.some(line => line.includes("cursor"))) {
             // type A JSON: contains a reference to 'cursor',
             //              an ambiguous term, but sufficient to 
             //              distinguish it from type B JSON files
             operations = importFromJSONTypeA(lines);
         }
-        else if (lines.some(line => line.includes('libcore'))) {
+        else if (lines.some(line => line.includes("libcore"))) {
             // type B JSON: contains an explicit reference to 'libcore'
             operations = importFromJSONTypeB(lines);
         }
     }
     else {
-        throw new Error('Format not recognized.');
+        throw new Error("Format not recognized.");
     }
 
     if (!configuration.quiet) {
         console.log(
             chalk.grey(
                 String(operations.length)
-                .concat(' operations have been imported')
+                .concat(" operations have been imported")
             )
         );
     }
@@ -361,17 +362,17 @@ function renderAddress(address: string) {
     const maxLength = 35;
 
     if (!address) {
-        return '';
+        return "";
     }
 
     if (address.length < maxLength) {
         return address
-            .padEnd(maxLength + 4, ' ');
+            .padEnd(maxLength + 4, " ");
     }
 
     return address.substring(0, maxLength - 3)
-        .concat('...')
-        .padEnd(maxLength + 4, ' ');
+        .concat("...")
+        .padEnd(maxLength + 4, " ");
 }
 
 // TODO?: export in a dedicated module (display.ts)?
@@ -383,39 +384,39 @@ function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operatio
     const halfColorPadding = 84;
     const fullColorPadding = 85;
 
-    let imported: string = '';
-    let actual: string = '';
+    let imported: string = "";
+    let actual: string = "";
 
     switch(status) {
         case "Match":
             /* fallthrough */
         case "Mismatch":
             imported = 
-            opA.date.padEnd(24, ' ')
+            opA.date.padEnd(24, " ")
                 .concat(renderAddress(opA.address))
                 .concat(String(opA.amount));
 
                 if (opB) {
                 actual =
-                opB.date.padEnd(24, ' ')
+                opB.date.padEnd(24, " ")
                     .concat(renderAddress(opB.address))
                     .concat(String(opB.amount));
                 }
             break;
         case "Extra Operation":
-            actual = '(missing operation)';
+            actual = "(missing operation)";
 
             imported = 
-            opA.date.padEnd(24, ' ')
+            opA.date.padEnd(24, " ")
                 .concat(renderAddress(opA.address))
                 .concat(String(opA.amount));
             break;
 
         case "Missing Operation":
-            imported = '(missing operation)';
+            imported = "(missing operation)";
 
             actual =
-            opA.date.padEnd(24, ' ')
+            opA.date.padEnd(24, " ")
                 .concat(renderAddress(opA.address))
                 .concat(String(opA.amount));
             break;
@@ -425,7 +426,7 @@ function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operatio
         case "Match":
             console.log(
                 chalk.greenBright(
-                    imported.padEnd(halfColorPadding, ' ')
+                    imported.padEnd(halfColorPadding, " ")
                     ), 
                 actual
                 );
@@ -437,7 +438,7 @@ function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operatio
         case "Extra Operation":
             console.log(
                 chalk.redBright(
-                    imported.padEnd(fullColorPadding, ' ').concat(actual)
+                    imported.padEnd(fullColorPadding, " ").concat(actual)
                     ));
             break;
     }
@@ -447,8 +448,8 @@ function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operatio
 // 
 // TODO: handle aggregated operations
 function checkImportedOperations(importedOperations: Operation[], actualOperations: Operation[]) : Comparison[] {
-    console.log(chalk.bold.whiteBright('\nComparison between imported and actual operations\n'));
-    console.log(chalk.grey('imported operations\t\t\t\t\t\t\t\t     actual operations'));
+    console.log(chalk.bold.whiteBright("\nComparison between imported and actual operations\n"));
+    console.log(chalk.grey("imported operations\t\t\t\t\t\t\t\t     actual operations"));
 
     // eslint-disable-next-line no-undef
     const allTxids: Txid[] = []; // TODO: convert into a Set as they have to be unique
@@ -509,7 +510,7 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
             const actualOp = actualOps[i];
 
             // actual operation with no corresponding imported operation
-            if (typeof(importedOp) === 'undefined') {
+            if (typeof(importedOp) === "undefined") {
                 showOperations("Missing Operation", actualOp);
                 
                 comparisons.push({
@@ -522,7 +523,7 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
             }
 
             // imported operation with no corresponding actual operation
-            if (typeof(actualOp) === 'undefined') {
+            if (typeof(actualOp) === "undefined") {
                 showOperations( "Extra Operation", importedOp);
                 
                 comparisons.push({
@@ -565,16 +566,16 @@ function showDiff(actualBalance: number, importedBalance?: number, comparisons?:
 
     // check operations
     if (comparisons && diff) {
-        const operationsMismatches = comparisons.filter(comparison => comparison.status !== 'Match');
+        const operationsMismatches = comparisons.filter(comparison => comparison.status !== "Match");
 
         if (operationsMismatches.length > 0) {
-            console.log(chalk.redBright('Diff: operations mismatches'));
+            console.log(chalk.redBright("Diff: operations mismatches"));
             console.dir(operationsMismatches);
             exitCode += 1;
         }
         else {
             console.log(
-                chalk.greenBright('Diff: operations match')
+                chalk.greenBright("Diff: operations match")
             );
         }
     }
@@ -586,16 +587,16 @@ function showDiff(actualBalance: number, importedBalance?: number, comparisons?:
       actualBalance = sb.toSatoshi(actualBalance);
 
       if (actualBalance !== importedBalance) {
-        console.log(chalk.redBright('Diff: balances mismatch'));
+        console.log(chalk.redBright("Diff: balances mismatch"));
 
-        console.log('Imported balance:', importedBalance);
-        console.log('Actual balance:  ', actualBalance);
+        console.log("Imported balance:", importedBalance);
+        console.log("Actual balance:  ", actualBalance);
 
         exitCode += 2;
       }
       else {
         console.log(
-          chalk.greenBright('Diff: balances match: '.concat(actualBalance.toString()))
+          chalk.greenBright("Diff: balances match: ".concat(actualBalance.toString()))
           );
       }
     }

@@ -8,7 +8,7 @@ import { configuration, AddressType, GAP_LIMIT, NETWORKS } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
 // @ts-ignore
-import sb from 'satoshi-bitcoin';
+import sb from "satoshi-bitcoin";
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
@@ -81,7 +81,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   }
   
   // process transactions
-  display.transientLine(chalk.yellowBright('Processing transactions...'));
+  display.transientLine(chalk.yellowBright("Processing transactions..."));
   addresses.forEach(address => {
     getTransactions(address, ownAddresses);
   });
@@ -105,11 +105,11 @@ function run(xpub: string, account?: number, index?: number) {
     AddressType.NATIVE
   ];
 
-  if (configuration.symbol === 'BCH') {
+  if (configuration.symbol === "BCH") {
     addressTypes = [ AddressType.BCH ];
   }
 
-  if (typeof(account) === 'undefined') {
+  if (typeof(account) === "undefined") {
     // Option A: no index has been provided:
     // scan all address types
 

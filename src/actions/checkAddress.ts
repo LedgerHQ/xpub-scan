@@ -10,13 +10,13 @@ interface Result {
 }
 
 function showError(message: string, derived?: string, provided?: string) {
-    let errorMessage = chalk.red('[Comparison error] '.concat(message));
+    let errorMessage = chalk.red("[Comparison error] ".concat(message));
 
-    if (typeof(derived) !== 'undefined') {
+    if (typeof(derived) !== "undefined") {
         const comparison = 
-            '\nProvided address:\t'
+            "\nProvided address:\t"
             .concat(String(provided))
-            .concat('\nFirst derived address:  ')
+            .concat("\nFirst derived address:  ")
             .concat(String(derived));
 
         errorMessage = 
@@ -43,7 +43,7 @@ function showComparisonResult(xpub: string, address: string, result: Result) {
         .concat("/")
         .concat(String(result.index))
   
-      if (typeof(result.partial) === 'undefined') {
+      if (typeof(result.partial) === "undefined") {
         // full match
         console.log(chalk.greenBright(
           "The address has been derived from this xpub using derivation path "
@@ -63,7 +63,7 @@ function showComparisonResult(xpub: string, address: string, result: Result) {
 // partial match, using '?' as wildcards
 function partialMatch(derived: string, provided: string) {
     for (let i = 0; i < derived.length; ++i) {        
-        if (provided[i] === '?') {
+        if (provided[i] === "?") {
             continue;
         }
         
@@ -77,7 +77,7 @@ function partialMatch(derived: string, provided: string) {
 
 function search(xpub: string, providedAddress: string, range: any, searchType: string) : Result {
     const addressType = getAddressType(providedAddress);
-    const partialSearch = providedAddress.includes('?');
+    const partialSearch = providedAddress.includes("?");
     
     for (let account = range.account.min; account < range.account.max; ++account) {
         for (let index = range.index.min; index < range.index.max; ++index) {
@@ -92,8 +92,8 @@ function search(xpub: string, providedAddress: string, range: any, searchType: s
             
             // quick|deep search    {derivation path}  {derived address}
             const status =
-                searchType.padEnd(18, ' ')
-                .concat(derivationPath.padEnd(14, ' '))
+                searchType.padEnd(18, " ")
+                .concat(derivationPath.padEnd(14, " "))
                 .concat(derivedAddress);
 
             const derived = derivedAddress.toUpperCase();
@@ -130,8 +130,8 @@ function search(xpub: string, providedAddress: string, range: any, searchType: s
 // check basic assumptions to avoid useless comparisons
 function sanityCheck(xpub: string, provided: string) {
     // check that the settings are set
-    if (typeof(DERIVATION_SCOPE) === 'undefined') {
-        showError('DERIVATION_SCOPE setting is not defined');
+    if (typeof(DERIVATION_SCOPE) === "undefined") {
+        showError("DERIVATION_SCOPE setting is not defined");
     }
 
     // check assumptions regarding the provided address
@@ -139,13 +139,13 @@ function sanityCheck(xpub: string, provided: string) {
 
     if (derived.length !== provided.length) {
         // assumption 1. size of provided === size of derived
-        showError('Provided address size ≠ derived address size', derived, provided);
+        showError("Provided address size ≠ derived address size", derived, provided);
         return false;
     }
     
     if (derived.toUpperCase()[0] !== provided.toUpperCase()[0]) {
         // assumption 2. derived and provided share the same prefix
-        showError('Prefixes mismatch', derived, provided);
+        showError("Prefixes mismatch", derived, provided);
         return false;
     }
 
@@ -159,12 +159,12 @@ function run(xpub: string, providedAddress: string) {
 
     const quickSearchRange = DERIVATION_SCOPE.quick_search;
         
-    let result = search(xpub, providedAddress, quickSearchRange, 'quick search');
+    let result = search(xpub, providedAddress, quickSearchRange, "quick search");
     
     if (Object.keys(result).length === 0) {
         const deepSearchRange = DERIVATION_SCOPE.deep_search;
                 
-        result = search(xpub, providedAddress, deepSearchRange, 'deep search');
+        result = search(xpub, providedAddress, deepSearchRange, "deep search");
     }
     
     showComparisonResult(xpub, providedAddress, result);

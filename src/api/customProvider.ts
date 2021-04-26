@@ -6,7 +6,7 @@ import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
 
-import bchaddr from 'bchaddrjs';
+import bchaddr from "bchaddrjs";
 
 interface RawTransaction {
     txid: string;
@@ -29,8 +29,8 @@ interface RawTransaction {
 // its balance, funded and spend sums and counts
 function getStats(address: Address, coinDenomination: string) {
     const url = configuration.customAPI!
-                .replace('{coin}', coinDenomination)
-                .replace('{address}', address.toString());
+                .replace("{coin}", coinDenomination)
+                .replace("{address}", address.toString());
 
     const res = helpers.getJSON(url, configuration.APIKey);
     
@@ -44,9 +44,9 @@ function getStats(address: Address, coinDenomination: string) {
 
     if (res.payload.txsCount > 0) {
         const getTxsURLTemplate = configuration.customAPI!
-            .replace('{coin}', coinDenomination)
-            .replace('{address}', address.toString())
-            .concat('/transactions?index={index}&limit={limit}')
+            .replace("{coin}", coinDenomination)
+            .replace("{address}", address.toString())
+            .concat("/transactions?index={index}&limit={limit}")
 
         // to handle large number of transactions by address, use the index+limit logic
         // offered by the custom provider
@@ -55,8 +55,8 @@ function getStats(address: Address, coinDenomination: string) {
         for (let limit = 100; /* continue until txs count is reached */; limit += 100) {
 
             const getTxsURL = getTxsURLTemplate
-                .replace('{index}', String(index))
-                .replace('{limit}', String(limit));
+                .replace("{index}", String(index))
+                .replace("{limit}", String(limit));
 
             const txs = helpers.getJSON(getTxsURL, configuration.APIKey);
             const payload = txs.payload;
@@ -100,7 +100,7 @@ function getTransactions(address: Address) {
 
                 // provider Bitcoin Cash addresses are expressed as cash addresses:
                 // they have to be converted into legacy ones
-                if (configuration.symbol === 'BCH') {
+                if (configuration.symbol === "BCH") {
                     inAddress = bchaddr.toLegacyAddress(inAddress);
                 }
 
@@ -116,7 +116,7 @@ function getTransactions(address: Address) {
 
                 // provider Bitcoin Cash addresses are expressed as cash addresses:
                 // they have to be converted into legacy ones
-                if (configuration.symbol === 'BCH') {
+                if (configuration.symbol === "BCH") {
                     outAddress = bchaddr.toLegacyAddress(outAddress)
                 }
 
@@ -135,7 +135,7 @@ function getTransactions(address: Address) {
                 txin.addresses.forEach(inAddress => {
                     const op = new Operation(String(tx.timestamp), amount);
 
-                    if (configuration.symbol === 'BCH') {
+                    if (configuration.symbol === "BCH") {
                         // provider Bitcoin Cash addresses are expressed as cash addresses:
                         // they have to be converted into legacy ones
                         inAddress = bchaddr.toLegacyAddress(inAddress);
@@ -155,7 +155,7 @@ function getTransactions(address: Address) {
                 txout.addresses.forEach(outAddress => {
                     const op = new Operation(String(tx.timestamp), parseFloat(txout.amount));
 
-                    if (configuration.symbol === 'BCH') {
+                    if (configuration.symbol === "BCH") {
                         // provider Bitcoin Cash addresses are expressed as cash addresses:
                         // they have to be converted into legacy ones
                         outAddress = bchaddr.toLegacyAddress(outAddress);

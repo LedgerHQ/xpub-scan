@@ -48,13 +48,13 @@ interface BchRawTransaction {
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 function getStats(address: Address, coin: string) {
-    if (coin === 'BCH') {
+    if (coin === "BCH") {
         return getBchStats(address);
     }
 
     const url = configuration.defaultAPI.general
-                .replace('{coin}', coin)
-                .replace('{address}', address.toString());
+                .replace("{coin}", coin)
+                .replace("{address}", address.toString());
 
     const res = getJSON(url);
     
@@ -71,8 +71,8 @@ function getStats(address: Address, coin: string) {
 
 function getBchStats(address: Address) {
     const urlStats = configuration.defaultAPI.bch
-                .replace('{type}', 'details')
-                .replace('{address}', address.asCashAddress()!);
+                .replace("{type}", "details")
+                .replace("{address}", address.asCashAddress()!);
 
     const res = getJSON(urlStats);
     
@@ -85,14 +85,14 @@ function getBchStats(address: Address) {
     address.setBalance(balance);
 
     const urlTxs = configuration.defaultAPI.bch
-                .replace('{type}', 'transactions')
-                .replace('{address}', address.asCashAddress()!);
+                .replace("{type}", "transactions")
+                .replace("{address}", address.asCashAddress()!);
 
     const payloads = [];
     let totalPages = 1;
 
     for (let i = 0; i < totalPages; i++) {
-        const response = getJSON(urlTxs.concat('?page=').concat(i.toString()));
+        const response = getJSON(urlTxs.concat("?page=").concat(i.toString()));
         totalPages = response.pagesTotal;
         payloads.push(response.txs);
     }
@@ -110,7 +110,7 @@ function getTransactions(address: Address) {
 
     // Because the general default API is not compatible with Bitcoin Cash,
     // these transactions have to be specifically handled
-    if (configuration.symbol === 'BCH') {
+    if (configuration.symbol === "BCH") {
         return getBchTransactions(address);
     }
 
@@ -124,7 +124,7 @@ function getTransactions(address: Address) {
         const ins: Operation[] = [];
         const outs: Operation[] = [];
         
-        if (typeof(tx.incoming) !== 'undefined') {   
+        if (typeof(tx.incoming) !== "undefined") {   
             tx.incoming.inputs.forEach(txin => {
                 const op = new Operation(String(tx.time), parseFloat(tx.incoming.value));
                 op.setAddress(txin.address);
@@ -135,7 +135,7 @@ function getTransactions(address: Address) {
             })
         }
         
-        if (typeof(tx.outgoing) !== 'undefined') {
+        if (typeof(tx.outgoing) !== "undefined") {
             tx.outgoing.outputs.forEach(txout => {  
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
                 op.setAddress(txout.address);
@@ -189,7 +189,7 @@ function getBchTransactions(address: Address) {
         }
 
         for (const txout of tx.vout) {
-            if (typeof(txout.scriptPubKey.addresses) === 'undefined') {
+            if (typeof(txout.scriptPubKey.addresses) === "undefined") {
                 continue;
             }
             for (const outAddress of txout.scriptPubKey.addresses) {
