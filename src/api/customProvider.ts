@@ -46,7 +46,7 @@ function getStats(address: Address, coinDenomination: string) {
         const getTxsURLTemplate = configuration.customAPI!
             .replace("{coin}", coinDenomination)
             .replace("{address}", address.toString())
-            .concat("/transactions?index={index}&limit={limit}")
+            .concat("/transactions?index={index}&limit={limit}");
 
         // to handle large number of transactions by address, use the index+limit logic
         // offered by the custom provider
@@ -117,7 +117,7 @@ function getTransactions(address: Address) {
                 // provider Bitcoin Cash addresses are expressed as cash addresses:
                 // they have to be converted into legacy ones
                 if (configuration.symbol === "BCH") {
-                    outAddress = bchaddr.toLegacyAddress(outAddress)
+                    outAddress = bchaddr.toLegacyAddress(outAddress);
                 }
 
                 if (outAddress.includes(address.toString()!)) {
@@ -143,11 +143,11 @@ function getTransactions(address: Address) {
                     
                     op.setAddress(inAddress);
                     op.setTxid(tx.txid);
-                    op.setType("Received")
+                    op.setType("Received");
     
                     ins.push(op);
-                })
-            })
+                });
+            });
         } 
        
         if (processOut) {
@@ -163,11 +163,11 @@ function getTransactions(address: Address) {
 
                     op.setAddress(outAddress);
                     op.setTxid(tx.txid);
-                    op.setType("Sent")
+                    op.setType("Sent");
     
                     outs.push(op);
-                })
-            })
+                });
+            });
         }
 
         transactions.push(
@@ -180,11 +180,11 @@ function getTransactions(address: Address) {
                     ins,
                     outs
                 )
-        )
+        );
         
     });
 
     address.setTransactions(transactions);
 }
 
-export { getStats, getTransactions }
+export { getStats, getTransactions };

@@ -1,4 +1,4 @@
-import { Operation } from "./operation"
+import { Operation } from "./operation";
 
 class Transaction {
     blockHeight: number;
@@ -16,4 +16,4 @@ class Transaction {
     }
 }
 
-export { Transaction }
+export { Transaction };

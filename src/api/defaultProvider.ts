@@ -129,10 +129,10 @@ function getTransactions(address: Address) {
                 const op = new Operation(String(tx.time), parseFloat(tx.incoming.value));
                 op.setAddress(txin.address);
                 op.setTxid(tx.txid);
-                op.setType("Received")
+                op.setType("Received");
 
                 ins.push(op);
-            })
+            });
         }
         
         if (typeof(tx.outgoing) !== "undefined") {
@@ -140,10 +140,10 @@ function getTransactions(address: Address) {
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
                 op.setAddress(txout.address);
                 op.setTxid(tx.txid);
-                op.setType("Sent")
+                op.setType("Sent");
 
                 outs.push(op);
-            })
+            });
         }
 
         transactions.push(
@@ -156,7 +156,7 @@ function getTransactions(address: Address) {
                     ins,
                     outs
                 )
-        )
+        );
         
     });
 
@@ -207,10 +207,10 @@ function getBchTransactions(address: Address) {
                 const op = new Operation(String(tx.time), amount);
                 op.setAddress(txin.addr);
                 op.setTxid(tx.txid);
-                op.setType("Received")
+                op.setType("Received");
 
                 ins.push(op);
-            })
+            });
         }
         
         if (processOut) {
@@ -221,10 +221,10 @@ function getBchTransactions(address: Address) {
                 const op = new Operation(String(tx.time), parseFloat(txout.value));
                 op.setAddress(txout.scriptPubKey.addresses[0]);
                 op.setTxid(tx.txid);
-                op.setType("Sent")
+                op.setType("Sent");
 
                 outs.push(op);
-            })
+            });
         }
 
         transactions.push(
@@ -237,11 +237,11 @@ function getBchTransactions(address: Address) {
                     ins,
                     outs
                 )
-        )
+        );
         
     });
 
     address.setTransactions(transactions);
 }
 
-export { getStats, getTransactions, getBchTransactions }
+export { getStats, getTransactions, getBchTransactions };

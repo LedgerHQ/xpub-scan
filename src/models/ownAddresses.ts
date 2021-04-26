@@ -1,4 +1,4 @@
-import { Address } from "./address"
+import { Address } from "./address";
 
 // addresses belonging to the same xpub
 class OwnAddresses {
@@ -36,4 +36,4 @@ class OwnAddresses {
     }
 }
 
-export { OwnAddresses }
+export { OwnAddresses };

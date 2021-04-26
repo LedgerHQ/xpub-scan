@@ -331,4 +331,4 @@ export const reportTemplate = `
   </body>
 
 </html>
-`
+`;

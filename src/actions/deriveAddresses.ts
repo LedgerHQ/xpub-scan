@@ -50,7 +50,7 @@ function getSegWitAddress(xpub: string, account: number, index: number) : string
 
 // Based on https://github.com/go-faast/bitcoin-cash-payments/blob/54397eb97c7a9bf08b32e10bef23d5f27aa5ab01/index.js#L63-L73
 function getLegacyBitcoinCashAddress(xpub: string, account: number, index: number) : string {
-  const CASH_ADDR_FORMAT = bch.Address.CashAddrFormat
+  const CASH_ADDR_FORMAT = bch.Address.CashAddrFormat;
 
   const node = new bch.HDPublicKey(xpub);
   const child = node.derive(account).derive(index);
@@ -103,4 +103,4 @@ function getAddressType(address: string) {
     }
   }
   
-export { getAddressType, getAddress }
+export { getAddressType, getAddress };

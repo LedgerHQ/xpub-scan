@@ -55,7 +55,7 @@ function getUrl(itemType: string, item: string) {
     const itemTypes = {
         address: "address",
         transaction: "tx"
-    }
+    };
 
     // exception(s)
     // ------------
@@ -99,7 +99,7 @@ function addressAsLink(address: string) {
     
     address = address.length < 45 ? address : address.substring(0, 45) + "...";
 
-    return "<a class=\"monospaced\" href=\"" + url + "\" target=_blank>" + address + "</a>"
+    return "<a class=\"monospaced\" href=\"" + url + "\" target=_blank>" + address + "</a>";
 }
 
 function renderAddress(address: string, cashAddress?: string) {
@@ -121,7 +121,7 @@ function renderTxid(txid: string) {
         
     txid = txid.substring(0, 10) + "...";
 
-    return "<a class=\"monospaced\" href=\"" + url + "\" target=_blank>" + txid + "</a>"
+    return "<a class=\"monospaced\" href=\"" + url + "\" target=_blank>" + txid + "</a>";
 }
 
 // explain some operation types
@@ -137,21 +137,21 @@ function createTooltip(opType: string) {
         <span class="tooltiptext">
             Change address that received funds from an address NOT belonging to the same xpub
         </span>
-        `
+        `;
     }
     else if (opType === "Sent to self") {
         tooltip = `
         <span class="tooltiptext">
             Sent to itself (same address)
         </span>
-        ` 
+        `;
     }
     else if (opType === "Sent to sibling") {
         tooltip = `
         <span class="tooltiptext">
             Sent to another address, belonging to the same xpub (sibling)
         </span>
-        ` 
+        `;
     }
 
     return "<div class=\"tooltip\">" + opType + tooltip + "</div>";
@@ -187,7 +187,7 @@ function makeComparisonsTable(object: any, onlyDiff?: boolean) {
     </table>
     </div>
     </li>
-    `
+    `;
 
     let comp;
 
@@ -296,9 +296,9 @@ function saveHTML(object: any, directory: string) {
         addresses.push("<tr><td>" + e.addressType + "</td>");
 
         const derivationPath = "m/" + e.derivation.account + "/" + e.derivation.index;
-        addresses.push("<td>" + derivationPath + "</td>")
+        addresses.push("<td>" + derivationPath + "</td>");
 
-        addresses.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>")
+        addresses.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
 
         const balance = renderAmount(e.balance);
         const funded = renderAmount(e.funded);
@@ -347,7 +347,7 @@ function saveHTML(object: any, directory: string) {
         directory
             .concat("/")
             .concat(object.meta.xpub)
-            .concat(".html")
+            .concat(".html");
 
     const minifiedReport = minifier.minify(report, {
         removeAttributeQuotes: true,
@@ -368,7 +368,7 @@ function saveJSON(object: any, directory: string) {
         directory
         .concat("/")
         .concat(object.meta.xpub)
-        .concat(".json")
+        .concat(".json");
 
     if (directory.toLocaleLowerCase() === "stdout") {
         // display
@@ -402,7 +402,7 @@ function save(meta: any, data: any, directory: string) {
             ...e,
             balance: toBaseUnit(e.balance)
         };
-    })
+    });
 
     const transactions: any[] = data.transactions.map((e: any) => {
         return {
@@ -410,7 +410,7 @@ function save(meta: any, data: any, directory: string) {
             cashAddress: toUnprefixedCashAddress(e.address),
             amount: toBaseUnit(e.amount)
         };
-    })
+    });
 
     const comparisons: any[] = typeof(data.comparisons) !== "undefined" ? data.comparisons.map((e: any) => {
         return {
@@ -441,7 +441,7 @@ function save(meta: any, data: any, directory: string) {
     let diffs = [];
 
     if (typeof(comparisons) !== "undefined") {
-        diffs = comparisons.filter(comparison => comparison.status !== "Match") || []
+        diffs = comparisons.filter(comparison => comparison.status !== "Match") || [];
     }
 
     const object = {
@@ -461,7 +461,7 @@ function save(meta: any, data: any, directory: string) {
         transactions,
         comparisons,
         diffs
-    } 
+    };
 
     // if no filepath/filename specify -> set to current directory
     if (directory === "") {
@@ -478,4 +478,4 @@ function save(meta: any, data: any, directory: string) {
     console.log();
 }
 
-export { save }
+export { save };

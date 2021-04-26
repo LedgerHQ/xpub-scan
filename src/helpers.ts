@@ -16,7 +16,7 @@ function getJSON(url: string, APIKey?: string) {
   if (APIKey !== undefined) {
     headers = {
       "X-API-Key": APIKey
-    }
+    };
   }
 
   const res = request("GET", url, {headers} );
@@ -53,7 +53,7 @@ function setNetwork(xpub: string, currency?: string) {
     }
   }
   else {
-    currency = currency.toLowerCase()
+    currency = currency.toLowerCase();
     // Bitcoin Cash
     if (currency.includes("cash") || currency === "BCH") {
       configuration.network = NETWORKS.bitcoin_cash_mainnet;
@@ -118,4 +118,4 @@ export {
   getJSON,
   init,
   toUnprefixedCashAddress
-}
+};

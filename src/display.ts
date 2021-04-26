@@ -1,8 +1,8 @@
 import readline from "readline";
 import chalk from "chalk";
 
-import { Address } from "./models/address"
-import { Operation } from "./models/operation"
+import { Address } from "./models/address";
+import { Operation } from "./models/operation";
 import { configuration } from "./settings";
 
 function convertUnits(amount: number) {
@@ -29,9 +29,9 @@ function updateAddressDetails(address: Address) {
     return;
   }
 
-  const addressType = address.getType()
-  const account = address.getDerivation().account
-  const index = address.getDerivation().index
+  const addressType = address.getType();
+  const account = address.getDerivation().account;
+  const index = address.getDerivation().index;
 
   const derivationPath =
     "m/"
@@ -46,7 +46,7 @@ function updateAddressDetails(address: Address) {
     //    _{address type}_  {derivation path}  {address}  [{cash address}]...
       "  "
       .concat(chalk.italic(addressType.padEnd(16, " ")))
-      .concat(derivationPath.padEnd(12, " "))
+      .concat(derivationPath.padEnd(12, " "));
 
   const cashAddress = address.asCashAddress();
 
@@ -59,12 +59,12 @@ function updateAddressDetails(address: Address) {
   else {
     stats =
       stats
-        .concat(address.toString().padEnd(46, " "))
+        .concat(address.toString().padEnd(46, " "));
   }
 
   if (typeof(address.getStats()) === "undefined") {
     // if no stats, display just half of the line
-    process.stdout.write(stats)
+    process.stdout.write(stats);
     return;
   }
   else {
@@ -104,13 +104,13 @@ function showSortedOperations(sortedOperations: Operation[]) {
     return;
   }
 
-  process.stdout.write(chalk.bold("\nOperations History"))
+  process.stdout.write(chalk.bold("\nOperations History"));
 
   if (typeof(configuration.APIKey) === "undefined") {
     // warning related to the limitations of the default provider
     process.stdout.write(
       chalk.redBright(" (only the last ~50 operations by address are displayed)\n")
-      )
+      );
   }
   else {
     process.stdout.write("\n");
@@ -164,7 +164,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
       status = 
         status
         .concat("-")
-        .concat(amount)
+        .concat(amount);
 
         const operationType = op.getType();
 
@@ -190,10 +190,10 @@ function showSortedOperations(sortedOperations: Operation[]) {
     }
     
     console.log(status);
-  })
+  });
   
   console.log(chalk.bold("\nNumber of transactions\n"));
-  console.log(chalk.whiteBright(sortedOperations.length))
+  console.log(chalk.whiteBright(sortedOperations.length));
 }
 
 // display the summary: total balance by address type
@@ -277,4 +277,4 @@ export {
     showSortedOperations, 
     transientLine,
     showOpsAndSummary
-}
+};

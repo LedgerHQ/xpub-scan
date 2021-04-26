@@ -1,7 +1,7 @@
 import { VERBOSE, configuration, NETWORKS } from "../settings";
-import { Address } from "../models/address"
-import { OwnAddresses } from "../models/ownAddresses"
-import { Operation } from "../models/operation"
+import { Address } from "../models/address";
+import { OwnAddresses } from "../models/ownAddresses";
+import { Operation } from "../models/operation";
 
 import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
@@ -72,7 +72,7 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
                 const op = new Operation(tx.date, tx.ins[0].amount);
                 op.setTxid(tx.txid);
                 op.setBlockNumber(tx.blockHeight);
-                op.setType(accountNumber !== 1 ? "Received" : "Received (non-sibling to change)")
+                op.setType(accountNumber !== 1 ? "Received" : "Received (non-sibling to change)");
         
                 address.addFundedOperation(op);
             }
@@ -116,7 +116,7 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
 
                 address.addSentOperation(op);
             }
-        })
+        });
     }
     
     
@@ -194,4 +194,4 @@ function showTransactions(address: Address) {
     console.dir(address.getTransactions(), { depth: null });
 }
 
-export { getStats, getTransactions, getSortedOperations }
+export { getStats, getTransactions, getSortedOperations };

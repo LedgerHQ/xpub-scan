@@ -9,7 +9,8 @@
         "no-console": false,
         "no-trailing-whitespace": false,
         "only-arrow-functions": false,
-        "quotemark": true
+        "quotemark": true,
+        "semicolon": [true, "always"]
     },
     "rulesDirectory": []
 }

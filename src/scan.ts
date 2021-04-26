@@ -6,12 +6,12 @@ import yargs from "yargs";
 import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
 import * as display from "./display";
-import { getSortedOperations } from "./actions/processTransactions"
+import { getSortedOperations } from "./actions/processTransactions";
 import { init } from "./helpers";
 import { importOperations, checkImportedOperations, showDiff } from "./actions/importOperations";
-import { save } from "./actions/saveAnalysis"
+import { save } from "./actions/saveAnalysis";
 
-const VERSION = "0.0.5"
+const VERSION = "0.0.5";
 
 const args = yargs
   .option("account", {
@@ -65,9 +65,9 @@ const args = yargs
 
 const account = args.account;
 const index = args.index;
-const address = args.address
-const quiet = args.quiet
-const currency = args.currency
+const address = args.address;
+const quiet = args.quiet;
+const currency = args.currency;
 
 const xpub = String(args._[0]);
 init(xpub, quiet, currency);
@@ -107,7 +107,7 @@ else {
       if (args._.length > 1) {
         console.log(
           chalk.red("Only 1 arg expected (xpub). Please check the documentation.")
-        )
+        );
         process.exit(1);
       }
     }
@@ -118,8 +118,8 @@ else {
 
     const scanResult = check_balances.run(xpub);
 
-    actualAddresses = scanResult.addresses
-    summary = scanResult.summary
+    actualAddresses = scanResult.addresses;
+    summary = scanResult.summary;
 
     actualTransactions = getSortedOperations(actualAddresses);
 
@@ -134,14 +134,14 @@ else {
     xpub,
     date: now,
     version: VERSION
-  }
+  };
 
   const data = {
     addresses: actualAddresses,
     summary,
     transactions: actualTransactions,
     comparisons: comparisonResults
-  }
+  };
 
   if (args.save || args.save === "" /* allow empty arg */) {
     save(meta, data, args.save);

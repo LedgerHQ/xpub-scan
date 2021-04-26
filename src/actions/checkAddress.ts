@@ -35,13 +35,13 @@ function showComparisonResult(xpub: string, address: string, result: Result) {
       // no match
       console.log(chalk.redBright(
         "The address does not seem to have been derived from this xpub!"
-      ))
+      ));
     }
     else {
       const derivationPath = 
       "m/".concat(String(result.account))
         .concat("/")
-        .concat(String(result.index))
+        .concat(String(result.index));
   
       if (typeof(result.partial) === "undefined") {
         // full match
@@ -106,7 +106,7 @@ function search(xpub: string, providedAddress: string, range: any, searchType: s
                 return {
                     account,
                     index
-                }
+                };
             }
             
             // partial match (if enabled)
@@ -117,7 +117,7 @@ function search(xpub: string, providedAddress: string, range: any, searchType: s
                     partial: derivedAddress,
                     account,
                     index
-                }
+                };
             }
             
             console.log(status);  
@@ -170,4 +170,4 @@ function run(xpub: string, providedAddress: string) {
     showComparisonResult(xpub, providedAddress, result);
 }
 
-export { run }
+export { run };

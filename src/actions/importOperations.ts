@@ -9,8 +9,8 @@ import { Comparison, ComparisonStatus } from "../models/comparison";
 import { configuration } from "../settings";
 
 interface Txid {
-    date: string,
-    hash: string
+    date: string;
+    hash: string;
 }
 
 // get lines from a file
@@ -458,9 +458,9 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
     importedOperations.forEach(op => {
         // only add txid once
         if (!allTxids.some(t => t.hash === op.txid)) {
-            allTxids.push({date: op.date, hash: op.txid})
+            allTxids.push({date: op.date, hash: op.txid});
         }
-    })
+    });
     
     // add potential actual operations absent from the list
     // of imported operations
@@ -469,7 +469,7 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
         if (!allTxids.some(t => t.hash === op.txid)) {
             allTxids.push({date: op.date, hash: op.txid});
         }
-    })
+    });
 
     // sort by reverse chronological order
     allTxids.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0);
@@ -530,7 +530,7 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
                     imported: importedOp,
                     actual: undefined,
                     status: "Extra Operation"
-                })
+                });
 
                 continue;
             }
@@ -562,7 +562,7 @@ function checkImportedOperations(importedOperations: Operation[], actualOperatio
 }
 
 function showDiff(actualBalance: number, importedBalance?: number, comparisons?: Comparison[], diff?: boolean) {
-    let exitCode = 0
+    let exitCode = 0;
 
     // check operations
     if (comparisons && diff) {
@@ -609,4 +609,4 @@ function showDiff(actualBalance: number, importedBalance?: number, comparisons?:
     return exitCode;
 }
 
-export { importOperations, checkImportedOperations, showDiff }
+export { importOperations, checkImportedOperations, showDiff };
