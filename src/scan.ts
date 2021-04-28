@@ -11,7 +11,7 @@ import { init } from "./helpers";
 import { importOperations, checkImportedOperations, showDiff } from "./actions/importOperations";
 import { save } from "./actions/saveAnalysis";
 
-const VERSION = "0.0.5";
+const VERSION = "0.0.6";
 
 const args = yargs
   .option("account", {
@@ -51,6 +51,12 @@ const args = yargs
     demand: false,
     type: "string",
   })
+  .option("silent", {
+    description: "Do not display anything (except for the filepath of the saved reports)",
+    demand: false,
+    type: "boolean",
+    default: false
+  })
   .option("quiet", {
     description: "Do not display analysis progress",
     demand: false,
@@ -66,11 +72,10 @@ const args = yargs
 const account = args.account;
 const index = args.index;
 const address = args.address;
-const quiet = args.quiet;
 const currency = args.currency;
 
 const xpub = String(args._[0]);
-init(xpub, quiet, currency);
+init(xpub, args.silent, args.quiet, currency);
 
 const now = new Date();
 
@@ -137,8 +142,8 @@ else {
   };
 
   const data = {
-    addresses: actualAddresses,
     summary,
+    addresses: actualAddresses,
     transactions: actualTransactions,
     comparisons: comparisonResults
   };
