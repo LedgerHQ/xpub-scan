@@ -82,7 +82,7 @@ function checkXpub(xpub: string) {
     configuration.providerType = "custom";
   }
 
-  if (configuration.quiet) {
+  if (configuration.silent) {
     return;
   }
 
@@ -95,8 +95,10 @@ function checkXpub(xpub: string) {
   );
 }
 
-function init(xpub: string, quiet: boolean, currency?: string) {
+function init(xpub: string, silent: boolean, quiet: boolean, currency?: string) {
+  configuration.silent = silent;
   configuration.quiet = quiet;
+
   setNetwork(xpub, currency);
   checkXpub(xpub);
 }

@@ -20,7 +20,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   let totalBalance = 0;
   let noTxCounter = 0;
   const addresses: Address[] = [];
-  
+
   // TODO: should we limit ourselves to account 0 and 1?
   // if not, use a logic similar to indices exploration
   for (let account = 0; account < 2; ++account) {
@@ -36,7 +36,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
       
       const status = noTxCounter === 0 ? "analyzing" : "probing address gap";
 
-      if (!configuration.quiet) {
+      if (!configuration.silent && !configuration.quiet) {
         process.stdout.write(chalk.yellow(status + "..."));
       }
       
@@ -113,7 +113,7 @@ function run(xpub: string, account?: number, index?: number) {
     // Option A: no index has been provided:
     // scan all address types
 
-    if (!configuration.quiet) {
+    if (!configuration.silent) {
       console.log(chalk.bold("\nActive addresses\n"));
     }
 

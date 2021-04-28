@@ -298,7 +298,7 @@ function importOperations(path: string) : Operation[] {
         throw new Error("Format not recognized.");
     }
 
-    if (!configuration.quiet) {
+    if (!configuration.silent) {
         console.log(
             chalk.grey(
                 String(operations.length)
@@ -377,7 +377,7 @@ function renderAddress(address: string) {
 
 // TODO?: export in a dedicated module (display.ts)?
 function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operation) {
-    if (configuration.quiet) {
+    if (configuration.silent) {
         return;
     }
     
@@ -448,9 +448,11 @@ function showOperations(status: ComparisonStatus, opA: Operation, opB?: Operatio
 // 
 // TODO: handle aggregated operations
 function checkImportedOperations(importedOperations: Operation[], actualOperations: Operation[]) : Comparison[] {
-    console.log(chalk.bold.whiteBright("\nComparison between imported and actual operations\n"));
-    console.log(chalk.grey("imported operations\t\t\t\t\t\t\t\t     actual operations"));
-
+    if (!configuration.silent) {
+        console.log(chalk.bold.whiteBright("\nComparison between imported and actual operations\n"));
+        console.log(chalk.grey("imported operations\t\t\t\t\t\t\t\t     actual operations"));
+    }
+    
     // eslint-disable-next-line no-undef
     const allTxids: Txid[] = []; // TODO: convert into a Set as they have to be unique
     const comparisons: Comparison[] = [];

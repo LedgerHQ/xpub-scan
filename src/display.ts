@@ -25,7 +25,13 @@ function convertUnits(amount: number) {
 
 // display the active/probed address with its stats
 function updateAddressDetails(address: Address) {
-  if (configuration.quiet) {
+  // silent mode: do not display anything
+  if (configuration.silent) {
+    return;
+  }
+
+  // quiet mode: only display full information, once
+  if (configuration.quiet && typeof(address.getStats()) === "undefined") {
     return;
   }
 
@@ -100,7 +106,7 @@ function updateAddressDetails(address: Address) {
 
 // display the list of operations sorted by date (reverse chronological order)
 function showSortedOperations(sortedOperations: Operation[]) {
-  if (configuration.quiet) {
+  if (configuration.silent) {
     return;
   }
 
@@ -198,7 +204,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
 
 // display the summary: total balance by address type
 function showSummary(addressType: string, totalBalance: number) {
-  if (configuration.quiet) {
+  if (configuration.silent) {
     return;
   }
 
@@ -225,7 +231,7 @@ function showSummary(addressType: string, totalBalance: number) {
 }
 
 function logStatus(status: string) {
-  if (configuration.quiet) {
+  if (configuration.silent) {
     return;
   }
 
@@ -239,7 +245,7 @@ function logStatus(status: string) {
 // always check the resulting behavior in
 // Docker
 function transientLine(message?: string) {
-  if (configuration.quiet) {
+  if (configuration.silent || configuration.quiet) {
     return;
   }
   
@@ -258,7 +264,7 @@ function transientLine(message?: string) {
 }
 
 function showOpsAndSummary(sortedOperations: Operation[], summary: any[]) {
-  if (configuration.quiet) {
+  if (configuration.silent) {
     return;
   }
 

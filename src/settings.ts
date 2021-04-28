@@ -89,6 +89,7 @@ export const configuration = {
   customAPI: process.env.API_URL,
   APIKey: process.env.API_KEY,
   providerType: "default",
+  silent: false,
   quiet: false
 };
 
