@@ -2,7 +2,7 @@ import { AddressType, configuration, NETWORKS } from "../settings";
 import { Transaction } from "./transaction";
 import { Operation } from "./operation";
 import { Stats } from "./stats";
-import { getAddress } from "../actions/deriveAddresses"
+import { getAddress } from "../actions/deriveAddresses";
 import { toUnprefixedCashAddress } from "../helpers";
 
 class Address {
@@ -67,7 +67,7 @@ class Address {
 
   // render as Cash Address (Bitcoin Cash)
   asCashAddress() {
-    if (configuration.symbol === 'BCH') {
+    if (configuration.symbol === "BCH") {
       return toUnprefixedCashAddress(this.address);
     }
 
@@ -82,7 +82,7 @@ class Address {
     return {
       account: this.account,
       index: this.index
-    }
+    };
   }
 
   getBalance() : number {
@@ -90,7 +90,7 @@ class Address {
   }
 
   getStats() {
-    return this.stats
+    return this.stats;
   }
 
   getTransactions() {
@@ -102,4 +102,4 @@ class Address {
   }
 }
 
-export { Address }
+export { Address };

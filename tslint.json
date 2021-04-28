@@ -8,7 +8,9 @@
         "curly": true,
         "no-console": false,
         "no-trailing-whitespace": false,
-        "only-arrow-functions": false
+        "only-arrow-functions": false,
+        "quotemark": true,
+        "semicolon": [true, "always"]
     },
     "rulesDirectory": []
 }

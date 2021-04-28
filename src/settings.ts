@@ -12,9 +12,9 @@ const VERBOSE = false;
 // Providers
 // (use {coin} and {address} as placeholders for the coin name and the address)
 const DEFAULT_API_URLS = {
-  general: 'https://sochain.com/api/v2/address/{coin}/{address}',
-  bch: 'https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}'
-}
+  general: "https://sochain.com/api/v2/address/{coin}/{address}",
+  bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}"
+};
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
@@ -53,7 +53,7 @@ const DERIVATION_SCOPE = {
       max: 100000
     }
   }
-}
+};
 
 
 // DERIVATION PARAMETERS
@@ -62,7 +62,7 @@ const NETWORKS = {
   bitcoin_mainnet: coininfo.bitcoin.main.toBitcoinJS(),
   bitcoin_cash_mainnet: coininfo.bitcoincash.main.toBitcoinJS(),
   litecoin_mainnet: coininfo.litecoin.main.toBitcoinJS()
-}
+};
 
 export enum AddressType {
   LEGACY = "Legacy",
@@ -74,21 +74,21 @@ export enum AddressType {
 // HTML REPORT
 // -----------
 const EXTERNAL_EXPLORERS_URLS = {
-  general: 'https://live.blockcypher.com/{coin}/{type}/{item}',
-  bch: 'https://blockchair.com/{coin}/{type}/{item}'
-}
+  general: "https://live.blockcypher.com/{coin}/{type}/{item}",
+  bch: "https://blockchair.com/{coin}/{type}/{item}"
+};
 
 Object.freeze(AddressType);
 
 dotenv.config();
 export const configuration = {
   network: undefined, 
-  currency: '',
-  symbol: '',
+  currency: "",
+  symbol: "",
   defaultAPI: DEFAULT_API_URLS,
   customAPI: process.env.API_URL,
   APIKey: process.env.API_KEY,
-  providerType: 'default',
+  providerType: "default",
   quiet: false
 };
 
@@ -99,4 +99,4 @@ export {
   NETWORKS,
   DERIVATION_SCOPE,
   EXTERNAL_EXPLORERS_URLS
-}
+};

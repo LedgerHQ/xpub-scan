@@ -1,9 +1,9 @@
-import readline from 'readline';
-import chalk from 'chalk';
+import readline from "readline";
+import chalk from "chalk";
 
-import { Address } from './models/address'
-import { Operation } from './models/operation'
-import { configuration } from './settings';
+import { Address } from "./models/address";
+import { Operation } from "./models/operation";
+import { configuration } from "./settings";
 
 function convertUnits(amount: number) {
   // Currently, this function does not convert the amounts
@@ -29,14 +29,14 @@ function updateAddressDetails(address: Address) {
     return;
   }
 
-  const addressType = address.getType()
-  const account = address.getDerivation().account
-  const index = address.getDerivation().index
+  const addressType = address.getType();
+  const account = address.getDerivation().account;
+  const index = address.getDerivation().index;
 
   const derivationPath =
-    'm/'
+    "m/"
     .concat(String(account))
-    .concat('/')
+    .concat("/")
     .concat(String(index));
 
   const addressStats = address.getStats();
@@ -44,27 +44,27 @@ function updateAddressDetails(address: Address) {
   // _type_  path  address ...
   let stats = 
     //    _{address type}_  {derivation path}  {address}  [{cash address}]...
-      '  '
-      .concat(chalk.italic(addressType.padEnd(16, ' ')))
-      .concat(derivationPath.padEnd(12, ' '))
+      "  "
+      .concat(chalk.italic(addressType.padEnd(16, " ")))
+      .concat(derivationPath.padEnd(12, " "));
 
   const cashAddress = address.asCashAddress();
 
-  if (typeof(cashAddress) !== 'undefined') {
+  if (typeof(cashAddress) !== "undefined") {
     stats =
       stats
-        .concat(address.toString().padEnd(36, ' '))
-        .concat(cashAddress.padEnd(46, ' '));
+        .concat(address.toString().padEnd(36, " "))
+        .concat(cashAddress.padEnd(46, " "));
   }
   else {
     stats =
       stats
-        .concat(address.toString().padEnd(46, ' '))
+        .concat(address.toString().padEnd(46, " "));
   }
 
-  if (typeof(address.getStats()) === 'undefined') {
+  if (typeof(address.getStats()) === "undefined") {
     // if no stats, display just half of the line
-    process.stdout.write(stats)
+    process.stdout.write(stats);
     return;
   }
   else {
@@ -77,22 +77,22 @@ function updateAddressDetails(address: Address) {
     // ... +{total funded} ←
     stats = 
       stats
-      .concat(balance.padEnd(16, ' '))
-      .concat('+')
-      .concat(fundedSum.padEnd(10, ' ')) // an active address has necessarily been funded,
-      .concat(' ←');                     // thus this information is mandatory
+      .concat(balance.padEnd(16, " "))
+      .concat("+")
+      .concat(fundedSum.padEnd(10, " ")) // an active address has necessarily been funded,
+      .concat(" ←");                     // thus this information is mandatory
   }
 
   // optional: spent sum
-  if (typeof(addressStats.spent) !== 'undefined' && addressStats.spent > 0) {
+  if (typeof(addressStats.spent) !== "undefined" && addressStats.spent > 0) {
     const spentSum = convertUnits(addressStats.spent);
   
     // ... -{total spent} →
     stats =
       stats
-      .concat('\t-')
-      .concat(spentSum.padEnd(10, ' '))
-      .concat(' →');
+      .concat("\t-")
+      .concat(spentSum.padEnd(10, " "))
+      .concat(" →");
   }
 
   console.log(stats);
@@ -104,67 +104,67 @@ function showSortedOperations(sortedOperations: Operation[]) {
     return;
   }
 
-  process.stdout.write(chalk.bold('\nOperations History'))
+  process.stdout.write(chalk.bold("\nOperations History"));
 
-  if (typeof(configuration.APIKey) === 'undefined') {
+  if (typeof(configuration.APIKey) === "undefined") {
     // warning related to the limitations of the default provider
     process.stdout.write(
-      chalk.redBright(' (only the last ~50 operations by address are displayed)\n')
-      )
+      chalk.redBright(" (only the last ~50 operations by address are displayed)\n")
+      );
   }
   else {
-    process.stdout.write('\n');
+    process.stdout.write("\n");
   }
   
   const header =
-  '\ndate\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) [as change from non-sibling (c)] | sent (→) to self (⮂) or sibling (↺)';
+  "\ndate\t\t\tblock\t\taddress\t\t\t\t\t\treceived (←) [as change from non-sibling (c)] | sent (→) to self (⮂) or sibling (↺)";
   console.log(chalk.grey(header));
   
   sortedOperations.forEach(op => {    
-    const amount = convertUnits(op.amount).padEnd(12, ' ');
+    const amount = convertUnits(op.amount).padEnd(12, " ");
 
     // {date} {block} {address} [{cash address}]
     let status = 
-      op.date.padEnd(20, ' ')
-      .concat('\t')
-      .concat(String(op.block).padEnd(8, ' '));
+      op.date.padEnd(20, " ")
+      .concat("\t")
+      .concat(String(op.block).padEnd(8, " "));
 
     const address = op.address;
     const cashAddress = op.cashAddress;
 
-    if (typeof(cashAddress) !== 'undefined') {
+    if (typeof(cashAddress) !== "undefined") {
       status =
         status
-          .concat(address.padEnd(36, ' '))
-          .concat(cashAddress.padEnd(46, ' '));
+          .concat(address.padEnd(36, " "))
+          .concat(cashAddress.padEnd(46, " "));
     }
     else {
       status =
         status
-          .concat('\t')
-          .concat(address.padEnd(42, ' '))
-          .concat('\t');
+          .concat("\t")
+          .concat(address.padEnd(42, " "))
+          .concat("\t");
     }
   
     if (op.operationType === "Received" || op.operationType === "Received (non-sibling to change)") {
       // ... +{amount} ←
       status = 
         status
-        .concat('+')
+        .concat("+")
         .concat(amount)
-        .concat(' ←');
+        .concat(" ←");
 
       if (op.operationType === "Received (non-sibling to change)") {
         status =
-          status.concat(' c');
+          status.concat(" c");
       }
     }
     else {
       // ... -{amount} →|⮂|↺
       status = 
         status
-        .concat('-')
-        .concat(amount)
+        .concat("-")
+        .concat(amount);
 
         const operationType = op.getType();
 
@@ -172,28 +172,28 @@ function showSortedOperations(sortedOperations: Operation[]) {
           // case 1. Sent to the same address
           status = 
             status
-            .concat(' ⮂');
+            .concat(" ⮂");
         }
         else if (operationType === "Sent to sibling") {
           // case 2. Sent to a sibling address
           // (different non-change address belonging to same xpub)
           status = 
             status
-            .concat(' ↺');
+            .concat(" ↺");
         }
         else {
           // case 3. Sent to external address
           status = 
             status
-            .concat(' →');
+            .concat(" →");
         }
     }
     
     console.log(status);
-  })
+  });
   
-  console.log(chalk.bold('\nNumber of transactions\n'));
-  console.log(chalk.whiteBright(sortedOperations.length))
+  console.log(chalk.bold("\nNumber of transactions\n"));
+  console.log(chalk.whiteBright(sortedOperations.length));
 }
 
 // display the summary: total balance by address type
@@ -204,21 +204,21 @@ function showSummary(addressType: string, totalBalance: number) {
 
   const balance = convertUnits(totalBalance);
     
-  if (balance === '0') {
+  if (balance === "0") {
     console.log(
         chalk.grey(
-          addressType.padEnd(16, ' ')
-            .concat(balance.padEnd(12, ' '))
+          addressType.padEnd(16, " ")
+            .concat(balance.padEnd(12, " "))
         )
       );
   }
   else {
     console.log(
       chalk.whiteBright(
-       addressType.padEnd(16, ' ')
+       addressType.padEnd(16, " ")
       )
     .concat(
-        chalk.greenBright(balance.padEnd(12, ' '))
+        chalk.greenBright(balance.padEnd(12, " "))
       )
     );
   }
@@ -245,14 +245,14 @@ function transientLine(message?: string) {
   
   readline.cursorTo(process.stdout, 0);
 
-  if (typeof(message) !== 'undefined') {
+  if (typeof(message) !== "undefined") {
     process.stdout.write(message);
   }
   else {
     // blank line
     // ! solution implemented this way to be
     // ! compatible with Docker
-    process.stdout.write(''.padEnd(140, ' '));
+    process.stdout.write("".padEnd(140, " "));
     readline.cursorTo(process.stdout, 0);
   }
 }
@@ -277,4 +277,4 @@ export {
     showSortedOperations, 
     transientLine,
     showOpsAndSummary
-}
+};

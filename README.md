@@ -1,6 +1,6 @@
 # Xpub Scan
 
-![XPUB](./doc/logo_pre_alpha.png)
+![XPUB](./doc/logo_alpha.png)
 
 Given a master public key (xpub, Ltub, *etc.*), get the balances of its derived legacy, native SegWit, and SegWit addresses, or check whether an address has been derived from it.
 
@@ -67,6 +67,13 @@ Example:
 The files are saved as `<xpub>.json` and `<xpub>.html`.
 
 Note: `--save stdout` can be used to display the JSON instead of saving the files. Furthermore, the `--quiet` option does not display the analysis progress.
+
+### Comparisons-Related Options
+
+- `--diff` displays the mismatches (if any) between the imported and actual operations.
+- `--balance <balance (in satoshis or similar base unit)>` compares the provided balance with the actual one.
+
+Example: `$ node build/scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv --balance 12345 --diff` displays at the end of the analysis the results of the comparison between the `12345` satoshis balance and the actual one, as well as the potential mismatches between the imported operations and the actual ones.
 
 ## Usage 2. Check Address Against Xpub
 

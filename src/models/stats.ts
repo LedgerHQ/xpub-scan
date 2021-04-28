@@ -4,4 +4,4 @@ class Stats {
     spent: number;      // total sent
 }
 
-export { Stats }
+export { Stats };

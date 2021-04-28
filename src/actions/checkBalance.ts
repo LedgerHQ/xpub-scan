@@ -2,24 +2,24 @@ import chalk from "chalk";
 
 import * as display from "../display";
 
-import { Address } from "../models/address"
-import { OwnAddresses } from "../models/ownAddresses"
-import { configuration, AddressType, GAP_LIMIT, NETWORKS } from "../settings";
+import { Address } from "../models/address";
+import { OwnAddresses } from "../models/ownAddresses";
+import { configuration, AddressType, GAP_LIMIT } from "../settings";
 import { getStats, getTransactions } from "./processTransactions";
 
 // @ts-ignore
-import sb from 'satoshi-bitcoin';
+import sb from "satoshi-bitcoin";
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
 function scanAddresses(addressType: AddressType, xpub: string) {
   display.logStatus("Scanning ".concat(chalk.bold(addressType)).concat(" addresses..."));
 
-  let ownAddresses = new OwnAddresses();
+  const ownAddresses = new OwnAddresses();
   
   let totalBalance = 0;
   let noTxCounter = 0;
-  const addresses: Address[] = []
+  const addresses: Address[] = [];
   
   // TODO: should we limit ourselves to account 0 and 1?
   // if not, use a logic similar to indices exploration
@@ -31,10 +31,10 @@ function scanAddresses(addressType: AddressType, xpub: string) {
     noTxCounter = 0;
     
     for (let index = 0; /* scan all active indices */ ; ++index) {
-      const address = new Address(addressType, xpub, account, index)
+      const address = new Address(addressType, xpub, account, index);
       display.updateAddressDetails(address);
       
-      const status = noTxCounter === 0 ? "analyzing" : "probing address gap"
+      const status = noTxCounter === 0 ? "analyzing" : "probing address gap";
 
       if (!configuration.quiet) {
         process.stdout.write(chalk.yellow(status + "..."));
@@ -81,7 +81,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   }
   
   // process transactions
-  display.transientLine(chalk.yellowBright('Processing transactions...'));
+  display.transientLine(chalk.yellowBright("Processing transactions..."));
   addresses.forEach(address => {
     getTransactions(address, ownAddresses);
   });
@@ -92,7 +92,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   return {
     balance: sb.toBitcoin(totalBalance), // convert balance back to bitcoins (or equivalent unit)
     addresses
-  }
+  };
 }
 
 function run(xpub: string, account?: number, index?: number) {  
@@ -105,11 +105,11 @@ function run(xpub: string, account?: number, index?: number) {
     AddressType.NATIVE
   ];
 
-  if (configuration.symbol === 'BCH') {
+  if (configuration.symbol === "BCH") {
     addressTypes = [ AddressType.BCH ];
   }
 
-  if (typeof(account) === 'undefined') {
+  if (typeof(account) === "undefined") {
     // Option A: no index has been provided:
     // scan all address types
 
@@ -133,7 +133,7 @@ function run(xpub: string, account?: number, index?: number) {
     // Option B: an account number and index has been provided:
     // derive all addresses at that account and index; then
     // check their respective balances
-    let ownAddresses = new OwnAddresses();
+    const ownAddresses = new OwnAddresses();
 
     addressTypes.forEach(addressType => {
       const address = new Address(addressType, xpub, account, (index || 0));
@@ -154,13 +154,13 @@ function run(xpub: string, account?: number, index?: number) {
         addressType, 
         balance: address.getBalance()
       });
-    })
+    });
   }
 
   return {
     addresses: activeAddresses,
     summary
-  }
+  };
 }
 
-export { run }
+export { run };

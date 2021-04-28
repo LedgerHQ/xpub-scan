@@ -133,7 +133,7 @@ export const reportTemplate = `
 
       th:after {
         background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, .08));
-        content: '';
+        content: "";
         display: block;
         height: 25%;
         left: 0;
@@ -325,9 +325,10 @@ export const reportTemplate = `
     </li>
 
     {comparisons}
+    {diff}
     </ul>
 
   </body>
 
 </html>
-`
+`;

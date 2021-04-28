@@ -6,6 +6,7 @@ type OperationType =
         |   "Sent"                                  // Sent - common case
         |   "Sent to self"                          // Sent - edge case 1: The recipient is the sender (identity)
         |   "Sent to sibling"                       // Sent - edge case 2: recipient belongs to same xpub ("sibling")
+        ;
 
 class Operation {
     operationType: OperationType;
@@ -37,8 +38,13 @@ class Operation {
         return this.block;
     }
 
-    setAddress(address: string) {
-        this.address = address;
+    setAddress(address?: string) {
+        if (!address || address === "") {
+            this.address = "(no address)";
+        }
+        else {
+            this.address = address;
+        }
     }
 
     setCashAddress(cashAddress: string | undefined) {
@@ -54,8 +60,8 @@ class Operation {
     }
 
     getType() {
-        return this.operationType
+        return this.operationType;
     }
 }
 
-export { Operation, OperationType }
+export { Operation, OperationType };

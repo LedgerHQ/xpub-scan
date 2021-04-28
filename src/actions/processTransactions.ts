@@ -1,18 +1,18 @@
 import { VERBOSE, configuration, NETWORKS } from "../settings";
-import { Address } from "../models/address"
-import { OwnAddresses } from "../models/ownAddresses"
-import { Operation } from "../models/operation"
+import { Address } from "../models/address";
+import { OwnAddresses } from "../models/ownAddresses";
+import { Operation } from "../models/operation";
 
 import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
 
 function getStats(address: Address) {
     switch(configuration.providerType) {
-        case 'default':
+        case "default":
             defaultProvider.getStats(address, configuration.symbol.toUpperCase());
             break;
 
-        case 'custom':
+        case "custom":
             customProvider.getStats(address, configuration.symbol.toLowerCase());
             break;
 
@@ -31,11 +31,11 @@ function getTransactions(address: Address, ownAddresses: OwnAddresses) {
 // into an array of processed transactions
 function preprocessTransactions(address: Address) {
     switch(configuration.providerType) {
-        case 'default':
+        case "default":
             defaultProvider.getTransactions(address);
             break;
 
-        case 'custom':
+        case "custom":
             customProvider.getTransactions(address);
             break;
 
@@ -54,7 +54,7 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
 
     for (const tx of transactions) {
         isFunded = true;
-        if (typeof(tx.ins) !== 'undefined' && tx.ins.length > 0) {
+        if (typeof(tx.ins) !== "undefined" && tx.ins.length > 0) {
 
             // if account is internal (i.e., 1), and
             //     - has a sibling as sender: not externally funded (expected behavior: sent to change)
@@ -72,7 +72,7 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
                 const op = new Operation(tx.date, tx.ins[0].amount);
                 op.setTxid(tx.txid);
                 op.setBlockNumber(tx.blockHeight);
-                op.setType(accountNumber !== 1 ? "Received" : "Received (non-sibling to change)")
+                op.setType(accountNumber !== 1 ? "Received" : "Received (non-sibling to change)");
         
                 address.addFundedOperation(op);
             }
@@ -80,7 +80,7 @@ function processFundedTransactions(address: Address, ownAddresses: OwnAddresses)
     }
         
     if (VERBOSE) {
-        console.log('FUNDED\t', address.getFundedOperations());
+        console.log("FUNDED\t", address.getFundedOperations());
     }
 }
 
@@ -116,12 +116,12 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
 
                 address.addSentOperation(op);
             }
-        })
+        });
     }
     
     
     if (VERBOSE) {
-        console.log('SENT\t', address.getSpentOperations());
+        console.log("SENT\t", address.getSpentOperations());
     }
 }
 
@@ -160,7 +160,7 @@ function getSortedOperations(...addresses: any) : Operation[] {
         address.getFundedOperations().forEach( (op: Operation) => {
             op.setAddress(address.toString());
 
-            if (configuration.symbol === 'BCH') {
+            if (configuration.symbol === "BCH") {
                 op.setCashAddress(address.asCashAddress());
             }
 
@@ -172,7 +172,7 @@ function getSortedOperations(...addresses: any) : Operation[] {
             if (!processedTxids.includes(op.txid)) {
                 op.setAddress(address.toString());
 
-                if (configuration.symbol === 'BCH') {
+                if (configuration.symbol === "BCH") {
                     op.setCashAddress(address.asCashAddress());
                 }
 
@@ -194,4 +194,4 @@ function showTransactions(address: Address) {
     console.dir(address.getTransactions(), { depth: null });
 }
 
-export { getStats, getTransactions, getSortedOperations }
+export { getStats, getTransactions, getSortedOperations };

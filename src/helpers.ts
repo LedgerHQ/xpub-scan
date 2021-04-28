@@ -1,8 +1,8 @@
 import request from "sync-request";
 
-import * as bip32 from 'bip32';
+import * as bip32 from "bip32";
 import chalk from "chalk";
-import bchaddr from 'bchaddrjs';
+import bchaddr from "bchaddrjs";
 
 import { 
   NETWORKS,
@@ -15,14 +15,14 @@ function getJSON(url: string, APIKey?: string) {
 
   if (APIKey !== undefined) {
     headers = {
-      'X-API-Key': APIKey
-    }
+      "X-API-Key": APIKey
+    };
   }
 
-  const res = request('GET', url, {headers} );
+  const res = request("GET", url, {headers} );
 
   if (res.statusCode !== 200) {
-    console.log(chalk.red('GET request error'));
+    console.log(chalk.red("GET request error"));
     throw new Error(
       "GET REQUEST ERROR: "
         .concat(url)
@@ -31,34 +31,34 @@ function getJSON(url: string, APIKey?: string) {
       );
   }
 
-  return JSON.parse(res.getBody('utf-8'));
+  return JSON.parse(res.getBody("utf-8"));
 }
 
 function setNetwork(xpub: string, currency?: string) {
-  if (typeof(currency) === 'undefined') {
+  if (typeof(currency) === "undefined") {
     const prefix = xpub.substring(0, 4);
   
-    if (prefix === 'xpub') {
+    if (prefix === "xpub") {
       configuration.network = NETWORKS.bitcoin_mainnet;
-      configuration.currency = 'Bitcoin';
-      configuration.symbol = 'BTC';
+      configuration.currency = "Bitcoin";
+      configuration.symbol = "BTC";
     }
-    else if (prefix === 'Ltub') {
+    else if (prefix === "Ltub") {
       configuration.network = NETWORKS.litecoin_mainnet;
-      configuration.currency = 'Litecoin';
-      configuration.symbol = 'LTC';
+      configuration.currency = "Litecoin";
+      configuration.symbol = "LTC";
     }
     else {
       throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
     }
   }
   else {
-    currency = currency.toLowerCase()
+    currency = currency.toLowerCase();
     // Bitcoin Cash
-    if (currency.includes('cash') || currency === 'bch') {
+    if (currency.includes("cash") || currency === "BCH") {
       configuration.network = NETWORKS.bitcoin_cash_mainnet;
-      configuration.currency = 'Bitcoin Cash';
-      configuration.symbol = 'BCH';
+      configuration.currency = "Bitcoin Cash";
+      configuration.symbol = "BCH";
       return;
     }
 
@@ -78,8 +78,8 @@ function checkXpub(xpub: string) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
   }
 
-  if (typeof(configuration.APIKey) !== 'undefined' && configuration.APIKey.length > 0) {
-    configuration.providerType = 'custom';
+  if (typeof(configuration.APIKey) !== "undefined" && configuration.APIKey.length > 0) {
+    configuration.providerType = "custom";
   }
 
   if (configuration.quiet) {
@@ -88,9 +88,9 @@ function checkXpub(xpub: string) {
 
   console.log(
     chalk.grey(
-      '(Data fetched from the '
+      "(Data fetched from the "
       .concat(chalk.bold(configuration.providerType))
-      .concat(' provider)')
+      .concat(" provider)")
     )
   );
 }
@@ -103,7 +103,7 @@ function init(xpub: string, quiet: boolean, currency?: string) {
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
 function toUnprefixedCashAddress(address: string) {
-  if (configuration.symbol !== 'BCH') {
+  if (configuration.symbol !== "BCH") {
     return undefined;
   }
 
@@ -111,11 +111,11 @@ function toUnprefixedCashAddress(address: string) {
     address = bchaddr.toCashAddress(address);  
   }
   
-  return address.replace('bitcoincash:', '');
+  return address.replace("bitcoincash:", "");
 }
 
 export {
   getJSON,
   init,
   toUnprefixedCashAddress
-}
+};
