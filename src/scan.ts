@@ -6,12 +6,13 @@ import yargs from "yargs";
 import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
 import * as display from "./display";
-import { getSortedOperations } from "./actions/processTransactions";
+import { getSortedOperations, getSortedUTXOS } from "./actions/processTransactions";
 import { init } from "./helpers";
 import { importOperations, checkImportedOperations, showDiff } from "./actions/importOperations";
 import { save } from "./actions/saveAnalysis";
+import { Address } from "./models/address";
 
-const VERSION = "0.0.6";
+const VERSION = "0.0.7";
 
 const args = yargs
   .option("account", {
@@ -87,6 +88,7 @@ if (address) {
 }
 else {
   let actualAddresses;
+  let actualUTXOs: Address[];
   let summary;
   let actualTransactions;
   let comparisonResults;
@@ -98,9 +100,10 @@ else {
     actualAddresses = scanResult.addresses;
     summary = scanResult.summary;
 
+    actualUTXOs = getSortedUTXOS(actualAddresses);
     actualTransactions = getSortedOperations(actualAddresses);
 
-    display.showOpsAndSummary(actualTransactions, summary);
+    display.showResults(actualUTXOs, actualTransactions, summary);
   }
   else {
     // scan mode
@@ -124,11 +127,19 @@ else {
     const scanResult = check_balances.run(xpub);
 
     actualAddresses = scanResult.addresses;
+    
+    actualUTXOs = [];
+    actualAddresses.forEach( a => {
+      if (a.isUTXO()) {
+        actualUTXOs.push(a);
+      }
+    });
+
     summary = scanResult.summary;
 
     actualTransactions = getSortedOperations(actualAddresses);
 
-    display.showOpsAndSummary(actualTransactions, summary);
+    display.showResults(actualUTXOs, actualTransactions, summary);
 
     if (typeof(importedTransactions) !== "undefined") {
       comparisonResults = checkImportedOperations(importedTransactions, actualTransactions);

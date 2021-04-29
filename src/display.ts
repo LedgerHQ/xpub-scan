@@ -85,23 +85,41 @@ function updateAddressDetails(address: Address) {
       stats
       .concat(balance.padEnd(16, " "))
       .concat("+")
-      .concat(fundedSum.padEnd(10, " ")) // an active address has necessarily been funded,
+      .concat(fundedSum.padEnd(14, " ")) // an active address has necessarily been funded,
       .concat(" ←");                     // thus this information is mandatory
   }
 
   // optional: spent sum
-  if (typeof(addressStats.spent) !== "undefined" && addressStats.spent > 0) {
+  if (typeof(addressStats.spent) !== "undefined") {
     const spentSum = convertUnits(addressStats.spent);
   
     // ... -{total spent} →
     stats =
       stats
       .concat("\t-")
-      .concat(spentSum.padEnd(10, " "))
+      .concat(spentSum.padEnd(14, " "))
       .concat(" →");
   }
 
   console.log(stats);
+}
+
+// display the list of UTXOs sorted by date (reverse chronological order)
+function showSortedUTXOs(sortedUTXOs: Address[]) {
+  if (configuration.silent) {
+    return;
+  }
+
+  console.log(chalk.bold("\nUTXOs\n"));
+
+  if (sortedUTXOs.length === 0) {
+    console.log(chalk.gray("(no UTXO)"));
+    return;
+  }
+
+  sortedUTXOs.forEach(utxo => { 
+    updateAddressDetails(utxo);
+  });
 }
 
 // display the list of operations sorted by date (reverse chronological order)
@@ -263,11 +281,12 @@ function transientLine(message?: string) {
   }
 }
 
-function showOpsAndSummary(sortedOperations: Operation[], summary: any[]) {
+function showResults(sortedUTXOs: Address[], sortedOperations: Operation[], summary: any[]) {
   if (configuration.silent) {
     return;
   }
 
+  showSortedUTXOs(sortedUTXOs);
   showSortedOperations(sortedOperations);
 
   console.log(chalk.bold("\nSummary\n"));
@@ -282,5 +301,5 @@ export {
     updateAddressDetails, 
     showSortedOperations, 
     transientLine,
-    showOpsAndSummary
+    showResults
 };
