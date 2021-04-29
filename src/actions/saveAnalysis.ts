@@ -4,6 +4,7 @@ import minifier from "html-minifier";
 import { configuration, GAP_LIMIT, EXTERNAL_EXPLORERS_URLS } from "../settings";
 import { reportTemplate } from "../templates/report.html";
 import { toUnprefixedCashAddress } from "../helpers";
+import { Address } from "../models/address";
 
 // @ts-ignore
 import sb from "satoshi-bitcoin";
@@ -397,6 +398,21 @@ function save(meta: any, data: any, directory: string) {
         };
     });
 
+    const utxos: any[] = data.addresses.filter((a: Address) => a.isUTXO()).map((e: any) => {
+        return { 
+            addressType: e.addressType,
+            derivation: e.getDerivation(),
+            address: e.toString(),
+            cashAddress: e.asCashAddress(),
+            balance: toBaseUnit(e.balance),
+            funded: toBaseUnit(e.stats.funded),
+            spent: toBaseUnit(e.stats.spent),
+            txid: e.transactions[0].txid,
+            height: e.transactions[0].blockHeight,
+            time: e.transactions[0].date
+        };
+    });
+
     const summary: any[] = data.summary.map((e: any) => {
         return {
             ...e,
@@ -457,6 +473,7 @@ function save(meta: any, data: any, directory: string) {
             unit: "Base unit (i.e., satoshis or equivalent unit)"
         },
         addresses,
+        utxos,
         summary,
         transactions,
         comparisons,
