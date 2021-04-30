@@ -4,6 +4,7 @@ import minifier from "html-minifier";
 import { configuration, GAP_LIMIT, EXTERNAL_EXPLORERS_URLS } from "../settings";
 import { reportTemplate } from "../templates/report.html";
 import { toUnprefixedCashAddress } from "../helpers";
+import { Address } from "../models/address";
 
 // @ts-ignore
 import sb from "satoshi-bitcoin";
@@ -157,6 +158,57 @@ function createTooltip(opType: string) {
     return "<div class=\"tooltip\">" + opType + tooltip + "</div>";
 }
 
+function makeUTXOSTable(object: any) {
+    if (typeof(object.utxos) === "undefined" || object.utxos.length === 0) {
+        return "";
+    }
+
+    let UTXOSTable = `
+    <li class="tab">
+    <input type="radio" name="tabs" id="tab3" />
+    <label for="tab3">UTXOS</label>
+    <div id="tab-content3" class="content">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Derivation</th>
+            <th>Address</th>
+            <th>Balance</th>
+            <th>Funded</th>
+            <th>Spent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {utxos}
+        </tbody>
+      </table>
+    </div>
+    </li>
+    `;
+
+    const utxos: string[] = [];
+
+    for (const e of object.utxos) {
+        utxos.push("<tr><td>" + e.addressType + "</td>");
+
+        const derivationPath = "m/" + e.derivation.account + "/" + e.derivation.index;
+        utxos.push("<td>" + derivationPath + "</td>");
+
+        utxos.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
+
+        const balance = renderAmount(e.balance);
+        const funded = renderAmount(e.funded);
+        const spent = renderAmount(e.spent);
+
+        utxos.push("<td>" + balance + "</td>");
+        utxos.push("<td>" + funded + "</td>");
+        utxos.push("<td>" + spent + "</td></tr>");
+    }
+
+    return UTXOSTable.replace("{utxos}", utxos.join(""));
+}
+
 function makeComparisonsTable(object: any, onlyDiff?: boolean) {
     let comparisonsTemplate = `
     <li class="tab">
@@ -194,12 +246,12 @@ function makeComparisonsTable(object: any, onlyDiff?: boolean) {
     if (!onlyDiff) {
         comp = object.comparisons;
         comparisonsTemplate = comparisonsTemplate.replace("{label}", "Comparisons:all");
-        comparisonsTemplate = comparisonsTemplate.split("{id}").join("4"); // comparisons:all has id 4
+        comparisonsTemplate = comparisonsTemplate.split("{id}").join("5"); // comparisons:all has id 5
     }
     else {
         comp = object.diffs;
         comparisonsTemplate = comparisonsTemplate.replace("{label}", "Comparisons:diff");
-        comparisonsTemplate = comparisonsTemplate.split("{id}").join("5"); // comparisons:diff has id 5
+        comparisonsTemplate = comparisonsTemplate.split("{id}").join("6"); // comparisons:diff has id 6
     }
 
     const comparisons: string[] = [];
@@ -311,6 +363,9 @@ function saveHTML(object: any, directory: string) {
 
     report = report.replace("{addresses}", addresses.join(""));
 
+    // UTXOs
+    report = report.replace("{utxos}", makeUTXOSTable(object));
+
     // transactions
 
     // display warning if default provider is being used
@@ -397,6 +452,21 @@ function save(meta: any, data: any, directory: string) {
         };
     });
 
+    const utxos: any[] = data.addresses.filter((a: Address) => a.isUTXO()).map((e: any) => {
+        return { 
+            addressType: e.addressType,
+            derivation: e.getDerivation(),
+            address: e.toString(),
+            cashAddress: e.asCashAddress(),
+            balance: toBaseUnit(e.balance),
+            funded: toBaseUnit(e.stats.funded),
+            spent: toBaseUnit(e.stats.spent),
+            txid: e.transactions[0].txid,
+            height: e.transactions[0].blockHeight,
+            time: e.transactions[0].date
+        };
+    });
+
     const summary: any[] = data.summary.map((e: any) => {
         return {
             ...e,
@@ -457,6 +527,7 @@ function save(meta: any, data: any, directory: string) {
             unit: "Base unit (i.e., satoshis or equivalent unit)"
         },
         addresses,
+        utxos,
         summary,
         transactions,
         comparisons,

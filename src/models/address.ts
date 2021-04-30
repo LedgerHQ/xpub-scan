@@ -16,6 +16,7 @@ class Address {
   stats: Stats;
   ins: Operation[];
   outs: Operation[];
+  utxo: boolean;
 
   constructor(addressType: AddressType, xpub: string, account: number, index: number) {
     this.address = getAddress(addressType, xpub, account, index);
@@ -24,6 +25,7 @@ class Address {
     this.index = index;
     this.ins = [];
     this.outs = [];
+    this.utxo = false;
   }
 
   setTransactions(transactions: Transaction[]) {
@@ -43,6 +45,10 @@ class Address {
     this.stats.txsCount = txsCount;
     this.stats.funded = fundedSum;
     this.stats.spent = spentSum;
+  }
+
+  setAsUTXO() {
+    this.utxo = true;
   }
 
   addFundedOperation(funded: Operation) {
@@ -99,6 +105,10 @@ class Address {
 
   getRawTransactions() {
     return this.rawTransactions;
+  }
+
+  isUTXO() {
+    return this.utxo;
   }
 }
 

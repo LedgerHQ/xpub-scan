@@ -89,11 +89,15 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
     const transactions = address.getTransactions();
     const internalAddresses = ownAddresses.getInternalAddresses();
     const externalAddresses = ownAddresses.getExternalAddresses();
+
+    let hasOutputs = false;
     
     for(const tx of transactions) {
         const outs = tx.outs;
         
         outs.forEach(out => {
+            hasOutputs = true;
+
             // exclude internal (i.e. change) addresses
             if (!internalAddresses.includes(out.address)) {
                 const op = new Operation(tx.date, out.amount);
@@ -118,7 +122,10 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
             }
         });
     }
-    
+
+    if (!hasOutputs) {
+        address.setAsUTXO();
+    }
     
     if (VERBOSE) {
         console.log("SENT\t", address.getSpentOperations());
@@ -148,8 +155,11 @@ function compareOpsByBlockThenDate(A: Operation, B: Operation){
     return 0;
 }
 
-// Sort transactions by date
-// (reverse chronological order)
+/**
+ * Returns an array of ordered operations
+ * @param {...any} addresses - all active addresses belonging to the xpub
+ * @returns {Array<Address>} Array of operations in reverse chronological order
+ */
 function getSortedOperations(...addresses: any) : Operation[] {
     const operations: Operation[] = [];
     const processedTxids: string[]= [];
@@ -189,9 +199,31 @@ function getSortedOperations(...addresses: any) : Operation[] {
     return operations;
 }
 
+/**
+ * Returns an array of ordered UTXOs
+ * @param {...any} addresses - all active addresses belonging to the xpub
+ * @returns {Array<Address>} Array of UTXOs in reverse chronological order
+ */
+// (reverse chronological order)
+function getSortedUTXOS(...addresses: any) : Address[] {
+    // note: no need to explicitely sort the UTXOs as they inherit
+    //       the order from the addresses themselves
+
+    const utxos: Address[]= [];
+
+    // flatten the array of arrays in one dimension, and iterate
+    [].concat.apply([], addresses).forEach( (address: Address) => {
+        if (address.isUTXO()) {
+            utxos.push(address);
+        }
+    });
+
+    return utxos;
+}
+
 // eslint-disable-next-line no-unused-vars
 function showTransactions(address: Address) {
     console.dir(address.getTransactions(), { depth: null });
 }
 
-export { getStats, getTransactions, getSortedOperations };
+export { getStats, getTransactions, getSortedOperations, getSortedUTXOS };

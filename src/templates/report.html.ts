@@ -301,10 +301,12 @@ export const reportTemplate = `
     </div>
     </li>
 
+    {utxos}
+
     <li class="tab">
-    <input type="radio" name="tabs" id="tab3" />
-    <label for="tab3">Transactions</label>
-    <div id="tab-content3" class="content">
+    <input type="radio" name="tabs" id="tab4" />
+    <label for="tab4">Transactions</label>
+    <div id="tab-content4" class="content">
     <div class="warning">{warning}</div>
       <table>
         <thead>
