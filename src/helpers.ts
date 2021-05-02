@@ -33,7 +33,7 @@ function getJSON(url: string, APIKey?: string) {
 }
 
 function setNetwork(xpub: string, currency?: string) {
-  if (typeof(currency) === "undefined") {
+  if (typeof(currency) === "undefined" || currency === "BTC" || currency === "LTC") {
     const prefix = xpub.substring(0, 4);
   
     if (prefix === "xpub") {
@@ -51,7 +51,7 @@ function setNetwork(xpub: string, currency?: string) {
     }
   }
   else {
-    currency = currency.toLowerCase();
+
     // Bitcoin Cash
     if (currency.includes("cash") || currency === "BCH") {
       configuration.network = currencies.bch_mainnet.network;

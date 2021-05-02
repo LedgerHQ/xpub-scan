@@ -50,6 +50,11 @@ export const getArgs = (): any => {
             type: "boolean"
         })
         // imported data
+        .option("import", {
+            description: "[DEPRECATED] Import operations (file) for comparison",
+            demand: false,
+            type: "string"
+        })
         .option("addresses", {
             description: "Import addresses (file) for comparison",
             demand: false,
