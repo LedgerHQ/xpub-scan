@@ -187,14 +187,14 @@ export const reportTemplate = `
         box-shadow: inset -1px -1px 0 #fff;
       }
       
-      .tabs{
-          width: 98%;
-          display: block;
-          position: relative;
-      }
-      
       /* tabs | from https://codepen.io/dhs/pen/diasg */
 
+      .tabs{
+          display: flex;
+          position: relative;
+          justify-content: center;
+      }
+      
       .tabs .tab{
           float: left;
           display: block;

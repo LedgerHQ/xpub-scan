@@ -1,7 +1,7 @@
 import dateFormat from "dateformat";
 
-import { getJSON, toUnprefixedCashAddress } from "../helpers";
-import { configuration, NETWORKS } from "../settings";
+import { getJSON } from "../helpers";
+import { configuration } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";

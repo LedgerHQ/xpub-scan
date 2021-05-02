@@ -1,7 +1,7 @@
 import chalk from "chalk";
 
 import { getAddressType, getAddress } from "./deriveAddresses";
-import { DERIVATION_SCOPE } from "../settings";
+import { DERIVATION_SCOPE } from "../configuration/settings";
 
 interface Result {
     partial?: string;

@@ -1,4 +1,4 @@
-import { VERBOSE, configuration, NETWORKS } from "../settings";
+import { VERBOSE, configuration } from "../configuration/settings";
 import { Address } from "../models/address";
 import { OwnAddresses } from "../models/ownAddresses";
 import { Operation } from "../models/operation";
@@ -219,11 +219,6 @@ function getSortedUTXOS(...addresses: any) : Address[] {
     });
 
     return utxos;
-}
-
-// eslint-disable-next-line no-unused-vars
-function showTransactions(address: Address) {
-    console.dir(address.getTransactions(), { depth: null });
 }
 
 export { getStats, getTransactions, getSortedOperations, getSortedUTXOS };

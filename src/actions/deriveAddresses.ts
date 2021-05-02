@@ -5,7 +5,8 @@ import * as bip32 from "bip32";
 import * as bch from "bitcoincashjs";
 import bchaddr from "bchaddrjs";
 
-import { AddressType, configuration } from "../settings";
+import { AddressType } from "../configuration/currencies";
+import { configuration } from "../configuration/settings";
 
 // derive legacy address at account and index positions
 function getLegacyAddress(xpub: string, account: number, index: number) : string {
