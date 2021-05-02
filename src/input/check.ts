@@ -76,7 +76,7 @@ export const checkArgs = (args: any): void => {
         }
     }
 
-    // save dirpath: exists, is a directory, writtable
+    // save dirpath: exists, is a directory, writable
     if (typeof(save) !== "undefined") {
         try {
             if (!fs.statSync(save).isDirectory()) {
@@ -89,7 +89,7 @@ export const checkArgs = (args: any): void => {
         
         fs.access(save, fs.constants.W_OK, function(err) {
             if (err) {
-                throw new Error("Save directory " + save + " is not writtable");
+                throw new Error("Save directory " + save + " is not writable");
             }
         });
     }
