@@ -4,7 +4,8 @@ import * as display from "../display";
 
 import { Address } from "../models/address";
 import { OwnAddresses } from "../models/ownAddresses";
-import { configuration, AddressType, GAP_LIMIT } from "../settings";
+import { configuration, GAP_LIMIT } from "../configuration/settings";
+import { AddressType } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 
 // @ts-ignore

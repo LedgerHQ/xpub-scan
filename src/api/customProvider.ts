@@ -1,7 +1,7 @@
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
-import { configuration } from "../settings";
+import { configuration } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";

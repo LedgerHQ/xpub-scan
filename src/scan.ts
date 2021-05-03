@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import chalk from "chalk";
-import yargs from "yargs";
 
 import * as check_balances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
@@ -11,64 +10,11 @@ import { init } from "./helpers";
 import { importOperations, checkImportedOperations, showDiff } from "./actions/importOperations";
 import { save } from "./actions/saveAnalysis";
 import { Address } from "./models/address";
+import { getArgs } from "./input/args";
 
-const VERSION = "0.0.7";
+const VERSION = "0.0.8";
 
-const args = yargs
-  .option("account", {
-      alias: "a",
-      description: "Account number",
-      demand: false,
-      type: "number"
-  })
-  .option("index", {
-      alias: "i",
-      description: "Index number",
-      demand: false,
-      type: "number"
-  })
-  .option("address", {
-      description: "Address",
-      demand: false,
-      type: "string"
-  })
-  .option("import", {
-    description: "Import transactions",
-    demand: false,
-    type: "string"
-  })
-  .option("balance", {
-    description: "Import balance for comparison (as to be in satoshis or similar base unit)",
-    demand: false,
-    type: "number"
-  })
-  .option("diff", {
-    description: "Show diffs",
-    demand: false,
-    type: "boolean"
-  })
-  .option("save", {
-    description: "Save analysis",
-    demand: false,
-    type: "string",
-  })
-  .option("silent", {
-    description: "Do not display anything (except for the filepath of the saved reports)",
-    demand: false,
-    type: "boolean",
-    default: false
-  })
-  .option("quiet", {
-    description: "Do not display analysis progress",
-    demand: false,
-    type: "boolean",
-    default: false
-  })
-  .option("currency", {
-    description: "currency",
-    demand: false,
-    type: "string",
-  }).argv;
+const args = getArgs();
 
 const account = args.account;
 const index = args.index;

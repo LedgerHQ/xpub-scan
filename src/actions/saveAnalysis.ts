@@ -1,7 +1,7 @@
 import fs from "fs";
 import minifier from "html-minifier";
 
-import { configuration, GAP_LIMIT, EXTERNAL_EXPLORERS_URLS } from "../settings";
+import { configuration, GAP_LIMIT, EXTERNAL_EXPLORERS_URLS } from "../configuration/settings";
 import { reportTemplate } from "../templates/report.html";
 import { toUnprefixedCashAddress } from "../helpers";
 import { Address } from "../models/address";
@@ -163,7 +163,7 @@ function makeUTXOSTable(object: any) {
         return "";
     }
 
-    let UTXOSTable = `
+    const UTXOSTable = `
     <li class="tab">
     <input type="radio" name="tabs" id="tab3" />
     <label for="tab3">UTXOS</label>

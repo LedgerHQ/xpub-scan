@@ -3,7 +3,7 @@ import chalk from "chalk";
 
 import { Address } from "./models/address";
 import { Operation } from "./models/operation";
-import { configuration } from "./settings";
+import { configuration } from "./configuration/settings";
 
 function convertUnits(amount: number) {
   // Currently, this function does not convert the amounts

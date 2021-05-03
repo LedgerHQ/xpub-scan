@@ -55,30 +55,12 @@ const DERIVATION_SCOPE = {
   }
 };
 
-
-// DERIVATION PARAMETERS
-// ---------------------
-const NETWORKS = {
-  bitcoin_mainnet: coininfo.bitcoin.main.toBitcoinJS(),
-  bitcoin_cash_mainnet: coininfo.bitcoincash.main.toBitcoinJS(),
-  litecoin_mainnet: coininfo.litecoin.main.toBitcoinJS()
-};
-
-export enum AddressType {
-  LEGACY = "Legacy",
-  NATIVE = "Native SegWit",
-  SEGWIT = "SegWit",
-  BCH    = "Bitcoin Cash"
-}
-
 // HTML REPORT
 // -----------
 const EXTERNAL_EXPLORERS_URLS = {
   general: "https://live.blockcypher.com/{coin}/{type}/{item}",
   bch: "https://blockchair.com/{coin}/{type}/{item}"
 };
-
-Object.freeze(AddressType);
 
 dotenv.config();
 export const configuration = {
@@ -97,7 +79,6 @@ export {
   DEFAULT_API_URLS,
   GAP_LIMIT,
   VERBOSE,
-  NETWORKS,
   DERIVATION_SCOPE,
   EXTERNAL_EXPLORERS_URLS
 };

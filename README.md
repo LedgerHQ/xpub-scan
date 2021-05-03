@@ -53,12 +53,34 @@ Example:
 Example: 
 `$ node build/scan.js xpub6C...44dXs7p`
 
-### Compare With Transactions Imported From a File
+### Compare Imported Data With Actual Data
 
-`$ node build/scan.js <xpub> --import <file path>`
+**Balance `--balance <balance>`**
+
+`$ node build/scan.js <xpub> --balance <balance (in satoshis or similar base unit)>`
+
+**Addresses `--addresses <filepath>`**
+
+*(Not implemented yet)*
+
+`$ node build/scan.js <xpub> --addresses <file path>`
+
+**UTXOs `--utxos <filepath>`**
+
+*(Not implemented yet)*
+
+`$ node build/scan.js <xpub> --utxos <file path>`
+
+**Operations `--operations <filepath>`**
+
+`$ node build/scan.js <xpub> --operations <file path>`
 
 Example:
-`$ node build/scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv`
+`$ node build/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv`
+
+**General Example**
+
+`$ node build/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv --balance 12345 --diff` displays at the end of the analysis the results of the comparison between the `12345` satoshis balance and the actual one, as well as the potential mismatches between the imported operations and the actual ones.
 
 ### Generate JSON and HTML Reports (Scan Only)
 
@@ -68,12 +90,9 @@ The files are saved as `<xpub>.json` and `<xpub>.html`.
 
 Note: `--save stdout` can be used to display the JSON instead of saving the files. Furthermore, the `--quiet` option does not display the analysis progress while the `--silent` option does not display the progress _nor the results_.
 
-### Comparisons-Related Options
+### Comparisons-Related Option
 
 - `--diff` displays the mismatches (if any) between the imported and actual operations.
-- `--balance <balance (in satoshis or similar base unit)>` compares the provided balance with the actual one.
-
-Example: `$ node build/scan.js xpub6C...44dXs7p --import /Users/Test/Downloads/export.csv --balance 12345 --diff` displays at the end of the analysis the results of the comparison between the `12345` satoshis balance and the actual one, as well as the potential mismatches between the imported operations and the actual ones.
 
 ## Usage 2. Check Address Against Xpub
 

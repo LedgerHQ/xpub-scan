@@ -6,7 +6,7 @@ import sb from "satoshi-bitcoin";
 
 import { Operation } from "../models/operation";
 import { Comparison, ComparisonStatus } from "../models/comparison";
-import { configuration } from "../settings";
+import { configuration } from "../configuration/settings";
 
 interface Txid {
     date: string;

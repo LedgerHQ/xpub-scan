@@ -4,10 +4,8 @@ import * as bip32 from "bip32";
 import chalk from "chalk";
 import bchaddr from "bchaddrjs";
 
-import { 
-  NETWORKS,
-  configuration 
-} from "./settings";
+import { configuration } from "./configuration/settings";
+import { currencies } from "./configuration/currencies";
 
 // TODO: properly rework this function
 function getJSON(url: string, APIKey?: string) {
@@ -35,16 +33,16 @@ function getJSON(url: string, APIKey?: string) {
 }
 
 function setNetwork(xpub: string, currency?: string) {
-  if (typeof(currency) === "undefined") {
+  if (typeof(currency) === "undefined" || currency === "BTC" || currency === "LTC") {
     const prefix = xpub.substring(0, 4);
   
     if (prefix === "xpub") {
-      configuration.network = NETWORKS.bitcoin_mainnet;
+      configuration.network = currencies.btc_mainnet.network;
       configuration.currency = "Bitcoin";
       configuration.symbol = "BTC";
     }
     else if (prefix === "Ltub") {
-      configuration.network = NETWORKS.litecoin_mainnet;
+      configuration.network = currencies.ltc_mainnet.network;
       configuration.currency = "Litecoin";
       configuration.symbol = "LTC";
     }
@@ -53,10 +51,10 @@ function setNetwork(xpub: string, currency?: string) {
     }
   }
   else {
-    currency = currency.toLowerCase();
+
     // Bitcoin Cash
     if (currency.includes("cash") || currency === "BCH") {
-      configuration.network = NETWORKS.bitcoin_cash_mainnet;
+      configuration.network = currencies.bch_mainnet.network;
       configuration.currency = "Bitcoin Cash";
       configuration.symbol = "BCH";
       return;

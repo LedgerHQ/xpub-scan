@@ -1,4 +1,5 @@
-import { AddressType, configuration, NETWORKS } from "../settings";
+import { configuration } from "../configuration/settings";
+import { AddressType } from "../configuration/currencies";
 import { Transaction } from "./transaction";
 import { Operation } from "./operation";
 import { Stats } from "./stats";
