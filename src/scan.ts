@@ -14,7 +14,7 @@ import { save } from "./actions/saveAnalysis";
 import { Address } from "./models/address";
 import { getArgs } from "./input/args";
 
-const VERSION = "0.0.8";
+const VERSION = "0.0.9";
 
 const args = getArgs();
 

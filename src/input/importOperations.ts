@@ -274,6 +274,73 @@ const importFromJSONTypeB = (contents: string) : Operation[] => {
 };
 
 /**
+ * Import transactions from a type C JSON
+ * @param  {string} contents
+ *          Contents from file to import
+ * @returns Operation
+ *          Imported operations
+ */
+ const importFromJSONTypeC = (contents: string) : Operation[] => {    
+    const operations: Operation[] = [];
+
+    let ops;
+
+    try {
+        ops = JSON.parse(contents).operations;
+    } 
+    catch (err) {
+        throw new Error("JSON parsing error");
+    }
+
+    for (const operation of ops) {
+        const type              = operation.type;
+        
+        const date              = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ig
+                                    .exec(operation.time) || "";
+
+        const valueInSatoshis   = parseFloat(operation.amount);      // in satoshis
+        
+        const block             = operation.block_height;
+        
+        if (type === "RECEIVE") {
+            const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+            op.setType("Received");
+
+            // no tx hash: set block number instead
+            op.setBlockNumber(block);
+            
+            const addresses = [];
+            for (const output of operation.recipients) {
+                addresses.push(output);
+            }
+
+            op.setAddress(addresses.join(","));
+
+            operations.push(op);
+        }
+        else if (type === "SEND") {
+            const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+
+            op.setType("Sent");
+
+            // no tx hash: set block number instead
+            op.setBlockNumber(block);
+
+            const addresses = [];
+            for (const input of operation.senders) {
+                addresses.push(input);
+            }
+
+            op.setAddress(addresses.join(","));
+
+            operations.push(op);
+        }
+    }
+
+    return operations;
+};
+
+/**
  * Dispatcher: detect the type of the imported file
  * based on its contents
  * @param  {string} path
@@ -308,6 +375,10 @@ const importOperations = (path: string) : Operation[] => {
         else if (contents.includes("libcore")) {
             // type B JSON: contains an explicit reference to 'libcore'
             operations = importFromJSONTypeB(contents);
+        }
+        else if (contents.includes("uid")) {
+            // type C JSON: contains an explicit reference to 'uid'
+            operations = importFromJSONTypeC(contents);
         }
     }
     else {

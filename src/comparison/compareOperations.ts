@@ -4,9 +4,11 @@ import { Operation } from "../models/operation";
 import { Comparison, ComparisonStatus } from "../models/comparison";
 import { configuration } from "../configuration/settings";
 
-interface Txid {
+// criterion by which operations can be compared
+interface ComparingCriterion {
     date: string;
     hash: string;
+    block: number;
 }
 
 /**
@@ -41,6 +43,7 @@ const compareOpsByAmountThenAddress = (A: Operation, B: Operation) : number => {
 
     return 0;
 };
+
 /**
  * Check whether imported and actual operation are matching or not
  * @param  {Operation} importedOperation
@@ -193,32 +196,41 @@ const checkImportedOperations = (importedOperations: Operation[], actualOperatio
     }
     
     // eslint-disable-next-line no-undef
-    const allTxids: Txid[] = []; // TODO: convert into a Set as they have to be unique
+    const allComparingCriteria: ComparingCriterion[] = []; // TODO: convert into a Set as they have to be unique
     const comparisons: Comparison[] = [];
 
     importedOperations.forEach(op => {
-        // only add txid once
-        if (!allTxids.some(t => t.hash === op.txid)) {
-            allTxids.push({date: op.date, hash: op.txid});
+        if (!allComparingCriteria.some(t => t.hash === op.txid)) {
+            allComparingCriteria.push({date: op.date, hash: op.txid, block: op.block});
         }
     });
     
     // add potential actual operations absent from the list
     // of imported operations
     actualOperations.forEach(op => {
-        // only add txid once
-        if (!allTxids.some(t => t.hash === op.txid)) {
-            allTxids.push({date: op.date, hash: op.txid});
+        if (!allComparingCriteria.some(t => t.hash === op.txid)) {
+            allComparingCriteria.push({date: op.date, hash: op.txid, block: op.block});
         }
     });
 
     // sort by reverse chronological order
-    allTxids.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0);
+    allComparingCriteria.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0);
 
-    for (const txid of allTxids) {
-        const importedOps = importedOperations.filter(op => op.txid === txid.hash);
-        const actualOps = actualOperations.filter(op => op.txid === txid.hash);
+    for (const comparingCriterion of allComparingCriteria) {
+        let importedOps;
+        let actualOps;
 
+        if (typeof(comparingCriterion.hash) !== "undefined") {
+            // case 1. Tx hash is set
+            importedOps = importedOperations.filter(op => op.txid === comparingCriterion.hash);
+            actualOps = actualOperations.filter(op => op.txid === comparingCriterion.hash);
+        }
+        else {
+            // case 2. Tx hash is NOT set: compare by block number instead
+            importedOps = importedOperations.filter(op => op.block === comparingCriterion.block);
+            actualOps = actualOperations.filter(op => op.block === comparingCriterion.block);
+        }
+        
         // the imported operations can have multiple concatenated addresses
         // (see: type A CSV) that have to be reduced to only one: 
         // the one corresponding to that of an actual operation from the same 
