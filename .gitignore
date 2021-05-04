@@ -4,4 +4,3 @@ node_modules/
 build/
 .DS_Store
 .eslintrc.js
-*.json
