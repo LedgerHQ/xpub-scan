@@ -300,14 +300,13 @@ const importFromJSONTypeB = (contents: string) : Operation[] => {
 
         const valueInSatoshis   = parseFloat(operation.amount);      // in satoshis
         
-        const block             = operation.block_height;
+        const txid              = operation.transaction.hash;
         
         if (type === "RECEIVE") {
             const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
             op.setType("Received");
 
-            // no tx hash: set block number instead
-            op.setBlockNumber(block);
+            op.setTxid(txid);
             
             const addresses = [];
             for (const output of operation.recipients) {
@@ -323,8 +322,7 @@ const importFromJSONTypeB = (contents: string) : Operation[] => {
 
             op.setType("Sent");
 
-            // no tx hash: set block number instead
-            op.setBlockNumber(block);
+            op.setTxid(txid);
 
             const addresses = [];
             for (const input of operation.senders) {
