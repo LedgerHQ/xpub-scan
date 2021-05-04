@@ -1,5 +1,3 @@
-// @ts-ignore
-import coininfo from "coininfo";
 import * as dotenv from "dotenv";
 
 // GENERAL
@@ -13,7 +11,7 @@ const VERBOSE = false;
 // (use {coin} and {address} as placeholders for the coin name and the address)
 const DEFAULT_API_URLS = {
   general: "https://sochain.com/api/v2/address/{coin}/{address}",
-  bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}"
+  bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}",
 };
 
 // max number of addresses to probe when checking a possible gap between derivation indices
@@ -25,19 +23,18 @@ const GAP_LIMIT = 20;
 
 // scope of the derivation for the comparison
 const DERIVATION_SCOPE = {
-
   // _quick search_
   // the common range from which addresses
   // are generally derived
   quick_search: {
     account: {
       min: 0,
-      max: 4
+      max: 4,
     },
     index: {
       min: 0,
-      max: 1000
-    }
+      max: 1000,
+    },
   },
 
   // _deep search_
@@ -46,25 +43,25 @@ const DERIVATION_SCOPE = {
   deep_search: {
     account: {
       min: 0,
-      max: 1000
+      max: 1000,
     },
     index: {
       min: 0,
-      max: 100000
-    }
-  }
+      max: 100000,
+    },
+  },
 };
 
 // HTML REPORT
 // -----------
 const EXTERNAL_EXPLORERS_URLS = {
   general: "https://live.blockcypher.com/{coin}/{type}/{item}",
-  bch: "https://blockchair.com/{coin}/{type}/{item}"
+  bch: "https://blockchair.com/{coin}/{type}/{item}",
 };
 
 dotenv.config();
 export const configuration = {
-  network: undefined, 
+  network: undefined,
   currency: "",
   symbol: "",
   defaultAPI: DEFAULT_API_URLS,
@@ -72,7 +69,7 @@ export const configuration = {
   APIKey: process.env.API_KEY,
   providerType: "default",
   silent: false,
-  quiet: false
+  quiet: false,
 };
 
 export {
@@ -80,5 +77,5 @@ export {
   GAP_LIMIT,
   VERBOSE,
   DERIVATION_SCOPE,
-  EXTERNAL_EXPLORERS_URLS
+  EXTERNAL_EXPLORERS_URLS,
 };
