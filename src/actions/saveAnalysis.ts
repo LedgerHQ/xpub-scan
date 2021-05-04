@@ -117,7 +117,11 @@ function renderAddress(address: string, cashAddress?: string) {
 }
 
 // make TXID clickable
-function renderTxid(txid: string) {
+function renderTxid(txid?: string) {
+    if (!txid) {
+        return "(no txid)";
+    }
+    
     const url = getUrl("transaction", txid);
         
     txid = txid.substring(0, 10) + "...";

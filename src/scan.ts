@@ -7,12 +7,14 @@ import * as compare from "./actions/checkAddress";
 import * as display from "./display";
 import { getSortedOperations, getSortedUTXOS } from "./actions/processTransactions";
 import { init } from "./helpers";
-import { importOperations, checkImportedOperations, showDiff } from "./actions/importOperations";
+import { showDiff } from "./comparison/diffs";
+import { checkImportedOperations } from "./comparison/compareOperations";
+import { importOperations } from "./input/importOperations";
 import { save } from "./actions/saveAnalysis";
 import { Address } from "./models/address";
 import { getArgs } from "./input/args";
 
-const VERSION = "0.0.8";
+const VERSION = "0.0.9";
 
 const args = getArgs();
 
@@ -55,7 +57,7 @@ else {
     // scan mode
     let importedTransactions;
 
-    if (!args.import) {
+    if (!args.operations) {
       // if no file path has been provided, only the xpub is expected to have
       // been specified
       if (args._.length > 1) {
@@ -67,7 +69,7 @@ else {
     }
     else {
       // if a file path has been provided, import its transactions
-      importedTransactions = importOperations(args.import);
+      importedTransactions = importOperations(args.operations);
     }
 
     const scanResult = check_balances.run(xpub);
