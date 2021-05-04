@@ -220,13 +220,13 @@ const checkImportedOperations = (importedOperations: Operation[], actualOperatio
         let importedOps;
         let actualOps;
 
-        if (typeof(comparingCriterion.hash) !== "undefined") {
-            // case 1. Tx hash is set
+        if (importedOperations.some(op => typeof(op.txid) !== "undefined")) {
+            // case 1. tx id is set
             importedOps = importedOperations.filter(op => op.txid === comparingCriterion.hash);
             actualOps = actualOperations.filter(op => op.txid === comparingCriterion.hash);
         }
         else {
-            // case 2. Tx hash is NOT set: compare by block number instead
+            // case 2. tx id is NOT set: compare by block number instead
             importedOps = importedOperations.filter(op => op.block === comparingCriterion.block);
             actualOps = actualOperations.filter(op => op.block === comparingCriterion.block);
         }
