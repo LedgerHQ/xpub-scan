@@ -19,7 +19,12 @@ class Address {
   outs: Operation[];
   utxo: boolean;
 
-  constructor(addressType: AddressType, xpub: string, account: number, index: number) {
+  constructor(
+    addressType: AddressType,
+    xpub: string,
+    account: number,
+    index: number,
+  ) {
     this.address = getAddress(addressType, xpub, account, index);
     this.addressType = addressType;
     this.account = account;
@@ -88,11 +93,11 @@ class Address {
   getDerivation() {
     return {
       account: this.account,
-      index: this.index
+      index: this.index,
     };
   }
 
-  getBalance() : number {
+  getBalance(): number {
     return this.balance;
   }
 

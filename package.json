@@ -4,8 +4,11 @@
   "description": "Master public key analysis tool",
   "main": "./build/scan.js",
   "scripts": {
-    "build": "tsc -p .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "lint": "eslint .",
+    "ts:check": "tsc --noEmit",
+    "prettier": "prettier --write .",
+    "ci": "yarn lint && yarn ts:check && yarn prettier --list-different ."
   },
   "repository": {
     "type": "git",
@@ -18,9 +21,6 @@
   },
   "homepage": "https://github.com/LedgerHQ/xpub-scan#readme",
   "dependencies": {
-    "@types/dotenv": "^8.2.0",
-    "@types/lodash": "^4.14.168",
-    "@types/yargs": "^16.0.0",
     "bchaddrjs": "^0.5.2",
     "bitcoin-cash-payments": "^0.2.0",
     "bitcoinjs-lib": "^5.2.0",
@@ -28,12 +28,8 @@
     "es6-promise": "^4.2.8",
     "html-minifier": "^4.0.0",
     "line-reader": "^0.4.0",
-    "minimist": "^1.2.5",
-    "minimist2": "^1.0.2",
-    "request": "^2.88.2",
     "satoshi-bitcoin": "^1.0.4",
     "sync-request": "^6.1.0",
-    "typescript": "^4.1.5",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
@@ -43,12 +39,18 @@
     "@types/bip32": "^2.0.0",
     "@types/chalk": "^2.2.0",
     "@types/dateformat": "^3.0.1",
+    "@types/dotenv": "^8.2.0",
     "@types/html-minifier": "^4.0.0",
+    "@types/lodash": "^4.14.168",
     "@types/minimist": "^1.2.1",
+    "@types/yargs": "^16.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.22.1",
+    "@typescript-eslint/parser": "^4.22.1",
     "coininfo": "^5.1.0",
     "dateformat": "^4.5.1",
-    "eslint": "^7.20.0",
+    "eslint": "^7.25.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "typescript": "^4.1.5"
   }
 }
