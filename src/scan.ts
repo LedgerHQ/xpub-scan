@@ -135,3 +135,12 @@ async function scan() {
 }
 
 scan();
+
+// see https://nodejs.org/api/process.html#process_signal_events
+function handleSignal(signal: string) {
+  console.log(`Received ${signal}`);
+  process.exit(1);
+}
+process.stdin.resume();
+process.on("SIGINT", handleSignal);
+process.on("SIGTERM", handleSignal);
