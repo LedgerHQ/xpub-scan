@@ -5,6 +5,7 @@ import { configuration } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
+import { TODO_TypeThis } from "../types";
 
 import bchaddr from "bchaddrjs";
 
@@ -27,12 +28,12 @@ interface RawTransaction {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-function getStats(address: Address, coinDenomination: string) {
+async function getStats(address: Address, coinDenomination: string) {
   const url = configuration
     .customAPI!.replace("{coin}", coinDenomination)
     .replace("{address}", address.toString());
 
-  const res = helpers.getJSON(url, configuration.APIKey);
+  const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
 
   // TODO: check potential errors here (API returning invalid data...)
   const fundedSum = parseFloat(res.payload.totalReceived);
@@ -61,7 +62,10 @@ function getStats(address: Address, coinDenomination: string) {
         .replace("{index}", String(index))
         .replace("{limit}", String(limit));
 
-      const txs = helpers.getJSON(getTxsURL, configuration.APIKey);
+      const txs = await helpers.getJSON<TODO_TypeThis>(
+        getTxsURL,
+        configuration.APIKey,
+      );
       const payload = txs.payload;
       const txsCount = txs.meta.totalCount;
 

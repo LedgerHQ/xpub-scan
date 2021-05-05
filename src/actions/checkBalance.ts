@@ -12,7 +12,7 @@ import { TODO_TypeThis } from "../types";
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
-function scanAddresses(addressType: AddressType, xpub: string) {
+async function scanAddresses(addressType: AddressType, xpub: string) {
   display.logStatus(
     "Scanning ".concat(chalk.bold(addressType)).concat(" addresses..."),
   );
@@ -44,7 +44,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
         process.stdout.write(chalk.yellow(status + "..."));
       }
 
-      getStats(address);
+      await getStats(address);
 
       const addressStats = address.getStats();
 
@@ -100,7 +100,7 @@ function scanAddresses(addressType: AddressType, xpub: string) {
   };
 }
 
-function run(xpub: string, account?: number, index?: number) {
+async function run(xpub: string, account?: number, index?: number) {
   let activeAddresses: Address[] = [];
   const summary: TODO_TypeThis[] = [];
 
@@ -122,8 +122,8 @@ function run(xpub: string, account?: number, index?: number) {
       console.log(chalk.bold("\nActive addresses\n"));
     }
 
-    addressTypes.forEach((addressType) => {
-      const results = scanAddresses(addressType, xpub);
+    for (const addressType of addressTypes) {
+      const results = await scanAddresses(addressType, xpub);
 
       activeAddresses = activeAddresses.concat(results.addresses);
 
@@ -131,19 +131,19 @@ function run(xpub: string, account?: number, index?: number) {
         addressType,
         balance: results.balance,
       });
-    });
+    }
   } else {
     // Option B: an account number and index has been provided:
     // derive all addresses at that account and index; then
     // check their respective balances
     const ownAddresses = new OwnAddresses();
 
-    addressTypes.forEach((addressType) => {
+    for (const addressType of addressTypes) {
       const address = new Address(addressType, xpub, account, index || 0);
 
       display.updateAddressDetails(address);
 
-      getStats(address);
+      await getStats(address);
 
       display.updateAddressDetails(address);
 
@@ -157,7 +157,7 @@ function run(xpub: string, account?: number, index?: number) {
         addressType,
         balance: address.getBalance(),
       });
-    });
+    }
   }
 
   return {

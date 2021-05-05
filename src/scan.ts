@@ -33,101 +33,105 @@ const now = new Date();
 
 let exitCode = 0;
 
-if (address) {
-  // comparison mode
-  compare.run(xpub, address);
-} else {
-  let actualAddresses;
-  let actualUTXOs: Address[];
-  let summary;
-  let actualTransactions;
-  let comparisonResults;
-
-  if (typeof account !== "undefined" && typeof index !== "undefined") {
-    // specific derivation mode
-    const scanResult = check_balances.run(xpub, account, index);
-
-    actualAddresses = scanResult.addresses;
-    summary = scanResult.summary;
-
-    actualUTXOs = getSortedUTXOS(actualAddresses);
-    actualTransactions = getSortedOperations(actualAddresses);
-
-    display.showResults(actualUTXOs, actualTransactions, summary);
+async function scan() {
+  if (address) {
+    // comparison mode
+    await compare.run(xpub, address);
   } else {
-    // scan mode
-    let importedTransactions;
+    let actualAddresses;
+    let actualUTXOs: Address[];
+    let summary;
+    let actualTransactions;
+    let comparisonResults;
 
-    if (!args.operations) {
-      // if no file path has been provided, only the xpub is expected to have
-      // been specified
-      if (args._.length > 1) {
-        console.log(
-          chalk.red(
-            "Only 1 arg expected (xpub). Please check the documentation.",
-          ),
-        );
-        process.exit(1);
-      }
+    if (typeof account !== "undefined" && typeof index !== "undefined") {
+      // specific derivation mode
+      const scanResult = await check_balances.run(xpub, account, index);
+
+      actualAddresses = scanResult.addresses;
+      summary = scanResult.summary;
+
+      actualUTXOs = getSortedUTXOS(actualAddresses);
+      actualTransactions = getSortedOperations(actualAddresses);
+
+      display.showResults(actualUTXOs, actualTransactions, summary);
     } else {
-      // if a file path has been provided, import its transactions
-      importedTransactions = importOperations(args.operations);
+      // scan mode
+      let importedTransactions;
+
+      if (!args.operations) {
+        // if no file path has been provided, only the xpub is expected to have
+        // been specified
+        if (args._.length > 1) {
+          console.log(
+            chalk.red(
+              "Only 1 arg expected (xpub). Please check the documentation.",
+            ),
+          );
+          process.exit(1);
+        }
+      } else {
+        // if a file path has been provided, import its transactions
+        importedTransactions = importOperations(args.operations);
+      }
+
+      const scanResult = await check_balances.run(xpub);
+
+      actualAddresses = scanResult.addresses;
+
+      actualUTXOs = [];
+      actualAddresses.forEach((a) => {
+        if (a.isUTXO()) {
+          actualUTXOs.push(a);
+        }
+      });
+
+      summary = scanResult.summary;
+
+      actualTransactions = getSortedOperations(actualAddresses);
+
+      display.showResults(actualUTXOs, actualTransactions, summary);
+
+      if (typeof importedTransactions !== "undefined") {
+        comparisonResults = checkImportedOperations(
+          importedTransactions,
+          actualTransactions,
+        );
+      }
     }
 
-    const scanResult = check_balances.run(xpub);
+    const meta = {
+      xpub,
+      date: now,
+      version: VERSION,
+    };
 
-    actualAddresses = scanResult.addresses;
+    const data = {
+      summary,
+      addresses: actualAddresses,
+      transactions: actualTransactions,
+      comparisons: comparisonResults,
+    };
 
-    actualUTXOs = [];
-    actualAddresses.forEach((a) => {
-      if (a.isUTXO()) {
-        actualUTXOs.push(a);
-      }
-    });
+    if (args.save || args.save === "" /* allow empty arg */) {
+      save(meta, data, args.save);
+    }
 
-    summary = scanResult.summary;
-
-    actualTransactions = getSortedOperations(actualAddresses);
-
-    display.showResults(actualUTXOs, actualTransactions, summary);
-
-    if (typeof importedTransactions !== "undefined") {
-      comparisonResults = checkImportedOperations(
-        importedTransactions,
-        actualTransactions,
+    if (args.diff || args.balance) {
+      const actualBalance = summary.reduce(
+        (accumulator, s) => accumulator + s.balance,
+        0,
+      );
+      exitCode = showDiff(
+        actualBalance,
+        args.balance,
+        comparisonResults,
+        args.diff,
       );
     }
+
+    process.exit(exitCode);
   }
-
-  const meta = {
-    xpub,
-    date: now,
-    version: VERSION,
-  };
-
-  const data = {
-    summary,
-    addresses: actualAddresses,
-    transactions: actualTransactions,
-    comparisons: comparisonResults,
-  };
-
-  if (args.save || args.save === "" /* allow empty arg */) {
-    save(meta, data, args.save);
-  }
-
-  if (args.diff || args.balance) {
-    const actualBalance = summary.reduce(
-      (accumulator, s) => accumulator + s.balance,
-      0,
-    );
-    exitCode = showDiff(
-      actualBalance,
-      args.balance,
-      comparisonResults,
-      args.diff,
-    );
-  }
-
-  process.exit(exitCode);
 }
+
+scan();

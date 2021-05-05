@@ -5,6 +5,7 @@ import { configuration } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
+import { TODO_TypeThis } from "../types";
 
 // raw transactions provided by default API
 interface RawTransaction {
@@ -47,7 +48,7 @@ interface BchRawTransaction {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-function getStats(address: Address, coin: string) {
+async function getStats(address: Address, coin: string) {
   if (coin === "BCH") {
     return getBchStats(address);
   }
@@ -56,7 +57,7 @@ function getStats(address: Address, coin: string) {
     .replace("{coin}", coin)
     .replace("{address}", address.toString());
 
-  const res = getJSON(url);
+  const res = await getJSON<TODO_TypeThis>(url);
 
   // TODO: check potential errors here (API returning invalid data...)
   const fundedSum = parseFloat(res.data.received_value);
@@ -69,12 +70,12 @@ function getStats(address: Address, coin: string) {
   address.setRawTransactions(JSON.stringify(res.data.txs));
 }
 
-function getBchStats(address: Address) {
+async function getBchStats(address: Address) {
   const urlStats = configuration.defaultAPI.bch
     .replace("{type}", "details")
     .replace("{address}", address.asCashAddress()!);
 
-  const res = getJSON(urlStats);
+  const res = await getJSON<TODO_TypeThis>(urlStats);
 
   // TODO: check potential errors here (API returning invalid data...)
   const fundedSum = parseFloat(res.totalReceived);
@@ -92,7 +93,9 @@ function getBchStats(address: Address) {
   let totalPages = 1;
 
   for (let i = 0; i < totalPages; i++) {
-    const response = getJSON(urlTxs.concat("?page=").concat(i.toString()));
+    const response = await getJSON<TODO_TypeThis>(
+      urlTxs.concat("?page=").concat(i.toString()),
+    );
     totalPages = response.pagesTotal;
     payloads.push(response.txs);
   }
