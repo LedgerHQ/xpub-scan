@@ -88,7 +88,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   }
 
   // save dirpath: exists, is a directory, writable
-  if (typeof save !== "undefined") {
+  if (typeof save !== "undefined" && save.toLocaleLowerCase() !== "stdout") {
     try {
       if (!fs.statSync(save).isDirectory()) {
         throw new Error("Save path " + save + " is not a directory");

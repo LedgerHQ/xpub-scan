@@ -329,7 +329,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
   }
 }
 
-function saveHTML(object: TODO_TypeThis, directory: string) {
+function saveHTML(object: TODO_TypeThis, filepath: string) {
   let report = reportTemplate;
 
   // meta
@@ -420,10 +420,7 @@ function saveHTML(object: TODO_TypeThis, directory: string) {
     report = report.replace("{diff}", makeComparisonsTable(object, true));
   }
 
-  const filepath = directory
-    .concat("/")
-    .concat(object.meta.xpub)
-    .concat(".html");
+  filepath += ".html";
 
   const minifiedReport = minifier.minify(report, {
     removeAttributeQuotes: true,
@@ -436,19 +433,16 @@ function saveHTML(object: TODO_TypeThis, directory: string) {
   console.log("HTML report saved: ".concat(filepath));
 }
 
-function saveJSON(object: TODO_TypeThis, directory: string) {
+function saveJSON(object: TODO_TypeThis, filepath: string) {
   const JSONobject = JSON.stringify(object, null, 2);
 
-  const filepath = directory
-    .concat("/")
-    .concat(object.meta.xpub)
-    .concat(".json");
-
-  if (directory.toLocaleLowerCase() === "stdout") {
+  if (filepath.toLocaleLowerCase() === "stdout") {
     // display
     console.log(JSONobject);
   } else {
     // save file
+    filepath += ".json";
+
     fs.writeFileSync(filepath, JSONobject);
 
     console.log("\nJSON export saved: ".concat(filepath));
@@ -554,6 +548,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       provider_url: providerURL,
       gap_limit: GAP_LIMIT,
       unit: "Base unit (i.e., satoshis or equivalent unit)",
+      mode: meta.mode
     },
     addresses,
     utxos,
@@ -568,11 +563,20 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     directory = __dirname;
   }
 
-  saveJSON(object, directory);
+  let filepath = directory;
+  if (filepath.toLocaleLowerCase() !== "stdout") {
+    filepath += `/${meta.xpub}`;
 
-  if (directory.toLocaleLowerCase() !== "stdout") {
-    saveHTML(object, directory);
+    if (meta.mode !== "Full") {
+      // use derivation path as filename postfix: `m/x/y` => `-x-y`
+      // (+TODO: range mode)
+      filepath += meta.mode.replace("m", "").replace(/\//gi, "-");
+    }
+  
+    saveHTML(object, filepath); // do not save HTML if stdout
   }
+
+  saveJSON(object, filepath);
 
   // add empty line to separate this text block from potential check results
   console.log();
