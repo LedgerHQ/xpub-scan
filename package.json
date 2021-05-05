@@ -1,8 +1,8 @@
 {
-  "name": "xpub-scan",
-  "version": "1.0.0",
+  "name": "@ledgerhq/xpub-scan",
+  "version": "0.3.0",
   "description": "Master public key analysis tool",
-  "main": "./build/scan.js",
+  "main": "./lib/scan.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint .",

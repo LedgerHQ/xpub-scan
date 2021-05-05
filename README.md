@@ -22,9 +22,8 @@ Given a master public key (xpub, Ltub, _etc._), get the balances of its derived 
 ## Install
 
 ```
-$ npm i -g typescript # if needed
-$ npm i
-$ tsc -p .
+$ yarn
+$ yarn build
 ```
 
 ### Currencies
@@ -33,7 +32,7 @@ By default, Bitcoin xpubs and Litecoin ltubs are automatically detected.
 
 To scan Bitcoin Cash xpubs, use the `--currency bch` argument:
 
-`$ node build/scan.js --currency bch <xpub> …`
+`$ node lib/scan.js --currency bch <xpub> …`
 
 ## Usage 1. Check Balances
 
@@ -41,50 +40,50 @@ _In the following instructions, the generic `xpub` term is used to designate a m
 
 ### Scan for a Specific Account and an Index
 
-`$ node build/scan.js <xpub> -a <account> -i <index>`
+`$ node lib/scan.js <xpub> -a <account> -i <index>`
 
 Example:
-`$ node build/scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
+`$ node lib/scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
 
 ### Scan All Active Addresses
 
-`$ node build/scan.js <xpub>`
+`$ node lib/scan.js <xpub>`
 
 Example:
-`$ node build/scan.js xpub6C...44dXs7p`
+`$ node lib/scan.js xpub6C...44dXs7p`
 
 ### Compare Imported Data With Actual Data
 
 **Balance `--balance <balance>`**
 
-`$ node build/scan.js <xpub> --balance <balance (in satoshis or similar base unit)>`
+`$ node lib/scan.js <xpub> --balance <balance (in satoshis or similar base unit)>`
 
 **Addresses `--addresses <filepath>`**
 
 _(Not implemented yet)_
 
-`$ node build/scan.js <xpub> --addresses <file path>`
+`$ node lib/scan.js <xpub> --addresses <file path>`
 
 **UTXOs `--utxos <filepath>`**
 
 _(Not implemented yet)_
 
-`$ node build/scan.js <xpub> --utxos <file path>`
+`$ node lib/scan.js <xpub> --utxos <file path>`
 
 **Operations `--operations <filepath>`**
 
-`$ node build/scan.js <xpub> --operations <file path>`
+`$ node lib/scan.js <xpub> --operations <file path>`
 
 Example:
-`$ node build/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv`
+`$ node lib/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv`
 
 **General Example**
 
-`$ node build/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv --balance 12345 --diff` displays at the end of the analysis the results of the comparison between the `12345` satoshis balance and the actual one, as well as the potential mismatches between the imported operations and the actual ones.
+`$ node lib/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv --balance 12345 --diff` displays at the end of the analysis the results of the comparison between the `12345` satoshis balance and the actual one, as well as the potential mismatches between the imported operations and the actual ones.
 
 ### Generate JSON and HTML Reports (Scan Only)
 
-`$ node build/scan.js <xpub> [args...] --save <directory>`
+`$ node lib/scan.js <xpub> [args...] --save <directory>`
 
 The files are saved as `<xpub>.json` and `<xpub>.html`.
 
@@ -100,7 +99,7 @@ _Check if an address has been derived from a master public key._
 
 ### Perfect Match
 
-`$ node build/scan.js <xpub> --address <address>`
+`$ node lib/scan.js <xpub> --address <address>`
 
 ### Partial Match
 
@@ -131,13 +130,13 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 ### Change Settings
 
 1. Modify `./src/settings.ts`
-2. rebuild the tool: `$ tsc -p .`
-3. Re-run it: `$ node build/scan.js <xpub> …`
+2. rebuild the tool: `$ yarn build`
+3. Re-run it: `$ node lib/scan.js <xpub> …`
 
 ### Change External Provider
 
 1. At the root of the project, rename `.env.template` to `.env`
 2. In `.env`, set the `API_URL` as well as your `API_KEY` (following the structure provided by the `.env.template`)
-3. rebuild the tool: `$ tsc -p .`
-4. Re-run it: `$ node build/scan.js <xpub> …`
+3. rebuild the tool: `$ yarn build`
+4. Re-run it: `$ node lib/scan.js <xpub> …`
 5. Ensure that, when running the tool, it shows that the _custom_ provider is being used

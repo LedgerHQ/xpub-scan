@@ -1,25 +1,8 @@
 FROM node:14-alpine
-
-RUN apk add --no-cache --virtual .persistent-deps \
-        curl \
-        openssl \
-        make \
-        gcc \
-        g++ \
-        python \
-        py-pip \
-    && npm install --silent --save-dev -g \
-        typescript
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-COPY tsconfig.json ./
-
-RUN npm install
-
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn
 COPY . .
-
-RUN tsc -p .
-
-ENTRYPOINT [ "node", "./build/scan.js" ]
+RUN yarn build
+ENV TERM xterm-256color
+ENTRYPOINT [ "node", "./lib/scan.js" ]
