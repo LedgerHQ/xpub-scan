@@ -7,14 +7,20 @@ import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
 import { TODO_TypeThis } from "../types";
 
-function getStats(address: Address) {
+async function getStats(address: Address) {
   switch (configuration.providerType) {
     case "default":
-      defaultProvider.getStats(address, configuration.symbol.toUpperCase());
+      await defaultProvider.getStats(
+        address,
+        configuration.symbol.toUpperCase(),
+      );
       break;
 
     case "custom":
-      customProvider.getStats(address, configuration.symbol.toLowerCase());
+      await customProvider.getStats(
+        address,
+        configuration.symbol.toLowerCase(),
+      );
       break;
 
     default:

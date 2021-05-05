@@ -1,5 +1,4 @@
-import request from "sync-request";
-
+import axios from "axios";
 import * as bip32 from "bip32";
 import chalk from "chalk";
 import bchaddr from "bchaddrjs";
@@ -7,29 +6,24 @@ import bchaddr from "bchaddrjs";
 import { configuration } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
 
-// TODO: properly rework this function
-function getJSON(url: string, APIKey?: string) {
-  let headers = {};
+async function getJSON<T>(url: string, APIKey?: string): Promise<T> {
+  const headers = {
+    ...(APIKey ? { "X-API-Key": APIKey } : {}),
+  };
 
-  if (APIKey !== undefined) {
-    headers = {
-      "X-API-Key": APIKey,
-    };
-  }
+  const res = await axios.get<T>(url, { headers });
 
-  const res = request("GET", url, { headers });
-
-  if (res.statusCode !== 200) {
+  if (res.status !== 200) {
     console.log(chalk.red("GET request error"));
     throw new Error(
       "GET REQUEST ERROR: "
         .concat(url)
         .concat(", Status Code: ")
-        .concat(String(res.statusCode)),
+        .concat(String(res.status)),
     );
   }
 
-  return JSON.parse(res.getBody("utf-8"));
+  return res.data;
 }
 
 function setNetwork(xpub: string, currency?: string) {
