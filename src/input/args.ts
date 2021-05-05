@@ -28,6 +28,16 @@ export const getArgs = (): TODO_TypeThis => {
       demand: false,
       type: "number",
     })
+    .option("from-index", {
+      description: "Range: FROM index X",
+      demand: false,
+      type: "number",
+    })
+    .option("to-index", {
+      description: "Range: TO index Y",
+      demand: false,
+      type: "number",
+    })
     .option("address", {
       description: "Address",
       demand: false,

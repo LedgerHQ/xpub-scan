@@ -45,7 +45,14 @@ _In the following instructions, the generic `xpub` term is used to designate a m
 Example:
 `$ node lib/scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
 
-### Scan All Active Addresses
+### Range Scan | Scan Addresses Derived From Index A to Index B
+
+`$ node lib/scan.js <xpub> -a <account> --from-index <index A> --to-index <index B>`
+
+Example:
+`$ node lib/scan.js xpub6C...44dXs7p -a 0 --from-index 0 --to-index 100` [addresses at account `0`, from index `0` to index `100`, included]
+
+### Full Scan | Scan All Active Addresses
 
 `$ node lib/scan.js <xpub>`
 
