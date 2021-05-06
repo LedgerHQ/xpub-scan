@@ -14,15 +14,14 @@ import { showDiff } from "./comparison/diffs";
 import { checkImportedOperations } from "./comparison/compareOperations";
 import { importOperations } from "./input/importOperations";
 import { save } from "./actions/saveAnalysis";
-import { Address } from "./models/address";
 import { getArgs } from "./input/args";
 
-const VERSION = "0.0.9";
+const VERSION = "0.1.0";
 
 const args = getArgs();
 
-const account = args.account;
-const index = args.index;
+const scanLimits = args.scanLimits;
+
 const address = args.address;
 const currency = args.currency;
 
@@ -38,83 +37,60 @@ async function scan() {
     // comparison mode
     await compare.run(xpub, address);
   } else {
-    let actualAddresses;
-    let actualUTXOs: Address[];
-    let summary;
-    let actualTransactions;
+    // scan mode
+    let importedTransactions;
+
+    if (!args.operations) {
+      // if no file path has been provided, only the xpub is expected to have
+      // been specified
+      if (args._.length > 1) {
+        console.log(
+          chalk.red(
+            "Only 1 arg expected (xpub). Please check the documentation.",
+          ),
+        );
+        process.exit(1);
+      }
+    } else {
+      // if a file path has been provided, import its transactions
+      importedTransactions = importOperations(args.operations);
+    }
+
+    const scanResult = await check_balances.run(xpub, scanLimits);
+    const actualAddresses = scanResult.addresses;
+    const actualUTXOs = getSortedUTXOS(actualAddresses);
+    const summary = scanResult.summary;
+    const actualTransactions = getSortedOperations(actualAddresses);
+
+    display.showResults(actualUTXOs, actualTransactions, summary);
+
     let comparisonResults;
 
-    if (typeof account !== "undefined" && typeof index !== "undefined") {
-      // specific derivation mode
-      const scanResult = await check_balances.run(xpub, account, index);
-
-      actualAddresses = scanResult.addresses;
-      summary = scanResult.summary;
-
-      actualUTXOs = getSortedUTXOS(actualAddresses);
-      actualTransactions = getSortedOperations(actualAddresses);
-
-      display.showResults(actualUTXOs, actualTransactions, summary);
-    } else {
-      // scan mode
-      let importedTransactions;
-
-      if (!args.operations) {
-        // if no file path has been provided, only the xpub is expected to have
-        // been specified
-        if (args._.length > 1) {
-          console.log(
-            chalk.red(
-              "Only 1 arg expected (xpub). Please check the documentation.",
-            ),
-          );
-          process.exit(1);
-        }
-      } else {
-        // if a file path has been provided, import its transactions
-        importedTransactions = importOperations(args.operations);
-      }
-
-      const scanResult = await check_balances.run(xpub);
-
-      actualAddresses = scanResult.addresses;
-
-      actualUTXOs = [];
-      actualAddresses.forEach((a) => {
-        if (a.isUTXO()) {
-          actualUTXOs.push(a);
-        }
-      });
-
-      summary = scanResult.summary;
-
-      actualTransactions = getSortedOperations(actualAddresses);
-
-      display.showResults(actualUTXOs, actualTransactions, summary);
-
-      if (typeof importedTransactions !== "undefined") {
-        comparisonResults = checkImportedOperations(
-          importedTransactions,
-          actualTransactions,
-        );
-      }
+    if (typeof importedTransactions !== "undefined") {
+      comparisonResults = checkImportedOperations(
+        importedTransactions,
+        actualTransactions,
+      );
     }
 
     let mode: string;
 
-    if (typeof args.account !== "undefined" && typeof args.index !== "undefined") {
-      mode = `m/${args.account}/${args.index}`
+    if (
+      typeof args.account !== "undefined" &&
+      typeof args.index !== "undefined"
+    ) {
+      mode = `m/${args.account}/${args.index}`;
+    } else if (typeof scanLimits !== "undefined") {
+      mode = `range: account ${args.account}, indices ${scanLimits.from}⟶${scanLimits.to}`;
+    } else {
+      mode = "Full";
     }
-    else {
-      mode = "Full"
-    }
-    // TODO: range mode
 
     const meta = {
       xpub,
       date: now,
       version: VERSION,
-      mode
+      mode,
     };
 
     const data = {

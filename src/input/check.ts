@@ -108,7 +108,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
     });
   }
 
-  // account/index/range options
+  // account/index/scanLimits options
   if (typeof account !== "undefined") {
     // -a {positive number}
     if (account < 0) {
@@ -123,7 +123,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
       (typeof fromIndex === "undefined" || typeof toIndex === "undefined")
     ) {
       throw new Error(
-        "Index or range is required when account number option (`-a`) is enabled",
+        "Index or scanLimits is required when account number option (`-a`) is enabled",
       );
     }
 
@@ -138,7 +138,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
       // -a X --from-index {postive number} --to-index {postive number}
       if (fromIndex < 0 || toIndex < 0) {
         throw new Error(
-          "Range option is required to contain positive (including zero) numbers",
+          "ScanLimits option is required to contain positive (including zero) numbers",
         );
       }
 
@@ -158,8 +158,28 @@ export const checkArgs = (args: TODO_TypeThis): void => {
     // -a X --from-index Y --to-index Z
     if (typeof fromIndex !== "undefined" || typeof toIndex !== "undefined") {
       throw new Error(
-        "Account number is required when range index option (`--from-index`, `--to-index`) is enabled",
+        "Account number is required when scanLimits index option (`--from-index`, `--to-index`) is enabled",
       );
+    }
+  }
+
+  // if needed, create scanLimits
+  if (typeof account !== "undefined") {
+    if (typeof index !== "undefined") {
+      args.scanLimits = {
+        account,
+        indexFrom: index,
+        indexTo: index,
+      };
+    } else if (
+      typeof fromIndex !== "undefined" &&
+      typeof toIndex !== "undefined"
+    ) {
+      args.scanLimits = {
+        account,
+        indexFrom: fromIndex,
+        indexTo: toIndex,
+      };
     }
   }
 };

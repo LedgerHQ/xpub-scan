@@ -5,6 +5,7 @@ import * as display from "../display";
 
 import { Address } from "../models/address";
 import { OwnAddresses } from "../models/ownAddresses";
+import { ScanLimits } from "../models/scanLimits";
 import { configuration, GAP_LIMIT } from "../configuration/settings";
 import { AddressType } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
@@ -12,7 +13,11 @@ import { TODO_TypeThis } from "../types";
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
-async function scanAddresses(addressType: AddressType, xpub: string) {
+async function scanAddresses(
+  addressType: AddressType,
+  xpub: string,
+  scanLimits?: ScanLimits,
+) {
   display.logStatus(
     "Scanning ".concat(chalk.bold(addressType)).concat(" addresses..."),
   );
@@ -23,9 +28,24 @@ async function scanAddresses(addressType: AddressType, xpub: string) {
   let noTxCounter = 0;
   const addresses: Address[] = [];
 
+  let accountSpan = undefined;
+  let indexFromSpan = undefined;
+  let indexToSpan = undefined;
+
+  if (scanLimits) {
+    accountSpan = scanLimits.account;
+    indexFromSpan = scanLimits.indexFrom;
+    indexToSpan = scanLimits.indexTo;
+  }
+
   // TODO: should we limit ourselves to account 0 and 1?
   // if not, use a logic similar to indices exploration
   for (let account = 0; account < 2; ++account) {
+    // scan span 1: account
+    if (typeof accountSpan != "undefined" && account !== accountSpan) {
+      continue;
+    }
+
     const typeAccount = account === 1 ? "internal" : "external";
 
     display.logStatus(
@@ -35,6 +55,17 @@ async function scanAddresses(addressType: AddressType, xpub: string) {
     noTxCounter = 0;
 
     for (let index = 0 /* scan all active indices */; ; ++index) {
+      // scan span 2: indices
+      if (indexFromSpan && indexToSpan) {
+        if (index < indexFromSpan) {
+          continue;
+        }
+
+        if (index > indexToSpan) {
+          break;
+        }
+      }
+
       const address = new Address(addressType, xpub, account, index);
       display.updateAddressDetails(address);
 
@@ -100,7 +131,7 @@ async function scanAddresses(addressType: AddressType, xpub: string) {
   };
 }
 
-async function run(xpub: string, account?: number, index?: number) {
+async function run(xpub: string, scanLimits?: ScanLimits) {
   let activeAddresses: Address[] = [];
   const summary: TODO_TypeThis[] = [];
 
@@ -114,50 +145,19 @@ async function run(xpub: string, account?: number, index?: number) {
     addressTypes = [AddressType.BCH];
   }
 
-  if (typeof account === "undefined") {
-    // Option A: no index has been provided:
-    // scan all address types
+  if (!configuration.silent) {
+    console.log(chalk.bold("\nActive addresses\n"));
+  }
 
-    if (!configuration.silent) {
-      console.log(chalk.bold("\nActive addresses\n"));
-    }
+  for (const addressType of addressTypes) {
+    const results = await scanAddresses(addressType, xpub, scanLimits);
 
-    for (const addressType of addressTypes) {
-      const results = await scanAddresses(addressType, xpub);
+    activeAddresses = activeAddresses.concat(results.addresses);
 
-      activeAddresses = activeAddresses.concat(results.addresses);
-
-      summary.push({
-        addressType,
-        balance: results.balance,
-      });
-    }
-  } else {
-    // Option B: an account number and index has been provided:
-    // derive all addresses at that account and index; then
-    // check their respective balances
-    const ownAddresses = new OwnAddresses();
-
-    for (const addressType of addressTypes) {
-      const address = new Address(addressType, xpub, account, index || 0);
-
-      display.updateAddressDetails(address);
-
-      await getStats(address);
-
-      display.updateAddressDetails(address);
-
-      if (address.getStats().txsCount !== 0) {
-        getTransactions(address, ownAddresses);
-      }
-
-      activeAddresses = activeAddresses.concat(address);
-
-      summary.push({
-        addressType,
-        balance: address.getBalance(),
-      });
-    }
+    summary.push({
+      addressType,
+      balance: results.balance,
+    });
   }
 
   return {
