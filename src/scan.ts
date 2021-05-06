@@ -80,11 +80,8 @@ async function scan() {
       typeof args.index !== "undefined"
     ) {
       mode = `m/${args.account}/${args.index}`;
-<<<<<<< HEAD
     } else if (typeof scanLimits !== "undefined") {
       mode = `range: account ${args.account}, indices ${scanLimits.from}⟶${scanLimits.to}`;
-=======
->>>>>>> upstream/master
     } else {
       mode = "Full";
     }
