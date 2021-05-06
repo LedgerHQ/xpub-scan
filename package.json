@@ -28,6 +28,7 @@
     "bitcoin-cash-payments": "^0.2.0",
     "bitcoinjs-lib": "^5.2.0",
     "chalk": "^4.1.0",
+    "dotenv": "^9.0.0",
     "es6-promise": "^4.2.8",
     "html-minifier": "^4.0.0",
     "line-reader": "^0.4.0",
