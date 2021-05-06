@@ -38,6 +38,11 @@ export const getArgs = (): TODO_TypeThis => {
       demand: false,
       type: "number",
     })
+    .option("pre-derivation-size", {
+      description: "ScanLimits: number of pre-derived addresses per account",
+      demand: false,
+      type: "number",
+    })
     .option("address", {
       description: "Address",
       demand: false,

@@ -94,6 +94,8 @@ Example 1:
 Example 2:
 `$ xpub-scan xpub6C...44dXs7p -a 1 --from-index 29` [addresses at account `0`, from index `29` until no active address]
 
+Note: in order to perform the analysis in this context, Xpub Scan needs to pre-derive addresses. By default, it derives 2,000 addresses per account number. If needed, this number of addresses can be adjusted using the `--pre-derivation-size` option (useful with xpub associated with a large number of addresses).
+
 ### Full Scan | Scan All Active Addresses
 
 `$ xpub-scan <xpub>`

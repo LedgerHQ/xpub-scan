@@ -21,11 +21,10 @@ const VERSION = "0.1.0";
 const args = getArgs();
 
 const scanLimits = args.scanLimits;
-
 const address = args.address;
 const currency = args.currency;
-
 const xpub = String(args._[0]);
+
 init(xpub, args.silent, args.quiet, currency);
 
 const now = new Date();
@@ -99,6 +98,7 @@ async function scan() {
       date: now,
       version: VERSION,
       mode,
+      preDerivationSize: args.preDerivationSize
     };
 
     const data = {

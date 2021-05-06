@@ -31,27 +31,19 @@ async function scanAddresses(
   let accountSpan = undefined;
   let indexFromSpan = undefined;
   let indexToSpan = undefined;
+  let preDerivationSize = undefined;
 
   if (scanLimits) {
     accountSpan = scanLimits.account;
     indexFromSpan = scanLimits.indexFrom;
     indexToSpan = scanLimits.indexTo;
-
-    // WARNING: magic number
-    // if the scanned xpub contains more active addresses
-    // for a given account number, the results of the
-    // analysis will be erroneous
-    let maxPreDerivationIndex = 2000;
-
-    if (typeof indexToSpan !== "undefined") {
-      maxPreDerivationIndex += indexToSpan;
-    }
+    preDerivationSize = scanLimits.preDerivationSize;
 
     // important step: precompute the addresss belonging
     // to the same xpub in order to perform
     // transaction analysis further down the flow
     for (let a = 0; a < 2; a++) {
-      for (let i = 0; i < maxPreDerivationIndex; i++) {
+      for (let i = 0; i < preDerivationSize; i++) {
         ownAddresses.addAddress(new Address(addressType, xpub, a, i));
       }
     }

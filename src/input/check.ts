@@ -21,6 +21,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   const index = args.index;
   const fromIndex = args.fromIndex;
   const toIndex = args.toIndex;
+  const preDerivationSize = args.preDerivationSize;
 
   // xpub: set, non-empty
   if (typeof xpub === "undefined" || xpub === "") {
@@ -161,9 +162,19 @@ export const checkArgs = (args: TODO_TypeThis): void => {
     // -a X --from-index Y --to-index Z
     if (typeof fromIndex !== "undefined") {
       throw new Error(
+        "--pre-derivation-size option is required to be positive",
+      );
+    }
+  }
+
+  if (typeof preDerivationSize !== "undefined") {
+    if (preDerivationSize < 0) {
+      throw new Error(
         "Account number is required when scanLimits index option (`--from-index`) is enabled",
       );
     }
+  } else if (typeof account !== "undefined") {
+    args.preDerivationSize = 2000; // magic number
   }
 
   // if needed, create scanLimits
@@ -173,12 +184,14 @@ export const checkArgs = (args: TODO_TypeThis): void => {
         account,
         indexFrom: index,
         indexTo: index,
+        preDerivationSize: args.preDerivationSize,
       };
     } else if (typeof fromIndex !== "undefined") {
       args.scanLimits = {
         account,
         indexFrom: fromIndex,
         indexTo: toIndex,
+        preDerivationSize: args.preDerivationSize,
       };
     }
   }

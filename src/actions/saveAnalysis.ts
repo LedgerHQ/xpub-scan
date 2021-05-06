@@ -333,6 +333,15 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   let report = reportTemplate;
 
   // meta
+  if (typeof object.meta.preDerivationSize === "undefined") {
+    report = report.replace("{pre_derivation_size}", "");
+  } else {
+    report = report.replace(
+      "{pre_derivation_size}",
+      `(pre-derivation size: ${object.meta.preDerivationSize})`,
+    );
+  }
+
   for (const key of Object.keys(object.meta)) {
     report = report.split("{" + key + "}").join(object.meta[key]);
   }
@@ -564,6 +573,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       gap_limit: GAP_LIMIT,
       unit: "Base unit (i.e., satoshis or equivalent unit)",
       mode: meta.mode,
+      preDerivationSize: meta.preDerivationSize,
       warningRange,
     },
     addresses,
