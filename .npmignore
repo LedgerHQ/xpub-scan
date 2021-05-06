@@ -1,0 +1,14 @@
+.dockerignore
+.env.template
+.eslintignore
+.eslintrc.json
+.github
+.prettierignore
+.prettierrc.json
+Dockerfile
+LICENSE
+doc
+node_modules
+src
+tsconfig.json
+yarn.lock
