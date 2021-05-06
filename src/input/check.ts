@@ -112,23 +112,34 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   if (typeof account !== "undefined") {
     // -a {positive number}
     if (account < 0) {
-      throw new Error("Account number is required to be positive (including zero)");
+      throw new Error(
+        "Account number is required to be positive (including zero)",
+      );
     }
 
     // -a X -i Y or -a X --from-index Y --to-index Z
-    if (typeof index === "undefined" && (typeof fromIndex === "undefined" || typeof toIndex === "undefined") ) {
-      throw new Error("Index or range is required when account number option (`-a`) is enabled");
+    if (
+      typeof index === "undefined" &&
+      (typeof fromIndex === "undefined" || typeof toIndex === "undefined")
+    ) {
+      throw new Error(
+        "Index or range is required when account number option (`-a`) is enabled",
+      );
     }
 
     // -a X -i {positive number}
     if (typeof index !== "undefined" && index < 0) {
-      throw new Error("Index number is required to be positive (including zero)");
+      throw new Error(
+        "Index number is required to be positive (including zero)",
+      );
     }
 
     if (typeof fromIndex !== "undefined" && typeof toIndex !== "undefined") {
       // -a X --from-index {postive number} --to-index {postive number}
       if (fromIndex < 0 || toIndex < 0) {
-        throw new Error("Range option is required to contain positive (including zero) numbers");
+        throw new Error(
+          "Range option is required to contain positive (including zero) numbers",
+        );
       }
 
       // -a X --from-index Y --to-index Z | Y <= Z
@@ -136,16 +147,19 @@ export const checkArgs = (args: TODO_TypeThis): void => {
         throw new Error("--from-index has to be less or equal to --to-index");
       }
     }
-  }
-  else {
+  } else {
     // -a X -i Y
     if (typeof index !== "undefined") {
-      throw new Error("Account number is required when index number option (`-i`) is enabled");
+      throw new Error(
+        "Account number is required when index number option (`-i`) is enabled",
+      );
     }
 
     // -a X --from-index Y --to-index Z
     if (typeof fromIndex !== "undefined" || typeof toIndex !== "undefined") {
-      throw new Error("Account number is required when range index option (`--from-index`, `--to-index`) is enabled");
+      throw new Error(
+        "Account number is required when range index option (`--from-index`, `--to-index`) is enabled",
+      );
     }
   }
 };
