@@ -79,17 +79,20 @@ _In the following instructions, the generic `xpub` term is used to designate a m
 
 ### Scan for a Specific Account and an Index
 
-`$ xpub-scan <xpub> -a <account> -i <index>`
+`$ xpub-scan <xpub> --account <account> --index <index>`
 
 Example:
 `$ xpub-scan xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
 
 ### ScanLimits Scan | Scan Addresses Derived From Index A to Index B
 
-`$ xpub-scan <xpub> -a <account> --from-index <index A> --to-index <index B>`
+`$ xpub-scan <xpub> --account <account> --from-index <index A> [--to-index <index B>]`
 
-Example:
+Example 1:
 `$ xpub-scan xpub6C...44dXs7p -a 0 --from-index 0 --to-index 100` [addresses at account `0`, from index `0` to index `100`, included]
+
+Example 2:
+`$ xpub-scan xpub6C...44dXs7p -a 1 --from-index 29` [addresses at account `0`, from index `29` until no active address]
 
 ### Full Scan | Scan All Active Addresses
 

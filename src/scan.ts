@@ -81,11 +81,15 @@ async function scan() {
       typeof args.account !== "undefined" &&
       typeof args.index !== "undefined"
     ) {
-      mode = `m/${args.account}/${args.index}`;
+      mode = `Specific derivation path - m/${args.account}/${args.index}`;
     } else if (typeof scanLimits !== "undefined") {
-      mode = `range: account ${scanLimits.account}, indices ${scanLimits.indexFrom}⟶${scanLimits.indexTo}`;
+      let upperLimit = "∞";
+      if (typeof scanLimits.indexTo !== "undefined") {
+        upperLimit = scanLimits.indexTo;
+      }
+      mode = `Partial range — account ${scanLimits.account}, indices ${scanLimits.indexFrom}⟶${upperLimit}`;
     } else {
-      mode = "Full";
+      mode = "Full scan";
     }
 
     const meta = {

@@ -117,11 +117,8 @@ export const checkArgs = (args: TODO_TypeThis): void => {
       );
     }
 
-    // -a X -i Y or -a X --from-index Y --to-index Z
-    if (
-      typeof index === "undefined" &&
-      (typeof fromIndex === "undefined" || typeof toIndex === "undefined")
-    ) {
+    // -a X -i Y or -a X --from-index Y [--to-index Z]
+    if (typeof index === "undefined" && typeof fromIndex === "undefined") {
       throw new Error(
         "Index or scanLimits is required when account number option (`-a`) is enabled",
       );
@@ -134,17 +131,23 @@ export const checkArgs = (args: TODO_TypeThis): void => {
       );
     }
 
-    if (typeof fromIndex !== "undefined" && typeof toIndex !== "undefined") {
-      // -a X --from-index {postive number} --to-index {postive number}
-      if (fromIndex < 0 || toIndex < 0) {
+    if (typeof fromIndex !== "undefined") {
+      // -a X --from-index {postive number} [--to-index {postive number}]
+      if (fromIndex < 0) {
         throw new Error(
-          "ScanLimits option is required to contain positive (including zero) numbers",
+          "--from-index option is required to be positive (including zero)",
         );
       }
 
-      // -a X --from-index Y --to-index Z | Y <= Z
-      if (fromIndex > toIndex) {
-        throw new Error("--from-index has to be less or equal to --to-index");
+      if (typeof toIndex !== "undefined") {
+        if (toIndex < 0) {
+          throw new Error("--to-index option is required to be positive");
+        }
+
+        // -a X --from-index Y --to-index Z | Y <= Z
+        if (fromIndex > toIndex) {
+          throw new Error("--from-index has to be less or equal to --to-index");
+        }
       }
     }
   } else {
@@ -156,9 +159,9 @@ export const checkArgs = (args: TODO_TypeThis): void => {
     }
 
     // -a X --from-index Y --to-index Z
-    if (typeof fromIndex !== "undefined" || typeof toIndex !== "undefined") {
+    if (typeof fromIndex !== "undefined") {
       throw new Error(
-        "Account number is required when scanLimits index option (`--from-index`, `--to-index`) is enabled",
+        "Account number is required when scanLimits index option (`--from-index`) is enabled",
       );
     }
   }
@@ -171,10 +174,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
         indexFrom: index,
         indexTo: index,
       };
-    } else if (
-      typeof fromIndex !== "undefined" &&
-      typeof toIndex !== "undefined"
-    ) {
+    } else if (typeof fromIndex !== "undefined") {
       args.scanLimits = {
         account,
         indexFrom: fromIndex,

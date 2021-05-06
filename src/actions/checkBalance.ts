@@ -37,11 +37,17 @@ async function scanAddresses(
     indexFromSpan = scanLimits.indexFrom;
     indexToSpan = scanLimits.indexTo;
 
+    let maxPreDerivationIndex = 1000;
+
+    if (typeof indexToSpan !== "undefined") {
+      maxPreDerivationIndex += indexToSpan;
+    }
+
     // important step: precompute the addresss belonging
     // to the same xpub in order to perform
     // transaction analysis further down the flow
     for (let a = 0; a < 2; a++) {
-      for (let i = 0; i < indexToSpan + 1000; i++) {
+      for (let i = 0; i < maxPreDerivationIndex; i++) {
         ownAddresses.addAddress(new Address(addressType, xpub, a, i));
       }
     }
@@ -65,17 +71,12 @@ async function scanAddresses(
 
     for (let index = 0 /* scan all active indices */; ; ++index) {
       // scan span 2: indices
-      if (
-        typeof indexFromSpan !== "undefined" &&
-        typeof indexToSpan !== "undefined"
-      ) {
-        if (index < indexFromSpan) {
-          continue;
-        }
+      if (typeof indexFromSpan !== "undefined" && index < indexFromSpan) {
+        continue;
+      }
 
-        if (index > indexToSpan) {
-          break;
-        }
+      if (typeof indexToSpan !== "undefined" && index > indexToSpan) {
+        break;
       }
 
       const address = new Address(addressType, xpub, account, index);

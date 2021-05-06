@@ -338,10 +338,10 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   }
 
   // warning range
-  if (object.meta.mode !== "Full") {
+  if (!object.meta.mode.startsWith("Full")) {
     report = report.replace(
       "{warning_range}",
-      `<div id='warning_range'>The data is based on a partial scan: ${object.meta.mode}</div>`,
+      `<div id='warning_range'>The data is based on a partial scan:<br/> ${object.meta.mode}</div>`,
     );
   } else {
     report = report.replace("{warning_range}", "");
@@ -547,6 +547,11 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       comparisons.filter((comparison) => comparison.status !== "Match") || [];
   }
 
+  let warningRange;
+  if (!meta.mode.startsWith("Full")) {
+    warningRange = `! The data is based on a partial scan: ${meta.mode} !`;
+  }
+
   const object = {
     meta: {
       by: "xpub scan <https://github.com/LedgerHQ/xpub-scan>",
@@ -559,6 +564,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       gap_limit: GAP_LIMIT,
       unit: "Base unit (i.e., satoshis or equivalent unit)",
       mode: meta.mode,
+      warningRange,
     },
     addresses,
     utxos,
@@ -576,13 +582,6 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   let filepath = directory;
   if (filepath.toLocaleLowerCase() !== "stdout") {
     filepath += `/${meta.xpub}`;
-
-    if (meta.mode.startsWith("m/")) {
-      // use derivation path as filename postfix: `m/x/y` => `-x-y`
-      // (+TODO: range mode)
-      filepath += meta.mode.replace("m", "").replace(/\//gi, "-");
-    }
-
     saveHTML(object, filepath); // do not save HTML if stdout
   }
 
