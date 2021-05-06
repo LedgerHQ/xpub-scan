@@ -98,7 +98,7 @@ async function scan() {
       date: now,
       version: VERSION,
       mode,
-      preDerivationSize: args.preDerivationSize
+      preDerivationSize: args.preDerivationSize,
     };
 
     const data = {
