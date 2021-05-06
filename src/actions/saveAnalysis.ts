@@ -548,7 +548,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       provider_url: providerURL,
       gap_limit: GAP_LIMIT,
       unit: "Base unit (i.e., satoshis or equivalent unit)",
-      mode: meta.mode
+      mode: meta.mode,
     },
     addresses,
     utxos,
@@ -572,7 +572,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       // (+TODO: range mode)
       filepath += meta.mode.replace("m", "").replace(/\//gi, "-");
     }
-  
+
     saveHTML(object, filepath); // do not save HTML if stdout
   }
 

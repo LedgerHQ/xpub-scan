@@ -102,11 +102,13 @@ async function scan() {
 
     let mode: string;
 
-    if (typeof args.account !== "undefined" && typeof args.index !== "undefined") {
-      mode = `m/${args.account}/${args.index}`
-    }
-    else {
-      mode = "Full"
+    if (
+      typeof args.account !== "undefined" &&
+      typeof args.index !== "undefined"
+    ) {
+      mode = `m/${args.account}/${args.index}`;
+    } else {
+      mode = "Full";
     }
     // TODO: range mode
 
@@ -114,7 +116,7 @@ async function scan() {
       xpub,
       date: now,
       version: VERSION,
-      mode
+      mode,
     };
 
     const data = {
