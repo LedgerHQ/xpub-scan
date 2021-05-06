@@ -16,14 +16,53 @@ Given a master public key (xpub, Ltub, _etc._), get the balances of its derived 
 
 ## Prerequisites
 
-- Node.js and TypeScript,
-- Docker
+- Node.js
+- Docker (if you want to use the docker image)
 
 ## Install
 
+With yarn:
+
+```
+$ yarn global add @ledgerhq/xpub-scan
+```
+
+With npm:
+
+```
+$ npm i -g @ledgerhq/xpub-scan
+```
+
+## Usage
+
+```
+$ xpub-scan [options] <xpub>
+```
+
+## Development
+
+Install dependencies:
+
 ```
 $ yarn
+```
+
+Build the project
+
+```
 $ yarn build
+```
+
+Run the built version:
+
+```
+$ node ./lib/scan.js [options] <xpub>
+```
+
+_Alternatively, if you want to use the locally-built version of xpub-scan with just `xpub-scan` command, you can:_
+
+```
+$ yarn link
 ```
 
 ### Currencies
@@ -32,7 +71,7 @@ By default, Bitcoin xpubs and Litecoin ltubs are automatically detected.
 
 To scan Bitcoin Cash xpubs, use the `--currency bch` argument:
 
-`$ node lib/scan.js --currency bch <xpub> …`
+`$ xpub-scan --currency bch <xpub> …`
 
 ## Usage 1. Check Balances
 
@@ -40,10 +79,10 @@ _In the following instructions, the generic `xpub` term is used to designate a m
 
 ### Scan for a Specific Account and an Index
 
-`$ node lib/scan.js <xpub> -a <account> -i <index>`
+`$ xpub-scan <xpub> -a <account> -i <index>`
 
 Example:
-`$ node lib/scan.js xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
+`$ xpub-scan xpub6C...44dXs7p -a 0 -i 10` [addresses at account `0`, index `10`]
 
 ### ScanLimits Scan | Scan Addresses Derived From Index A to Index B
 
@@ -54,43 +93,43 @@ Example:
 
 ### Full Scan | Scan All Active Addresses
 
-`$ node lib/scan.js <xpub>`
+`$ xpub-scan <xpub>`
 
 Example:
-`$ node lib/scan.js xpub6C...44dXs7p`
+`$ xpub-scan xpub6C...44dXs7p`
 
 ### Compare Imported Data With Actual Data
 
 **Balance `--balance <balance>`**
 
-`$ node lib/scan.js <xpub> --balance <balance (in satoshis or similar base unit)>`
+`$ xpub-scan <xpub> --balance <balance (in satoshis or similar base unit)>`
 
 **Addresses `--addresses <filepath>`**
 
 _(Not implemented yet)_
 
-`$ node lib/scan.js <xpub> --addresses <file path>`
+`$ xpub-scan <xpub> --addresses <file path>`
 
 **UTXOs `--utxos <filepath>`**
 
 _(Not implemented yet)_
 
-`$ node lib/scan.js <xpub> --utxos <file path>`
+`$ xpub-scan <xpub> --utxos <file path>`
 
 **Operations `--operations <filepath>`**
 
-`$ node lib/scan.js <xpub> --operations <file path>`
+`$ xpub-scan <xpub> --operations <file path>`
 
 Example:
-`$ node lib/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv`
+`$ xpub-scan xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv`
 
 **General Example**
 
-`$ node lib/scan.js xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv --balance 12345 --diff` displays at the end of the analysis the results of the comparison between the `12345` satoshis balance and the actual one, as well as the potential mismatches between the imported operations and the actual ones.
+`$ xpub-scan xpub6C...44dXs7p --operations /Users/Test/Downloads/export.csv --balance 12345 --diff` displays at the end of the analysis the results of the comparison between the `12345` satoshis balance and the actual one, as well as the potential mismatches between the imported operations and the actual ones.
 
 ### Generate JSON and HTML Reports (Scan Only)
 
-`$ node lib/scan.js <xpub> [args...] --save <directory>`
+`$ xpub-scan <xpub> [args...] --save <directory>`
 
 The files are saved as `<xpub>.json` and `<xpub>.html`.
 
@@ -106,7 +145,7 @@ _Check if an address has been derived from a master public key._
 
 ### Perfect Match
 
-`$ node lib/scan.js <xpub> --address <address>`
+`$ xpub-scan <xpub> --address <address>`
 
 ### Partial Match
 
@@ -138,12 +177,12 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 
 1. Modify `./src/settings.ts`
 2. rebuild the tool: `$ yarn build`
-3. Re-run it: `$ node lib/scan.js <xpub> …`
+3. Re-run it: `$ node ./lib/scan.js <xpub> …`
 
 ### Change External Provider
 
 1. At the root of the project, rename `.env.template` to `.env`
 2. In `.env`, set the `API_URL` as well as your `API_KEY` (following the structure provided by the `.env.template`)
 3. rebuild the tool: `$ yarn build`
-4. Re-run it: `$ node lib/scan.js <xpub> …`
+4. Re-run it: `$ node ./lib/scan.js <xpub> …`
 5. Ensure that, when running the tool, it shows that the _custom_ provider is being used

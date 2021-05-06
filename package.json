@@ -1,14 +1,16 @@
 {
   "name": "@ledgerhq/xpub-scan",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "Master public key analysis tool",
-  "main": "./lib/scan.js",
+  "bin": {
+    "xpub-scan": "./lib/scan.js"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x ./lib/scan.js",
     "lint": "eslint .",
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
-    "ci": "yarn lint && yarn ts:check && yarn prettier --list-different ."
+    "ci": "yarn lint && yarn ts:check && prettier --list-different ."
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,9 @@
     "bitcoin-cash-payments": "^0.2.0",
     "bitcoinjs-lib": "^5.2.0",
     "chalk": "^4.1.0",
+    "coininfo": "^5.1.0",
+    "dateformat": "^4.5.1",
+    "dotenv": "^9.0.0",
     "es6-promise": "^4.2.8",
     "html-minifier": "^4.0.0",
     "line-reader": "^0.4.0",
@@ -46,8 +51,6 @@
     "@types/yargs": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",
-    "coininfo": "^5.1.0",
-    "dateformat": "^4.5.1",
     "eslint": "^7.25.0",
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "^2.2.1",
