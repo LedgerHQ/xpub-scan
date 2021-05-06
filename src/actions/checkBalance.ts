@@ -37,7 +37,11 @@ async function scanAddresses(
     indexFromSpan = scanLimits.indexFrom;
     indexToSpan = scanLimits.indexTo;
 
-    let maxPreDerivationIndex = 1000;
+    // WARNING: magic number
+    // if the scanned xpub contains more active addresses
+    // for a given account number, the results of the
+    // analysis will be erroneous
+    let maxPreDerivationIndex = 2000;
 
     if (typeof indexToSpan !== "undefined") {
       maxPreDerivationIndex += indexToSpan;
