@@ -337,6 +337,16 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     report = report.split("{" + key + "}").join(object.meta[key]);
   }
 
+  // warning range
+  if (object.meta.mode !== "Full") {
+    report = report.replace(
+      "{warning_range}",
+      `<div id='warning_range'>The data is based on a partial scan: ${object.meta.mode}</div>`,
+    );
+  } else {
+    report = report.replace("{warning_range}", "");
+  }
+
   // summary
   const summary: string[] = [];
   for (const e of object.summary) {
