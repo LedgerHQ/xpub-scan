@@ -39,7 +39,7 @@ async function scanAddresses(
     indexToSpan = scanLimits.indexTo;
     preDerivationSize = scanLimits.preDerivationSize;
 
-    // important step: precompute the addresss belonging
+    // important step: precompute the addresses belonging
     // to the same xpub in order to perform
     // transaction analysis further down the flow
     for (let a = 0; a < 2; a++) {
