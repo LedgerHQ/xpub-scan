@@ -5,7 +5,7 @@ import * as display from "../display";
 
 import { Address } from "../models/address";
 import { OwnAddresses } from "../models/ownAddresses";
-import { configuration, GAP_LIMIT } from "../configuration/settings";
+import { configuration } from "../configuration/settings";
 import { AddressType } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 import { TODO_TypeThis } from "../types";
@@ -56,7 +56,7 @@ async function scanAddresses(addressType: AddressType, xpub: string) {
         noTxCounter++;
         display.transientLine(/* delete address */);
 
-        if (account === 1 || noTxCounter >= GAP_LIMIT) {
+        if (account === 1 || noTxCounter >= configuration.gap_limit) {
           // TODO?: extend logic to account numbers > 1
           display.transientLine(/* delete last probing info */);
           display.logStatus(

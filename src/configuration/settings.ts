@@ -16,12 +16,13 @@ const DEFAULT_API_URLS = {
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
-const GAP_LIMIT = 20;
+const DEFAULT_GAP_LIMIT = 20;
 
 // XPUB <> ADDRESS COMPARISON
 // --------------------------
 
 // scope of the derivation for the comparison
+// only concerning xpub-search
 const DERIVATION_SCOPE = {
   // _quick search_
   // the common range from which addresses
@@ -70,12 +71,7 @@ export const configuration = {
   providerType: "default",
   silent: false,
   quiet: false,
+  gap_limit: process.env.GAP_LIMIT || DEFAULT_GAP_LIMIT,
 };
 
-export {
-  DEFAULT_API_URLS,
-  GAP_LIMIT,
-  VERBOSE,
-  DERIVATION_SCOPE,
-  EXTERNAL_EXPLORERS_URLS,
-};
+export { DEFAULT_API_URLS, VERBOSE, DERIVATION_SCOPE, EXTERNAL_EXPLORERS_URLS };

@@ -4,7 +4,6 @@ import minifier from "html-minifier";
 
 import {
   configuration,
-  GAP_LIMIT,
   EXTERNAL_EXPLORERS_URLS,
 } from "../configuration/settings";
 import { reportTemplate } from "../templates/report.html";
@@ -546,7 +545,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       currency: configuration.currency,
       provider: configuration.providerType,
       provider_url: providerURL,
-      gap_limit: GAP_LIMIT,
+      gap_limit: configuration.gap_limit,
       unit: "Base unit (i.e., satoshis or equivalent unit)",
       mode: meta.mode,
     },
