@@ -70,6 +70,8 @@ async function scan() {
       comparisonResults = checkImportedOperations(
         importedTransactions,
         actualTransactions,
+        actualAddresses, // scan limits
+        typeof scanLimits === "undefined",
       );
     }
 
@@ -81,7 +83,7 @@ async function scan() {
     ) {
       mode = `m/${args.account}/${args.index}`;
     } else if (typeof scanLimits !== "undefined") {
-      mode = `range: account ${args.account}, indices ${scanLimits.from}⟶${scanLimits.to}`;
+      mode = `range: account ${scanLimits.account}, indices ${scanLimits.indexFrom}⟶${scanLimits.indexTo}`;
     } else {
       mode = "Full";
     }

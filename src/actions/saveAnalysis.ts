@@ -567,7 +567,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   if (filepath.toLocaleLowerCase() !== "stdout") {
     filepath += `/${meta.xpub}`;
 
-    if (meta.mode !== "Full") {
+    if (meta.mode.startsWith("m/")) {
       // use derivation path as filename postfix: `m/x/y` => `-x-y`
       // (+TODO: range mode)
       filepath += meta.mode.replace("m", "").replace(/\//gi, "-");

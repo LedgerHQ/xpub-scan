@@ -36,6 +36,15 @@ async function scanAddresses(
     accountSpan = scanLimits.account;
     indexFromSpan = scanLimits.indexFrom;
     indexToSpan = scanLimits.indexTo;
+
+    // important step: precompute the addresss belonging
+    // to the same xpub in order to perform
+    // transaction analysis further down the flow
+    for (let a = 0; a < 2; a++) {
+      for (let i = 0; i < indexToSpan + 1000; i++) {
+        ownAddresses.addAddress(new Address(addressType, xpub, a, i));
+      }
+    }
   }
 
   // TODO: should we limit ourselves to account 0 and 1?
@@ -56,7 +65,10 @@ async function scanAddresses(
 
     for (let index = 0 /* scan all active indices */; ; ++index) {
       // scan span 2: indices
-      if (indexFromSpan && indexToSpan) {
+      if (
+        typeof indexFromSpan !== "undefined" &&
+        typeof indexToSpan !== "undefined"
+      ) {
         if (index < indexFromSpan) {
           continue;
         }

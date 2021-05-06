@@ -1,5 +1,6 @@
 import chalk from "chalk";
 
+import { Address } from "../models/address";
 import { Operation } from "../models/operation";
 import { Comparison, ComparisonStatus } from "../models/comparison";
 import { configuration } from "../configuration/settings";
@@ -199,6 +200,8 @@ const showOperations = (
 const checkImportedOperations = (
   importedOperations: Operation[],
   actualOperations: Operation[],
+  actualAddresses: Address[],
+  fullComparison?: boolean,
 ): Comparison[] => {
   if (!configuration.silent) {
     console.log(
@@ -211,9 +214,17 @@ const checkImportedOperations = (
     );
   }
 
-  // eslint-disable-next-line no-undef
   const allComparingCriteria: ComparingCriterion[] = []; // TODO: convert into a Set as they have to be unique
   const comparisons: Comparison[] = [];
+
+  // filter imported operations if scan is limited
+  if (!fullComparison) {
+    const rangeAddresses = actualAddresses.map((address) => address.toString());
+
+    importedOperations = importedOperations.filter((op) =>
+      op.address.split(",").find((a) => rangeAddresses.includes(a)),
+    );
+  }
 
   importedOperations.forEach((op) => {
     if (!allComparingCriteria.some((t) => t.hash === op.txid)) {
