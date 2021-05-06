@@ -64,6 +64,8 @@ async function scan() {
 
     display.showResults(actualUTXOs, actualTransactions, summary);
 
+    const partialScan = typeof scanLimits !== "undefined";
+
     let comparisonResults;
 
     if (typeof importedTransactions !== "undefined") {
@@ -71,7 +73,7 @@ async function scan() {
         importedTransactions,
         actualTransactions,
         actualAddresses, // scan limits
-        typeof scanLimits === "undefined",
+        partialScan, // scan limits
       );
     }
 

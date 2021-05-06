@@ -201,7 +201,7 @@ const checkImportedOperations = (
   importedOperations: Operation[],
   actualOperations: Operation[],
   actualAddresses: Address[],
-  fullComparison?: boolean,
+  partialComparison?: boolean,
 ): Comparison[] => {
   if (!configuration.silent) {
     console.log(
@@ -218,7 +218,7 @@ const checkImportedOperations = (
   const comparisons: Comparison[] = [];
 
   // filter imported operations if scan is limited
-  if (!fullComparison) {
+  if (partialComparison) {
     const rangeAddresses = actualAddresses.map((address) => address.toString());
 
     importedOperations = importedOperations.filter((op) =>
