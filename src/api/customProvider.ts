@@ -29,8 +29,8 @@ interface RawTransaction {
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 async function getStats(address: Address, coinDenomination: string) {
-  const url = configuration
-    .customAPI!.replace("{coin}", coinDenomination)
+  const url = configuration.externalProviderURL
+    .replace("{coin}", coinDenomination)
     .replace("{address}", address.toString());
 
   const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
@@ -44,8 +44,8 @@ async function getStats(address: Address, coinDenomination: string) {
   address.setBalance(balance);
 
   if (res.payload.txsCount > 0) {
-    const getTxsURLTemplate = configuration
-      .customAPI!.replace("{coin}", coinDenomination)
+    const getTxsURLTemplate = configuration.externalProviderURL
+      .replace("{coin}", coinDenomination)
       .replace("{address}", address.toString())
       .concat("/transactions?index={index}&limit={limit}");
 
