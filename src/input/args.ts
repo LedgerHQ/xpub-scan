@@ -28,6 +28,21 @@ export const getArgs = (): TODO_TypeThis => {
       demand: false,
       type: "number",
     })
+    .option("from-index", {
+      description: "ScanLimits: FROM index X",
+      demand: false,
+      type: "number",
+    })
+    .option("to-index", {
+      description: "ScanLimits: TO index Y",
+      demand: false,
+      type: "number",
+    })
+    .option("pre-derivation-size", {
+      description: "ScanLimits: number of pre-derived addresses per account",
+      demand: false,
+      type: "number",
+    })
     .option("address", {
       description: "Address",
       demand: false,

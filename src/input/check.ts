@@ -17,6 +17,11 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   const balance = args.balance;
   const save = args.save;
   const currency = args.currency;
+  const account = args.account;
+  const index = args.index;
+  const fromIndex = args.fromIndex;
+  const toIndex = args.toIndex;
+  const preDerivationSize = args.preDerivationSize;
 
   // xpub: set, non-empty
   if (typeof xpub === "undefined" || xpub === "") {
@@ -102,5 +107,92 @@ export const checkArgs = (args: TODO_TypeThis): void => {
         throw new Error("Save directory " + save + " is not writable");
       }
     });
+  }
+
+  // account/index/scanLimits options
+  if (typeof account !== "undefined") {
+    // -a {positive number}
+    if (account < 0) {
+      throw new Error(
+        "Account number is required to be positive (including zero)",
+      );
+    }
+
+    // -a X -i Y or -a X --from-index Y [--to-index Z]
+    if (typeof index === "undefined" && typeof fromIndex === "undefined") {
+      throw new Error(
+        "Index or scanLimits is required when account number option (`-a`) is enabled",
+      );
+    }
+
+    // -a X -i {positive number}
+    if (typeof index !== "undefined" && index < 0) {
+      throw new Error(
+        "Index number is required to be positive (including zero)",
+      );
+    }
+
+    if (typeof fromIndex !== "undefined") {
+      // -a X --from-index {postive number} [--to-index {postive number}]
+      if (fromIndex < 0) {
+        throw new Error(
+          "--from-index option is required to be positive (including zero)",
+        );
+      }
+
+      if (typeof toIndex !== "undefined") {
+        if (toIndex < 0) {
+          throw new Error("--to-index option is required to be positive");
+        }
+
+        // -a X --from-index Y --to-index Z | Y <= Z
+        if (fromIndex > toIndex) {
+          throw new Error("--from-index has to be less or equal to --to-index");
+        }
+      }
+    }
+  } else {
+    // -a X -i Y
+    if (typeof index !== "undefined") {
+      throw new Error(
+        "Account number is required when index number option (`-i`) is enabled",
+      );
+    }
+
+    // -a X --from-index Y --to-index Z
+    if (typeof fromIndex !== "undefined") {
+      throw new Error(
+        "--pre-derivation-size option is required to be positive",
+      );
+    }
+  }
+
+  if (typeof preDerivationSize !== "undefined") {
+    if (preDerivationSize < 0) {
+      throw new Error(
+        "Account number is required when scanLimits index option (`--from-index`) is enabled",
+      );
+    }
+  } else if (typeof account !== "undefined") {
+    args.preDerivationSize = 2000; // magic number
+  }
+
+  // if needed, create scanLimits
+  if (typeof account !== "undefined") {
+    if (typeof index !== "undefined") {
+      args.scanLimits = {
+        account,
+        indexFrom: index,
+        indexTo: index,
+        preDerivationSize: args.preDerivationSize,
+      };
+    } else if (typeof fromIndex !== "undefined") {
+      args.scanLimits = {
+        account,
+        indexFrom: fromIndex,
+        indexTo: toIndex,
+        preDerivationSize: args.preDerivationSize,
+      };
+    }
   }
 };

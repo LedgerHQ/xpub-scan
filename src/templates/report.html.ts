@@ -20,6 +20,17 @@ export const reportTemplate = `
         font-family: FreeMono, monospace;
       }
 
+      #warning_range {
+        margin: 0 auto;
+        padding: 4px;
+        border: 2px solid #E51C10;
+        background-color: #FFB3B3;
+        width: 90%;
+        text-align: center;
+        font-family: Georgia, serif;
+        font-style: italic;
+      }
+
       .meta {
         font-size: 1em;
         margin: 2em;
@@ -255,10 +266,12 @@ export const reportTemplate = `
         <li><strong>Analysis date:</strong> {analysis_date}</li>
         <li><strong>Provider:</strong> {provider} ({provider_url})</li>
         <li><strong>Gap limit:</strong> {gap_limit}</li>
-        <li><strong>Scan mode:</strong> {mode}</li>
+        <li><strong>Scan mode:</strong> {mode} {pre_derivation_size}</li>
         <li><strong>Xpub Scan version:</strong> {version}</li>
       </ul>
     </div>
+
+    {warning_range}</br>
 
     <ul class="tabs">
 
