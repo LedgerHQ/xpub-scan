@@ -29,12 +29,17 @@ export const getArgs = (): TODO_TypeThis => {
       type: "number",
     })
     .option("from-index", {
-      description: "Range: FROM index X",
+      description: "ScanLimits: FROM index X",
       demand: false,
       type: "number",
     })
     .option("to-index", {
-      description: "Range: TO index Y",
+      description: "ScanLimits: TO index Y",
+      demand: false,
+      type: "number",
+    })
+    .option("pre-derivation-size", {
+      description: "ScanLimits: number of pre-derived addresses per account",
       demand: false,
       type: "number",
     })

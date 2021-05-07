@@ -149,16 +149,6 @@ function sanityCheck(xpub: string, provided: string) {
   // check assumptions regarding the provided address
   const derived = getAddress(getAddressType(provided), xpub, 0, 0);
 
-  if (derived.length !== provided.length) {
-    // assumption 1. size of provided === size of derived
-    showError(
-      "Provided address size ≠ derived address size",
-      derived,
-      provided,
-    );
-    return false;
-  }
-
   if (derived.toUpperCase()[0] !== provided.toUpperCase()[0]) {
     // assumption 2. derived and provided share the same prefix
     showError("Prefixes mismatch", derived, provided);
