@@ -53,7 +53,7 @@ async function getStats(address: Address, coin: string) {
     return getBchStats(address);
   }
 
-  const url = configuration.defaultAPI.general
+  const url = configuration.externalProviderURL
     .replace("{coin}", coin)
     .replace("{address}", address.toString());
 
@@ -71,7 +71,7 @@ async function getStats(address: Address, coin: string) {
 }
 
 async function getBchStats(address: Address) {
-  const urlStats = configuration.defaultAPI.bch
+  const urlStats = configuration.externalProviderURL
     .replace("{type}", "details")
     .replace("{address}", address.asCashAddress()!);
 
@@ -85,7 +85,7 @@ async function getBchStats(address: Address) {
   address.setStats(res.txApperances, fundedSum, spentSum);
   address.setBalance(balance);
 
-  const urlTxs = configuration.defaultAPI.bch
+  const urlTxs = configuration.externalProviderURL
     .replace("{type}", "transactions")
     .replace("{address}", address.asCashAddress()!);
 

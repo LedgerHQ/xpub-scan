@@ -3,7 +3,7 @@ import * as bip32 from "bip32";
 import chalk from "chalk";
 import bchaddr from "bchaddrjs";
 
-import { configuration } from "./configuration/settings";
+import { configuration, DEFAULT_API_URLS } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
 
 async function getJSON<T>(url: string, APIKey?: string): Promise<T> {
@@ -57,6 +57,34 @@ function setNetwork(xpub: string, currency?: string) {
     throw new Error("INVALID CURRENCY: '" + currency + "' is not supported");
   }
 }
+/**
+ * Configure the external provider URL (i.e., default v. custom provider)
+ * @param  {string} currency?
+ *          Symbol of the currency (e.g. 'BCH')
+ * @returns void
+ */
+const setExternalProviderURL = (currency?: string): void => {
+  // custom provider (i.e., API key is set)
+  if (
+    process.env.XPUB_SCAN_CUSTOM_API_URL &&
+    process.env.XPUB_SCAN_CUSTOM_API_KEY
+  ) {
+    configuration.externalProviderURL = process.env.XPUB_SCAN_CUSTOM_API_URL;
+    configuration.providerType = "custom";
+    return;
+  }
+
+  // default provider
+  if (!currency) {
+    configuration.externalProviderURL = DEFAULT_API_URLS.general;
+    return;
+  }
+
+  if (currency === "BCH") {
+    configuration.externalProviderURL = DEFAULT_API_URLS.bch;
+    return;
+  }
+};
 
 // ensure that the xpub is a valid one
 // and select the relevant network
@@ -67,13 +95,6 @@ function checkXpub(xpub: string) {
     bip32.fromBase58(xpub, configuration.network);
   } catch (e) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
-  }
-
-  if (
-    typeof configuration.APIKey !== "undefined" &&
-    configuration.APIKey.length > 0
-  ) {
-    configuration.providerType = "custom";
   }
 
   if (configuration.silent) {
@@ -99,6 +120,7 @@ function init(
   configuration.quiet = quiet;
 
   setNetwork(xpub, currency);
+  setExternalProviderURL(currency);
   checkXpub(xpub);
 }
 

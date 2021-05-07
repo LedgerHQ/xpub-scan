@@ -539,15 +539,6 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
         })
       : undefined;
 
-  let providerURL;
-  if (typeof configuration.customAPI !== "undefined") {
-    providerURL = configuration.customAPI;
-  } else if (configuration.symbol === "BCH") {
-    providerURL = configuration.defaultAPI.bch;
-  } else {
-    providerURL = configuration.defaultAPI.general;
-  }
-
   let diffs = [];
 
   if (typeof comparisons !== "undefined") {
@@ -568,7 +559,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       analysis_date: meta.date,
       currency: configuration.currency,
       provider: configuration.providerType,
-      provider_url: providerURL,
+      provider_url: configuration.externalProviderURL,
       gap_limit: configuration.gap_limit,
       unit: "Base unit (i.e., satoshis or equivalent unit)",
       mode: meta.mode,
