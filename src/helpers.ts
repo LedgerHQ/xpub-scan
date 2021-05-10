@@ -48,9 +48,8 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
       // Litecoin
       configuration.currency = currencies.ltc;
 
-      configuration.currency.network = testnet
-        ? currencies.ltc.network_testnet
-        : currencies.ltc.network_mainnet;
+      // TODO: LTC testnet
+      configuration.currency.network = currencies.ltc.network_mainnet;
     } else {
       throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
     }
@@ -59,9 +58,8 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
     if (currency.includes("cash") || currency === "BCH") {
       configuration.currency = currencies.bch;
 
-      configuration.currency.network = testnet
-        ? currencies.bch.network_testnet
-        : currencies.bch.network_mainnet;
+      // TODO: BCH testnet
+      configuration.currency.network = currencies.bch.network_mainnet;
       return;
     }
 
@@ -74,21 +72,17 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
  *          Symbol of the currency (e.g. 'BCH')
  * @returns void
  */
-const setExternalProviderURL = (currency?: string): void => {
+const setExternalProviderURL = (): void => {
   // custom provider (i.e., API key is set)
   if (
     process.env.XPUB_SCAN_CUSTOM_API_URL &&
     process.env.XPUB_SCAN_CUSTOM_API_KEY
   ) {
-    configuration.externalProviderURL = process.env.XPUB_SCAN_CUSTOM_API_URL;
-
-    if (configuration.testnet) {
-      configuration.externalProviderURL =
-        configuration.externalProviderURL.replace("{network}", "testnet");
-    } else {
-      configuration.externalProviderURL =
-        configuration.externalProviderURL.replace("{network}", "mainnet");
-    }
+    configuration.externalProviderURL =
+      process.env.XPUB_SCAN_CUSTOM_API_URL.replace(
+        "{network}",
+        configuration.testnet ? "testnet" : "mainnet",
+      );
 
     configuration.providerType = "custom";
 
@@ -96,12 +90,16 @@ const setExternalProviderURL = (currency?: string): void => {
   }
 
   // default provider
-  if (!currency) {
+  const currency = configuration.currency;
+  if (
+    currency.symbol === currencies.btc.symbol ||
+    currency.symbol === currencies.ltc.symbol
+  ) {
     configuration.externalProviderURL = DEFAULT_API_URLS.general;
     return;
   }
 
-  if (currency === "BCH") {
+  if (currency.symbol === currencies.bch.symbol) {
     configuration.externalProviderURL = DEFAULT_API_URLS.bch;
     return;
   }
@@ -142,7 +140,7 @@ function init(
   configuration.quiet = quiet;
 
   setNetwork(xpub, currency, testnet);
-  setExternalProviderURL(currency);
+  setExternalProviderURL();
   checkXpub(xpub);
 }
 

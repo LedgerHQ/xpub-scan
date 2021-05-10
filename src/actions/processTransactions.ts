@@ -11,17 +11,11 @@ import { currencies } from "../configuration/currencies";
 async function getStats(address: Address) {
   switch (configuration.providerType) {
     case "default":
-      await defaultProvider.getStats(
-        address,
-        configuration.currency.symbol.toUpperCase(),
-      );
+      await defaultProvider.getStats(address);
       break;
 
     case "custom":
-      await customProvider.getStats(
-        address,
-        configuration.currency.symbol.toLowerCase(),
-      );
+      await customProvider.getStats(address);
       break;
 
     default:

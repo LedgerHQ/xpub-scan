@@ -49,13 +49,16 @@ interface BchRawTransaction {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-async function getStats(address: Address, coin: string) {
-  if (coin === "BCH") {
+async function getStats(address: Address) {
+  // important: coin name is required to be upper case for default provider
+  let coin = configuration.currency.symbol.toUpperCase();
+
+  if (coin === currencies.bch.symbol) {
     return getBchStats(address);
   }
 
-  if (configuration.testnet) {
-    // e.g. BTCTEST
+  if (coin === currencies.btc.symbol.toUpperCase() && configuration.testnet) {
+    // Bitcoin Testnet: "BTCTEST"
     // see: https://sochain.com/api#networks-supported
     coin = coin.concat("TEST");
   }
