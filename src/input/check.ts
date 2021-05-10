@@ -13,6 +13,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   args.xpub = args._[0];
 
   const xpub = args.xpub;
+  const testnet = args.testnet;
   const address = args.address;
   const balance = args.balance;
   const save = args.save;
@@ -136,18 +137,20 @@ export const checkArgs = (args: TODO_TypeThis): void => {
       // -a X --from-index {postive number} [--to-index {postive number}]
       if (fromIndex < 0) {
         throw new Error(
-          "--from-index option is required to be positive (including zero)",
+          "`--from-index` option is required to be positive (including zero)",
         );
       }
 
       if (typeof toIndex !== "undefined") {
         if (toIndex < 0) {
-          throw new Error("--to-index option is required to be positive");
+          throw new Error("`--to-index` option is required to be positive");
         }
 
         // -a X --from-index Y --to-index Z | Y <= Z
         if (fromIndex > toIndex) {
-          throw new Error("--from-index has to be less or equal to --to-index");
+          throw new Error(
+            "`--from-index` has to be less or equal to `--to-index`",
+          );
         }
       }
     }
@@ -162,7 +165,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
     // -a X --from-index Y --to-index Z
     if (typeof fromIndex !== "undefined") {
       throw new Error(
-        "--pre-derivation-size option is required to be positive",
+        "Account number is required when scanLimits index option (`--from-index`) is enabled",
       );
     }
   }
@@ -170,7 +173,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   if (typeof preDerivationSize !== "undefined") {
     if (preDerivationSize < 0) {
       throw new Error(
-        "Account number is required when scanLimits index option (`--from-index`) is enabled",
+        "`--pre-derivation-size` option is required to be positive",
       );
     }
   } else if (typeof account !== "undefined") {
@@ -193,6 +196,20 @@ export const checkArgs = (args: TODO_TypeThis): void => {
         indexTo: toIndex,
         preDerivationSize: args.preDerivationSize,
       };
+    }
+  }
+
+  // testnet
+  if (typeof testnet !== "undefined") {
+    // temporary guard clause:
+    // only Bitcoin testnet is supported at the moment
+    if (
+      args.xpub.substring(0.4).toLocaleLowerCase() !== "btc" &&
+      currency.toUpperCase() !== "BTC"
+    ) {
+      throw new Error(
+        "The analysis of this currency cannot be performed on testnet",
+      );
     }
   }
 };

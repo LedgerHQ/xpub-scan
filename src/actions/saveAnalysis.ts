@@ -64,6 +64,11 @@ function getUrl(itemType: string, item: string) {
   // exception(s)
   // ------------
 
+  // Testnet
+  if (configuration.testnet) {
+    url = url.replace("{coin}", "{coin}-testnet");
+  }
+
   // Bitcoin Cash
   //
   // coin:        "bitcoin-cash"
@@ -558,7 +563,9 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       version: meta.version,
       xpub: meta.xpub,
       analysis_date: meta.date,
-      currency: configuration.currency.name.concat(configuration.testnet? " (testnet)" : " (mainnet)"),
+      currency: configuration.currency.name.concat(
+        configuration.testnet ? " (testnet)" : " (mainnet)",
+      ),
       provider: configuration.providerType,
       provider_url: configuration.externalProviderURL,
       gap_limit: configuration.gap_limit,
