@@ -204,7 +204,8 @@ export const checkArgs = (args: TODO_TypeThis): void => {
     // temporary guard clause:
     // only Bitcoin testnet is supported at the moment
     if (
-      args.xpub.substring(0.4).toLocaleLowerCase() !== "btc" &&
+      args.xpub.substring(0.4).toLocaleLowerCase() !== "xpub" &&
+      currency &&
       currency.toUpperCase() !== "BTC"
     ) {
       throw new Error(
