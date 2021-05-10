@@ -6,20 +6,21 @@ import { Operation } from "../models/operation";
 import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
 import { TODO_TypeThis } from "../types";
+import { currencies } from "../configuration/currencies";
 
 async function getStats(address: Address) {
   switch (configuration.providerType) {
     case "default":
       await defaultProvider.getStats(
         address,
-        configuration.symbol.toUpperCase(),
+        configuration.currency.symbol.toUpperCase(),
       );
       break;
 
     case "custom":
       await customProvider.getStats(
         address,
-        configuration.symbol.toLowerCase(),
+        configuration.currency.symbol.toLowerCase(),
       );
       break;
 
@@ -182,7 +183,7 @@ function getSortedOperations(...addresses: TODO_TypeThis): Operation[] {
     address.getFundedOperations().forEach((op: Operation) => {
       op.setAddress(address.toString());
 
-      if (configuration.symbol === "BCH") {
+      if (configuration.currency.symbol === currencies.bch.symbol) {
         op.setCashAddress(address.asCashAddress());
       }
 
@@ -194,7 +195,7 @@ function getSortedOperations(...addresses: TODO_TypeThis): Operation[] {
       if (!processedTxids.includes(op.txid)) {
         op.setAddress(address.toString());
 
-        if (configuration.symbol === "BCH") {
+        if (configuration.currency.symbol === currencies.bch.symbol) {
           op.setCashAddress(address.asCashAddress());
         }
 

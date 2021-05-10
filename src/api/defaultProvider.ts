@@ -6,6 +6,7 @@ import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
 import { TODO_TypeThis } from "../types";
+import { currencies } from "../configuration/currencies";
 
 // raw transactions provided by default API
 interface RawTransaction {
@@ -113,7 +114,7 @@ async function getBchStats(address: Address) {
 function getTransactions(address: Address) {
   // Because the general default API is not compatible with Bitcoin Cash,
   // these transactions have to be specifically handled
-  if (configuration.symbol === "BCH") {
+  if (configuration.currency.symbol === currencies.bch.symbol) {
     return getBchTransactions(address);
   }
 

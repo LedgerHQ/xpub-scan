@@ -26,7 +26,7 @@ async function getJSON<T>(url: string, APIKey?: string): Promise<T> {
   return res.data;
 }
 
-function setNetwork(xpub: string, currency?: string) {
+function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
   if (
     typeof currency === "undefined" ||
     currency === "BTC" ||
@@ -35,22 +35,27 @@ function setNetwork(xpub: string, currency?: string) {
     const prefix = xpub.substring(0, 4);
 
     if (prefix === "xpub") {
-      configuration.network = currencies.btc_mainnet.network;
-      configuration.currency = "Bitcoin";
-      configuration.symbol = "BTC";
+      configuration.currency = currencies.btc;
+      configuration.currency.network = testnet
+        ? currencies.btc.network_testnet
+        : currencies.btc.network_mainnet;
     } else if (prefix === "Ltub") {
-      configuration.network = currencies.ltc_mainnet.network;
-      configuration.currency = "Litecoin";
-      configuration.symbol = "LTC";
+      configuration.currency = currencies.ltc;
+
+      configuration.currency.network = testnet
+        ? currencies.ltc.network_testnet
+        : currencies.ltc.network_mainnet;
     } else {
       throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
     }
   } else {
     // Bitcoin Cash
     if (currency.includes("cash") || currency === "BCH") {
-      configuration.network = currencies.bch_mainnet.network;
-      configuration.currency = "Bitcoin Cash";
-      configuration.symbol = "BCH";
+      configuration.currency = currencies.bch;
+
+      configuration.currency.network = testnet
+        ? currencies.bch.network_testnet
+        : currencies.bch.network_mainnet;
       return;
     }
 
@@ -92,7 +97,7 @@ const setExternalProviderURL = (currency?: string): void => {
 // TODO: extend to ypub, zpub...
 function checkXpub(xpub: string) {
   try {
-    bip32.fromBase58(xpub, configuration.network);
+    bip32.fromBase58(xpub, configuration.currency.network);
   } catch (e) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
   }
@@ -115,18 +120,19 @@ function init(
   silent: boolean,
   quiet: boolean,
   currency?: string,
+  testnet?: boolean,
 ) {
   configuration.silent = silent;
   configuration.quiet = quiet;
 
-  setNetwork(xpub, currency);
+  setNetwork(xpub, currency, testnet);
   setExternalProviderURL(currency);
   checkXpub(xpub);
 }
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
 function toUnprefixedCashAddress(address: string) {
-  if (configuration.symbol !== "BCH") {
+  if (configuration.currency.symbol !== currencies.bch.symbol) {
     return undefined;
   }
 

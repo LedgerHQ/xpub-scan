@@ -5,6 +5,7 @@ import { Operation } from "./operation";
 import { Stats } from "./stats";
 import { getAddress } from "../actions/deriveAddresses";
 import { toUnprefixedCashAddress } from "../helpers";
+import { currencies } from "../configuration/currencies";
 
 class Address {
   address: string;
@@ -79,7 +80,7 @@ class Address {
 
   // render as Cash Address (Bitcoin Cash)
   asCashAddress() {
-    if (configuration.symbol === "BCH") {
+    if (configuration.currency.symbol === currencies.bch.symbol) {
       return toUnprefixedCashAddress(this.address);
     }
 

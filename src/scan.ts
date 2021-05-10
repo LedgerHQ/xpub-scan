@@ -23,9 +23,10 @@ const args = getArgs();
 const scanLimits = args.scanLimits;
 const address = args.address;
 const currency = args.currency;
+const testnet = args.testnet;
 const xpub = String(args._[0]);
 
-init(xpub, args.silent, args.quiet, currency);
+init(xpub, args.silent, args.quiet, currency, testnet);
 
 const now = new Date();
 

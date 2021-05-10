@@ -16,6 +16,12 @@ export const getArgs = (): TODO_TypeThis => {
       demand: false,
       type: "string",
     })
+    .option("testnet", {
+      description: "testnet",
+      demand: false,
+      type: "boolean",
+      default: false,
+    })
     .option("account", {
       alias: "a",
       description: "Account number",

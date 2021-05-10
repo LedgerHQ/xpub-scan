@@ -14,10 +14,10 @@ function getLegacyAddress(
 ): string {
   const { address } = bjs.payments.p2pkh({
     pubkey: bip32
-      .fromBase58(xpub, configuration.network)
+      .fromBase58(xpub, configuration.currency.network)
       .derive(account)
       .derive(index).publicKey,
-    network: configuration.network,
+    network: configuration.currency.network,
   });
 
   return String(address);
@@ -31,10 +31,10 @@ function getNativeSegWitAddress(
 ): string {
   const { address } = bjs.payments.p2wpkh({
     pubkey: bip32
-      .fromBase58(xpub, configuration.network)
+      .fromBase58(xpub, configuration.currency.network)
       .derive(account)
       .derive(index).publicKey,
-    network: configuration.network,
+    network: configuration.currency.network,
   });
 
   return String(address);
@@ -49,10 +49,10 @@ function getSegWitAddress(
   const { address } = bjs.payments.p2sh({
     redeem: bjs.payments.p2wpkh({
       pubkey: bip32
-        .fromBase58(xpub, configuration.network)
+        .fromBase58(xpub, configuration.currency.network)
         .derive(account)
         .derive(index).publicKey,
-      network: configuration.network,
+      network: configuration.currency.network,
     }),
   });
 

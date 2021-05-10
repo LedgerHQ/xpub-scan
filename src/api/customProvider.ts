@@ -8,6 +8,7 @@ import { Operation } from "../models/operation";
 import { TODO_TypeThis } from "../types";
 
 import bchaddr from "bchaddrjs";
+import { currencies } from "../configuration/currencies";
 
 interface RawTransaction {
   txid: string;
@@ -107,7 +108,7 @@ function getTransactions(address: Address) {
       for (let inAddress of txin.addresses) {
         // provider Bitcoin Cash addresses are expressed as cash addresses:
         // they have to be converted into legacy ones
-        if (configuration.symbol === "BCH") {
+        if (configuration.currency.symbol === currencies.bch.symbol) {
           inAddress = bchaddr.toLegacyAddress(inAddress);
         }
 
@@ -122,7 +123,7 @@ function getTransactions(address: Address) {
       for (let outAddress of txout.addresses) {
         // provider Bitcoin Cash addresses are expressed as cash addresses:
         // they have to be converted into legacy ones
-        if (configuration.symbol === "BCH") {
+        if (configuration.currency.symbol === currencies.bch.symbol) {
           outAddress = bchaddr.toLegacyAddress(outAddress);
         }
 
@@ -141,7 +142,7 @@ function getTransactions(address: Address) {
         txin.addresses.forEach((inAddress) => {
           const op = new Operation(String(tx.timestamp), amount);
 
-          if (configuration.symbol === "BCH") {
+          if (configuration.currency.symbol === currencies.bch.symbol) {
             // provider Bitcoin Cash addresses are expressed as cash addresses:
             // they have to be converted into legacy ones
             inAddress = bchaddr.toLegacyAddress(inAddress);
@@ -164,7 +165,7 @@ function getTransactions(address: Address) {
             parseFloat(txout.amount),
           );
 
-          if (configuration.symbol === "BCH") {
+          if (configuration.currency.symbol === currencies.bch.symbol) {
             // provider Bitcoin Cash addresses are expressed as cash addresses:
             // they have to be converted into legacy ones
             outAddress = bchaddr.toLegacyAddress(outAddress);
