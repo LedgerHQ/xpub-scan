@@ -27,19 +27,25 @@ async function getJSON<T>(url: string, APIKey?: string): Promise<T> {
 }
 
 function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
+  configuration.testnet = testnet || false;
+
   if (
     typeof currency === "undefined" ||
     currency === "BTC" ||
     currency === "LTC"
   ) {
-    const prefix = xpub.substring(0, 4);
-
+    const prefix = xpub.substring(0, 4).toLocaleLowerCase();
     if (prefix === "xpub") {
+      // Bitcoin mainnet
       configuration.currency = currencies.btc;
-      configuration.currency.network = testnet
-        ? currencies.btc.network_testnet
-        : currencies.btc.network_mainnet;
-    } else if (prefix === "Ltub") {
+      configuration.currency.network = currencies.btc.network_mainnet;
+    } else if (prefix === "tpub") {
+      // Bitcoin testnet
+      configuration.currency = currencies.btc;
+      configuration.currency.network = currencies.btc.network_testnet;
+      configuration.testnet = true;
+    } else if (prefix === "ltub") {
+      // Litecoin
       configuration.currency = currencies.ltc;
 
       configuration.currency.network = testnet
@@ -75,7 +81,17 @@ const setExternalProviderURL = (currency?: string): void => {
     process.env.XPUB_SCAN_CUSTOM_API_KEY
   ) {
     configuration.externalProviderURL = process.env.XPUB_SCAN_CUSTOM_API_URL;
+
+    if (configuration.testnet) {
+      configuration.externalProviderURL =
+        configuration.externalProviderURL.replace("{network}", "testnet");
+    } else {
+      configuration.externalProviderURL =
+        configuration.externalProviderURL.replace("{network}", "mainnet");
+    }
+
     configuration.providerType = "custom";
+
     return;
   }
 

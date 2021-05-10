@@ -64,6 +64,7 @@ const EXTERNAL_EXPLORERS_URLS = {
 dotenv.config();
 export const configuration = {
   currency: new Currency(),
+  testnet: false,
   externalProviderURL: "",
   APIKey: process.env.XPUB_SCAN_CUSTOM_API_KEY,
   providerType: "default",

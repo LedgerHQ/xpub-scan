@@ -54,6 +54,12 @@ async function getStats(address: Address, coin: string) {
     return getBchStats(address);
   }
 
+  if (configuration.testnet) {
+    // e.g. BTCTEST
+    // see: https://sochain.com/api#networks-supported
+    coin = coin.concat("TEST");
+  }
+
   const url = configuration.externalProviderURL
     .replace("{coin}", coin)
     .replace("{address}", address.toString());

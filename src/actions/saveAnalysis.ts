@@ -558,7 +558,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       version: meta.version,
       xpub: meta.xpub,
       analysis_date: meta.date,
-      currency: configuration.currency,
+      currency: configuration.currency.name.concat(configuration.testnet? " (testnet)" : " (mainnet)"),
       provider: configuration.providerType,
       provider_url: configuration.externalProviderURL,
       gap_limit: configuration.gap_limit,
