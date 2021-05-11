@@ -1,0 +1,24 @@
+name: Build Docker Package
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: Build and push xpub-scan image
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Build and push xpub-scan to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          file: Dockerfile
+          repository: ledgerhq/xpub-scan
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          tag_with_sha: true
+          tag_with_ref: true
