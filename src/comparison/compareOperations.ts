@@ -23,7 +23,16 @@ interface ComparingCriterion {
  *           1 if A < B
  *           0 if A == B
  */
-const compareOpsByAmountThenAddress = (A: Operation, B: Operation): number => {
+const compareOps = (A: Operation, B: Operation): number => {
+  // date
+  if (A.date > B.date) {
+    return -1;
+  }
+
+  if (A.date < B.date) {
+    return 1;
+  }
+
   // amount
   if (A.amount > B.amount) {
     return -1;
@@ -67,7 +76,8 @@ const areMatching = (
   // be used
   if (
     importedAddress &&
-    !importedAddress.includes(actualOperation.getAddress())
+    !importedAddress.includes(actualOperation.getAddress()) &&
+    !actualOperation.getAddress().includes(importedAddress)
   ) {
     return false;
   }
@@ -135,6 +145,8 @@ const showOperations = (
   switch (status) {
     case "Match":
     /* fallthrough */
+    case "Match (aggregated)":
+    /* fallthrough */
     case "Mismatch":
       imported = A.date
         .padEnd(24, " ")
@@ -165,6 +177,14 @@ const showOperations = (
         .concat(renderAddress(A.address))
         .concat(String(A.amount));
       break;
+    case "Missing (aggregated)":
+      imported = "(aggregated operation)";
+
+      actual = A.date
+        .padEnd(24, " ")
+        .concat(renderAddress(A.address))
+        .concat(String(A.amount));
+      break;
   }
 
   switch (status) {
@@ -173,6 +193,11 @@ const showOperations = (
         chalk.greenBright(imported.padEnd(halfColorPadding, " ")),
         actual,
       );
+      break;
+    case "Match (aggregated)":
+    /* fallthrough */
+    case "Missing (aggregated)":
+      console.log(chalk.green(imported.padEnd(halfColorPadding, " ")), actual);
       break;
     case "Mismatch":
     /* fallthrough */
@@ -184,6 +209,25 @@ const showOperations = (
       );
       break;
   }
+};
+
+const areAggregated = (
+  importedOp: Operation,
+  actualOps: Operation[],
+): boolean => {
+  if (typeof importedOp === "undefined") {
+    return false;
+  }
+
+  const actual = actualOps.filter((op) => op.txid === importedOp.txid);
+
+  if (actual.length < 2) {
+    return false;
+  }
+
+  const totalAmount = actual.reduce((a, b) => a + b.amount, 0);
+
+  return totalAmount === importedOp.amount;
 };
 
 /**
@@ -298,15 +342,68 @@ const checkImportedOperations = (
       }
     }
 
-    // sort both arrays of operations to ease the comparison
-    importedOps.sort(compareOpsByAmountThenAddress);
-    actualOps.sort(compareOpsByAmountThenAddress);
+    // sort I (common cases): compare by date, amount, address
+    importedOps.sort(compareOps);
+    actualOps.sort(compareOps);
+
+    // sort II (edge cases):
+    // sort operations with same txid, same date, and same amount
+    // that cannot be sorted by address
+    for (const criterion of allComparingCriteria) {
+      const imported = importedOps.filter((op) => op.txid === criterion.hash);
+
+      // if only one imported operation have this txid, skip
+      if (imported.length < 2 || typeof criterion.hash === "undefined") {
+        continue;
+      }
+
+      for (let i = 0; i < imported.length; ++i) {
+        for (let j = 0; j < actualOps.length; ++j) {
+          // if an actual operation having the same txid
+          // has an identical address...
+          if (
+            actualOps[j].txid === imported[i].txid &&
+            imported[i].address.includes(actualOps[j].address)
+          ) {
+            // ... swap it with the first actual operation
+            [actualOps[0], actualOps[j]] = [actualOps[j], actualOps[0]];
+            break;
+          }
+        }
+      }
+    }
+
+    const aggregatedTxids: string[] = [];
 
     // Math.max(...) used here because the imported and actual arrays do not
     // necessarily have the same size (i.e. missing operations)
     for (let i = 0; i < Math.max(importedOps.length, actualOps.length); ++i) {
       const importedOp = importedOps[i];
       const actualOp = actualOps[i];
+
+      // aggregated operations
+      // (fixes https://github.com/LedgerHQ/xpub-scan/issues/23)
+      if (
+        typeof actualOp !== "undefined" &&
+        (aggregatedTxids.includes(actualOp.txid) ||
+          areAggregated(importedOp, actualOps))
+      ) {
+        aggregatedTxids.push(actualOp.txid);
+
+        if (typeof importedOp !== "undefined") {
+          showOperations("Match (aggregated)", importedOp, actualOp);
+        } else {
+          showOperations("Missing (aggregated)", actualOp);
+        }
+
+        comparisons.push({
+          imported: importedOp,
+          actual: actualOp,
+          status: "Match (aggregated)",
+        });
+
+        continue;
+      }
 
       // actual operation with no corresponding imported operation
       if (typeof importedOp === "undefined") {
