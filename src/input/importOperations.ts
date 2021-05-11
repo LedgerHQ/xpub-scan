@@ -36,6 +36,10 @@ const getFileContents = (path: string): string => {
 const importFromCSVTypeA = (contents: string): Operation[] => {
   const operations: Operation[] = [];
 
+  // temporary fix: offset if CSV refers to storageLimit
+  // (only columns with index > 14 have to be offsetted in this situation)
+  const offset = contents.includes("storageLimit") ? 1 : 0;
+
   contents
     .split(/\r?\n/)
     .slice(1)
@@ -56,9 +60,9 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
       const type = String(tokens[2]); // CREDIT || DEBIT
       const status = String(tokens[4]); // CONFIRMED || ABORTED
       const amount = parseFloat(tokens[8]); // in bitcoins
-      const txid = tokens[16];
-      const sender = String(tokens[17]).replace('"', "");
-      const recipient = String(tokens[18]).replace('"', "");
+      const txid = tokens[16 + offset];
+      const sender = String(tokens[17 + offset]).replace('"', "");
+      const recipient = String(tokens[18 + offset]).replace('"', "");
 
       // process only confirmed transactions
       if (status === "CONFIRMED") {
