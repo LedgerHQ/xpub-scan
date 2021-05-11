@@ -10,6 +10,7 @@ import { reportTemplate } from "../templates/report.html";
 import { toUnprefixedCashAddress } from "../helpers";
 import { Address } from "../models/address";
 import { TODO_TypeThis } from "../types";
+import { currencies } from "../configuration/currencies";
 
 function toBaseUnit(amount: number) {
   // to bitcoins (or equivalent unit)
@@ -63,11 +64,16 @@ function getUrl(itemType: string, item: string) {
   // exception(s)
   // ------------
 
+  // Testnet
+  if (configuration.testnet) {
+    url = url.replace("{coin}", "{coin}-testnet");
+  }
+
   // Bitcoin Cash
   //
   // coin:        "bitcoin-cash"
   // item types:  "address" | "transaction"
-  if (configuration.symbol === "BCH") {
+  if (configuration.currency.symbol === currencies.bch.symbol) {
     url = EXTERNAL_EXPLORERS_URLS.bch;
     url = url.replace("{coin}", "bitcoin-cash");
     itemTypes.transaction = "transaction";
@@ -90,7 +96,7 @@ function getUrl(itemType: string, item: string) {
   }
 
   return url
-    .replace("{coin}", configuration.symbol.toLowerCase())
+    .replace("{coin}", configuration.currency.symbol.toLowerCase())
     .replace("{item}", item);
 }
 
@@ -114,7 +120,7 @@ function addressAsLink(address: string) {
 function renderAddress(address: string, cashAddress?: string) {
   const renderedAddress = addressAsLink(address);
 
-  if (configuration.symbol !== "BCH" || !cashAddress) {
+  if (configuration.currency.symbol !== currencies.bch.symbol || !cashAddress) {
     return renderedAddress;
   } else {
     // Bitcoin Cash: handle Legacy/Cash address duality:
@@ -557,7 +563,9 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       version: meta.version,
       xpub: meta.xpub,
       analysis_date: meta.date,
-      currency: configuration.currency,
+      currency: configuration.currency.name.concat(
+        configuration.testnet ? " (testnet)" : " (mainnet)",
+      ),
       provider: configuration.providerType,
       provider_url: configuration.externalProviderURL,
       gap_limit: configuration.gap_limit,

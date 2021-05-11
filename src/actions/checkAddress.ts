@@ -140,26 +140,17 @@ function search(
 }
 
 // check basic assumptions to avoid useless comparisons
-function sanityCheck(xpub: string, provided: string) {
+function sanityCheck() {
   // check that the settings are set
   if (typeof DERIVATION_SCOPE === "undefined") {
     showError("DERIVATION_SCOPE setting is not defined");
-  }
-
-  // check assumptions regarding the provided address
-  const derived = getAddress(getAddressType(provided), xpub, 0, 0);
-
-  if (derived.toUpperCase()[0] !== provided.toUpperCase()[0]) {
-    // assumption 2. derived and provided share the same prefix
-    showError("Prefixes mismatch", derived, provided);
-    return false;
   }
 
   return true;
 }
 
 function run(xpub: string, providedAddress: string) {
-  if (!sanityCheck(xpub, providedAddress)) {
+  if (!sanityCheck()) {
     return;
   }
 

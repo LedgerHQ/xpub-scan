@@ -10,46 +10,28 @@ Object.freeze(AddressType);
 
 // TODO: complete migratation from settings to currencies
 export const currencies = {
-  btc_mainnet: {
-    name: "Bitcoin Mainnet",
+  btc: {
+    name: "Bitcoin",
     symbol: "BTC",
-    network: coininfo.bitcoin.main.toBitcoinJS(),
-    types: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
+    network_mainnet: coininfo.bitcoin.main.toBitcoinJS(),
+    network_testnet: coininfo.bitcoin.test.toBitcoinJS(),
+    addressTypes: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
     precision: 100000000,
   },
-  btc_tesnet: {
-    name: "Bitcoin Testnet",
-    symbol: "BTC",
-    network: coininfo.bitcoin.test.toBitcoinJS(),
-    types: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
-    precision: 100000000,
-  },
-  bch_mainnet: {
-    name: "Bitcoin Cash Mainnet",
+  bch: {
+    name: "Bitcoin Cash",
     symbol: "BCH",
-    network: coininfo.bitcoincash.main.toBitcoinJS(),
-    types: [AddressType.BCH],
+    network_mainnet: coininfo.bitcoincash.main.toBitcoinJS(),
+    network_testnet: coininfo.bitcoincash.test.toBitcoinJS(),
+    addressTypes: [AddressType.BCH],
     precision: 100000000,
   },
-  bch_tesnet: {
-    name: "Bitcoin Cash Testnet",
-    symbol: "BCH",
-    network: coininfo.bitcoincash.test.toBitcoinJS(),
-    types: [AddressType.BCH],
-    precision: 100000000,
-  },
-  ltc_mainnet: {
-    name: "Litecoin Mainnet",
+  ltc: {
+    name: "Litecoin",
     symbol: "LTC",
-    network: coininfo.litecoin.main.toBitcoinJS(),
-    types: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
-    precision: 100000000,
-  },
-  ltc_tesnet: {
-    name: "Litecoin Testnet",
-    symbol: "LTC",
-    network: coininfo.litecoin.test.toBitcoinJS(),
-    types: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
+    network_mainnet: coininfo.litecoin.main.toBitcoinJS(),
+    network_testnet: coininfo.litecoin.test.toBitcoinJS(),
+    addressTypes: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
     precision: 100000000,
   },
 };

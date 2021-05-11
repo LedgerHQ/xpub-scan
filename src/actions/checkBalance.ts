@@ -10,6 +10,7 @@ import { configuration } from "../configuration/settings";
 import { AddressType } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 import { TODO_TypeThis } from "../types";
+import { currencies } from "../configuration/currencies";
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
@@ -150,7 +151,7 @@ async function run(xpub: string, scanLimits?: ScanLimits) {
     AddressType.NATIVE,
   ];
 
-  if (configuration.symbol === "BCH") {
+  if (configuration.currency.symbol === currencies.bch.symbol) {
     addressTypes = [AddressType.BCH];
   }
 

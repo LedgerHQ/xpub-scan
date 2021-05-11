@@ -26,31 +26,40 @@ async function getJSON<T>(url: string, APIKey?: string): Promise<T> {
   return res.data;
 }
 
-function setNetwork(xpub: string, currency?: string) {
+function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
+  configuration.testnet = testnet || false;
+
   if (
     typeof currency === "undefined" ||
     currency === "BTC" ||
     currency === "LTC"
   ) {
-    const prefix = xpub.substring(0, 4);
-
+    const prefix = xpub.substring(0, 4).toLocaleLowerCase();
     if (prefix === "xpub") {
-      configuration.network = currencies.btc_mainnet.network;
-      configuration.currency = "Bitcoin";
-      configuration.symbol = "BTC";
-    } else if (prefix === "Ltub") {
-      configuration.network = currencies.ltc_mainnet.network;
-      configuration.currency = "Litecoin";
-      configuration.symbol = "LTC";
+      // Bitcoin mainnet
+      configuration.currency = currencies.btc;
+      configuration.currency.network = currencies.btc.network_mainnet;
+    } else if (prefix === "tpub") {
+      // Bitcoin testnet
+      configuration.currency = currencies.btc;
+      configuration.currency.network = currencies.btc.network_testnet;
+      configuration.testnet = true;
+    } else if (prefix === "ltub") {
+      // Litecoin
+      configuration.currency = currencies.ltc;
+
+      // TODO: LTC testnet
+      configuration.currency.network = currencies.ltc.network_mainnet;
     } else {
       throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
     }
   } else {
     // Bitcoin Cash
     if (currency.includes("cash") || currency === "BCH") {
-      configuration.network = currencies.bch_mainnet.network;
-      configuration.currency = "Bitcoin Cash";
-      configuration.symbol = "BCH";
+      configuration.currency = currencies.bch;
+
+      // TODO: BCH testnet
+      configuration.currency.network = currencies.bch.network_mainnet;
       return;
     }
 
@@ -63,24 +72,34 @@ function setNetwork(xpub: string, currency?: string) {
  *          Symbol of the currency (e.g. 'BCH')
  * @returns void
  */
-const setExternalProviderURL = (currency?: string): void => {
+const setExternalProviderURL = (): void => {
   // custom provider (i.e., API key is set)
   if (
     process.env.XPUB_SCAN_CUSTOM_API_URL &&
     process.env.XPUB_SCAN_CUSTOM_API_KEY
   ) {
-    configuration.externalProviderURL = process.env.XPUB_SCAN_CUSTOM_API_URL;
+    configuration.externalProviderURL =
+      process.env.XPUB_SCAN_CUSTOM_API_URL.replace(
+        "{network}",
+        configuration.testnet ? "testnet" : "mainnet",
+      );
+
     configuration.providerType = "custom";
+
     return;
   }
 
   // default provider
-  if (!currency) {
+  const currency = configuration.currency;
+  if (
+    currency.symbol === currencies.btc.symbol ||
+    currency.symbol === currencies.ltc.symbol
+  ) {
     configuration.externalProviderURL = DEFAULT_API_URLS.general;
     return;
   }
 
-  if (currency === "BCH") {
+  if (currency.symbol === currencies.bch.symbol) {
     configuration.externalProviderURL = DEFAULT_API_URLS.bch;
     return;
   }
@@ -92,7 +111,7 @@ const setExternalProviderURL = (currency?: string): void => {
 // TODO: extend to ypub, zpub...
 function checkXpub(xpub: string) {
   try {
-    bip32.fromBase58(xpub, configuration.network);
+    bip32.fromBase58(xpub, configuration.currency.network);
   } catch (e) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
   }
@@ -115,18 +134,19 @@ function init(
   silent: boolean,
   quiet: boolean,
   currency?: string,
+  testnet?: boolean,
 ) {
   configuration.silent = silent;
   configuration.quiet = quiet;
 
-  setNetwork(xpub, currency);
-  setExternalProviderURL(currency);
+  setNetwork(xpub, currency, testnet);
+  setExternalProviderURL();
   checkXpub(xpub);
 }
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
 function toUnprefixedCashAddress(address: string) {
-  if (configuration.symbol !== "BCH") {
+  if (configuration.currency.symbol !== currencies.bch.symbol) {
     return undefined;
   }
 

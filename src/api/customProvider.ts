@@ -8,6 +8,7 @@ import { Operation } from "../models/operation";
 import { TODO_TypeThis } from "../types";
 
 import bchaddr from "bchaddrjs";
+import { currencies } from "../configuration/currencies";
 
 interface RawTransaction {
   txid: string;
@@ -28,9 +29,12 @@ interface RawTransaction {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-async function getStats(address: Address, coinDenomination: string) {
+async function getStats(address: Address) {
+  // important: coin name is required to be lower case for custom provider
+  const coin = configuration.currency.symbol.toLowerCase();
+
   const url = configuration.externalProviderURL
-    .replace("{coin}", coinDenomination)
+    .replace("{coin}", coin)
     .replace("{address}", address.toString());
 
   const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
@@ -45,7 +49,7 @@ async function getStats(address: Address, coinDenomination: string) {
 
   if (res.payload.txsCount > 0) {
     const getTxsURLTemplate = configuration.externalProviderURL
-      .replace("{coin}", coinDenomination)
+      .replace("{coin}", coin)
       .replace("{address}", address.toString())
       .concat("/transactions?index={index}&limit={limit}");
 
@@ -107,7 +111,7 @@ function getTransactions(address: Address) {
       for (let inAddress of txin.addresses) {
         // provider Bitcoin Cash addresses are expressed as cash addresses:
         // they have to be converted into legacy ones
-        if (configuration.symbol === "BCH") {
+        if (configuration.currency.symbol === currencies.bch.symbol) {
           inAddress = bchaddr.toLegacyAddress(inAddress);
         }
 
@@ -122,7 +126,7 @@ function getTransactions(address: Address) {
       for (let outAddress of txout.addresses) {
         // provider Bitcoin Cash addresses are expressed as cash addresses:
         // they have to be converted into legacy ones
-        if (configuration.symbol === "BCH") {
+        if (configuration.currency.symbol === currencies.bch.symbol) {
           outAddress = bchaddr.toLegacyAddress(outAddress);
         }
 
@@ -141,7 +145,7 @@ function getTransactions(address: Address) {
         txin.addresses.forEach((inAddress) => {
           const op = new Operation(String(tx.timestamp), amount);
 
-          if (configuration.symbol === "BCH") {
+          if (configuration.currency.symbol === currencies.bch.symbol) {
             // provider Bitcoin Cash addresses are expressed as cash addresses:
             // they have to be converted into legacy ones
             inAddress = bchaddr.toLegacyAddress(inAddress);
@@ -164,7 +168,7 @@ function getTransactions(address: Address) {
             parseFloat(txout.amount),
           );
 
-          if (configuration.symbol === "BCH") {
+          if (configuration.currency.symbol === currencies.bch.symbol) {
             // provider Bitcoin Cash addresses are expressed as cash addresses:
             // they have to be converted into legacy ones
             outAddress = bchaddr.toLegacyAddress(outAddress);

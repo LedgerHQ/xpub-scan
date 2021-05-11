@@ -14,10 +14,10 @@ function getLegacyAddress(
 ): string {
   const { address } = bjs.payments.p2pkh({
     pubkey: bip32
-      .fromBase58(xpub, configuration.network)
+      .fromBase58(xpub, configuration.currency.network)
       .derive(account)
       .derive(index).publicKey,
-    network: configuration.network,
+    network: configuration.currency.network,
   });
 
   return String(address);
@@ -31,10 +31,10 @@ function getNativeSegWitAddress(
 ): string {
   const { address } = bjs.payments.p2wpkh({
     pubkey: bip32
-      .fromBase58(xpub, configuration.network)
+      .fromBase58(xpub, configuration.currency.network)
       .derive(account)
       .derive(index).publicKey,
-    network: configuration.network,
+    network: configuration.currency.network,
   });
 
   return String(address);
@@ -49,10 +49,10 @@ function getSegWitAddress(
   const { address } = bjs.payments.p2sh({
     redeem: bjs.payments.p2wpkh({
       pubkey: bip32
-        .fromBase58(xpub, configuration.network)
+        .fromBase58(xpub, configuration.currency.network)
         .derive(account)
         .derive(index).publicKey,
-      network: configuration.network,
+      network: configuration.currency.network,
     }),
   });
 
@@ -105,11 +105,11 @@ function getAddress(
 // correspond to the actual type (currently, a `ltc1` prefix
 // could match a native Bitcoin address type for instance)
 function getAddressType(address: string) {
-  if (address.match("^(bc1|ltc1).*")) {
+  if (address.match("^(bc1|tb1|ltc1).*")) {
     return AddressType.NATIVE;
-  } else if (address.match("^(3|M).*")) {
+  } else if (address.match("^(3|2|M).*")) {
     return AddressType.SEGWIT;
-  } else if (address.match("^(1|L).*")) {
+  } else if (address.match("^(1|n|m|L).*")) {
     return AddressType.LEGACY;
   } else {
     throw new Error(

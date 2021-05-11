@@ -6,6 +6,7 @@ import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
 import { TODO_TypeThis } from "../types";
+import { currencies } from "../configuration/currencies";
 
 // raw transactions provided by default API
 interface RawTransaction {
@@ -48,9 +49,18 @@ interface BchRawTransaction {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-async function getStats(address: Address, coin: string) {
-  if (coin === "BCH") {
+async function getStats(address: Address) {
+  // important: coin name is required to be upper case for default provider
+  let coin = configuration.currency.symbol.toUpperCase();
+
+  if (coin === currencies.bch.symbol) {
     return getBchStats(address);
+  }
+
+  if (coin === currencies.btc.symbol.toUpperCase() && configuration.testnet) {
+    // Bitcoin Testnet: "BTCTEST"
+    // see: https://sochain.com/api#networks-supported
+    coin = coin.concat("TEST");
   }
 
   const url = configuration.externalProviderURL
@@ -113,7 +123,7 @@ async function getBchStats(address: Address) {
 function getTransactions(address: Address) {
   // Because the general default API is not compatible with Bitcoin Cash,
   // these transactions have to be specifically handled
-  if (configuration.symbol === "BCH") {
+  if (configuration.currency.symbol === currencies.bch.symbol) {
     return getBchTransactions(address);
   }
 
