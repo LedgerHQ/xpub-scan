@@ -6,6 +6,19 @@ import { Operation } from "../models/operation";
 import { configuration } from "../configuration/settings";
 
 /**
+ * Remove forbidden chars from address(es)
+ * note that comma (,) are allowed to render concatenated
+ * addresses
+ * @param  {string} address
+ *        An inputed address or an aggregated list of inputed addresses
+ * @returns string
+ *        A sanitized address or a sanitized aggregated list of addresses
+ */
+const sanitizeInputedAddress = (address: string): string => {
+  return address.replace(/[^0-9A-Za-z,]/gi, "");
+};
+
+/**
  * Get contents from file to import
  * @param  {string} path
  *          Path of file to import
@@ -61,8 +74,8 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
       const status = String(tokens[4]); // CONFIRMED || ABORTED
       const amount = parseFloat(tokens[8]); // in bitcoins
       const txid = tokens[16 + offset];
-      const sender = String(tokens[17 + offset]).replace('"', "");
-      const recipient = String(tokens[18 + offset]).replace('"', "");
+      const sender = tokens[17 + offset];
+      const recipient = tokens[18 + offset];
 
       // process only confirmed transactions
       if (status === "CONFIRMED") {
@@ -74,7 +87,7 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
           // ! for this type of CSV, this field is required and should
           // default to a non-empty string (here: `(no address)`) to
           // ensure that an operation without address results in a mismatch
-          op.setAddress(recipient);
+          op.setAddress(sanitizeInputedAddress(recipient));
 
           op.setType("Received");
 
@@ -87,7 +100,7 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
           // ! for this type of CSV, this field is required and should
           // default to a non-empty string (here: `(no address)`) to
           // ensure that an operation without address results in a mismatch
-          op.setAddress(sender);
+          op.setAddress(sanitizeInputedAddress(sender));
 
           op.setType("Sent");
 
@@ -193,7 +206,7 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
         }
       }
 
-      op.setAddress(addresses.join(","));
+      op.setAddress(sanitizeInputedAddress(addresses.join(",")));
 
       operations.push(op);
     } else if (type === "send") {
@@ -212,7 +225,7 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
         }
       }
 
-      op.setAddress(addresses.join(","));
+      op.setAddress(sanitizeInputedAddress(addresses.join(",")));
 
       operations.push(op);
     }
@@ -255,7 +268,7 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
       const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
       op.setTxid(txid);
       op.setType("Received");
-      op.setAddress(recipient);
+      op.setAddress(sanitizeInputedAddress(recipient));
 
       operations.push(op);
     } else if (type === "OUT") {
@@ -266,7 +279,7 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
       const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
       op.setTxid(txid);
       op.setType("Sent");
-      op.setAddress(sender);
+      op.setAddress(sanitizeInputedAddress(sender));
 
       operations.push(op);
     }
@@ -314,7 +327,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
         addresses.push(output);
       }
 
-      op.setAddress(addresses.join(","));
+      op.setAddress(sanitizeInputedAddress(addresses.join(",")));
 
       operations.push(op);
     } else if (type === "SEND") {
@@ -329,7 +342,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
         addresses.push(input);
       }
 
-      op.setAddress(addresses.join(","));
+      op.setAddress(sanitizeInputedAddress(addresses.join(",")));
 
       operations.push(op);
     }

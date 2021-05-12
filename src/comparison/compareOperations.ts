@@ -261,7 +261,7 @@ const checkImportedOperations = (
   const allComparingCriteria: ComparingCriterion[] = []; // TODO: convert into a Set as they have to be unique
   const comparisons: Comparison[] = [];
 
-  // filter imported operations if scan is limited
+  // filter imported operations if scan is limited (range scan)
   if (partialComparison) {
     const rangeAddresses = actualAddresses.map((address) => address.toString());
 
