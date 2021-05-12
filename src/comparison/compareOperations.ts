@@ -61,8 +61,8 @@ const compareOps = (A: Operation, B: Operation): number => {
  * @param  {Operation} actualOperation
  *          An actual operation
  * @returns boolean
- *          true if operations are matching
- *          false if operations are not matching
+ *          `true` if operations are matching
+ *          `false` if operations are not matching
  */
 const areMatching = (
   importedOperation: Operation,
@@ -210,7 +210,16 @@ const showOperations = (
       break;
   }
 };
-
+/**
+ * Check whether operations are aggregated or not
+ * @param  {Operation} importedOp
+ *          An imported operation
+ * @param  {Operation[]} actualOps
+ *          List of actual operations
+ * @returns boolean
+ *          `true` if operations are aggregated
+ *          `false` if operations are not aggregated
+ */
 const areAggregated = (
   importedOp: Operation,
   actualOps: Operation[],
