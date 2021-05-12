@@ -210,6 +210,7 @@ const showOperations = (
       break;
   }
 };
+
 /**
  * Check whether operations are aggregated or not
  * @param  {Operation} importedOp
@@ -247,8 +248,6 @@ const areAggregated = (
  *          Actual operations
  * @returns Comparison
  *          Result of the comparison
- *
- * TODO: handle aggregated operations
  */
 const checkImportedOperations = (
   importedOperations: Operation[],
@@ -267,7 +266,7 @@ const checkImportedOperations = (
     );
   }
 
-  const allComparingCriteria: ComparingCriterion[] = []; // TODO: convert into a Set as they have to be unique
+  const allComparingCriteria: ComparingCriterion[] = [];
   const comparisons: Comparison[] = [];
 
   // filter imported operations if scan is limited (range scan)
