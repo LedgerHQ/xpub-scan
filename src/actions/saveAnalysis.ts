@@ -311,6 +311,11 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
           continue; // if diff: ignore matches
         }
         comparisons.push('<tr class="comparison_match">');
+      } else if (e.status.includes("aggregated")) {
+        if (onlyDiff) {
+          continue; // if diff: ignore aggregated operations
+        }
+        comparisons.push('<tr class="comparison_aggregated">');
       } else {
         comparisons.push('<tr class="comparison_mismatch">');
       }

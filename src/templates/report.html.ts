@@ -109,6 +109,10 @@ export const reportTemplate = `
         color: #cc0000 !important;
       }
 
+      .comparison_aggregated {
+        color: #000080 !important;
+      }
+
       strong {
         font-weight: bold;
       }
