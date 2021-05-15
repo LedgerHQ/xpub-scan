@@ -132,9 +132,8 @@ function getTransactions(address: Address) {
 
         if (outAddress.includes(address.toString()!)) {
           // when IN op, amount corresponds to txout
-          amount = parseFloat(txout.amount);
+          amount += parseFloat(txout.amount);
           processIn = true;
-          break;
         }
       }
     }

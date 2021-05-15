@@ -99,14 +99,10 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
   const internalAddresses = ownAddresses.getInternalAddresses();
   const externalAddresses = ownAddresses.getExternalAddresses();
 
-  let hasOutputs = false;
-
   for (const tx of transactions) {
     const outs = tx.outs;
 
     outs.forEach((out) => {
-      hasOutputs = true;
-
       // exclude internal (i.e. change) addresses
       if (!internalAddresses.includes(out.address)) {
         const op = new Operation(tx.date, out.amount);
@@ -128,10 +124,6 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
         address.addSentOperation(op);
       }
     });
-  }
-
-  if (!hasOutputs) {
-    address.setAsUTXO();
   }
 
   if (VERBOSE) {

@@ -45,6 +45,10 @@ class Address {
 
   setBalance(balance: number) {
     this.balance = balance;
+
+    if (balance > 0) {
+      this.utxo = true;
+    }
   }
 
   setStats(txsCount: number, fundedSum: number, spentSum: number) {
@@ -52,10 +56,6 @@ class Address {
     this.stats.txsCount = txsCount;
     this.stats.funded = fundedSum;
     this.stats.spent = spentSum;
-  }
-
-  setAsUTXO() {
-    this.utxo = true;
   }
 
   addFundedOperation(funded: Operation) {
