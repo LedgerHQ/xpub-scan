@@ -54,6 +54,11 @@ export const getArgs = (): TODO_TypeThis => {
       demand: false,
       type: "string",
     })
+    .option("derivation-mode", {
+      description: "Select specific derivation mode (legacy, SegWit, etc.)",
+      demand: false,
+      type: "string",
+    })
     // stdout options
     .option("silent", {
       description:
