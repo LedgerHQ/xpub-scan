@@ -3,7 +3,7 @@ import coininfo from "coininfo";
 export enum DerivationMode {
   LEGACY = "Legacy",
   NATIVE = "Native SegWit",
-  SEGWIT = "Segwit",
+  SEGWIT = "SegWit",
   BCH = "Bitcoin Cash",
 }
 

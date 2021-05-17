@@ -17,7 +17,8 @@ import { save } from "./actions/saveAnalysis";
 import { getArgs } from "./input/args";
 import { configuration } from "./configuration/settings";
 
-const VERSION = "0.3.7";
+// eslint-disable-next-line
+const { version } = require("../package.json");
 
 const args = getArgs();
 
@@ -99,7 +100,7 @@ async function scan() {
     const meta = {
       xpub,
       date: now,
-      version: VERSION,
+      version,
       mode,
       preDerivationSize: args.preDerivationSize,
       derivationMode: configuration.specificDerivationMode,
