@@ -56,7 +56,7 @@ class Operation {
     this.operationType = operationType;
   }
 
-  getType() {
+  getDerivationMode() {
     return this.operationType;
   }
 }

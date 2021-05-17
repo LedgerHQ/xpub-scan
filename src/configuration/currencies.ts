@@ -1,12 +1,12 @@
 import coininfo from "coininfo";
 
-export enum AddressType {
+export enum DerivationMode {
   LEGACY = "Legacy",
   NATIVE = "Native SegWit",
   SEGWIT = "SegWit",
   BCH = "Bitcoin Cash",
 }
-Object.freeze(AddressType);
+Object.freeze(DerivationMode);
 
 // TODO: complete migratation from settings to currencies
 export const currencies = {
@@ -15,7 +15,7 @@ export const currencies = {
     symbol: "BTC",
     network_mainnet: coininfo.bitcoin.main.toBitcoinJS(),
     network_testnet: coininfo.bitcoin.test.toBitcoinJS(),
-    addressTypes: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
+    derivationModes: [DerivationMode.LEGACY, DerivationMode.SEGWIT, DerivationMode.NATIVE],
     precision: 100000000,
   },
   bch: {
@@ -23,7 +23,7 @@ export const currencies = {
     symbol: "BCH",
     network_mainnet: coininfo.bitcoincash.main.toBitcoinJS(),
     network_testnet: coininfo.bitcoincash.test.toBitcoinJS(),
-    addressTypes: [AddressType.BCH],
+    derivationModes: [DerivationMode.BCH],
     precision: 100000000,
   },
   ltc: {
@@ -31,7 +31,7 @@ export const currencies = {
     symbol: "LTC",
     network_mainnet: coininfo.litecoin.main.toBitcoinJS(),
     network_testnet: coininfo.litecoin.test.toBitcoinJS(),
-    addressTypes: [AddressType.LEGACY, AddressType.SEGWIT, AddressType.NATIVE],
+    derivationModes: [DerivationMode.LEGACY, DerivationMode.SEGWIT, DerivationMode.NATIVE],
     precision: 100000000,
   },
 };

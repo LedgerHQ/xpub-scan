@@ -7,20 +7,19 @@ import { Address } from "../models/address";
 import { OwnAddresses } from "../models/ownAddresses";
 import { ScanLimits } from "../models/scanLimits";
 import { configuration } from "../configuration/settings";
-import { AddressType } from "../configuration/currencies";
+import { DerivationMode } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 import { TODO_TypeThis } from "../types";
-import { currencies } from "../configuration/currencies";
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
 async function scanAddresses(
-  addressType: AddressType,
+  derivationMode: DerivationMode,
   xpub: string,
   scanLimits?: ScanLimits,
 ) {
   display.logStatus(
-    "Scanning ".concat(chalk.bold(addressType)).concat(" addresses..."),
+    "Scanning ".concat(chalk.bold(derivationMode)).concat(" addresses..."),
   );
 
   const ownAddresses = new OwnAddresses();
@@ -45,7 +44,7 @@ async function scanAddresses(
     // transaction analysis further down the flow
     for (let a = 0; a < 2; a++) {
       for (let i = 0; i < preDerivationSize; i++) {
-        ownAddresses.addAddress(new Address(addressType, xpub, a, i));
+        ownAddresses.addAddress(new Address(derivationMode, xpub, a, i));
       }
     }
   }
@@ -76,7 +75,7 @@ async function scanAddresses(
         break;
       }
 
-      const address = new Address(addressType, xpub, account, index);
+      const address = new Address(derivationMode, xpub, account, index);
       display.updateAddressDetails(address);
 
       const status = noTxCounter === 0 ? "analyzing" : "probing address gap";
@@ -133,7 +132,7 @@ async function scanAddresses(
   });
   display.transientLine(/* delete address */);
 
-  display.logStatus(addressType.concat(" addresses scanned\n"));
+  display.logStatus(derivationMode.concat(" addresses scanned\n"));
 
   return {
     balance: sb.toBitcoin(totalBalance), // convert balance back to bitcoins (or equivalent unit)
@@ -145,27 +144,19 @@ async function run(xpub: string, scanLimits?: ScanLimits) {
   let activeAddresses: Address[] = [];
   const summary: TODO_TypeThis[] = [];
 
-  let addressTypes: AddressType[] = [
-    AddressType.LEGACY,
-    AddressType.SEGWIT,
-    AddressType.NATIVE,
-  ];
-
-  if (configuration.currency.symbol === currencies.bch.symbol) {
-    addressTypes = [AddressType.BCH];
-  }
+  const derivationModes = configuration.currency.derivationModes;
 
   if (!configuration.silent) {
     console.log(chalk.bold("\nActive addresses\n"));
   }
 
-  for (const addressType of addressTypes) {
-    const results = await scanAddresses(addressType, xpub, scanLimits);
+  for (const derivationMode of derivationModes) {
+    const results = await scanAddresses(derivationMode, xpub, scanLimits);
 
     activeAddresses = activeAddresses.concat(results.addresses);
 
     summary.push({
-      addressType,
+      derivationMode,
       balance: results.balance,
     });
   }

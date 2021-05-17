@@ -208,7 +208,7 @@ function makeUTXOSTable(object: TODO_TypeThis) {
   const utxos: string[] = [];
 
   for (const e of object.utxos) {
-    utxos.push("<tr><td>" + e.addressType + "</td>");
+    utxos.push("<tr><td>" + e.derivationMode + "</td>");
 
     const derivationPath =
       "m/" + e.derivation.account + "/" + e.derivation.index;
@@ -369,7 +369,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   // summary
   const summary: string[] = [];
   for (const e of object.summary) {
-    summary.push("<tr><td>" + e.addressType + "</td>");
+    summary.push("<tr><td>" + e.derivationMode + "</td>");
 
     const balance = sb.toBitcoin(e.balance);
 
@@ -389,7 +389,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   const addresses: string[] = [];
 
   for (const e of object.addresses) {
-    addresses.push("<tr><td>" + e.addressType + "</td>");
+    addresses.push("<tr><td>" + e.derivationMode + "</td>");
 
     const derivationPath =
       "m/" + e.derivation.account + "/" + e.derivation.index;
@@ -482,7 +482,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   // convert amounts into base unit
   const addresses: TODO_TypeThis[] = data.addresses.map((e: TODO_TypeThis) => {
     return {
-      addressType: e.addressType,
+      derivationMode: e.derivationMode,
       derivation: e.getDerivation(),
       address: e.toString(),
       cashAddress: e.asCashAddress(),
@@ -496,7 +496,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     .filter((a: Address) => a.isUTXO())
     .map((e: TODO_TypeThis) => {
       return {
-        addressType: e.addressType,
+        derivationMode: e.derivationMode,
         derivation: e.getDerivation(),
         address: e.toString(),
         cashAddress: e.asCashAddress(),

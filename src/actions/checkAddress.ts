@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-import { getAddressType, getAddress } from "./deriveAddresses";
+import { getDerivationMode, getAddress } from "./deriveAddresses";
 import { DERIVATION_SCOPE } from "../configuration/settings";
 import { TODO_TypeThis } from "../types";
 
@@ -88,7 +88,7 @@ function search(
   range: TODO_TypeThis,
   searchType: string,
 ): Result {
-  const addressType = getAddressType(providedAddress);
+  const derivationMode = getDerivationMode(providedAddress);
   const partialSearch = providedAddress.includes("?");
 
   for (
@@ -97,7 +97,7 @@ function search(
     ++account
   ) {
     for (let index = range.index.min; index < range.index.max; ++index) {
-      const derivedAddress = getAddress(addressType, xpub, account, index);
+      const derivedAddress = getAddress(derivationMode, xpub, account, index);
 
       // m/{account}/{index}
       const derivationPath = "m/".concat(account).concat("/").concat(index);

@@ -35,7 +35,7 @@ function updateAddressDetails(address: Address) {
     return;
   }
 
-  const addressType = address.getType();
+  const derivationMode = address.getDerivationMode();
   const account = address.getDerivation().account;
   const index = address.getDerivation().index;
 
@@ -50,7 +50,7 @@ function updateAddressDetails(address: Address) {
   let stats =
     //    _{address type}_  {derivation path}  {address}  [{cash address}]...
     "  "
-      .concat(chalk.italic(addressType.padEnd(16, " ")))
+      .concat(chalk.italic(derivationMode.padEnd(16, " ")))
       .concat(derivationPath.padEnd(12, " "));
 
   const cashAddress = address.asCashAddress();
@@ -168,7 +168,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
       // ... -{amount} →|⮂|↺
       status = status.concat("-").concat(amount);
 
-      const operationType = op.getType();
+      const operationType = op.getDerivationMode();
 
       if (operationType === "Sent to self") {
         // case 1. Sent to the same address
@@ -191,7 +191,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
 }
 
 // display the summary: total balance by address type
-function showSummary(addressType: string, totalBalance: number) {
+function showSummary(derivationMode: string, totalBalance: number) {
   if (configuration.silent) {
     return;
   }
@@ -200,12 +200,14 @@ function showSummary(addressType: string, totalBalance: number) {
 
   if (balance === "0") {
     console.log(
-      chalk.grey(addressType.padEnd(16, " ").concat(balance.padEnd(12, " "))),
+      chalk.grey(
+        derivationMode.padEnd(16, " ").concat(balance.padEnd(12, " ")),
+      ),
     );
   } else {
     console.log(
       chalk
-        .whiteBright(addressType.padEnd(16, " "))
+        .whiteBright(derivationMode.padEnd(16, " "))
         .concat(chalk.greenBright(balance.padEnd(12, " "))),
     );
   }
@@ -257,7 +259,7 @@ function showResults(
 
   console.log(chalk.bold("\nSummary\n"));
   for (const total of summary) {
-    showSummary(total.addressType, total.balance);
+    showSummary(total.derivationMode, total.balance);
   }
 }
 
