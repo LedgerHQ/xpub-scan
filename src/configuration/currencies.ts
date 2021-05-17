@@ -1,11 +1,10 @@
 import coininfo from "coininfo";
 
 export enum DerivationMode {
-  LEGACY = "legacy",
-  NATIVE = "native",
-  SEGWIT = "segwit",
-  BCH = "bch",
-  UNKNOWN = "Unknown",
+  LEGACY = "Legacy",
+  NATIVE = "Native SegWit",
+  SEGWIT = "Segwit",
+  BCH = "Bitcoin Cash",
 }
 
 // TODO: complete migratation from settings to currencies

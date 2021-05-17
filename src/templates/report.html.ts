@@ -270,7 +270,7 @@ export const reportTemplate = `
         <li><strong>Analysis date:</strong> {analysis_date}</li>
         <li><strong>Provider:</strong> {provider} ({provider_url})</li>
         <li><strong>Gap limit:</strong> {gap_limit}</li>
-        <li><strong>Scan mode:</strong> {mode} {pre_derivation_size}</li>
+        <li><strong>Scan mode:</strong> {mode} {pre_derivation_size} {derivation_mode}</li>
         <li><strong>Xpub Scan version:</strong> {version}</li>
       </ul>
     </div>

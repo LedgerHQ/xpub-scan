@@ -148,10 +148,11 @@ async function run(xpub: string, scanLimits?: ScanLimits) {
 
   if (configuration.specificDerivationMode) {
     // if a specific derivation mode is set, limit the scan to this mode
-    derivationModes = derivationModes.filter(
-      (d) =>
-        d.toString().toLocaleLowerCase() ===
-        configuration.specificDerivationMode.toLocaleLowerCase(),
+    derivationModes = derivationModes.filter((derivation) =>
+      derivation
+        .toString()
+        .toLocaleLowerCase()
+        .startsWith(configuration.specificDerivationMode.toLocaleLowerCase()),
     );
   }
 

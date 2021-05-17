@@ -77,7 +77,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
 
     if (
       availableDerivationModes.filter((d) =>
-        d.toLocaleLowerCase().includes(derivationMode.toLocaleLowerCase()),
+        d.toLocaleLowerCase().startsWith(derivationMode.toLocaleLowerCase()),
       ).length === 0
     ) {
       throw new Error(

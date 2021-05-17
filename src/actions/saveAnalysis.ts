@@ -348,7 +348,16 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   } else {
     report = report.replace(
       "{pre_derivation_size}",
-      `(pre-derivation size: ${object.meta.preDerivationSize})`,
+      `| pre-derivation size: ${object.meta.preDerivationSize}`,
+    );
+  }
+
+  if (typeof object.meta.derivationMode === "undefined") {
+    report = report.replace("{derivation_mode}", "");
+  } else {
+    report = report.replace(
+      "{derivation_mode}",
+      `| specific derivation mode: ${object.meta.derivationMode}`,
     );
   }
 
@@ -577,6 +586,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       unit: "Base unit (i.e., satoshis or equivalent unit)",
       mode: meta.mode,
       preDerivationSize: meta.preDerivationSize,
+      derivationMode: meta.derivationMode,
       warningRange,
     },
     addresses,

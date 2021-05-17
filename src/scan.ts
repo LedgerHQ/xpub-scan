@@ -15,6 +15,7 @@ import { checkImportedOperations } from "./comparison/compareOperations";
 import { importOperations } from "./input/importOperations";
 import { save } from "./actions/saveAnalysis";
 import { getArgs } from "./input/args";
+import { configuration } from "./configuration/settings";
 
 const VERSION = "0.3.7";
 
@@ -101,6 +102,7 @@ async function scan() {
       version: VERSION,
       mode,
       preDerivationSize: args.preDerivationSize,
+      derivationMode: configuration.specificDerivationMode,
     };
 
     const data = {
