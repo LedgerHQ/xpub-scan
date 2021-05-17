@@ -16,7 +16,7 @@ import { importOperations } from "./input/importOperations";
 import { save } from "./actions/saveAnalysis";
 import { getArgs } from "./input/args";
 
-const VERSION = "0.1.0";
+const VERSION = "0.3.6";
 
 const args = getArgs();
 
