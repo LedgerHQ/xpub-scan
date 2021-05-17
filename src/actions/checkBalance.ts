@@ -144,7 +144,16 @@ async function run(xpub: string, scanLimits?: ScanLimits) {
   let activeAddresses: Address[] = [];
   const summary: TODO_TypeThis[] = [];
 
-  const derivationModes = configuration.currency.derivationModes;
+  let derivationModes = configuration.currency.derivationModes;
+
+  if (configuration.specificDerivationMode) {
+    // if a specific derivation mode is set, limit the scan to this mode
+    derivationModes = derivationModes.filter(
+      (d) =>
+        d.toString().toLocaleLowerCase() ===
+        configuration.specificDerivationMode.toLocaleLowerCase(),
+    );
+  }
 
   if (!configuration.silent) {
     console.log(chalk.bold("\nActive addresses\n"));

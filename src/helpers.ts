@@ -135,6 +135,7 @@ function init(
   quiet: boolean,
   currency?: string,
   testnet?: boolean,
+  derivationMode?: string,
 ) {
   configuration.silent = silent;
   configuration.quiet = quiet;
@@ -142,6 +143,8 @@ function init(
   setNetwork(xpub, currency, testnet);
   setExternalProviderURL();
   checkXpub(xpub);
+
+  configuration.specificDerivationMode = derivationMode!;
 }
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
