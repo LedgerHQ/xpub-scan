@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 
-import { currencies } from "../configuration/currencies";
+import { currencies, DerivationMode } from "../configuration/currencies";
 import { TODO_TypeThis } from "../types";
 
 /**
@@ -18,6 +18,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   const balance = args.balance;
   const save = args.save;
   const currency = args.currency;
+  const derivationMode = args.derivationMode;
   const account = args.account;
   const index = args.index;
   const fromIndex = args.fromIndex;
@@ -52,6 +53,37 @@ export const checkArgs = (args: TODO_TypeThis): void => {
     if (currencyProperties.length === 0) {
       throw new Error(
         "Currency '" + currency + "' has not been implemented yet",
+      );
+    }
+  }
+
+  // derivation mode: compatible with (implicitly) selected currency
+  if (typeof derivationMode !== "undefined") {
+    let availableDerivationModes: Array<DerivationMode>;
+
+    if (typeof currency !== "undefined") {
+      // if currency is defined, explicitly use its derivation modes
+      availableDerivationModes = Object.entries(currencies)
+        .filter(
+          (c) => c[1].symbol.toUpperCase() === args.currency.toUpperCase(),
+        )
+        .map((c) => {
+          return c[1].derivationModes;
+        })[0];
+    } else {
+      // if currency is not defined, implicitly use BTC's derivation modes
+      availableDerivationModes = currencies.btc.derivationModes;
+    }
+
+    if (
+      availableDerivationModes.filter((d) =>
+        d.toLocaleLowerCase().startsWith(derivationMode.toLocaleLowerCase()),
+      ).length === 0
+    ) {
+      throw new Error(
+        "Selected derivation mode " +
+          derivationMode +
+          " is not compatible with selected currency",
       );
     }
   }

@@ -3,7 +3,7 @@ import * as bip32 from "bip32";
 import * as bch from "bitcoincashjs";
 import bchaddr from "bchaddrjs";
 
-import { AddressType } from "../configuration/currencies";
+import { DerivationMode } from "../configuration/currencies";
 import { configuration } from "../configuration/settings";
 
 // derive legacy address at account and index positions
@@ -80,19 +80,19 @@ function getLegacyBitcoinCashAddress(
 
 // get address given an address type
 function getAddress(
-  addressType: AddressType,
+  derivationMode: DerivationMode,
   xpub: string,
   account: number,
   index: number,
 ): string {
-  switch (addressType) {
-    case AddressType.LEGACY:
+  switch (derivationMode) {
+    case DerivationMode.LEGACY:
       return getLegacyAddress(xpub, account, index);
-    case AddressType.SEGWIT:
+    case DerivationMode.SEGWIT:
       return getSegWitAddress(xpub, account, index);
-    case AddressType.NATIVE:
+    case DerivationMode.NATIVE:
       return getNativeSegWitAddress(xpub, account, index);
-    case AddressType.BCH:
+    case DerivationMode.BCH:
       return getLegacyBitcoinCashAddress(xpub, account, index);
   }
 
@@ -104,13 +104,13 @@ function getAddress(
 // TODO: improve the prefix matching: make the expected prefix
 // correspond to the actual type (currently, a `ltc1` prefix
 // could match a native Bitcoin address type for instance)
-function getAddressType(address: string) {
+function getDerivationMode(address: string) {
   if (address.match("^(bc1|tb1|ltc1).*")) {
-    return AddressType.NATIVE;
+    return DerivationMode.NATIVE;
   } else if (address.match("^(3|2|M).*")) {
-    return AddressType.SEGWIT;
+    return DerivationMode.SEGWIT;
   } else if (address.match("^(1|n|m|L).*")) {
-    return AddressType.LEGACY;
+    return DerivationMode.LEGACY;
   } else {
     throw new Error(
       "INVALID ADDRESS: ".concat(address).concat(" is not a valid address"),
@@ -118,4 +118,4 @@ function getAddressType(address: string) {
   }
 }
 
-export { getAddressType, getAddress };
+export { getDerivationMode, getAddress };

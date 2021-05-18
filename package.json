@@ -1,6 +1,6 @@
 {
   "name": "@ledgerhq/xpub-scan",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Master public key analysis tool",
   "bin": {
     "xpub-scan": "./lib/scan.js"

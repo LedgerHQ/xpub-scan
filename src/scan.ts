@@ -2,7 +2,7 @@
 
 import chalk from "chalk";
 
-import * as check_balances from "./actions/checkBalance";
+import * as checkBalances from "./actions/checkBalance";
 import * as compare from "./actions/checkAddress";
 import * as display from "./display";
 import {
@@ -15,8 +15,10 @@ import { checkImportedOperations } from "./comparison/compareOperations";
 import { importOperations } from "./input/importOperations";
 import { save } from "./actions/saveAnalysis";
 import { getArgs } from "./input/args";
+import { configuration } from "./configuration/settings";
 
-const VERSION = "0.3.6";
+// eslint-disable-next-line
+const { version } = require("../package.json");
 
 const args = getArgs();
 
@@ -24,9 +26,10 @@ const scanLimits = args.scanLimits;
 const address = args.address;
 const currency = args.currency;
 const testnet = args.testnet;
+const derivationMode = args.derivationMode;
 const xpub = String(args._[0]);
 
-init(xpub, args.silent, args.quiet, currency, testnet);
+init(xpub, args.silent, args.quiet, currency, testnet, derivationMode);
 
 const now = new Date();
 
@@ -56,7 +59,7 @@ async function scan() {
       importedTransactions = importOperations(args.operations);
     }
 
-    const scanResult = await check_balances.run(xpub, scanLimits);
+    const scanResult = await checkBalances.run(xpub, scanLimits);
     const actualAddresses = scanResult.addresses;
     const actualUTXOs = getSortedUTXOS(actualAddresses);
     const summary = scanResult.summary;
@@ -97,9 +100,10 @@ async function scan() {
     const meta = {
       xpub,
       date: now,
-      version: VERSION,
+      version,
       mode,
       preDerivationSize: args.preDerivationSize,
+      derivationMode: configuration.specificDerivationMode,
     };
 
     const data = {

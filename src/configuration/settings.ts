@@ -65,6 +65,7 @@ dotenv.config();
 export const configuration = {
   currency: new Currency(),
   testnet: false,
+  specificDerivationMode: "",
   externalProviderURL: "",
   APIKey: process.env.XPUB_SCAN_CUSTOM_API_KEY,
   providerType: "default",

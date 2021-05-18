@@ -1,15 +1,14 @@
 import { configuration } from "../configuration/settings";
-import { AddressType } from "../configuration/currencies";
+import { currencies, DerivationMode } from "../configuration/currencies";
 import { Transaction } from "./transaction";
 import { Operation } from "./operation";
 import { Stats } from "./stats";
 import { getAddress } from "../actions/deriveAddresses";
 import { toUnprefixedCashAddress } from "../helpers";
-import { currencies } from "../configuration/currencies";
 
 class Address {
   address: string;
-  addressType: AddressType;
+  derivationMode: DerivationMode;
   account: number;
   index: number;
   balance: number;
@@ -21,13 +20,13 @@ class Address {
   utxo: boolean;
 
   constructor(
-    addressType: AddressType,
+    derivationMode: DerivationMode,
     xpub: string,
     account: number,
     index: number,
   ) {
-    this.address = getAddress(addressType, xpub, account, index);
-    this.addressType = addressType;
+    this.address = getAddress(derivationMode, xpub, account, index);
+    this.derivationMode = derivationMode;
     this.account = account;
     this.index = index;
     this.ins = [];
@@ -87,8 +86,8 @@ class Address {
     return undefined;
   }
 
-  getType() {
-    return this.addressType;
+  getDerivationMode() {
+    return this.derivationMode;
   }
 
   getDerivation() {
