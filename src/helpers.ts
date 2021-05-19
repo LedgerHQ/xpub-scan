@@ -6,24 +6,53 @@ import bchaddr from "bchaddrjs";
 import { configuration, DEFAULT_API_URLS } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
 
-async function getJSON<T>(url: string, APIKey?: string): Promise<T> {
-  const headers = {
-    ...(APIKey ? { "X-API-Key": APIKey } : {}),
+export async function getJSON<T>(
+  url: string,
+  APIKey?: string,
+  { retries, retryDelayMS }: { retries?: number; retryDelayMS?: number } = {},
+): Promise<T> {
+  const job = async () => {
+    const headers = {
+      ...(APIKey ? { "X-API-Key": APIKey } : {}),
+    };
+
+    const res = await axios.get<T>(url, { headers });
+
+    if (res.status !== 200) {
+      console.log(chalk.red("GET request error"));
+      throw new Error(
+        "GET REQUEST ERROR: "
+          .concat(url)
+          .concat(", Status Code: ")
+          .concat(String(res.status)),
+      );
+    }
+
+    return res.data;
   };
 
-  const res = await axios.get<T>(url, { headers });
+  return retry(job, { retries, retryDelayMS });
+}
 
-  if (res.status !== 200) {
-    console.log(chalk.red("GET request error"));
-    throw new Error(
-      "GET REQUEST ERROR: "
-        .concat(url)
-        .concat(", Status Code: ")
-        .concat(String(res.status)),
-    );
+export async function retry<T>(
+  job: () => Promise<T>,
+  { retries = 5, retryDelayMS = 0 } = {},
+): Promise<T> {
+  let err: Error | null = null;
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await job();
+      return res;
+    } catch (e) {
+      err = e;
+      // wait before retrying if it's not the last try
+      if (retryDelayMS && i < retries - 1) {
+        await new Promise((r) => setTimeout(r, retryDelayMS));
+      }
+    }
   }
-
-  return res.data;
+  if (err) throw err;
+  throw new Error(`No result after ${retries} retries`);
 }
 
 function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
@@ -129,7 +158,7 @@ function checkXpub(xpub: string) {
   );
 }
 
-function init(
+export function init(
   xpub: string,
   silent: boolean,
   quiet: boolean,
@@ -148,7 +177,7 @@ function init(
 }
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
-function toUnprefixedCashAddress(address: string) {
+export function toUnprefixedCashAddress(address: string) {
   if (configuration.currency.symbol !== currencies.bch.symbol) {
     return undefined;
   }
@@ -159,5 +188,3 @@ function toUnprefixedCashAddress(address: string) {
 
   return address.replace("bitcoincash:", "");
 }
-
-export { getJSON, init, toUnprefixedCashAddress };
