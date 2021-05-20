@@ -232,7 +232,7 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   }
 
   // testnet
-  if (typeof testnet !== "undefined") {
+  if (typeof testnet !== "undefined" && testnet) {
     // temporary guard clause:
     // only Bitcoin testnet is supported at the moment
     if (
