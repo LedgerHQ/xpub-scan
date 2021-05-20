@@ -42,7 +42,7 @@ const showDiff = (
   }
 
   // check balance
-  if (importedBalance) {
+  if (importedBalance || importedBalance === 0) {
     // the actual balance has to be converted into satoshis or similar units
     actualBalance = sb.toSatoshi(actualBalance);
 

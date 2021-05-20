@@ -117,11 +117,12 @@ async function scan() {
       save(meta, data, args.save);
     }
 
-    if (args.diff || args.balance) {
+    if (args.diff || args.balance || args.balance === 0) {
       const actualBalance = summary.reduce(
         (accumulator, s) => accumulator + s.balance,
         0,
       );
+
       exitCode = showDiff(
         actualBalance,
         args.balance,
