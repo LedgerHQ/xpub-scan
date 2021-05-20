@@ -29,15 +29,15 @@ const showDiff = (
   // check operations
   if (comparisons && diff) {
     const operationsMismatches = comparisons.filter(
-      (comparison) => comparison.status !== "Match",
+      (comparison) => !comparison.status.startsWith("Match"),
     );
 
     if (operationsMismatches.length > 0) {
-      console.log(chalk.redBright("Diff: operations mismatches"));
+      console.log(chalk.redBright("Diff [ KO ]: operations mismatches"));
       console.dir(operationsMismatches);
       exitCode += 1;
     } else {
-      console.log(chalk.greenBright("Diff: operations match"));
+      console.log(chalk.greenBright("Diff [ OK ]: operations match"));
     }
   }
 
@@ -47,16 +47,16 @@ const showDiff = (
     actualBalance = sb.toSatoshi(actualBalance);
 
     if (actualBalance !== importedBalance) {
-      console.log(chalk.redBright("Diff: balances mismatch"));
+      console.log(chalk.redBright("Diff [ KO ]: balances mismatch"));
 
-      console.log("Imported balance:", importedBalance);
-      console.log("Actual balance:  ", actualBalance);
+      console.log("| imported balance:", importedBalance);
+      console.log("| actual balance:  ", actualBalance);
 
       exitCode += 2;
     } else {
       console.log(
         chalk.greenBright(
-          "Diff: balances match: ".concat(actualBalance.toString()),
+          "Diff [ OK ]: balances match: ".concat(actualBalance.toString()),
         ),
       );
     }
