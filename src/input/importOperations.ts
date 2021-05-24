@@ -31,8 +31,7 @@ const getFileContents = (path: string): string => {
   }
 
   try {
-    const contents = fs.readFileSync(path, "utf-8");
-    return contents;
+    return fs.readFileSync(path, "utf-8");
   } catch (err) {
     console.log(chalk.red("File error"));
     throw new Error(err);
