@@ -8,10 +8,11 @@
   "scripts": {
     "scan": "node --require ts-node/register ./src/scan",
     "build": "tsc && chmod +x ./lib/scan.js",
+    "test": "jest",
     "lint": "eslint .",
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
-    "ci": "yarn lint && yarn ts:check && prettier --list-different ."
+    "ci": "yarn lint && yarn ts:check && prettier --list-different . && yarn test"
   },
   "repository": {
     "type": "git",
@@ -36,25 +37,29 @@
     "html-minifier": "^4.0.0",
     "line-reader": "^0.4.0",
     "satoshi-bitcoin": "^1.0.4",
+    "ts-node": "^10.0.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.1",
     "@babel/eslint-parser": "^7.13.4",
+    "@babel/preset-env": "^7.14.2",
+    "@babel/preset-typescript": "^7.13.0",
     "@types/bchaddrjs": "^0.4.0",
     "@types/bip32": "^2.0.0",
     "@types/chalk": "^2.2.0",
     "@types/dateformat": "^3.0.1",
     "@types/dotenv": "^8.2.0",
     "@types/html-minifier": "^4.0.0",
+    "@types/jest": "^26.0.23",
     "@types/minimist": "^1.2.1",
     "@types/yargs": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",
     "eslint": "^7.25.0",
     "eslint-plugin-prettier": "^3.3.1",
+    "jest": "^26.6.3",
     "prettier": "^2.2.1",
-    "ts-node": "^10.0.0",
     "typescript": "^4.1.5"
   }
 }
