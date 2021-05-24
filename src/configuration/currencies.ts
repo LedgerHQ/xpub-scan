@@ -1,4 +1,4 @@
-import coininfo from "coininfo";
+const coininfo = require("coininfo")
 
 export enum DerivationMode {
   LEGACY = "Legacy",

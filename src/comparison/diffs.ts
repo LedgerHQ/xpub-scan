@@ -1,7 +1,7 @@
 import chalk from "chalk";
-import sb from "satoshi-bitcoin";
-
 import { Comparison } from "../models/comparison";
+
+const sb = require("satoshi-bitcoin");
 
 /**
  * Show differences between imported and actual data

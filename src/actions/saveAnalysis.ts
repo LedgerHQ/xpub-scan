@@ -1,5 +1,4 @@
 import fs from "fs";
-import sb from "satoshi-bitcoin";
 import minifier from "html-minifier";
 
 import {
@@ -11,6 +10,8 @@ import { toUnprefixedCashAddress } from "../helpers";
 import { Address } from "../models/address";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
+
+const sb = require("satoshi-bitcoin");
 
 function toBaseUnit(amount: number) {
   // to bitcoins (or equivalent unit)

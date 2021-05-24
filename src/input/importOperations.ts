@@ -1,9 +1,9 @@
 import fs from "fs";
 import chalk from "chalk";
-import sb from "satoshi-bitcoin";
-
 import { Operation } from "../models/operation";
 import { configuration } from "../configuration/settings";
+
+const { old_name: sb } = require("satoshi-bitcoin");
 
 /**
  * Remove forbidden chars from address(es)

@@ -1,6 +1,4 @@
 import chalk from "chalk";
-import sb from "satoshi-bitcoin";
-
 import * as display from "../display";
 
 import { Address } from "../models/address";
@@ -10,6 +8,8 @@ import { configuration } from "../configuration/settings";
 import { DerivationMode } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 import { TODO_TypeThis } from "../types";
+
+const sb = require("satoshi-bitcoin");
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)

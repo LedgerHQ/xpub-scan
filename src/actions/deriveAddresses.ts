@@ -1,10 +1,11 @@
 import * as bjs from "bitcoinjs-lib";
 import * as bip32 from "bip32";
-import * as bch from "bitcoincashjs";
 import bchaddr from "bchaddrjs";
 
 import { DerivationMode } from "../configuration/currencies";
 import { configuration } from "../configuration/settings";
+
+const bch = require("bitcoincashjs");
 
 // derive legacy address at account and index positions
 function getLegacyAddress(
