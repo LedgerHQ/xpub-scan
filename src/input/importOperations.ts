@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { Operation } from "../models/operation";
 import { configuration } from "../configuration/settings";
 
-const { old_name: sb } = require("satoshi-bitcoin");
+const sb = require("satoshi-bitcoin");
 
 /**
  * Remove forbidden chars from address(es)
