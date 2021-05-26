@@ -39,7 +39,6 @@ async function getStats(address: Address) {
 
   const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
 
-  // TODO: check potential errors here (API returning invalid data...)
   const fundedSum = parseFloat(res.payload.totalReceived);
   const spentSum = parseFloat(res.payload.totalSpent);
   const balance = parseFloat(res.payload.balance);
@@ -47,7 +46,7 @@ async function getStats(address: Address) {
   address.setStats(res.payload.txsCount, fundedSum, spentSum);
   address.setBalance(balance);
 
-  if (res.payload.txsCount > 0) {
+  if (res.payload.txsCount > 0 || configuration.currency.utxo_based === false) {
     const getTxsURLTemplate = configuration.externalProviderURL
       .replace("{coin}", coin)
       .replace("{address}", address.toString())

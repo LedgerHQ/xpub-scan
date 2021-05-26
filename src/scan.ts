@@ -27,9 +27,9 @@ const address = args.address;
 const currency = args.currency;
 const testnet = args.testnet;
 const derivationMode = args.derivationMode;
-const xpub = String(args._[0]);
+const itemToScan = args.itemToScan; // xpub or address
 
-init(xpub, args.silent, args.quiet, currency, testnet, derivationMode);
+init(itemToScan, args.silent, args.quiet, currency, testnet, derivationMode);
 
 const now = new Date();
 
@@ -38,7 +38,7 @@ let exitCode = 0;
 async function scan() {
   if (address) {
     // comparison mode
-    await compare.run(xpub, address);
+    await compare.run(itemToScan, address);
   } else {
     // scan mode
     let importedTransactions;
@@ -49,7 +49,7 @@ async function scan() {
       if (args._.length > 1) {
         console.log(
           chalk.red(
-            "Only 1 arg expected (xpub). Please check the documentation.",
+            "Only 1 xpub or address expected. Please check the documentation.",
           ),
         );
         process.exit(1);
@@ -59,7 +59,7 @@ async function scan() {
       importedTransactions = importOperations(args.operations);
     }
 
-    const scanResult = await checkBalances.run(xpub, scanLimits);
+    const scanResult = await checkBalances.run(itemToScan, scanLimits);
     const actualAddresses = scanResult.addresses;
     const actualUTXOs = getSortedUTXOS(actualAddresses);
     const summary = scanResult.summary;
@@ -98,7 +98,7 @@ async function scan() {
     }
 
     const meta = {
-      xpub,
+      xpub: itemToScan,
       date: now,
       version,
       mode,

@@ -19,7 +19,8 @@ export const currencies = {
       DerivationMode.SEGWIT,
       DerivationMode.NATIVE,
     ],
-    precision: 100000000,
+    precision: 10 ** 8,
+    utxo_based: true,
   },
   bch: {
     name: "Bitcoin Cash",
@@ -27,7 +28,8 @@ export const currencies = {
     network_mainnet: coininfo.bitcoincash.main.toBitcoinJS(),
     network_testnet: coininfo.bitcoincash.test.toBitcoinJS(),
     derivationModes: [DerivationMode.BCH],
-    precision: 100000000,
+    precision: 10 ** 8,
+    utxo_based: true,
   },
   ltc: {
     name: "Litecoin",
@@ -39,6 +41,13 @@ export const currencies = {
       DerivationMode.SEGWIT,
       DerivationMode.NATIVE,
     ],
-    precision: 100000000,
+    precision: 10 ** 8,
+    utxo_based: true,
+  },
+  eth: {
+    name: "Ethereum",
+    symbol: "ETH",
+    precision: 10 ** 18,
+    utxo_based: false,
   },
 };

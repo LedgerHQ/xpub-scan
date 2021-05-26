@@ -5,8 +5,9 @@ class Currency {
   name: string;
   symbol: string;
   network?: TODO_TypeThis;
-  derivationModes: Array<DerivationMode>;
+  derivationModes?: Array<DerivationMode>;
   precision: number;
+  utxo_based: boolean;
 }
 
 export { Currency };

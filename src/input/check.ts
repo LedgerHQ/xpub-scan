@@ -3,16 +3,21 @@ import chalk from "chalk";
 
 import { currencies, DerivationMode } from "../configuration/currencies";
 import { TODO_TypeThis } from "../types";
+import { Currency } from "../models/currency";
 
 /**
  * Ensure that args are valid
  * @param  {any} args
  * @returns void
  */
-export const checkArgs = (args: TODO_TypeThis): void => {
-  args.xpub = args._[0];
+export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
+  args.itemToScan = args._[0];
 
-  const xpub = args.xpub;
+  if (Number(args.itemToScan)) {
+    args.itemToScan = argv[2]; // TODO(ETH): comment
+  }
+
+  const itemToScan = args.itemToScan;
   const testnet = args.testnet;
   const address = args.address;
   const balance = args.balance;
@@ -26,8 +31,8 @@ export const checkArgs = (args: TODO_TypeThis): void => {
   const preDerivationSize = args.preDerivationSize;
 
   // xpub: set, non-empty
-  if (typeof xpub === "undefined" || xpub === "") {
-    throw new Error("Xpub is required");
+  if (typeof itemToScan === "undefined" || itemToScan === "") {
+    throw new Error("Xpub or address is required");
   }
 
   // address: non-empty
@@ -59,17 +64,25 @@ export const checkArgs = (args: TODO_TypeThis): void => {
 
   // derivation mode: compatible with (implicitly) selected currency
   if (typeof derivationMode !== "undefined") {
-    let availableDerivationModes: Array<DerivationMode>;
+    let availableDerivationModes: Array<DerivationMode> = [];
 
     if (typeof currency !== "undefined") {
       // if currency is defined, explicitly use its derivation modes
-      availableDerivationModes = Object.entries(currencies)
+      const configuredCurrency: Currency = Object.entries(currencies)
         .filter(
           (c) => c[1].symbol.toUpperCase() === args.currency.toUpperCase(),
         )
         .map((c) => {
-          return c[1].derivationModes;
+          return c[1];
         })[0];
+
+      // implementation note: this complex way of performing this verification
+      // is due to the fact that derivationModes is optional...
+      for (const c of Object.entries(configuredCurrency)) {
+        if (c[0] === "derivationModes") {
+          availableDerivationModes = c[1];
+        }
+      }
     } else {
       // if currency is not defined, implicitly use BTC's derivation modes
       availableDerivationModes = currencies.btc.derivationModes;

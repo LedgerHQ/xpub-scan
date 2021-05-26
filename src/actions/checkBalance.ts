@@ -44,7 +44,7 @@ async function scanAddresses(
     // transaction analysis further down the flow
     for (let a = 0; a < 2; a++) {
       for (let i = 0; i < preDerivationSize; i++) {
-        ownAddresses.addAddress(new Address(derivationMode, xpub, a, i));
+        ownAddresses.addAddress(new Address(xpub, derivationMode, a, i));
       }
     }
   }
@@ -75,7 +75,7 @@ async function scanAddresses(
         break;
       }
 
-      const address = new Address(derivationMode, xpub, account, index);
+      const address = new Address(xpub, derivationMode, account, index);
       display.updateAddressDetails(address);
 
       const status = noTxCounter === 0 ? "analyzing" : "probing address gap";
@@ -140,7 +140,31 @@ async function scanAddresses(
   };
 }
 
-async function run(xpub: string, scanLimits?: ScanLimits) {
+async function addressAnalysis(address: string) {
+  // TODO(ETH)
+  const a = new Address(address);
+
+  display.updateAddressDetails(a);
+  await getStats(a);
+  display.updateAddressDetails(a);
+
+  const summary = [{ balance: 0 }];
+
+  return {
+    addresses: [a],
+    summary,
+  };
+}
+
+async function run(itemToScan: string, scanLimits?: ScanLimits) {
+  if (configuration.currency.utxo_based) {
+    return xpubAnalysis(itemToScan, scanLimits);
+  } else {
+    return addressAnalysis(itemToScan);
+  }
+}
+
+async function xpubAnalysis(xpub: string, scanLimits?: ScanLimits) {
   let activeAddresses: Address[] = [];
   const summary: TODO_TypeThis[] = [];
 
@@ -148,7 +172,7 @@ async function run(xpub: string, scanLimits?: ScanLimits) {
 
   if (configuration.specificDerivationMode) {
     // if a specific derivation mode is set, limit the scan to this mode
-    derivationModes = derivationModes.filter((derivation) =>
+    derivationModes = derivationModes!.filter((derivation) =>
       derivation
         .toString()
         .toLocaleLowerCase()
@@ -160,7 +184,7 @@ async function run(xpub: string, scanLimits?: ScanLimits) {
     console.log(chalk.bold("\nActive addresses\n"));
   }
 
-  for (const derivationMode of derivationModes) {
+  for (const derivationMode of derivationModes!) {
     const results = await scanAddresses(derivationMode, xpub, scanLimits);
 
     activeAddresses = activeAddresses.concat(results.addresses);
