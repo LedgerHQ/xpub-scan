@@ -88,11 +88,16 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
     }
   } else {
     // Bitcoin Cash
-    if (currency.includes("cash") || currency === "BCH") {
+    if (currency === "BCH") {
       configuration.currency = currencies.bch;
 
       // TODO: BCH testnet
       configuration.currency.network = currencies.bch.network_mainnet;
+      return;
+    }
+    // Ethereum
+    else if (currency === "ETH") {
+      configuration.currency = currencies.eth;
       return;
     }
 
@@ -171,7 +176,10 @@ export function init(
 
   setNetwork(xpub, currency, testnet);
   setExternalProviderURL();
-  checkXpub(xpub);
+
+  if (configuration.currency.utxo_based) {
+    checkXpub(xpub);
+  }
 
   configuration.specificDerivationMode = derivationMode!;
 }

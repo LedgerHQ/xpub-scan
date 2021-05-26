@@ -112,7 +112,7 @@ export const getArgs = (): TODO_TypeThis => {
       type: "string",
     }).argv;
 
-  checkArgs(args);
+  checkArgs(args, process.argv);
 
   return args;
 };

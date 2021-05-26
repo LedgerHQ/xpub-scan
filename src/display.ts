@@ -47,11 +47,16 @@ function updateAddressDetails(address: Address) {
   const addressStats = address.getStats();
 
   // _type_  path  address ...
-  let stats =
-    //    _{address type}_  {derivation path}  {address}  [{cash address}]...
-    "  "
+  let stats = "";
+
+  if (configuration.currency.utxo_based) {
+    //    _{derivation mode}_  {derivation path}  {address}  [{cash address}]...
+    stats = stats
       .concat(chalk.italic(derivationMode.padEnd(16, " ")))
       .concat(derivationPath.padEnd(12, " "));
+  } else {
+    stats = stats.concat("\t");
+  }
 
   const cashAddress = address.asCashAddress();
 
