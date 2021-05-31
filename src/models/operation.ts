@@ -52,11 +52,11 @@ class Operation {
     return this.address;
   }
 
-  setType(operationType: OperationType) {
+  setOperationType(operationType: OperationType) {
     this.operationType = operationType;
   }
 
-  getDerivationMode() {
+  getOperationType() {
     return this.operationType;
   }
 }

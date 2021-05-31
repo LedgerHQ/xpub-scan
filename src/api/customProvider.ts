@@ -152,7 +152,7 @@ function getTransactions(address: Address) {
 
           op.setAddress(inAddress);
           op.setTxid(tx.txid);
-          op.setType("Received");
+          op.setOperationType("Received");
 
           ins.push(op);
         });
@@ -175,7 +175,7 @@ function getTransactions(address: Address) {
 
           op.setAddress(outAddress);
           op.setTxid(tx.txid);
-          op.setType("Sent");
+          op.setOperationType("Sent");
 
           outs.push(op);
         });
