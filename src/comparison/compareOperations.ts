@@ -371,20 +371,20 @@ const checkImportedOperations = (
           // but the operation types or addresses differ...
           if (
             // [ an actual operation has the same txid,
-            actualOps[i].txid === importedOp.txid &&
-            // and:
-            // 1. the operation type is the same {use of
-            //    `startsWith` as the actual operation types are
-            //    a superset of imported operation types:
-            //       - Send (to self, to sibling);
-            //       - Received ((non-sibling to change))},
-            actualOps[i]
-              .getOperationType()
-              .startsWith(importedOp.getOperationType()) &&
+            (actualOps[i].txid === importedOp.txid &&
+              // and:
+              // 1. the operation type is the same {use of
+              //    `startsWith` as the actual operation types are
+              //    a superset of imported operation types:
+              //       - Send (to self, to sibling);
+              //       - Received ((non-sibling to change))},
+              !actualOps[i]
+                .getOperationType()
+                .startsWith(importedOp.getOperationType())) ||
             // ans
             // 2. the imported operation does include the actual
             //    address (`oncludes`: imported addresses can be aggregated) ]
-            importedOp.address.includes(actualOps[i].address)
+            !importedOp.address.includes(actualOps[i].address)
           ) {
             // ... then swap it with first actual operation
             [actualOps[0], actualOps[i]] = [actualOps[i], actualOps[0]];

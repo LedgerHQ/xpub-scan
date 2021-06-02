@@ -11,77 +11,81 @@ import bchaddr from "bchaddrjs";
 import { currencies } from "../configuration/currencies";
 
 interface RawTransaction {
-  txid: string;
-  blockheight: number;
-  confirmations: number;
+  transactionId: string;
+  minedInBlockHeight: number;
   timestamp: number;
-  amount: string;
-  fees: string;
-  txins: {
-    amount: string;
-    addresses: string[];
-  }[];
-  txouts: {
-    amount: string;
-    addresses: string[];
-  }[];
+  fees: {
+    amount: number;
+    unit: string;
+  };
+  blockchainSpecific: {
+    vin: {
+      addresses: string[];
+      value: string;
+    }[];
+    vout: {
+      scriptPubKey: {
+        addresses: string[];
+      };
+      value: string;
+    }[];
+  };
 }
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 async function getStats(address: Address) {
   // important: coin name is required to be lower case for custom provider
-  const coin = configuration.currency.symbol.toLowerCase();
+  const coin = configuration.currency.name.toLowerCase().replace(" ", "-");
 
   const url = configuration.externalProviderURL
     .replace("{coin}", coin)
     .replace("{address}", address.toString());
 
   const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
+  const item = res.data.item;
 
-  // TODO: check potential errors here (API returning invalid data...)
-  const fundedSum = parseFloat(res.payload.totalReceived);
-  const spentSum = parseFloat(res.payload.totalSpent);
-  const balance = parseFloat(res.payload.balance);
+  const fundedSum = parseFloat(item.totalReceived.amount);
+  const spentSum = parseFloat(item.totalSpent.amount);
+  const balance = parseFloat(item.confirmedBalance.amount);
+  const txCount = item.transactionsCount;
 
-  address.setStats(res.payload.txsCount, fundedSum, spentSum);
+  address.setStats(txCount, fundedSum, spentSum);
   address.setBalance(balance);
 
-  if (res.payload.txsCount > 0) {
+  const maxItemsPerRequest = 50;
+
+  if (txCount > 0) {
     const getTxsURLTemplate = configuration.externalProviderURL
       .replace("{coin}", coin)
       .replace("{address}", address.toString())
-      .concat("/transactions?index={index}&limit={limit}");
+      .concat(
+        "/transactions?limit="
+          .concat(maxItemsPerRequest.toString())
+          .concat("&offset={offset}"),
+      );
 
     // to handle large number of transactions by address, use the index+limit logic
     // offered by the custom provider
     const payloads = [];
-    let index = 0;
-    for (
-      let limit = 100 /* continue until txs count is reached */;
-      ;
-      limit += 100
-    ) {
-      const getTxsURL = getTxsURLTemplate
-        .replace("{index}", String(index))
-        .replace("{limit}", String(limit));
+    let offset = 0;
+    for (; ; /* continue until no more item */ offset += maxItemsPerRequest) {
+      const getTxsURL = getTxsURLTemplate.replace("{offset}", String(offset));
 
       const txs = await helpers.getJSON<TODO_TypeThis>(
         getTxsURL,
         configuration.APIKey,
       );
-      const payload = txs.payload;
-      const txsCount = txs.meta.totalCount;
+
+      const payload = txs.data.items;
 
       payloads.push(payload);
 
       // when the limit includes the total number of transactions,
       // no need to go further
-      if (limit > txsCount || payload.length === 0) {
+      if (payload.length === 0) {
         break;
       }
-
-      index += limit;
     }
 
     // flatten the payloads
@@ -107,7 +111,7 @@ function getTransactions(address: Address) {
     let processOut = false;
 
     // 1. Detect operation type
-    for (const txin of tx.txins) {
+    for (const txin of tx.blockchainSpecific.vin) {
       for (let inAddress of txin.addresses) {
         // provider Bitcoin Cash addresses are expressed as cash addresses:
         // they have to be converted into legacy ones
@@ -122,8 +126,8 @@ function getTransactions(address: Address) {
       }
     }
 
-    for (const txout of tx.txouts) {
-      for (let outAddress of txout.addresses) {
+    for (const txout of tx.blockchainSpecific.vout) {
+      for (let outAddress of txout.scriptPubKey.addresses) {
         // provider Bitcoin Cash addresses are expressed as cash addresses:
         // they have to be converted into legacy ones
         if (configuration.currency.symbol === currencies.bch.symbol) {
@@ -132,7 +136,7 @@ function getTransactions(address: Address) {
 
         if (outAddress.includes(address.toString()!)) {
           // when IN op, amount corresponds to txout
-          amount += parseFloat(txout.amount);
+          amount += parseFloat(txout.value);
           processIn = true;
         }
       }
@@ -140,7 +144,7 @@ function getTransactions(address: Address) {
 
     // 2. Process operations
     if (processIn) {
-      tx.txins.forEach((txin) => {
+      tx.blockchainSpecific.vin.forEach((txin) => {
         txin.addresses.forEach((inAddress) => {
           const op = new Operation(String(tx.timestamp), amount);
 
@@ -151,7 +155,7 @@ function getTransactions(address: Address) {
           }
 
           op.setAddress(inAddress);
-          op.setTxid(tx.txid);
+          op.setTxid(tx.transactionId);
           op.setOperationType("Received");
 
           ins.push(op);
@@ -160,11 +164,11 @@ function getTransactions(address: Address) {
     }
 
     if (processOut) {
-      tx.txouts.forEach((txout) => {
-        txout.addresses.forEach((outAddress) => {
+      tx.blockchainSpecific.vout.forEach((txout) => {
+        txout.scriptPubKey.addresses.forEach((outAddress) => {
           const op = new Operation(
             String(tx.timestamp),
-            parseFloat(txout.amount),
+            parseFloat(txout.value),
           );
 
           if (configuration.currency.symbol === currencies.bch.symbol) {
@@ -174,7 +178,7 @@ function getTransactions(address: Address) {
           }
 
           op.setAddress(outAddress);
-          op.setTxid(tx.txid);
+          op.setTxid(tx.transactionId);
           op.setOperationType("Sent");
 
           outs.push(op);
@@ -184,11 +188,11 @@ function getTransactions(address: Address) {
 
     transactions.push(
       new Transaction(
-        tx.blockheight,
+        tx.minedInBlockHeight,
         String(
           dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
         ), // unix time to readable format
-        tx.txid,
+        tx.transactionId,
         ins,
         outs,
       ),
