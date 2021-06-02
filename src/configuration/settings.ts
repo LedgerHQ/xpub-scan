@@ -67,7 +67,7 @@ export const configuration = {
   testnet: false,
   specificDerivationMode: "",
   externalProviderURL: "",
-  APIKey: process.env.XPUB_SCAN_CUSTOM_API_KEY,
+  APIKey: process.env.XPUB_SCAN_CUSTOM_API_KEY_V2,
   providerType: "default",
   silent: false,
   quiet: false,
