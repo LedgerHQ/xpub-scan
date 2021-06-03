@@ -365,16 +365,29 @@ const checkImportedOperations = (
         continue;
       }
 
-      for (let i = 0; i < imported.length; ++i) {
-        for (let j = 0; j < actualOps.length; ++j) {
-          // if an actual operation having the same txid
-          // has an identical address...
+      for (const importedOp of imported) {
+        for (let i = 0; i < actualOps.length; ++i) {
+          // if an actual operation is having the same txid,
+          // but the operation types or addresses differ...
           if (
-            actualOps[j].txid === imported[i].txid &&
-            imported[i].address.includes(actualOps[j].address)
+            // [ an actual operation has the same txid,
+            (actualOps[i].txid === importedOp.txid &&
+              // and:
+              // 1. the operation type is the same {use of
+              //    `startsWith` as the actual operation types are
+              //    a superset of imported operation types:
+              //       - Send (to self, to sibling);
+              //       - Received ((non-sibling to change))},
+              !actualOps[i]
+                .getOperationType()
+                .startsWith(importedOp.getOperationType())) ||
+            // ans
+            // 2. the imported operation does include the actual
+            //    address (`oncludes`: imported addresses can be aggregated) ]
+            !importedOp.address.includes(actualOps[i].address)
           ) {
-            // ... swap it with the first actual operation
-            [actualOps[0], actualOps[j]] = [actualOps[j], actualOps[0]];
+            // ... then swap it with first actual operation
+            [actualOps[0], actualOps[i]] = [actualOps[i], actualOps[0]];
             break;
           }
         }

@@ -145,7 +145,7 @@ function getTransactions(address: Address) {
         );
         op.setAddress(txin.address);
         op.setTxid(tx.txid);
-        op.setType("Received");
+        op.setOperationType("Received");
 
         ins.push(op);
       });
@@ -156,7 +156,7 @@ function getTransactions(address: Address) {
         const op = new Operation(String(tx.time), parseFloat(txout.value));
         op.setAddress(txout.address);
         op.setTxid(tx.txid);
-        op.setType("Sent");
+        op.setOperationType("Sent");
 
         outs.push(op);
       });
@@ -220,7 +220,7 @@ function getBchTransactions(address: Address) {
         const op = new Operation(String(tx.time), amount);
         op.setAddress(txin.addr);
         op.setTxid(tx.txid);
-        op.setType("Received");
+        op.setOperationType("Received");
 
         ins.push(op);
       });
@@ -234,7 +234,7 @@ function getBchTransactions(address: Address) {
         const op = new Operation(String(tx.time), parseFloat(txout.value));
         op.setAddress(txout.scriptPubKey.addresses[0]);
         op.setTxid(tx.txid);
-        op.setType("Sent");
+        op.setOperationType("Sent");
 
         outs.push(op);
       });

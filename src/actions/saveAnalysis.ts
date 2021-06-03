@@ -237,8 +237,8 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
     <table>
         <thead>
             <tr style="text-align: center">
-                <th rowspan="1" colspan="3">Imported</th>
-                <th rowspan="1" colspan="3">Actual</th>
+                <th rowspan="1" colspan="3">Imported (from product)</th>
+                <th rowspan="1" colspan="3">Actual (from external provider)</th>
                 <th rowspan="2" colspan="1">TXID</th>
                 <th rowspan="2" colspan="1">Type</th>
                 <th rowspan="2" colspan="1">Status</th>

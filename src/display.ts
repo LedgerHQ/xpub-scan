@@ -168,7 +168,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
       // ... -{amount} →|⮂|↺
       status = status.concat("-").concat(amount);
 
-      const operationType = op.getDerivationMode();
+      const operationType = op.getOperationType();
 
       if (operationType === "Sent to self") {
         // case 1. Sent to the same address

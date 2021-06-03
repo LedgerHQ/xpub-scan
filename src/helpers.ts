@@ -104,11 +104,11 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
 const setExternalProviderURL = (): void => {
   // custom provider (i.e., API key is set)
   if (
-    process.env.XPUB_SCAN_CUSTOM_API_URL &&
-    process.env.XPUB_SCAN_CUSTOM_API_KEY
+    process.env.XPUB_SCAN_CUSTOM_API_URL_V2 &&
+    process.env.XPUB_SCAN_CUSTOM_API_KEY_V2
   ) {
     configuration.externalProviderURL =
-      process.env.XPUB_SCAN_CUSTOM_API_URL.replace(
+      process.env.XPUB_SCAN_CUSTOM_API_URL_V2.replace(
         "{network}",
         configuration.testnet ? "testnet" : "mainnet",
       );

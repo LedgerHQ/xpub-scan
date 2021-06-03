@@ -89,7 +89,7 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
           // ensure that an operation without address results in a mismatch
           op.setAddress(sanitizeInputedAddress(recipient));
 
-          op.setType("Received");
+          op.setOperationType("Received");
 
           operations.push(op);
         } else if (type === "DEBIT") {
@@ -102,7 +102,7 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
           // ensure that an operation without address results in a mismatch
           op.setAddress(sanitizeInputedAddress(sender));
 
-          op.setType("Sent");
+          op.setOperationType("Sent");
 
           operations.push(op);
         }
@@ -145,7 +145,7 @@ const importFromCSVTypeB = (contents: string): Operation[] => {
       if (type === "IN") {
         const op = new Operation(date[0], amount);
         op.setTxid(txid);
-        op.setType("Received");
+        op.setOperationType("Received");
 
         operations.push(op);
       } else if (type === "OUT") {
@@ -155,7 +155,7 @@ const importFromCSVTypeB = (contents: string): Operation[] => {
         // (otherwise, there would be floating number issues)
         const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
         op.setTxid(txid);
-        op.setType("Sent");
+        op.setOperationType("Sent");
 
         operations.push(op);
       }
@@ -197,7 +197,7 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
     if (type === "receive") {
       const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
       op.setTxid(txid);
-      op.setType("Received");
+      op.setOperationType("Received");
 
       const addresses = [];
       for (const output of operation.transaction.outputs) {
@@ -216,7 +216,7 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
       // (otherwise, there would be floating number issues)
       const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
       op.setTxid(txid);
-      op.setType("Sent");
+      op.setOperationType("Sent");
 
       const addresses = [];
       for (const input of operation.transaction.inputs) {
@@ -267,7 +267,7 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
     if (type === "IN") {
       const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
       op.setTxid(txid);
-      op.setType("Received");
+      op.setOperationType("Received");
       op.setAddress(sanitizeInputedAddress(recipient));
 
       operations.push(op);
@@ -278,7 +278,7 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
       // (otherwise, there would be floating number issues)
       const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
       op.setTxid(txid);
-      op.setType("Sent");
+      op.setOperationType("Sent");
       op.setAddress(sanitizeInputedAddress(sender));
 
       operations.push(op);
@@ -318,7 +318,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
 
     if (type === "RECEIVE") {
       const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
-      op.setType("Received");
+      op.setOperationType("Received");
 
       op.setTxid(txid);
 
@@ -333,7 +333,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     } else if (type === "SEND") {
       const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
 
-      op.setType("Sent");
+      op.setOperationType("Sent");
 
       op.setTxid(txid);
 

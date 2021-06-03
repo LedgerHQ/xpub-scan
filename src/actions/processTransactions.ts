@@ -79,7 +79,7 @@ function processFundedTransactions(
         const op = new Operation(tx.date, tx.ins[0].amount);
         op.setTxid(tx.txid);
         op.setBlockNumber(tx.blockHeight);
-        op.setType(
+        op.setOperationType(
           accountNumber !== 1 ? "Received" : "Received (non-sibling to change)",
         );
 
@@ -110,13 +110,13 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
 
         if (out.address === address.toString()) {
           // sent to self: sent to same address
-          op.setType("Sent to self");
+          op.setOperationType("Sent to self");
         } else if (externalAddresses.includes(out.address)) {
           // sent to a sibling: sent to an address belonging to the same xpub
           // while not being a change address
-          op.setType("Sent to sibling");
+          op.setOperationType("Sent to sibling");
         } else {
-          op.setType("Sent");
+          op.setOperationType("Sent");
         }
 
         op.setBlockNumber(tx.blockHeight);

@@ -187,7 +187,7 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 ### Change External Provider
 
 1. At the root of the project, rename `.env.template` to `.env`
-2. In `.env`, set the `XPUB_SCAN_CUSTOM_API_URL` as well as your `XPUB_SCAN_CUSTOM_API_KEY` (following the structure provided by the `.env.template`)
+2. In `.env`, set the `XPUB_SCAN_CUSTOM_API_URL_V2` as well as your `XPUB_SCAN_CUSTOM_API_KEY_V2` (following the structure provided by the `.env.template`)
 3. rebuild the tool: `$ yarn build`
 4. Re-run it: `$ node ./lib/scan.js <xpub> …`
 5. Ensure that, when running the tool, it shows that the _custom_ provider is being used
