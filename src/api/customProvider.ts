@@ -1,3 +1,7 @@
+// custom provider:
+// Crypto APIs 2.0 <https://cryptoapis.io/>
+// https://developers.cryptoapis.io/technical-documentation/general-information/overview
+
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
