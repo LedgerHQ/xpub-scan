@@ -14,14 +14,14 @@ describe("helpers", () => {
       const mock = {
         job: async () => {
           nonce++;
-          if (nonce === 2) return { result: "mama" };
+          if (nonce === 2) return { result: "test" };
           throw new Error("Job failed");
         },
       };
       const spy = jest.spyOn(mock, "job");
       const res = await retry(mock.job);
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(res).toEqual({ result: "mama" });
+      expect(res).toEqual({ result: "test" });
     });
 
     it("should error after all retries has been consumed", async () => {
@@ -41,17 +41,17 @@ describe("helpers", () => {
       expect(err).toEqual(new Error("Job failed"));
     });
 
-    it("should allow passing a delay between retries", async () => {
+    it("should allow delaying each retry", async () => {
       let nonce = 0;
       const mock = {
         job: async () => {
           nonce++;
-          if (nonce === 3) return { result: "mama" };
+          if (nonce === 3) return { result: "test" };
           throw new Error("Job failed");
         },
       };
       const spy = jest.spyOn(mock, "job");
-      jest.useFakeTimers();
+      jest.useFakeTimers("legacy");
       const promise = retry(mock.job, { retryDelayMS: 500 });
 
       await flushPromises();
@@ -68,7 +68,7 @@ describe("helpers", () => {
       expect(spy).toHaveBeenCalledTimes(3);
 
       const res = await promise;
-      expect(res).toEqual({ result: "mama" });
+      expect(res).toEqual({ result: "test" });
     });
   });
 });
