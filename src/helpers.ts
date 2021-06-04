@@ -3,7 +3,11 @@ import * as bip32 from "bip32";
 import chalk from "chalk";
 import bchaddr from "bchaddrjs";
 
-import { configuration, DEFAULT_API_URLS } from "./configuration/settings";
+import {
+  configuration,
+  DEFAULT_API_URLS,
+  CUSTOM_API_URL,
+} from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
 
 export async function getJSON<T>(
@@ -103,15 +107,11 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
  */
 const setExternalProviderURL = (): void => {
   // custom provider (i.e., API key is set)
-  if (
-    process.env.XPUB_SCAN_CUSTOM_API_URL_V2 &&
-    process.env.XPUB_SCAN_CUSTOM_API_KEY_V2
-  ) {
-    configuration.externalProviderURL =
-      process.env.XPUB_SCAN_CUSTOM_API_URL_V2.replace(
-        "{network}",
-        configuration.testnet ? "testnet" : "mainnet",
-      );
+  if (process.env.XPUB_SCAN_CUSTOM_API_KEY_V2) {
+    configuration.externalProviderURL = CUSTOM_API_URL.replace(
+      "{network}",
+      configuration.testnet ? "testnet" : "mainnet",
+    );
 
     configuration.providerType = "custom";
 

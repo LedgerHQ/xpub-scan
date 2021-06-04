@@ -186,8 +186,12 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 
 ### Change External Provider
 
+**It is strongly encouraged to use the custom provider for reliable results.**
+
+[Crypto APIs](https://cryptoapis.io/) can be used as a custom provider. In this context, a valid [v2 API key](https://dashboard.cryptoapis.io/account/api-keys) is required.
+
 1. At the root of the project, rename `.env.template` to `.env`
-2. In `.env`, set the `XPUB_SCAN_CUSTOM_API_URL_V2` as well as your `XPUB_SCAN_CUSTOM_API_KEY_V2` (following the structure provided by the `.env.template`)
+2. In `.env`, set the `XPUB_SCAN_CUSTOM_API_KEY_V2` (corresponding to your Crypto APIs v2 API key—e.g.: `XPUB_SCAN_CUSTOM_API_KEY_V2=abcd6eacca264f7530eb2f7025a84f8`)
 3. rebuild the tool: `$ yarn build`
 4. Re-run it: `$ node ./lib/scan.js <xpub> …`
 5. Ensure that, when running the tool, it shows that the _custom_ provider is being used

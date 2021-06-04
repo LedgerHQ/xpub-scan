@@ -15,6 +15,9 @@ const DEFAULT_API_URLS = {
   bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}",
 };
 
+const CUSTOM_API_URL =
+  "https://rest.cryptoapis.io/v2/blockchain-data/{coin}/{network}/addresses/{address}";
+
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
 const DEFAULT_GAP_LIMIT = 20;
@@ -74,4 +77,10 @@ export const configuration = {
   gap_limit: process.env.GAP_LIMIT || DEFAULT_GAP_LIMIT,
 };
 
-export { DEFAULT_API_URLS, VERBOSE, DERIVATION_SCOPE, EXTERNAL_EXPLORERS_URLS };
+export {
+  DEFAULT_API_URLS,
+  CUSTOM_API_URL,
+  VERBOSE,
+  DERIVATION_SCOPE,
+  EXTERNAL_EXPLORERS_URLS,
+};
