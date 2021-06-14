@@ -140,18 +140,25 @@ async function scanAddresses(
   };
 }
 
-async function addressAnalysis(address: string) {
-  // TODO(ETH)
-  const a = new Address(address);
+async function addressAnalysis(addressToScan: string) {
+  if (!configuration.silent) {
+    console.log(chalk.bold("\nScanned address\n"));
+  }
 
-  display.updateAddressDetails(a);
-  await getStats(a);
-  display.updateAddressDetails(a);
+  const address = new Address(addressToScan);
 
-  const summary = [{ balance: 0 }];
+  display.updateAddressDetails(address);
+
+  await getStats(address);
+
+  getTransactions(address);
+
+  display.updateAddressDetails(address);
+
+  const summary = [{ balance: address.getBalance() }];
 
   return {
-    addresses: [a],
+    addresses: [address],
     summary,
   };
 }

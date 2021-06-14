@@ -5,6 +5,7 @@ import { Address } from "./models/address";
 import { Operation } from "./models/operation";
 import { configuration } from "./configuration/settings";
 import { TODO_TypeThis } from "./types";
+import { currencies } from "./configuration/currencies";
 
 function convertUnits(amount: number) {
   // Currently, this function does not convert the amounts
@@ -100,7 +101,7 @@ function updateAddressDetails(address: Address) {
 
 // display the list of UTXOs sorted by date (reverse chronological order)
 function showSortedUTXOs(sortedUTXOs: Address[]) {
-  if (configuration.silent) {
+  if (configuration.silent || !configuration.currency.utxo_based) {
     return;
   }
 
@@ -199,6 +200,10 @@ function showSortedOperations(sortedOperations: Operation[]) {
 function showSummary(derivationMode: string, totalBalance: number) {
   if (configuration.silent) {
     return;
+  }
+
+  if (configuration.currency.symbol == currencies.eth.symbol) {
+    derivationMode = "Ethereum";
   }
 
   const balance = convertUnits(totalBalance);

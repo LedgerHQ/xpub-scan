@@ -22,6 +22,14 @@ interface RawTransaction {
     amount: number;
     unit: string;
   };
+  recipients: Array<{
+    address: string;
+    amount: string;
+  }>;
+  senders: Array<{
+    address: string;
+    amount: string;
+  }>;
   blockchainSpecific: {
     vin: {
       addresses: string[];
@@ -206,4 +214,43 @@ function getTransactions(address: Address) {
   address.setTransactions(transactions);
 }
 
-export { getStats, getTransactions };
+function getEthereumTransactions(address: Address) {
+  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const transactions: Transaction[] = [];
+
+  rawTransactions.forEach((tx: RawTransaction) => {
+    const timestamp = String(
+      dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
+    );
+
+    if (
+      tx.recipients.some((r) => r.address.localeCompare(address.toString()))
+    ) {
+      // Recipient
+      const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
+
+      const op = new Operation(timestamp, amount);
+      op.setAddress(address.toString());
+      op.setTxid(tx.transactionId);
+      op.setOperationType("Received");
+      op.setBlockNumber(tx.minedInBlockHeight);
+
+      address.addFundedOperation(op);
+    } else {
+      // Sender
+      const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
+      const op = new Operation(timestamp, amount);
+      op.setAddress(address.toString());
+      op.setTxid(tx.transactionId);
+      op.setOperationType("Sent");
+
+      op.setBlockNumber(tx.minedInBlockHeight);
+
+      address.addSentOperation(op);
+    }
+  });
+
+  address.setTransactions(transactions);
+}
+
+export { getStats, getTransactions, getEthereumTransactions };
