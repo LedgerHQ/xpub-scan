@@ -86,6 +86,13 @@ function getUrl(itemType: string, item: string) {
       break;
     case "transaction":
       url = url.replace("{type}", itemTypes.transaction);
+
+      if (configuration.currency.symbol === currencies.eth.symbol) {
+        // Ethereum:
+        // remove prefix from transaction (Blockcypher requirement)
+        item = item.replace("0x", "");
+      }
+
       break;
     default:
       throw new Error(
@@ -501,22 +508,26 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     };
   });
 
-  const utxos: TODO_TypeThis[] = data.addresses
-    .filter((a: Address) => a.isUTXO())
-    .map((e: TODO_TypeThis) => {
-      return {
-        derivationMode: e.derivationMode,
-        derivation: e.getDerivation(),
-        address: e.toString(),
-        cashAddress: e.asCashAddress(),
-        balance: toBaseUnit(e.balance),
-        funded: toBaseUnit(e.stats.funded),
-        spent: toBaseUnit(e.stats.spent),
-        txid: e.transactions[0].txid,
-        height: e.transactions[0].blockHeight,
-        time: e.transactions[0].date,
-      };
-    });
+  let utxos: TODO_TypeThis[] = [];
+
+  if (configuration.currency.utxo_based) {
+    utxos = data.addresses
+      .filter((a: Address) => a.isUTXO())
+      .map((e: TODO_TypeThis) => {
+        return {
+          derivationMode: e.derivationMode,
+          derivation: e.getDerivation(),
+          address: e.toString(),
+          cashAddress: e.asCashAddress(),
+          balance: toBaseUnit(e.balance),
+          funded: toBaseUnit(e.stats.funded),
+          spent: toBaseUnit(e.stats.spent),
+          txid: e.transactions[0].txid,
+          height: e.transactions[0].blockHeight,
+          time: e.transactions[0].date,
+        };
+      });
+  }
 
   const summary: TODO_TypeThis[] = data.summary.map((e: TODO_TypeThis) => {
     return {
