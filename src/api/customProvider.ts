@@ -49,27 +49,17 @@ async function getStats(address: Address) {
   const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
   const item = res.data.item;
 
-<<<<<<< HEAD
   const fundedSum = parseFloat(item.totalReceived.amount);
   const spentSum = parseFloat(item.totalSpent.amount);
   const balance = parseFloat(item.confirmedBalance.amount);
   const txCount = item.transactionsCount;
-=======
-  const fundedSum = parseFloat(res.payload.totalReceived);
-  const spentSum = parseFloat(res.payload.totalSpent);
-  const balance = parseFloat(res.payload.balance);
->>>>>>> 284ee99 (feat(ETH): initial draft: getStats())
 
   address.setStats(txCount, fundedSum, spentSum);
   address.setBalance(balance);
 
-<<<<<<< HEAD
   const maxItemsPerRequest = 50;
 
   if (txCount > 0) {
-=======
-  if (res.payload.txsCount > 0 || configuration.currency.utxo_based === false) {
->>>>>>> 284ee99 (feat(ETH): initial draft: getStats())
     const getTxsURLTemplate = configuration.externalProviderURL
       .replace("{coin}", coin)
       .replace("{address}", address.toString())
