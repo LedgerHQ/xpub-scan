@@ -385,7 +385,14 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   // summary
   const summary: string[] = [];
   for (const e of object.summary) {
-    summary.push("<tr><td>" + e.derivationMode + "</td>");
+    if (
+      typeof e.derivation !== "undefined" &&
+      typeof e.derivation.account !== "undefined"
+    ) {
+      summary.push("<tr><td>" + e.derivationMode + "</td>");
+    } else {
+      summary.push("<tr><td>" + configuration.currency.name + "</td>");
+    }
 
     const balance = sb.toBitcoin(e.balance);
 
@@ -405,11 +412,16 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   const addresses: string[] = [];
 
   for (const e of object.addresses) {
-    addresses.push("<tr><td>" + e.derivationMode + "</td>");
-
-    const derivationPath =
-      "m/" + e.derivation.account + "/" + e.derivation.index;
-    addresses.push("<td>" + derivationPath + "</td>");
+    if (typeof e.derivation.account !== "undefined") {
+      addresses.push("<tr><td>" + e.derivationMode + "</td>");
+      const derivationPath =
+        "m/" + e.derivation.account + "/" + e.derivation.index;
+      addresses.push("<td>" + derivationPath + "</td>");
+    } else {
+      addresses.push(
+        "<tr><td>" + configuration.currency.name + "</td><td>-</td>",
+      );
+    }
 
     addresses.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
 

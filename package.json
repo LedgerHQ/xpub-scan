@@ -26,7 +26,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bchaddrjs": "^0.5.2",
-    "bitcoin-cash-payments": "^0.0.2",
+    "bitcoin-cash": "^2.0.0",
+    "bitcoin-cash-payments": "^0.2.0",
     "bitcoinjs-lib": "^5.2.0",
     "chalk": "^4.1.1",
     "coininfo": "^5.1.0",

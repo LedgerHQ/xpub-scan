@@ -137,6 +137,11 @@ const setExternalProviderURL = (): void => {
     configuration.externalProviderURL = DEFAULT_API_URLS.bch;
     return;
   }
+
+  if (currency.symbol === currencies.eth.symbol) {
+    configuration.externalProviderURL = DEFAULT_API_URLS.eth;
+    return;
+  }
 };
 
 // ensure that the xpub is a valid one
