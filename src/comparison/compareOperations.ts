@@ -76,8 +76,13 @@ const areMatching = (
   // be used
   if (
     importedAddress &&
-    !importedAddress.includes(actualOperation.getAddress()) &&
-    !actualOperation.getAddress().includes(importedAddress)
+    !importedAddress
+      .toLowerCase()
+      .includes(actualOperation.getAddress().toLowerCase()) &&
+    !actualOperation
+      .getAddress()
+      .toLowerCase()
+      .includes(importedAddress.toLowerCase())
   ) {
     return false;
   }
