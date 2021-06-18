@@ -29,7 +29,7 @@ function getTransactions(address: Address, ownAddresses?: OwnAddresses) {
   if (configuration.currency.symbol === currencies.eth.symbol) {
     switch (configuration.providerType) {
       case "default":
-        throw new Error("Not implemented yet");
+        defaultProvider.getEthereumTransactions(address);
         break;
 
       case "custom":

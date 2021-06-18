@@ -47,6 +47,16 @@ interface BchRawTransaction {
   }[];
 }
 
+// raw transactions provided by ETH API
+interface EthRawTransaction {
+  tx_hash: string;
+  block_height: number;
+  value: number;
+  tx_input_n: number;
+  tx_output_n: number;
+  confirmed: string;
+}
+
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 async function getStats(address: Address) {
@@ -55,6 +65,10 @@ async function getStats(address: Address) {
 
   if (coin === currencies.bch.symbol) {
     return getBchStats(address);
+  }
+
+  if (coin === currencies.eth.symbol) {
+    return getEthStats(address);
   }
 
   if (coin === currencies.btc.symbol.toUpperCase() && configuration.testnet) {
@@ -117,6 +131,28 @@ async function getBchStats(address: Address) {
   address.setRawTransactions(JSON.stringify(rawTransactions));
 }
 
+async function getEthStats(address: Address) {
+  const url = configuration.externalProviderURL
+    .replace("{coin}", "eth")
+    .replace("{address}", address.toString());
+
+  const res = await getJSON<TODO_TypeThis>(url);
+
+  // values are returned in Wei
+  // and have to be converted in ETH
+  const convertToEth = (value: string) =>
+    parseFloat(value) / configuration.currency.precision;
+
+  const fundedSum = convertToEth(res.total_received);
+  const balance = convertToEth(res.balance);
+  const spentSum = convertToEth(res.total_sent);
+
+  address.setStats(res.n_tx, fundedSum, spentSum);
+  address.setBalance(balance);
+
+  address.setRawTransactions(JSON.stringify(res.txrefs));
+}
+
 // transforms raw transactions associated with an address
 // into an array of processed transactions:
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
@@ -124,7 +160,11 @@ function getTransactions(address: Address) {
   // Because the general default API is not compatible with Bitcoin Cash,
   // these transactions have to be specifically handled
   if (configuration.currency.symbol === currencies.bch.symbol) {
-    return getBchTransactions(address);
+    return getBitcoinCashTransactions(address);
+  }
+
+  if (configuration.currency.symbol === currencies.eth.symbol) {
+    return getEthereumTransactions(address);
   }
 
   // 1. get raw transactions
@@ -179,7 +219,7 @@ function getTransactions(address: Address) {
 // transforms raw Bitcoin Cash transactions associated with an address
 // into an array of processed transactions:
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
-function getBchTransactions(address: Address) {
+function getBitcoinCashTransactions(address: Address) {
   // 1. get raw transactions
   const rawTransactions = JSON.parse(address.getRawTransactions());
 
@@ -254,4 +294,55 @@ function getBchTransactions(address: Address) {
   address.setTransactions(transactions);
 }
 
-export { getStats, getTransactions, getBchTransactions };
+// transforms raw Ethereum transactions associated with an address
+// into an array of processed transactions:
+function getEthereumTransactions(address: Address) {
+  // 1. get raw transactions
+  const rawTransactions = JSON.parse(address.getRawTransactions());
+
+  // 2. parse raw transactions
+  const transactions: Transaction[] = [];
+
+  rawTransactions.forEach((tx: EthRawTransaction) => {
+    const ins: Operation[] = [];
+    const outs: Operation[] = [];
+
+    const op = new Operation(
+      String(tx.confirmed),
+      tx.value / configuration.currency.precision,
+    );
+
+    op.setAddress(address.toString());
+    op.setTxid(tx.tx_hash);
+    op.setBlockNumber(tx.block_height);
+
+    if (tx.tx_output_n === -1) {
+      op.setOperationType("Received");
+      address.addFundedOperation(op);
+      ins.push(op);
+    } else if (tx.tx_input_n === -1) {
+      op.setOperationType("Sent");
+      address.addSentOperation(op);
+      outs.push(op);
+    }
+
+    transactions.push(
+      new Transaction(
+        tx.block_height,
+        String(dateFormat(new Date(tx.confirmed), "yyyy-mm-dd'T'HH:MM:ss'Z'")),
+        tx.tx_hash,
+        ins,
+        outs,
+      ),
+    );
+  });
+
+  address.setTransactions(transactions);
+}
+
+export {
+  getStats,
+  getTransactions,
+  getBitcoinCashTransactions,
+  getEthereumTransactions,
+};
