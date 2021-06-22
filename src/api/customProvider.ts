@@ -103,7 +103,7 @@ async function getStats(address: Address) {
     // flatten the payloads
     // eslint-disable-next-line prefer-spread
     const rawTransactions = [].concat.apply([], payloads);
-
+    
     address.setRawTransactions(JSON.stringify(rawTransactions));
   }
 }
@@ -223,9 +223,14 @@ function getEthereumTransactions(address: Address) {
       dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
     );
 
-    if (
-      tx.recipients.some((r) => r.address.localeCompare(address.toString()))
-    ) {
+    const isRecipient = tx.recipients.some(
+      (t) => t.address.toLowerCase() === address.toString().toLowerCase(),
+    );
+    const isSender = tx.senders.some(
+      (t) => t.address.toLowerCase() === address.toString().toLowerCase(),
+    );
+
+    if (isRecipient) {
       // Recipient
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
 
@@ -236,13 +241,15 @@ function getEthereumTransactions(address: Address) {
       op.setBlockNumber(tx.minedInBlockHeight);
 
       address.addFundedOperation(op);
-    } else {
+    }
+
+    if (isSender) {
       // Sender
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
       const op = new Operation(timestamp, amount);
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
-      op.setOperationType("Sent");
+      op.setOperationType(isRecipient ? "Sent to self" : "Sent");
 
       op.setBlockNumber(tx.minedInBlockHeight);
 
