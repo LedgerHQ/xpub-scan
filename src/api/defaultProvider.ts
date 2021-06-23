@@ -55,6 +55,7 @@ interface EthRawTransaction {
   tx_input_n: number;
   tx_output_n: number;
   confirmed: string;
+  total: number;
 }
 
 // returns the basic stats related to an address:
@@ -133,10 +134,10 @@ async function getBchStats(address: Address) {
 
 async function getEthStats(address: Address) {
   const url = configuration.externalProviderURL
-    .replace("{coin}", "eth")
-    .replace("{address}", address.toString());
+    .replace("{type}", "addrs")
+    .replace("{item}", address.toString());
 
-  const res = await getJSON<TODO_TypeThis>(url);
+  let res = await getJSON<TODO_TypeThis>(url);
 
   // values are returned in Wei
   // and have to be converted in ETH
@@ -149,6 +150,21 @@ async function getEthStats(address: Address) {
 
   address.setStats(res.n_tx, fundedSum, spentSum);
   address.setBalance(balance);
+
+  // additional request to get the fees
+  for (let i = 0; i < res.txrefs.length; ++i) {
+    // if not a Sent transaction, skip
+    if (res.txrefs[i].tx_output_n !== -1) {
+      continue;
+    }
+
+    const urlTxs = configuration.externalProviderURL
+      .replace("{type}", "txs")
+      .replace("{item}", res.txrefs[i].tx_hash);
+
+    const resTxs = await getJSON<TODO_TypeThis>(urlTxs);
+    res.txrefs[i].total = resTxs.total;
+  }
 
   address.setRawTransactions(JSON.stringify(res.txrefs));
 }
@@ -307,20 +323,31 @@ function getEthereumTransactions(address: Address) {
     const ins: Operation[] = [];
     const outs: Operation[] = [];
 
+    const isRecipient = tx.tx_input_n === -1;
+    const isSender = tx.tx_output_n === -1;
+
+    let amount = tx.value;
+
+    if (isSender) {
+      amount = tx.total;
+    }
+
     const op = new Operation(
       String(tx.confirmed),
-      tx.value / configuration.currency.precision,
+      amount / configuration.currency.precision,
     );
 
+    const txHash = "0x".concat(tx.tx_hash);
+
     op.setAddress(address.toString());
-    op.setTxid(tx.tx_hash);
+    op.setTxid(txHash);
     op.setBlockNumber(tx.block_height);
 
-    if (tx.tx_output_n === -1) {
+    if (isRecipient) {
       op.setOperationType("Received");
       address.addFundedOperation(op);
       ins.push(op);
-    } else if (tx.tx_input_n === -1) {
+    } else if (isSender) {
       op.setOperationType("Sent");
       address.addSentOperation(op);
       outs.push(op);
@@ -330,7 +357,7 @@ function getEthereumTransactions(address: Address) {
       new Transaction(
         tx.block_height,
         String(dateFormat(new Date(tx.confirmed), "yyyy-mm-dd'T'HH:MM:ss'Z'")),
-        tx.tx_hash,
+        txHash,
         ins,
         outs,
       ),

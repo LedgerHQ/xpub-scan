@@ -103,7 +103,7 @@ async function getStats(address: Address) {
     // flatten the payloads
     // eslint-disable-next-line prefer-spread
     const rawTransactions = [].concat.apply([], payloads);
-    
+
     address.setRawTransactions(JSON.stringify(rawTransactions));
   }
 }
