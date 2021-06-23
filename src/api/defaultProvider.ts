@@ -137,7 +137,7 @@ async function getEthStats(address: Address) {
     .replace("{type}", "addrs")
     .replace("{item}", address.toString());
 
-  let res = await getJSON<TODO_TypeThis>(url);
+  const res = await getJSON<TODO_TypeThis>(url);
 
   // values are returned in Wei
   // and have to be converted in ETH
