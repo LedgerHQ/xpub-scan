@@ -154,18 +154,6 @@ function checkXpub(xpub: string) {
   } catch (e) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
   }
-
-  if (configuration.silent) {
-    return;
-  }
-
-  console.log(
-    chalk.grey(
-      "(Data fetched from the "
-        .concat(chalk.bold(configuration.providerType))
-        .concat(" provider)"),
-    ),
-  );
 }
 
 export function init(
@@ -187,6 +175,18 @@ export function init(
   }
 
   configuration.specificDerivationMode = derivationMode!;
+
+  if (configuration.silent) {
+    return;
+  }
+
+  console.log(
+    chalk.grey(
+      "(Data fetched from the "
+        .concat(chalk.bold(configuration.providerType))
+        .concat(" provider)"),
+    ),
+  );
 }
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
