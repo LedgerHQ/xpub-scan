@@ -385,10 +385,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   // summary
   const summary: string[] = [];
   for (const e of object.summary) {
-    if (
-      typeof e.derivation !== "undefined" &&
-      typeof e.derivation.account !== "undefined"
-    ) {
+    if (typeof e.derivationMode !== "undefined") {
       summary.push("<tr><td>" + e.derivationMode + "</td>");
     } else {
       summary.push("<tr><td>" + configuration.currency.name + "</td>");
