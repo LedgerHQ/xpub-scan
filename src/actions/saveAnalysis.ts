@@ -86,13 +86,6 @@ function getUrl(itemType: string, item: string) {
       break;
     case "transaction":
       url = url.replace("{type}", itemTypes.transaction);
-
-      if (configuration.currency.symbol === currencies.eth.symbol) {
-        // Ethereum:
-        // remove prefix from transaction (Blockcypher requirement)
-        item = item.replace("0x", "");
-      }
-
       break;
     default:
       throw new Error(
@@ -100,6 +93,12 @@ function getUrl(itemType: string, item: string) {
           itemType +
           "\" (expected: 'address' or 'transaction')",
       );
+  }
+
+  if (configuration.currency.symbol === currencies.eth.symbol) {
+    // Ethereum:
+    // remove prefix from transaction (Blockcypher requirement)
+    item = item.toLowerCase().replace("0x", "");
   }
 
   return url

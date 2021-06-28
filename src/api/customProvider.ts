@@ -214,7 +214,7 @@ function getTransactions(address: Address) {
   address.setTransactions(transactions);
 }
 
-function getEthereumTransactions(address: Address) {
+function getAccountBasedTransactions(address: Address) {
   const rawTransactions = JSON.parse(address.getRawTransactions());
   const transactions: Transaction[] = [];
 
@@ -260,4 +260,4 @@ function getEthereumTransactions(address: Address) {
   address.setTransactions(transactions);
 }
 
-export { getStats, getTransactions, getEthereumTransactions };
+export { getStats, getTransactions, getAccountBasedTransactions };

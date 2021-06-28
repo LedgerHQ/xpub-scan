@@ -180,7 +180,7 @@ function getTransactions(address: Address) {
   }
 
   if (configuration.currency.symbol === currencies.eth.symbol) {
-    return getEthereumTransactions(address);
+    return getAccountBasedTransactions(address);
   }
 
   // 1. get raw transactions
@@ -312,7 +312,7 @@ function getBitcoinCashTransactions(address: Address) {
 
 // transforms raw Ethereum transactions associated with an address
 // into an array of processed transactions:
-function getEthereumTransactions(address: Address) {
+function getAccountBasedTransactions(address: Address) {
   // 1. get raw transactions
   const rawTransactions = JSON.parse(address.getRawTransactions());
 
@@ -371,5 +371,5 @@ export {
   getStats,
   getTransactions,
   getBitcoinCashTransactions,
-  getEthereumTransactions,
+  getAccountBasedTransactions,
 };

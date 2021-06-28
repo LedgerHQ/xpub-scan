@@ -29,11 +29,11 @@ function getTransactions(address: Address, ownAddresses?: OwnAddresses) {
   if (configuration.currency.symbol === currencies.eth.symbol) {
     switch (configuration.providerType) {
       case "default":
-        defaultProvider.getEthereumTransactions(address);
+        defaultProvider.getAccountBasedTransactions(address);
         break;
 
       case "custom":
-        customProvider.getEthereumTransactions(address);
+        customProvider.getAccountBasedTransactions(address);
         break;
 
       default:
