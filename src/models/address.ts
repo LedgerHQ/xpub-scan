@@ -20,15 +20,19 @@ class Address {
   utxo: boolean;
 
   constructor(
-    derivationMode: DerivationMode,
-    xpub: string,
-    account: number,
-    index: number,
+    itemToScan: string,
+    derivationMode?: DerivationMode,
+    account?: number,
+    index?: number,
   ) {
-    this.address = getAddress(derivationMode, xpub, account, index);
-    this.derivationMode = derivationMode;
-    this.account = account;
-    this.index = index;
+    if (derivationMode) {
+      this.address = getAddress(derivationMode, itemToScan, account!, index!);
+    } else {
+      this.address = itemToScan;
+    }
+    this.derivationMode = derivationMode!;
+    this.account = account!;
+    this.index = index!;
     this.ins = [];
     this.outs = [];
     this.utxo = false;

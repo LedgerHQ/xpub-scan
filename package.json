@@ -26,6 +26,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bchaddrjs": "^0.5.2",
+    "bitcoin-cash": "^2.0.0",
     "bitcoin-cash-payments": "^0.2.0",
     "bitcoinjs-lib": "^5.2.0",
     "chalk": "^4.1.1",
@@ -40,10 +41,10 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.3",
-    "@babel/eslint-parser": "^7.14.4",
-    "@babel/preset-env": "^7.14.4",
-    "@babel/preset-typescript": "^7.13.0",
+    "@babel/core": "^7.14.6",
+    "@babel/eslint-parser": "^7.14.5",
+    "@babel/preset-env": "^7.14.5",
+    "@babel/preset-typescript": "^7.14.5",
     "@types/bchaddrjs": "^0.4.0",
     "@types/bip32": "^2.0.0",
     "@types/chalk": "^2.2.0",
@@ -53,12 +54,12 @@
     "@types/jest": "^26.0.23",
     "@types/minimist": "^1.2.1",
     "@types/yargs": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.26.0",
-    "@typescript-eslint/parser": "^4.26.0",
-    "eslint": "^7.27.0",
+    "@typescript-eslint/eslint-plugin": "^4.27.0",
+    "@typescript-eslint/parser": "^4.27.0",
+    "eslint": "^7.28.0",
     "eslint-plugin-prettier": "^3.4.0",
     "jest": "^27.0.4",
-    "prettier": "^2.3.0",
+    "prettier": "2.3.1",
     "typescript": "^4.3.2"
   }
 }

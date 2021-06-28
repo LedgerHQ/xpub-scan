@@ -5,6 +5,7 @@ import { Address } from "./models/address";
 import { Operation } from "./models/operation";
 import { configuration } from "./configuration/settings";
 import { TODO_TypeThis } from "./types";
+import { currencies } from "./configuration/currencies";
 
 function convertUnits(amount: number) {
   // Currently, this function does not convert the amounts
@@ -47,11 +48,16 @@ function updateAddressDetails(address: Address) {
   const addressStats = address.getStats();
 
   // _type_  path  address ...
-  let stats =
-    //    _{address type}_  {derivation path}  {address}  [{cash address}]...
-    "  "
+  let stats = "";
+
+  if (configuration.currency.utxo_based) {
+    //    _{derivation mode}_  {derivation path}  {address}  [{cash address}]...
+    stats = stats
       .concat(chalk.italic(derivationMode.padEnd(16, " ")))
       .concat(derivationPath.padEnd(12, " "));
+  } else {
+    stats = stats.concat("\t");
+  }
 
   const cashAddress = address.asCashAddress();
 
@@ -95,7 +101,7 @@ function updateAddressDetails(address: Address) {
 
 // display the list of UTXOs sorted by date (reverse chronological order)
 function showSortedUTXOs(sortedUTXOs: Address[]) {
-  if (configuration.silent) {
+  if (configuration.silent || !configuration.currency.utxo_based) {
     return;
   }
 
@@ -194,6 +200,10 @@ function showSortedOperations(sortedOperations: Operation[]) {
 function showSummary(derivationMode: string, totalBalance: number) {
   if (configuration.silent) {
     return;
+  }
+
+  if (configuration.currency.symbol == currencies.eth.symbol) {
+    derivationMode = "Ethereum";
   }
 
   const balance = convertUnits(totalBalance);

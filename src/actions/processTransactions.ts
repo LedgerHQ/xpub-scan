@@ -25,10 +25,29 @@ async function getStats(address: Address) {
   }
 }
 
-function getTransactions(address: Address, ownAddresses: OwnAddresses) {
+function getTransactions(address: Address, ownAddresses?: OwnAddresses) {
+  if (configuration.currency.symbol === currencies.eth.symbol) {
+    switch (configuration.providerType) {
+      case "default":
+        defaultProvider.getAccountBasedTransactions(address);
+        break;
+
+      case "custom":
+        customProvider.getAccountBasedTransactions(address);
+        break;
+
+      default:
+        throw new Error(
+          "Should not be reachable: providerType should be 'default' or 'custom'",
+        );
+    }
+
+    return;
+  }
+
   preprocessTransactions(address);
-  processFundedTransactions(address, ownAddresses);
-  processSentTransactions(address, ownAddresses);
+  processFundedTransactions(address, ownAddresses!);
+  processSentTransactions(address, ownAddresses!);
 }
 
 // get and transform raw transactions associated with an address

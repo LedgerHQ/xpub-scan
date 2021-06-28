@@ -88,11 +88,16 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
     }
   } else {
     // Bitcoin Cash
-    if (currency.includes("cash") || currency === "BCH") {
+    if (currency === "BCH") {
       configuration.currency = currencies.bch;
 
       // TODO: BCH testnet
       configuration.currency.network = currencies.bch.network_mainnet;
+      return;
+    }
+    // Ethereum
+    else if (currency === "ETH") {
+      configuration.currency = currencies.eth;
       return;
     }
 
@@ -132,6 +137,11 @@ const setExternalProviderURL = (): void => {
     configuration.externalProviderURL = DEFAULT_API_URLS.bch;
     return;
   }
+
+  if (currency.symbol === currencies.eth.symbol) {
+    configuration.externalProviderURL = DEFAULT_API_URLS.eth;
+    return;
+  }
 };
 
 // ensure that the xpub is a valid one
@@ -144,18 +154,6 @@ function checkXpub(xpub: string) {
   } catch (e) {
     throw new Error("INVALID XPUB: " + xpub + " is not a valid xpub -- " + e);
   }
-
-  if (configuration.silent) {
-    return;
-  }
-
-  console.log(
-    chalk.grey(
-      "(Data fetched from the "
-        .concat(chalk.bold(configuration.providerType))
-        .concat(" provider)"),
-    ),
-  );
 }
 
 export function init(
@@ -171,9 +169,24 @@ export function init(
 
   setNetwork(xpub, currency, testnet);
   setExternalProviderURL();
-  checkXpub(xpub);
+
+  if (configuration.currency.utxo_based) {
+    checkXpub(xpub);
+  }
 
   configuration.specificDerivationMode = derivationMode!;
+
+  if (configuration.silent) {
+    return;
+  }
+
+  console.log(
+    chalk.grey(
+      "(Data fetched from the "
+        .concat(chalk.bold(configuration.providerType))
+        .concat(" provider)"),
+    ),
+  );
 }
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses

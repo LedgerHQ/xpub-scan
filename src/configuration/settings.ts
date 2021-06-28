@@ -13,6 +13,7 @@ const VERBOSE = false;
 const DEFAULT_API_URLS = {
   general: "https://sochain.com/api/v2/address/{coin}/{address}",
   bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}",
+  eth: "https://api.blockcypher.com/v1/eth/main/{type}/{item}",
 };
 
 const CUSTOM_API_URL =
