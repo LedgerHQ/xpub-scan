@@ -110,6 +110,12 @@ export const getArgs = (): TODO_TypeThis => {
       description: "Save analysis",
       demand: false,
       type: "string",
+    })
+    .option("custom-provider", {
+      description: "Require the use of the custom provider",
+      demand: false,
+      type: "boolean",
+      default: false,
     }).argv;
 
   checkArgs(args, process.argv);
