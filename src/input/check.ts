@@ -258,4 +258,10 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
       );
     }
   }
+
+  if (args.customProvider && !process.env.XPUB_SCAN_CUSTOM_API_KEY_V2) {
+    throw new Error(
+      "Custom provider v2 API key (XPUB_SCAN_CUSTOM_API_KEY_V2) is missing",
+    );
+  }
 };
