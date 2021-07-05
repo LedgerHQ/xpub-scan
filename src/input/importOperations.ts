@@ -312,12 +312,19 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     const date =
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.time) || "";
 
-    const valueInSatoshis = parseFloat(operation.amount); // in satoshis
+    let value = parseFloat(operation.amount);
+
+    // convert into Bitcoin, ETH, etc. unit
+    if (configuration.currency.symbol === "ETH") {
+      value /= configuration.currency.precision;
+    } else {
+      value = sb.toBitcoin(value);
+    }
 
     const txid = operation.transaction.hash;
 
     if (type === "RECEIVE") {
-      const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+      const op = new Operation(date[0], value);
       op.setOperationType("Received");
 
       op.setTxid(txid);
@@ -331,7 +338,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
 
       operations.push(op);
     } else if (type === "SEND") {
-      const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+      const op = new Operation(date[0], value);
 
       op.setOperationType("Sent");
 
