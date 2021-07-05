@@ -1,7 +1,8 @@
 import chalk from "chalk";
-import sb from "satoshi-bitcoin";
-
+import { configuration } from "../configuration/settings";
 import { Comparison } from "../models/comparison";
+
+import sb from "satoshi-bitcoin";
 
 /**
  * Show differences between imported and actual data
@@ -43,8 +44,14 @@ const showDiff = (
 
   // check balance
   if (importedBalance || importedBalance === 0) {
-    // the actual balance has to be converted into satoshis or similar units
-    actualBalance = sb.toSatoshi(actualBalance);
+    // the actual balance has to be converted into base units
+    if (configuration.currency.utxo_based) {
+      actualBalance = sb.toSatoshi(actualBalance);
+    } else {
+      actualBalance = Math.round(
+        actualBalance * configuration.currency.precision,
+      );
+    }
 
     if (actualBalance !== importedBalance) {
       console.log(chalk.redBright("Diff [ KO ]: balances mismatch"));
