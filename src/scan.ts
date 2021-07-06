@@ -125,7 +125,7 @@ async function scan() {
 
       exitCode = showDiff(
         actualBalance,
-        args.balance,
+        parseFloat(args.balance),
         comparisonResults,
         args.diff,
       );

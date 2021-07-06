@@ -93,7 +93,7 @@ export const getArgs = (): TODO_TypeThis => {
       description:
         "Import balance for comparison (has to be in satoshis or similar base unit) for comparison",
       demand: false,
-      type: "number",
+      type: "string",
     })
     .option("utxos", {
       description: "Import UTXOs (file) for comparison",
