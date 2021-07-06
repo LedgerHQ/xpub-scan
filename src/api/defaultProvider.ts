@@ -332,9 +332,11 @@ function getAccountBasedTransactions(address: Address) {
       amount = tx.total;
     }
 
+    amount /= configuration.currency.precision;
+
     const op = new Operation(
       String(tx.confirmed),
-      amount / configuration.currency.precision,
+      parseFloat(amount.toFixed(10)), // use fixed-point notation (10 digits)
     );
 
     const txHash = "0x".concat(tx.tx_hash);
