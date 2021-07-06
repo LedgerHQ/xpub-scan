@@ -52,7 +52,7 @@ const showDiff = (
       importedBalance = parseFloat(
         importedBalance.toPrecision(10).slice(0, -1),
       ); // ETH: use fixed-point notation (10 digits)
-      
+
       actualBalance = parseFloat(actualBalance.toPrecision(10).slice(0, -1)); // ETH: use fixed-point notation (10 digits)
     }
 
