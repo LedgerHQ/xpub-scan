@@ -326,7 +326,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     const date =
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.time) || "";
 
-    let value = toAccountUnit(parseFloat(operation.amount));
+    const value = toAccountUnit(parseFloat(operation.amount));
 
     const txid = operation.transaction.hash;
 
