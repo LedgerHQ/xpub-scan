@@ -47,10 +47,10 @@ const showDiff = (
     // the actual balance has to be converted into base units
     if (configuration.currency.utxo_based) {
       actualBalance = sb.toSatoshi(actualBalance);
-    } else {
-      actualBalance = Math.round(
-        actualBalance * configuration.currency.precision,
-      );
+    } else if (configuration.currency.symbol === "ETH") {
+      importedBalance /= configuration.currency.precision;
+      importedBalance = parseFloat(importedBalance.toPrecision(10)); // ETH: use fixed-point notation (10 digits)
+      actualBalance = parseFloat(actualBalance.toPrecision(10)); // ETH: use fixed-point notation (10 digits)
     }
 
     if (actualBalance !== importedBalance) {
