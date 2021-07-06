@@ -19,6 +19,20 @@ const sanitizeInputedAddress = (address: string): string => {
 };
 
 /**
+ * Convert to account units (bitcoins, ethers, etc.)
+ * @param value The value to convert
+ * @returns The converted value
+ */
+const toAccountUnit = (value: number) => {
+  if (configuration.currency.symbol === "ETH") {
+    const convertedValue = value / configuration.currency.precision;
+    return parseFloat(convertedValue.toFixed(10));
+  } else {
+    return sb.toBitcoin(value);
+  }
+};
+
+/**
  * Get contents from file to import
  * @param  {string} path
  *          Path of file to import
@@ -149,11 +163,11 @@ const importFromCSVTypeB = (contents: string): Operation[] => {
 
         operations.push(op);
       } else if (type === "OUT") {
-        // out transactions: substract fees from amount (in satoshis)...
-        const amountInSatoshis = sb.toSatoshi(amount) - sb.toSatoshi(fees);
-        // ... and convert the total back to Bitcoin
+        // out transactions: substract fees from amount (in base unit)...
+        const amountInBaseUnit = sb.toSatoshi(amount) - sb.toSatoshi(fees);
+        // ... and convert the total back to unit of account
         // (otherwise, there would be floating number issues)
-        const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
+        const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
         op.setTxid(txid);
         op.setOperationType("Sent");
 
@@ -191,11 +205,11 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
       ) || "";
 
     const txid = operation.hash;
-    const valueInSatoshis = parseFloat(operation.amount); // in satoshis
-    const feesInSatoshis = parseFloat(operation.fees); // in satoshis
+    const valueInBaseUnit = parseFloat(operation.amount); // in base unit
+    const feesInBaseUnit = parseFloat(operation.fees); // in base unit
 
     if (type === "receive") {
-      const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+      const op = new Operation(date[0], toAccountUnit(valueInBaseUnit));
       op.setTxid(txid);
       op.setOperationType("Received");
 
@@ -210,11 +224,11 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
 
       operations.push(op);
     } else if (type === "send") {
-      // out transactions: substract fees from amount (in satoshis)...
-      const amountInSatoshis = valueInSatoshis - feesInSatoshis;
-      // ... and convert the total back to Bitcoin
+      // out transactions: substract fees from amount (in base unit)...
+      const amountInBaseUnit = valueInBaseUnit - feesInBaseUnit;
+      // ... and convert the total back to unit of account
       // (otherwise, there would be floating number issues)
-      const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
+      const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
       op.setTxid(txid);
       op.setOperationType("Sent");
 
@@ -259,24 +273,24 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.date) || "";
 
     const txid = operation.hash;
-    const valueInSatoshis = parseFloat(operation.value); // in satoshis
-    const feesInSatoshis = parseFloat(operation.fee); // in satoshis
+    const valueInBaseUnit = parseFloat(operation.value); // in base unit
+    const feesInBaseUnit = parseFloat(operation.fee); // in base unit
     const recipient = operation.recipients.join(",");
     const sender = operation.senders.join(",");
 
     if (type === "IN") {
-      const op = new Operation(date[0], sb.toBitcoin(valueInSatoshis));
+      const op = new Operation(date[0], toAccountUnit(valueInBaseUnit));
       op.setTxid(txid);
       op.setOperationType("Received");
       op.setAddress(sanitizeInputedAddress(recipient));
 
       operations.push(op);
     } else if (type === "OUT") {
-      // out transactions: substract fees from amount (in satoshis)...
-      const amountInSatoshis = valueInSatoshis - feesInSatoshis;
-      // ... and convert the total back to Bitcoin
+      // out transactions: substract fees from amount (in base unit)...
+      const amountInBaseUnit = valueInBaseUnit - feesInBaseUnit;
+      // ... and convert the total back to unit of account
       // (otherwise, there would be floating number issues)
-      const op = new Operation(date[0], sb.toBitcoin(amountInSatoshis));
+      const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
       op.setTxid(txid);
       op.setOperationType("Sent");
       op.setAddress(sanitizeInputedAddress(sender));
@@ -312,14 +326,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     const date =
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.time) || "";
 
-    let value = parseFloat(operation.amount);
-
-    // convert into Bitcoin, ETH, etc. unit
-    if (configuration.currency.symbol === "ETH") {
-      value /= configuration.currency.precision;
-    } else {
-      value = sb.toBitcoin(value);
-    }
+    const value = toAccountUnit(parseFloat(operation.amount));
 
     const txid = operation.transaction.hash;
 

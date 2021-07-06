@@ -234,7 +234,7 @@ function getAccountBasedTransactions(address: Address) {
       // Recipient
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
 
-      const op = new Operation(timestamp, amount);
+      const op = new Operation(timestamp, parseFloat(amount.toFixed(10))); // use fixed-point notation (10 digits)
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
       op.setOperationType("Received");
@@ -246,7 +246,7 @@ function getAccountBasedTransactions(address: Address) {
     if (isSender) {
       // Sender
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
-      const op = new Operation(timestamp, amount);
+      const op = new Operation(timestamp, parseFloat(amount.toFixed(10))); // use fixed-point notation (10 digits)
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
       op.setOperationType(isRecipient ? "Sent to self" : "Sent");
