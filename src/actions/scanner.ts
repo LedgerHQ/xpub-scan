@@ -9,9 +9,11 @@ import { checkImportedOperations } from "../comparison/compareOperations";
 import { importOperations } from "../input/importOperations";
 import { save } from "./saveAnalysis";
 import { configuration } from "../configuration/settings";
-import { ScanData, ScanMeta, ScannerArguments, ScanResult } from "../types";
+import { TODO_TypeThis } from "../types";
 import { init } from "../helpers";
-import { version } from "../../package.json";
+
+// eslint-disable-next-line
+const { version } = require("../../package.json");
 
 export class Scanner {
   args;
@@ -24,7 +26,7 @@ export class Scanner {
   now = new Date();
   exitCode = 0;
 
-  constructor(args: ScannerArguments) {
+  constructor(args: TODO_TypeThis) {
     this.args = args;
     this.scanLimits = args.scanLimits;
     this.address = args.address;
@@ -32,21 +34,15 @@ export class Scanner {
     this.testnet = args.testnet;
     this.derivationMode = args.derivationMode;
     this.itemToScan = args.itemToScan; // xpub or address
-    init(
-      this.itemToScan,
-      args.silent,
-      args.quiet,
-      this.currency,
-      this.testnet,
-      this.derivationMode,
-    );
+    init(this.itemToScan, args.silent, args.quiet, this.currency, this.testnet, this.derivationMode);
   }
 
-  async scan(): Promise<ScanResult> {
+  // init(xpub, this.args.silent, this.args.quiet, this.currency, this.testnet, this.derivationMode);
+
+  async scan() {
     if (this.address) {
       // comparison mode
       await compare.run(this.itemToScan, this.address);
-      return { exitCode: this.exitCode };
     } else {
       // scan mode
       let importedTransactions;
@@ -67,10 +63,7 @@ export class Scanner {
         importedTransactions = importOperations(this.args.operations);
       }
 
-      const scanResult = await checkBalances.run(
-        this.itemToScan,
-        this.scanLimits,
-      );
+      const scanResult = await checkBalances.run(this.itemToScan, this.scanLimits);
       const actualAddresses = scanResult.addresses;
       const actualUTXOs = getSortedUTXOS(actualAddresses);
       const summary = scanResult.summary;
@@ -99,7 +92,7 @@ export class Scanner {
       ) {
         mode = `Specific derivation path - m/${this.args.account}/${this.args.index}`;
       } else if (typeof this.scanLimits !== "undefined") {
-        let upperLimit: number | string = "∞";
+        let upperLimit = "∞";
         if (typeof this.scanLimits.indexTo !== "undefined") {
           upperLimit = this.scanLimits.indexTo;
         }
@@ -108,7 +101,7 @@ export class Scanner {
         mode = "Full scan";
       }
 
-      const meta: ScanMeta = {
+      const meta = {
         xpub: this.itemToScan,
         date: this.now,
         version,
@@ -117,7 +110,7 @@ export class Scanner {
         derivationMode: configuration.specificDerivationMode,
       };
 
-      const data: ScanData = {
+      const data = {
         summary,
         addresses: actualAddresses,
         transactions: actualTransactions,
@@ -142,7 +135,7 @@ export class Scanner {
         );
       }
 
-      return { meta, data, exitCode: this.exitCode };
+      process.exit(this.exitCode);
     }
   }
 }
