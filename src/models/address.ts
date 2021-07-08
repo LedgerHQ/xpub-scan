@@ -114,7 +114,13 @@ class Address {
   }
 
   getRawTransactions() {
-    return this.rawTransactions;
+    const rawTransactions = this.rawTransactions;
+
+    if (typeof rawTransactions === "undefined") {
+      return "[]"; // if no transaction, return an empty stringified JSON array
+    } else {
+      return rawTransactions;
+    }
   }
 
   isUTXO() {
