@@ -41,6 +41,7 @@ interface RawTransaction {
       };
       value: string;
     }[];
+    transactionStatus: string;
   };
 }
 
@@ -219,6 +220,11 @@ function getAccountBasedTransactions(address: Address) {
   const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
+    // ignore failed transactions
+    if (tx.blockchainSpecific.transactionStatus !== "0x1") {
+      return;
+    }
+
     const timestamp = String(
       dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
     );
