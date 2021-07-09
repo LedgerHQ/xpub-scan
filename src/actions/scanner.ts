@@ -34,7 +34,14 @@ export class Scanner {
     this.testnet = args.testnet;
     this.derivationMode = args.derivationMode;
     this.itemToScan = args.itemToScan; // xpub or address
-    init(this.itemToScan, args.silent, args.quiet, this.currency, this.testnet, this.derivationMode);
+    init(
+      this.itemToScan,
+      args.silent,
+      args.quiet,
+      this.currency,
+      this.testnet,
+      this.derivationMode,
+    );
   }
 
   // init(xpub, this.args.silent, this.args.quiet, this.currency, this.testnet, this.derivationMode);
@@ -63,7 +70,10 @@ export class Scanner {
         importedTransactions = importOperations(this.args.operations);
       }
 
-      const scanResult = await checkBalances.run(this.itemToScan, this.scanLimits);
+      const scanResult = await checkBalances.run(
+        this.itemToScan,
+        this.scanLimits,
+      );
       const actualAddresses = scanResult.addresses;
       const actualUTXOs = getSortedUTXOS(actualAddresses);
       const summary = scanResult.summary;
