@@ -5,8 +5,8 @@ import bchaddr from "bchaddrjs";
 
 import {
   configuration,
-  DEFAULT_API_URLS,
   CUSTOM_API_URL,
+  DEFAULT_API_URLS,
 } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
 
@@ -104,6 +104,7 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
     throw new Error("INVALID CURRENCY: '" + currency + "' is not supported");
   }
 }
+
 /**
  * Configure the external provider URL (i.e., default v. custom provider)
  * @param  {string} currency?
@@ -158,14 +159,19 @@ function checkXpub(xpub: string) {
 
 export function init(
   xpub: string,
-  silent: boolean,
-  quiet: boolean,
+  silent?: boolean,
+  quiet?: boolean,
   currency?: string,
   testnet?: boolean,
   derivationMode?: string,
 ) {
-  configuration.silent = silent;
-  configuration.quiet = quiet;
+  if (typeof silent !== "undefined") {
+    configuration.silent = silent;
+  }
+
+  if (typeof quiet !== "undefined") {
+    configuration.quiet = quiet;
+  }
 
   setNetwork(xpub, currency, testnet);
   setExternalProviderURL();
