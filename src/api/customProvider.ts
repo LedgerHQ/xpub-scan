@@ -241,11 +241,9 @@ function getAccountBasedTransactions(address: Address) {
     if (isRecipient) {
       // Recipient
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
+      const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
 
-      const op = new Operation(
-        timestamp,
-        new BigNumber(amount.toFixed(ETH_FIXED_PRECISION)),
-      ); // ETH: use fixed-point notation
+      const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
       op.setOperationType("Received");
@@ -257,10 +255,9 @@ function getAccountBasedTransactions(address: Address) {
     if (isSender) {
       // Sender
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
-      const op = new Operation(
-        timestamp,
-        new BigNumber(amount.toFixed(ETH_FIXED_PRECISION)),
-      ); // ETH: use fixed-point notation
+      const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
+
+      const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
       op.setOperationType(isRecipient ? "Sent to self" : "Sent");

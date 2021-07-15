@@ -50,8 +50,8 @@ const showDiff = (
 
     // the actual balance has to be converted into base unit
     if (configuration.currency.utxo_based) {
-      imported = new BigNumber(importedBalance).toString();
-      actual = toBaseUnit(new BigNumber(actualBalance)).toString();
+      imported = new BigNumber(importedBalance).toFixed();
+      actual = toBaseUnit(new BigNumber(actualBalance));
     } else if (configuration.currency.symbol === currencies.eth.symbol) {
       // ETH: use fixed-point notation
       imported = new BigNumber(importedBalance)
