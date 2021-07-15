@@ -4,6 +4,7 @@ import { Currency } from "../models/currency";
 // GENERAL
 // -------
 const VERBOSE = false;
+const ETH_FIXED_PRECISION = 10; // Decimal places for ETH (recommended for custom provider: 10)
 
 // CHECK BALANCES
 // --------------
@@ -82,6 +83,7 @@ export {
   DEFAULT_API_URLS,
   CUSTOM_API_URL,
   VERBOSE,
+  ETH_FIXED_PRECISION,
   DERIVATION_SCOPE,
   EXTERNAL_EXPLORERS_URLS,
 };

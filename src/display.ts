@@ -6,21 +6,22 @@ import { Operation } from "./models/operation";
 import { configuration } from "./configuration/settings";
 import { TODO_TypeThis } from "./types";
 import { currencies } from "./configuration/currencies";
+import BigNumber from "bignumber.js";
 
-function convertUnits(amount: number) {
+function renderAmount(amount: BigNumber): string {
   // Currently, this function does not convert the amounts
   // into relevant units. But in the future, if the API
   // changes, it would allow to change the unit
   // depending on the network.
   // For example:
   // if (configuration.currency.symbol === currencies.btc.symbol) {
-  //   return sb.toBitcoin(amount);
+  //   return sb.toAccountUnit(amount);
   // }
-  if (amount === 0) {
+  if (amount.isZero()) {
     return String(amount);
   } else {
     // 8 digital places max without trailing 0s
-    return String(parseFloat(amount.toFixed(8)));
+    return amount.toFixed(8);
   }
 }
 
@@ -75,14 +76,14 @@ function updateAddressDetails(address: Address) {
     return;
   } else {
     // else, display the full line
-    const balance = convertUnits(address.getBalance());
-    const fundedSum = convertUnits(addressStats.funded);
+    const balance = address.getBalance();
+    const fundedSum = renderAmount(addressStats.funded);
 
     transientLine(/* delete line to display complete info */);
 
     // ... +{total funded} ←
     stats = stats
-      .concat(balance.padEnd(16, " "))
+      .concat(balance.toString().padEnd(16, " "))
       .concat("+")
       .concat(fundedSum.padEnd(14, " ")) // an active address has necessarily been funded,
       .concat(" ←"); // thus this information is mandatory
@@ -90,7 +91,7 @@ function updateAddressDetails(address: Address) {
 
   // optional: spent sum
   if (typeof addressStats.spent !== "undefined") {
-    const spentSum = convertUnits(addressStats.spent);
+    const spentSum = renderAmount(addressStats.spent);
 
     // ... -{total spent} →
     stats = stats.concat("\t-").concat(spentSum.padEnd(14, " ")).concat(" →");
@@ -141,7 +142,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
   console.log(chalk.grey(header));
 
   sortedOperations.forEach((op) => {
-    const amount = convertUnits(op.amount).padEnd(12, " ");
+    const amount = renderAmount(op.amount).padEnd(12, " ");
 
     // {date} {block} {address} [{cash address}]
     let status = op.date
@@ -197,7 +198,7 @@ function showSortedOperations(sortedOperations: Operation[]) {
 }
 
 // display the summary: total balance by address type
-function showSummary(derivationMode: string, totalBalance: number) {
+function showSummary(derivationMode: string, totalBalance: string) {
   if (configuration.silent) {
     return;
   }
@@ -206,7 +207,7 @@ function showSummary(derivationMode: string, totalBalance: number) {
     derivationMode = "Ethereum";
   }
 
-  const balance = convertUnits(totalBalance);
+  const balance = renderAmount(new BigNumber(totalBalance));
 
   if (balance === "0") {
     console.log(

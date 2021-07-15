@@ -4,6 +4,7 @@ import { Address } from "../models/address";
 import { Operation } from "../models/operation";
 import { Comparison, ComparisonStatus } from "../models/comparison";
 import { configuration } from "../configuration/settings";
+import BigNumber from "bignumber.js";
 
 // criterion by which operations can be compared
 interface ComparingCriterion {
@@ -87,7 +88,7 @@ const areMatching = (
     return false;
   }
 
-  if (importedOperation.amount !== actualOperation.amount) {
+  if (!importedOperation.amount.equals(actualOperation.amount)) {
     return false;
   }
 
@@ -240,7 +241,11 @@ const areAggregated = (
     return false;
   }
 
-  const totalAmount = actual.reduce((a, b) => a + b.amount, 0);
+  let totalAmount = new BigNumber(0);
+
+  for (const actualOp of actualOps) {
+    totalAmount = totalAmount.plus(actualOp.amount);
+  }
 
   return totalAmount === importedOp.amount;
 };

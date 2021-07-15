@@ -1,9 +1,10 @@
 import fs from "fs";
 import chalk from "chalk";
-import sb from "satoshi-bitcoin";
 
 import { Operation } from "../models/operation";
 import { configuration } from "../configuration/settings";
+import BigNumber from "bignumber.js";
+import { toAccountUnit } from "../helpers";
 
 /**
  * Remove forbidden chars from address(es)
@@ -16,20 +17,6 @@ import { configuration } from "../configuration/settings";
  */
 const sanitizeInputedAddress = (address: string): string => {
   return address.replace(/[^0-9A-Za-z,]/gi, "");
-};
-
-/**
- * Convert to account units (bitcoins, ethers, etc.)
- * @param value The value to convert
- * @returns The converted value
- */
-const toAccountUnit = (value: number) => {
-  if (configuration.currency.symbol === "ETH") {
-    const convertedValue = value / configuration.currency.precision;
-    return parseFloat(convertedValue.toFixed(10));
-  } else {
-    return sb.toBitcoin(value);
-  }
 };
 
 /**
@@ -86,7 +73,7 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
 
       const type = String(tokens[2]); // CREDIT || DEBIT
       const status = String(tokens[4]); // CONFIRMED || ABORTED
-      const amount = parseFloat(tokens[8]); // in bitcoins
+      const amount = new BigNumber(tokens[8]); // in bitcoins
       const txid = tokens[16 + offset];
       const sender = tokens[17 + offset];
       const recipient = tokens[18 + offset];
@@ -151,8 +138,8 @@ const importFromCSVTypeB = (contents: string): Operation[] => {
         /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(tokens[0]) || "";
 
       const type = String(tokens[2]); // IN | OUT
-      const amount = parseFloat(tokens[3]); // in bitcoins
-      const fees = parseFloat(tokens[4]); // in bitcoins
+      const amount = new BigNumber(tokens[3]); // in bitcoins
+      const fees = new BigNumber(tokens[4]); // in bitcoins
       const txid = tokens[5];
 
       // note: type B CSV does not refer to addresses
@@ -164,7 +151,7 @@ const importFromCSVTypeB = (contents: string): Operation[] => {
         operations.push(op);
       } else if (type === "OUT") {
         // out transactions: substract fees from amount (in base unit)...
-        const amountInBaseUnit = sb.toSatoshi(amount) - sb.toSatoshi(fees);
+        const amountInBaseUnit = amount.minus(fees);
         // ... and convert the total back to unit of account
         // (otherwise, there would be floating number issues)
         const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
@@ -205,8 +192,8 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
       ) || "";
 
     const txid = operation.hash;
-    const valueInBaseUnit = parseFloat(operation.amount); // in base unit
-    const feesInBaseUnit = parseFloat(operation.fees); // in base unit
+    const valueInBaseUnit = new BigNumber(operation.amount); // in base unit
+    const feesInBaseUnit = new BigNumber(operation.fees); // in base unit
 
     if (type === "receive") {
       const op = new Operation(date[0], toAccountUnit(valueInBaseUnit));
@@ -225,7 +212,7 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
       operations.push(op);
     } else if (type === "send") {
       // out transactions: substract fees from amount (in base unit)...
-      const amountInBaseUnit = valueInBaseUnit - feesInBaseUnit;
+      const amountInBaseUnit = valueInBaseUnit.minus(feesInBaseUnit);
       // ... and convert the total back to unit of account
       // (otherwise, there would be floating number issues)
       const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
@@ -273,8 +260,8 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.date) || "";
 
     const txid = operation.hash;
-    const valueInBaseUnit = parseFloat(operation.value); // in base unit
-    const feesInBaseUnit = parseFloat(operation.fee); // in base unit
+    const valueInBaseUnit = new BigNumber(operation.value); // in base unit
+    const feesInBaseUnit = new BigNumber(operation.fee); // in base unit
     const recipient = operation.recipients.join(",");
     const sender = operation.senders.join(",");
 
@@ -287,7 +274,7 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
       operations.push(op);
     } else if (type === "OUT") {
       // out transactions: substract fees from amount (in base unit)...
-      const amountInBaseUnit = valueInBaseUnit - feesInBaseUnit;
+      const amountInBaseUnit = valueInBaseUnit.minus(feesInBaseUnit);
       // ... and convert the total back to unit of account
       // (otherwise, there would be floating number issues)
       const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
@@ -322,16 +309,14 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
 
   for (const operation of ops) {
     const type = operation.type;
+    const amount = toAccountUnit(new BigNumber(operation.amount));
+    const txid = operation.transaction.hash;
 
     const date =
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.time) || "";
 
-    const value = toAccountUnit(parseFloat(operation.amount));
-
-    const txid = operation.transaction.hash;
-
     if (type === "RECEIVE") {
-      const op = new Operation(date[0], value);
+      const op = new Operation(date[0], amount);
       op.setOperationType("Received");
 
       op.setTxid(txid);
@@ -345,7 +330,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
 
       operations.push(op);
     } else if (type === "SEND") {
-      const op = new Operation(date[0], value);
+      const op = new Operation(date[0], amount);
 
       op.setOperationType("Sent");
 

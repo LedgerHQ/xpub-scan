@@ -7,8 +7,10 @@ import {
   configuration,
   DEFAULT_API_URLS,
   CUSTOM_API_URL,
+  ETH_FIXED_PRECISION,
 } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
+import BigNumber from "bignumber.js";
 
 export async function getJSON<T>(
   url: string,
@@ -200,4 +202,46 @@ export function toUnprefixedCashAddress(address: string) {
   }
 
   return address.replace("bitcoincash:", "");
+}
+
+/**
+ * Convert from unit of account to base unit (e.g. bitcoins to satoshis)
+ * (TODO: refactor for a more proper conversion mechanism)
+ * @param amount the amount (in unit of account) to convert
+ * @returns the converted amount, in base unit
+ */
+export function toBaseUnit(amount: BigNumber): string {
+  if (amount.isZero()) {
+    return amount.toFixed(0).toString();
+  }
+
+  const convertedAmount = amount.times(configuration.currency.precision);
+
+  return convertedAmount.toFixed(0).toString();
+}
+
+/**
+ * Convert from base unit to unit of account (e.g. satoshis to bitcoins)
+ * (TODO: refactor for a more proper conversion mechanism)
+ * @param amount the amount (in base unit) to convert
+ * @param decimalPlaces (optional) decimal precision
+ * @returns the converted amount, in unit of account
+ */
+export function toAccountUnit(
+  amount: BigNumber,
+  decimalPlaces?: number,
+): string {
+  let convertedValue;
+  if (configuration.currency.symbol === currencies.eth.symbol) {
+    convertedValue = amount.dividedBy(configuration.currency.precision);
+    return convertedValue.toFixed(ETH_FIXED_PRECISION);
+  } else {
+    convertedValue = amount.dividedBy(configuration.currency.precision);
+
+    if (typeof decimalPlaces !== "undefined" && decimalPlaces) {
+      convertedValue = convertedValue.toFixed(decimalPlaces);
+    }
+  }
+
+  return convertedValue.toString();
 }

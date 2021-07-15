@@ -1,5 +1,4 @@
 import fs from "fs";
-import sb from "satoshi-bitcoin";
 import minifier from "html-minifier";
 
 import {
@@ -7,46 +6,34 @@ import {
   EXTERNAL_EXPLORERS_URLS,
 } from "../configuration/settings";
 import { reportTemplate } from "../templates/report.html";
-import { toUnprefixedCashAddress } from "../helpers";
+import { toAccountUnit, toBaseUnit, toUnprefixedCashAddress } from "../helpers";
 import { Address } from "../models/address";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
-
-function toBaseUnit(amount: number) {
-  // to bitcoins (or equivalent unit)
-  let n = sb.toSatoshi(amount);
-
-  // if is float, truncate (no float expected)
-  // (this kind of issue can happen with imported operations
-  //  and does not affect the comparison itself)
-  if (n % 1 !== 0) {
-    n = Math.trunc(n);
-  }
-
-  return String(n);
-}
+import BigNumber from "bignumber.js";
 
 // align float numbers or zeros
-function renderAmount(amount: number) {
+function renderAmount(amount: string | number) {
   const decimalPrecision = 8;
   const filler = "¤"; // (any non-numeric non-dot char)
-  let n;
+  let renderedAmount: string;
+  const n = new BigNumber(amount);
 
-  // non-strict equality required here
-  // tslint:disable-next-line
-  if (amount == 0) {
+  if (n.isZero()) {
     // align '0': insert filler on the right
-    n = "0".padEnd(decimalPrecision + 2, filler);
+    renderedAmount = "0".padEnd(decimalPrecision + 4, filler);
   } else {
-    n = sb.toBitcoin(amount).toFixed(decimalPrecision);
+    renderedAmount = toAccountUnit(n, 8);
   }
 
   // align any number: insert filler on the left
-  n = String(n).padStart(decimalPrecision * 2, filler);
+  renderedAmount = renderedAmount.padStart(decimalPrecision * 2, filler);
 
   // insert non-breaking spaces by replacing the filler with `&nbsp;`
   return (
-    '<span class="monospaced">' + n.split(filler).join("&nbsp;") + "</span>"
+    '<span class="monospaced">' +
+    renderedAmount.split(filler).join("&nbsp;") +
+    "</span>"
   );
 }
 
@@ -390,10 +377,9 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
       summary.push("<tr><td>" + configuration.currency.name + "</td>");
     }
 
-    const balance = sb.toBitcoin(e.balance);
+    const balance = e.balance;
 
-    // non-strict equality required here
-    if (balance === 0) {
+    if (balance === "0") {
       summary.push('<td class="summary_empty">');
     } else {
       summary.push('<td class="summary_non_empty">');
@@ -540,7 +526,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   const summary: TODO_TypeThis[] = data.summary.map((e: TODO_TypeThis) => {
     return {
       ...e,
-      balance: toBaseUnit(e.balance),
+      balance: e.balance,
     };
   });
 

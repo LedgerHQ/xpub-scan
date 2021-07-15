@@ -5,7 +5,7 @@
 import dateFormat from "dateformat";
 
 import * as helpers from "../helpers";
-import { configuration } from "../configuration/settings";
+import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
@@ -13,6 +13,7 @@ import { TODO_TypeThis } from "../types";
 
 import bchaddr from "bchaddrjs";
 import { currencies } from "../configuration/currencies";
+import BigNumber from "bignumber.js";
 
 interface RawTransaction {
   transactionId: string;
@@ -58,9 +59,9 @@ async function getStats(address: Address) {
   const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
   const item = res.data.item;
 
-  const fundedSum = parseFloat(item.totalReceived.amount);
-  const spentSum = parseFloat(item.totalSpent.amount);
-  const balance = parseFloat(item.confirmedBalance.amount);
+  const fundedSum = item.totalReceived.amount;
+  const spentSum = item.totalSpent.amount;
+  const balance = item.confirmedBalance.amount;
   const txCount = item.transactionsCount;
 
   address.setStats(txCount, fundedSum, spentSum);
@@ -119,7 +120,7 @@ function getTransactions(address: Address) {
   rawTransactions.forEach((tx: RawTransaction) => {
     const ins: Operation[] = [];
     const outs: Operation[] = [];
-    let amount = 0.0;
+    let amount = new BigNumber(0);
     let processIn = false;
     let processOut = false;
 
@@ -149,7 +150,8 @@ function getTransactions(address: Address) {
 
         if (outAddress.includes(address.toString()!)) {
           // when IN op, amount corresponds to txout
-          amount += parseFloat(txout.value);
+          const txoutValue = new BigNumber(txout.value);
+          amount = amount.plus(txoutValue);
           processIn = true;
         }
       }
@@ -181,7 +183,7 @@ function getTransactions(address: Address) {
         txout.scriptPubKey.addresses.forEach((outAddress) => {
           const op = new Operation(
             String(tx.timestamp),
-            parseFloat(txout.value),
+            new BigNumber(txout.value),
           );
 
           if (configuration.currency.symbol === currencies.bch.symbol) {
@@ -240,7 +242,10 @@ function getAccountBasedTransactions(address: Address) {
       // Recipient
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
 
-      const op = new Operation(timestamp, parseFloat(amount.toFixed(10))); // use fixed-point notation (10 digits)
+      const op = new Operation(
+        timestamp,
+        new BigNumber(amount.toFixed(ETH_FIXED_PRECISION)),
+      ); // ETH: use fixed-point notation
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
       op.setOperationType("Received");
@@ -252,7 +257,10 @@ function getAccountBasedTransactions(address: Address) {
     if (isSender) {
       // Sender
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
-      const op = new Operation(timestamp, parseFloat(amount.toFixed(10))); // use fixed-point notation (10 digits)
+      const op = new Operation(
+        timestamp,
+        new BigNumber(amount.toFixed(ETH_FIXED_PRECISION)),
+      ); // ETH: use fixed-point notation
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
       op.setOperationType(isRecipient ? "Sent to self" : "Sent");
