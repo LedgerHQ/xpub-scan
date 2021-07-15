@@ -5,13 +5,14 @@ import { Operation } from "./operation";
 import { Stats } from "./stats";
 import { getAddress } from "../actions/deriveAddresses";
 import { toUnprefixedCashAddress } from "../helpers";
+import BigNumber from "bignumber.js";
 
 class Address {
   address: string;
   derivationMode: DerivationMode;
   account: number;
   index: number;
-  balance: number;
+  balance: BigNumber;
   transactions: Transaction[];
   rawTransactions: string; // TODO: perhaps not needed
   stats: Stats;
@@ -46,10 +47,10 @@ class Address {
     this.rawTransactions = rawTransactions;
   }
 
-  setBalance(balance: number) {
-    this.balance = balance;
+  setBalance(balance: string | number) {
+    this.balance = new BigNumber(balance);
 
-    if (balance > 0) {
+    if (!this.balance.isZero()) {
       this.utxo = true;
     }
   }
@@ -57,8 +58,8 @@ class Address {
   setStats(txsCount: number, fundedSum: number, spentSum: number) {
     this.stats = new Stats();
     this.stats.txsCount = txsCount;
-    this.stats.funded = fundedSum;
-    this.stats.spent = spentSum;
+    this.stats.funded = new BigNumber(fundedSum);
+    this.stats.spent = new BigNumber(spentSum);
   }
 
   addFundedOperation(funded: Operation) {
@@ -101,8 +102,8 @@ class Address {
     };
   }
 
-  getBalance(): number {
-    return this.balance;
+  getBalance(): string {
+    return this.balance.toString();
   }
 
   getStats() {

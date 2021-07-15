@@ -5,10 +5,12 @@ import bchaddr from "bchaddrjs";
 
 import {
   configuration,
-  CUSTOM_API_URL,
   DEFAULT_API_URLS,
+  CUSTOM_API_URL,
+  ETH_FIXED_PRECISION,
 } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
+import BigNumber from "bignumber.js";
 
 export async function getJSON<T>(
   url: string,
@@ -104,7 +106,6 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
     throw new Error("INVALID CURRENCY: '" + currency + "' is not supported");
   }
 }
-
 /**
  * Configure the external provider URL (i.e., default v. custom provider)
  * @param  {string} currency?
@@ -159,19 +160,14 @@ function checkXpub(xpub: string) {
 
 export function init(
   xpub: string,
-  silent?: boolean,
-  quiet?: boolean,
+  silent: boolean,
+  quiet: boolean,
   currency?: string,
   testnet?: boolean,
   derivationMode?: string,
 ) {
-  if (typeof silent !== "undefined") {
-    configuration.silent = silent;
-  }
-
-  if (typeof quiet !== "undefined") {
-    configuration.quiet = quiet;
-  }
+  configuration.silent = silent;
+  configuration.quiet = quiet;
 
   setNetwork(xpub, currency, testnet);
   setExternalProviderURL();
@@ -206,4 +202,46 @@ export function toUnprefixedCashAddress(address: string) {
   }
 
   return address.replace("bitcoincash:", "");
+}
+
+/**
+ * Convert from unit of account to base unit (e.g. bitcoins to satoshis)
+ * (TODO: refactor for a more proper conversion mechanism)
+ * @param amount the amount (in unit of account) to convert
+ * @returns the converted amount, in base unit
+ */
+export function toBaseUnit(amount: BigNumber): string {
+  if (amount.isZero()) {
+    return amount.toFixed(0).toString();
+  }
+
+  const convertedAmount = amount.times(configuration.currency.precision);
+
+  return convertedAmount.toFixed(0).toString();
+}
+
+/**
+ * Convert from base unit to unit of account (e.g. satoshis to bitcoins)
+ * (TODO: refactor for a more proper conversion mechanism)
+ * @param amount the amount (in base unit) to convert
+ * @param decimalPlaces (optional) decimal precision
+ * @returns the converted amount, in unit of account
+ */
+export function toAccountUnit(
+  amount: BigNumber,
+  decimalPlaces?: number,
+): string {
+  let convertedValue;
+  if (configuration.currency.symbol === currencies.eth.symbol) {
+    convertedValue = amount.dividedBy(configuration.currency.precision);
+    return convertedValue.toFixed(ETH_FIXED_PRECISION);
+  } else {
+    convertedValue = amount.dividedBy(configuration.currency.precision);
+
+    if (typeof decimalPlaces !== "undefined" && decimalPlaces) {
+      convertedValue = convertedValue.toFixed(decimalPlaces);
+    }
+  }
+
+  return convertedValue.toString();
 }

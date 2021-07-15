@@ -1,3 +1,5 @@
+import BigNumber from "bignumber.js";
+
 type OperationType =
   | "Received" // Received - common case
   | "Received (non-sibling to change)" // Received - edge case: address not belonging to the xpub
@@ -13,11 +15,16 @@ class Operation {
   block: number;
   address: string;
   cashAddress: string | undefined; // Bitcoin Cash: Cash Address format
-  amount: number;
+  amount: BigNumber;
 
-  constructor(date: string, amount: number) {
+  constructor(date: string, amount: BigNumber | string) {
     this.date = date;
-    this.amount = amount;
+
+    if (typeof amount === "string") {
+      this.amount = new BigNumber(amount);
+    } else {
+      this.amount = amount;
+    }
   }
 
   setTxid(txid: string) {
