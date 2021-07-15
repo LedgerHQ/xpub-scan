@@ -9,11 +9,9 @@ import { checkImportedOperations } from "../comparison/compareOperations";
 import { importOperations } from "../input/importOperations";
 import { save } from "./saveAnalysis";
 import { configuration } from "../configuration/settings";
-import { TODO_TypeThis } from "../types";
+import { ScanData, ScanMeta, ScannerArguments, ScanResult } from "../types";
 import { init } from "../helpers";
-
-// eslint-disable-next-line
-const { version } = require("../../package.json");
+import { version } from "../../package.json";
 
 export class Scanner {
   args;
@@ -26,7 +24,7 @@ export class Scanner {
   now = new Date();
   exitCode = 0;
 
-  constructor(args: TODO_TypeThis) {
+  constructor(args: ScannerArguments) {
     this.args = args;
     this.scanLimits = args.scanLimits;
     this.address = args.address;
@@ -37,12 +35,11 @@ export class Scanner {
     init(this.itemToScan, args.silent, args.quiet, this.currency, this.testnet, this.derivationMode);
   }
 
-  // init(xpub, this.args.silent, this.args.quiet, this.currency, this.testnet, this.derivationMode);
-
-  async scan() {
+  async scan(): Promise<ScanResult> {
     if (this.address) {
       // comparison mode
       await compare.run(this.itemToScan, this.address);
+      return { exitCode: this.exitCode };
     } else {
       // scan mode
       let importedTransactions;
@@ -92,7 +89,7 @@ export class Scanner {
       ) {
         mode = `Specific derivation path - m/${this.args.account}/${this.args.index}`;
       } else if (typeof this.scanLimits !== "undefined") {
-        let upperLimit = "∞";
+        let upperLimit: number | string = "∞";
         if (typeof this.scanLimits.indexTo !== "undefined") {
           upperLimit = this.scanLimits.indexTo;
         }
@@ -101,7 +98,7 @@ export class Scanner {
         mode = "Full scan";
       }
 
-      const meta = {
+      const meta: ScanMeta = {
         xpub: this.itemToScan,
         date: this.now,
         version,
@@ -110,7 +107,7 @@ export class Scanner {
         derivationMode: configuration.specificDerivationMode,
       };
 
-      const data = {
+      const data: ScanData = {
         summary,
         addresses: actualAddresses,
         transactions: actualTransactions,
@@ -135,7 +132,7 @@ export class Scanner {
         );
       }
 
-      process.exit(this.exitCode);
+      return { meta, data, exitCode: this.exitCode };
     }
   }
 }
