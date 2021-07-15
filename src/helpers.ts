@@ -231,7 +231,7 @@ export function toAccountUnit(
   amount: BigNumber,
   decimalPlaces?: number,
 ): string {
-  let convertedValue;
+  let convertedValue: BigNumber;
   if (configuration.currency.symbol === currencies.eth.symbol) {
     convertedValue = amount.dividedBy(configuration.currency.precision);
     return convertedValue.toFixed(ETH_FIXED_PRECISION);
@@ -239,9 +239,9 @@ export function toAccountUnit(
     convertedValue = amount.dividedBy(configuration.currency.precision);
 
     if (typeof decimalPlaces !== "undefined" && decimalPlaces) {
-      convertedValue = convertedValue.toFixed(decimalPlaces);
+      return convertedValue.toFixed(decimalPlaces);
     }
   }
 
-  return convertedValue.toString();
+  return convertedValue.toFixed();
 }
