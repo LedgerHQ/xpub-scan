@@ -55,9 +55,13 @@ class Address {
     }
   }
 
-  setStats(txsCount: number, fundedSum: number, spentSum: number) {
+  setStats(
+    txsCount: string,
+    fundedSum: string | number,
+    spentSum: string | number,
+  ) {
     this.stats = new Stats();
-    this.stats.txsCount = txsCount;
+    this.stats.txsCount = parseInt(txsCount);
     this.stats.funded = new BigNumber(fundedSum);
     this.stats.spent = new BigNumber(spentSum);
   }

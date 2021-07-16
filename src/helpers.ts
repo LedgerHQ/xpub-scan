@@ -231,6 +231,10 @@ export function toAccountUnit(
   amount: BigNumber,
   decimalPlaces?: number,
 ): string {
+  if (amount.isZero()) {
+    return amount.toFixed();
+  }
+
   let convertedValue: BigNumber;
   if (configuration.currency.symbol === currencies.eth.symbol) {
     convertedValue = amount.dividedBy(configuration.currency.precision);

@@ -1,6 +1,6 @@
 import dateFormat from "dateformat";
 
-import { getJSON } from "../helpers";
+import { getJSON, toAccountUnit } from "../helpers";
 import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
@@ -140,14 +140,20 @@ async function getEthStats(address: Address) {
 
   const res = await getJSON<TODO_TypeThis>(url);
 
-  // values are returned in Wei
-  // and have to be converted in ETH
-  const convertToEth = (value: string) =>
-    parseFloat(value) / configuration.currency.precision;
+  const removeScientificNotation = (value: any) =>
+    value.toLocaleString("fullwide", { useGrouping: false });
 
-  const fundedSum = convertToEth(res.total_received);
-  const balance = convertToEth(res.balance);
-  const spentSum = convertToEth(res.total_sent);
+  const fundedSum = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.total_received)),
+  );
+
+  const balance = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.balance)),
+  );
+
+  const spentSum = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.total_sent)),
+  );
 
   address.setStats(res.n_tx, fundedSum, spentSum);
   address.setBalance(balance);
