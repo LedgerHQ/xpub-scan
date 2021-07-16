@@ -391,10 +391,11 @@ const checkImportedOperations = (
               !actualOps[i]
                 .getOperationType()
                 .startsWith(importedOp.getOperationType())) ||
-            // ans
+            // and
             // 2. the imported operation does include the actual
-            //    address (`oncludes`: imported addresses can be aggregated) ]
-            !importedOp.address.includes(actualOps[i].address)
+            //    address (`includes`: imported addresses can be aggregated) ]
+            (importedOp.address &&
+              !importedOp.address.includes(actualOps[i].address))
           ) {
             // ... then swap it with first actual operation
             [actualOps[0], actualOps[i]] = [actualOps[i], actualOps[0]];

@@ -5,7 +5,7 @@ import { retry, toAccountUnit, toBaseUnit } from "../src/helpers";
 import { flushPromises } from "./test-utils";
 
 describe("helpers", () => {
-  describe("convert from base unit to unit of account", () => {
+  describe("convert from unit of account to base unit", () => {
     describe("convert bitcoins to satoshis", () => {
       beforeEach(() => {
         configuration.currency = currencies.btc;
@@ -97,7 +97,7 @@ describe("helpers", () => {
     });
   });
 
-  describe("convert from unit of account to base unit", () => {
+  describe("convert from base unit to unit of account", () => {
     describe("convert satoshis to bitcoin", () => {
       beforeEach(() => {
         configuration.currency = currencies.btc;

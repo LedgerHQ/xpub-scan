@@ -212,12 +212,12 @@ export function toUnprefixedCashAddress(address: string) {
  */
 export function toBaseUnit(amount: BigNumber): string {
   if (amount.isZero()) {
-    return amount.toFixed(0).toString();
+    return amount.toFixed(0);
   }
 
   const convertedAmount = amount.times(configuration.currency.precision);
 
-  return convertedAmount.toFixed(0).toString();
+  return convertedAmount.toFixed(0);
 }
 
 /**
