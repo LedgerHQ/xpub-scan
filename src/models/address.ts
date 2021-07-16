@@ -103,7 +103,7 @@ class Address {
   }
 
   getBalance(): string {
-    return this.balance.toString();
+    return this.balance.toFixed();
   }
 
   getStats() {

@@ -2,9 +2,10 @@ import fs from "fs";
 import chalk from "chalk";
 
 import { Operation } from "../models/operation";
-import { configuration } from "../configuration/settings";
+import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import BigNumber from "bignumber.js";
 import { toAccountUnit } from "../helpers";
+import { currencies } from "../configuration/currencies";
 
 /**
  * Remove forbidden chars from address(es)
@@ -73,7 +74,7 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
 
       const type = String(tokens[2]); // CREDIT || DEBIT
       const status = String(tokens[4]); // CONFIRMED || ABORTED
-      const amount = new BigNumber(tokens[8]); // in bitcoins
+      const amount = tokens[8]; // in unit of account
       const txid = tokens[16 + offset];
       const sender = tokens[17 + offset];
       const recipient = tokens[18 + offset];
@@ -137,13 +138,29 @@ const importFromCSVTypeB = (contents: string): Operation[] => {
       const date =
         /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(tokens[0]) || "";
 
+      const currency = tokens[1];
+
+      // skip currencies not relevant to the comparison
+      if (
+        currency.toUpperCase() !== configuration.currency.symbol.toUpperCase()
+      ) {
+        return;
+      }
+
       const type = String(tokens[2]); // IN | OUT
-      const amount = new BigNumber(tokens[3]); // in bitcoins
-      const fees = new BigNumber(tokens[4]); // in bitcoins
+      const fees = tokens[4] !== "" ? tokens[4] : 0; // in unit of account
       const txid = tokens[5];
+
+      let amount = tokens[3]; // in unit of account
 
       // note: type B CSV does not refer to addresses
       if (type === "IN") {
+        // if ETH, use fixed-point notation
+        amount =
+          configuration.currency.symbol === currencies.eth.symbol
+            ? new BigNumber(tokens[3]).toFixed(ETH_FIXED_PRECISION)
+            : new BigNumber(tokens[3]).toFixed();
+
         const op = new Operation(date[0], amount);
         op.setTxid(txid);
         op.setOperationType("Received");
@@ -151,10 +168,17 @@ const importFromCSVTypeB = (contents: string): Operation[] => {
         operations.push(op);
       } else if (type === "OUT") {
         // out transactions: substract fees from amount (in base unit)...
-        const amountInBaseUnit = amount.minus(fees);
+        // and if ETH, use fixed-point notation
+        amount =
+          configuration.currency.symbol === currencies.eth.symbol
+            ? new BigNumber(amount)
+                .minus(new BigNumber(fees))
+                .toFixed(ETH_FIXED_PRECISION)
+            : new BigNumber(amount).minus(new BigNumber(fees)).toFixed();
+
         // ... and convert the total back to unit of account
         // (otherwise, there would be floating number issues)
-        const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
+        const op = new Operation(date[0], amount);
         op.setTxid(txid);
         op.setOperationType("Sent");
 

@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import chalk from "chalk";
 import { currencies } from "../configuration/currencies";
 import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
-import { toBaseUnit } from "../helpers";
+import { toAccountUnit, toBaseUnit } from "../helpers";
 import { Comparison } from "../models/comparison";
 
 /**
@@ -54,9 +54,8 @@ const showDiff = (
       actual = toBaseUnit(new BigNumber(actualBalance));
     } else if (configuration.currency.symbol === currencies.eth.symbol) {
       // ETH: use fixed-point notation
-      imported = new BigNumber(importedBalance)
-        .dividedBy(configuration.currency.precision)
-        .toFixed(ETH_FIXED_PRECISION);
+      // imported balance has to be converted into unit of account
+      imported = toAccountUnit(new BigNumber(importedBalance));
       actual = new BigNumber(actualBalance).toFixed(ETH_FIXED_PRECISION);
     }
 
@@ -69,9 +68,7 @@ const showDiff = (
       exitCode += 2;
     } else {
       console.log(
-        chalk.greenBright(
-          "Diff [ OK ]: balances match: ".concat(actualBalance.toString()),
-        ),
+        chalk.greenBright("Diff [ OK ]: balances match: ".concat(actual)),
       );
     }
   }
