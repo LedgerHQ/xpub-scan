@@ -140,6 +140,7 @@ async function getEthStats(address: Address) {
 
   const res = await getJSON<TODO_TypeThis>(url);
 
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const removeScientificNotation = (value: any) =>
     value.toLocaleString("fullwide", { useGrouping: false });
 
