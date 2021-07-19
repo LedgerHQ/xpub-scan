@@ -377,7 +377,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
       summary.push("<tr><td>" + configuration.currency.name + "</td>");
     }
 
-    const balance = e.balance;
+    const balance = toAccountUnit(new BigNumber(e.balance));
 
     if (balance === "0") {
       summary.push('<td class="summary_empty">');
@@ -526,7 +526,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   const summary: TODO_TypeThis[] = data.summary.map((e: TODO_TypeThis) => {
     return {
       ...e,
-      balance: e.balance,
+      balance: toBaseUnit(new BigNumber(e.balance)),
     };
   });
 
