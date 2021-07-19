@@ -1,8 +1,6 @@
 import BigNumber from "bignumber.js";
 import chalk from "chalk";
-import { currencies } from "../configuration/currencies";
-import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
-import { toAccountUnit, toBaseUnit, toUnprefixedCashAddress } from "../helpers";
+import { toBaseUnit, toUnprefixedCashAddress } from "../helpers";
 import { Comparison } from "../models/comparison";
 
 /**
@@ -68,19 +66,8 @@ const showDiff = (
 
   // check balance
   if (importedBalance) {
-    let imported = "";
-    let actual = "";
-
-    // the actual balance has to be converted into base unit
-    if (configuration.currency.utxo_based) {
-      imported = new BigNumber(importedBalance).toFixed();
-      actual = toBaseUnit(new BigNumber(actualBalance));
-    } else if (configuration.currency.symbol === currencies.eth.symbol) {
-      // ETH: use fixed-point notation
-      // imported balance has to be converted into unit of account
-      imported = toAccountUnit(new BigNumber(importedBalance));
-      actual = new BigNumber(actualBalance).toFixed(ETH_FIXED_PRECISION);
-    }
+    const imported = new BigNumber(importedBalance).toFixed(0);
+    const actual = toBaseUnit(new BigNumber(actualBalance));
 
     if (imported !== actual) {
       console.log(chalk.redBright("Diff [ KO ]: balances mismatch"));

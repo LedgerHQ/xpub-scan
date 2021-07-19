@@ -526,7 +526,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   const summary: TODO_TypeThis[] = data.summary.map((e: TODO_TypeThis) => {
     return {
       ...e,
-      balance: e.balance,
+      balance: toBaseUnit(new BigNumber(e.balance)),
     };
   });
 
