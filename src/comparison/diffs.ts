@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import chalk from "chalk";
 import { currencies } from "../configuration/currencies";
 import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
-import { toAccountUnit, toBaseUnit } from "../helpers";
+import { toAccountUnit, toBaseUnit, toUnprefixedCashAddress } from "../helpers";
 import { Comparison } from "../models/comparison";
 
 /**
@@ -34,9 +34,32 @@ const showDiff = (
       (comparison) => !comparison.status.startsWith("Match"),
     );
 
-    if (operationsMismatches.length > 0) {
+    const mismatches = [];
+
+    for (const o of operationsMismatches) {
+      mismatches.push({
+        imported:
+          typeof o.imported !== "undefined"
+            ? {
+                ...o.imported,
+                amount: o.imported.amount.toFixed(),
+              }
+            : undefined,
+        actual:
+          typeof o.actual !== "undefined"
+            ? {
+                ...o.actual,
+                cashAddress: toUnprefixedCashAddress(o.actual.address),
+                amount: o.actual.amount.toFixed(),
+              }
+            : undefined,
+        status: o.status,
+      });
+    }
+
+    if (mismatches.length > 0) {
       console.log(chalk.redBright("Diff [ KO ]: operations mismatches"));
-      console.dir(operationsMismatches);
+      console.dir(mismatches);
       exitCode += 1;
     } else {
       console.log(chalk.greenBright("Diff [ OK ]: operations match"));
