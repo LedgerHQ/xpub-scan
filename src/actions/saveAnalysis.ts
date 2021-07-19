@@ -377,7 +377,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
       summary.push("<tr><td>" + configuration.currency.name + "</td>");
     }
 
-    const balance = e.balance;
+    const balance = toAccountUnit(new BigNumber(e.balance));
 
     if (balance === "0") {
       summary.push('<td class="summary_empty">');
