@@ -107,7 +107,7 @@ Example:
 
 **Balance `--balance <balance>`**
 
-`$ xpub-scan <xpub> --balance <balance (in satoshis or similar base unit)>`
+`$ xpub-scan <xpub> --balance <balance (in base unit such as satoshis)>`
 
 **Addresses `--addresses <filepath>`**
 

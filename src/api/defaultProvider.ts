@@ -1,12 +1,13 @@
 import dateFormat from "dateformat";
 
-import { getJSON } from "../helpers";
-import { configuration } from "../configuration/settings";
+import { getJSON, toAccountUnit } from "../helpers";
+import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
+import BigNumber from "bignumber.js";
 
 // raw transactions provided by default API
 interface RawTransaction {
@@ -85,8 +86,8 @@ async function getStats(address: Address) {
   const res = await getJSON<TODO_TypeThis>(url);
 
   // TODO: check potential errors here (API returning invalid data...)
-  const fundedSum = parseFloat(res.data.received_value);
-  const balance = parseFloat(res.data.balance);
+  const fundedSum = res.data.received_value;
+  const balance = res.data.balance;
   const spentSum = fundedSum - balance;
 
   address.setStats(res.data.total_txs, fundedSum, spentSum);
@@ -103,9 +104,9 @@ async function getBchStats(address: Address) {
   const res = await getJSON<TODO_TypeThis>(urlStats);
 
   // TODO: check potential errors here (API returning invalid data...)
-  const fundedSum = parseFloat(res.totalReceived);
-  const balance = parseFloat(res.balance);
-  const spentSum = parseFloat(res.totalSent);
+  const fundedSum = res.totalReceived;
+  const balance = res.balance;
+  const spentSum = res.totalSent;
 
   address.setStats(res.txApperances, fundedSum, spentSum);
   address.setBalance(balance);
@@ -139,14 +140,20 @@ async function getEthStats(address: Address) {
 
   const res = await getJSON<TODO_TypeThis>(url);
 
-  // values are returned in Wei
-  // and have to be converted in ETH
-  const convertToEth = (value: string) =>
-    parseFloat(value) / configuration.currency.precision;
+  const removeScientificNotation = (value: any) =>
+    value.toLocaleString("fullwide", { useGrouping: false });
 
-  const fundedSum = convertToEth(res.total_received);
-  const balance = convertToEth(res.balance);
-  const spentSum = convertToEth(res.total_sent);
+  const fundedSum = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.total_received)),
+  );
+
+  const balance = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.balance)),
+  );
+
+  const spentSum = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.total_sent)),
+  );
 
   address.setStats(res.n_tx, fundedSum, spentSum);
   address.setBalance(balance);
@@ -195,10 +202,7 @@ function getTransactions(address: Address) {
 
     if (typeof tx.incoming !== "undefined") {
       tx.incoming.inputs.forEach((txin) => {
-        const op = new Operation(
-          String(tx.time),
-          parseFloat(tx.incoming.value),
-        );
+        const op = new Operation(String(tx.time), tx.incoming.value);
         op.setAddress(txin.address);
         op.setTxid(tx.txid);
         op.setOperationType("Received");
@@ -209,7 +213,7 @@ function getTransactions(address: Address) {
 
     if (typeof tx.outgoing !== "undefined") {
       tx.outgoing.outputs.forEach((txout) => {
-        const op = new Operation(String(tx.time), parseFloat(txout.value));
+        const op = new Operation(String(tx.time), txout.value);
         op.setAddress(txout.address);
         op.setTxid(tx.txid);
         op.setOperationType("Sent");
@@ -245,7 +249,7 @@ function getBitcoinCashTransactions(address: Address) {
   rawTransactions.forEach((tx: BchRawTransaction) => {
     const ins: Operation[] = [];
     const outs: Operation[] = [];
-    let amount = 0.0;
+    let amount = new BigNumber(0);
     let processIn = false;
     let processOut = false;
 
@@ -264,7 +268,7 @@ function getBitcoinCashTransactions(address: Address) {
       for (const outAddress of txout.scriptPubKey.addresses) {
         if (outAddress.includes(address.toString())) {
           // when IN op, amount corresponds to txout
-          amount = parseFloat(txout.value);
+          amount = new BigNumber(txout.value);
           processIn = true;
           break;
         }
@@ -287,7 +291,7 @@ function getBitcoinCashTransactions(address: Address) {
         if (parseFloat(txout.value) === 0) {
           return;
         }
-        const op = new Operation(String(tx.time), parseFloat(txout.value));
+        const op = new Operation(String(tx.time), txout.value);
         op.setAddress(txout.scriptPubKey.addresses[0]);
         op.setTxid(tx.txid);
         op.setOperationType("Sent");
@@ -336,7 +340,7 @@ function getAccountBasedTransactions(address: Address) {
 
     const op = new Operation(
       String(tx.confirmed),
-      parseFloat(amount.toFixed(10)), // use fixed-point notation (10 digits)
+      amount.toFixed(ETH_FIXED_PRECISION), // ETH: use fixed-point notation
     );
 
     const txHash = "0x".concat(tx.tx_hash);

@@ -1,7 +1,9 @@
+import BigNumber from "bignumber.js";
+
 class Stats {
   txsCount: number; // total number of transactions
-  funded: number; // total received
-  spent: number; // total sent
+  funded: BigNumber; // total received
+  spent: BigNumber; // total sent
 }
 
 export { Stats };

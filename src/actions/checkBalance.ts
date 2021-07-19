@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import sb from "satoshi-bitcoin";
 
 import * as display from "../display";
 
@@ -10,6 +9,7 @@ import { configuration } from "../configuration/settings";
 import { DerivationMode } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 import { TODO_TypeThis } from "../types";
+import BigNumber from "bignumber.js";
 
 // scan all active addresses
 // (that is: balances with > 0 transactions)
@@ -24,7 +24,7 @@ async function scanAddresses(
 
   const ownAddresses = new OwnAddresses();
 
-  let totalBalance = 0;
+  let totalBalance = new BigNumber(0);
   let noTxCounter = 0;
   const addresses: Address[] = [];
 
@@ -112,7 +112,7 @@ async function scanAddresses(
 
       // convert address balance into satoshis (or equivalent unit)
       // in order to avoid issue with floats addition
-      totalBalance += sb.toSatoshi(address.getBalance());
+      totalBalance = totalBalance.plus(address.getBalance());
 
       display.updateAddressDetails(address);
 
@@ -135,7 +135,7 @@ async function scanAddresses(
   display.logStatus(derivationMode.concat(" addresses scanned\n"));
 
   return {
-    balance: sb.toBitcoin(totalBalance), // convert balance back to bitcoins (or equivalent unit)
+    balance: totalBalance,
     addresses,
   };
 }

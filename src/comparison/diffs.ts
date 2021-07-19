@@ -1,8 +1,9 @@
+import BigNumber from "bignumber.js";
 import chalk from "chalk";
-import { configuration } from "../configuration/settings";
+import { currencies } from "../configuration/currencies";
+import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
+import { toAccountUnit, toBaseUnit } from "../helpers";
 import { Comparison } from "../models/comparison";
-
-import sb from "satoshi-bitcoin";
 
 /**
  * Show differences between imported and actual data
@@ -21,7 +22,7 @@ import sb from "satoshi-bitcoin";
  */
 const showDiff = (
   actualBalance: number,
-  importedBalance?: number,
+  importedBalance?: string,
   comparisons?: Comparison[],
   diff?: boolean,
 ): number => {
@@ -43,31 +44,31 @@ const showDiff = (
   }
 
   // check balance
-  if (importedBalance || importedBalance === 0) {
-    // the actual balance has to be converted into base units
-    if (configuration.currency.utxo_based) {
-      actualBalance = sb.toSatoshi(actualBalance);
-    } else if (configuration.currency.symbol === "ETH") {
-      importedBalance /= configuration.currency.precision;
-      importedBalance = parseFloat(
-        importedBalance.toPrecision(10).slice(0, -1),
-      ); // ETH: use fixed-point notation (10 digits)
+  if (importedBalance) {
+    let imported = "";
+    let actual = "";
 
-      actualBalance = parseFloat(actualBalance.toPrecision(10).slice(0, -1)); // ETH: use fixed-point notation (10 digits)
+    // the actual balance has to be converted into base unit
+    if (configuration.currency.utxo_based) {
+      imported = new BigNumber(importedBalance).toFixed();
+      actual = toBaseUnit(new BigNumber(actualBalance));
+    } else if (configuration.currency.symbol === currencies.eth.symbol) {
+      // ETH: use fixed-point notation
+      // imported balance has to be converted into unit of account
+      imported = toAccountUnit(new BigNumber(importedBalance));
+      actual = new BigNumber(actualBalance).toFixed(ETH_FIXED_PRECISION);
     }
 
-    if (actualBalance !== importedBalance) {
+    if (imported !== actual) {
       console.log(chalk.redBright("Diff [ KO ]: balances mismatch"));
 
-      console.log("| imported balance:", importedBalance);
-      console.log("| actual balance:  ", actualBalance);
+      console.log("| imported balance: ", imported);
+      console.log("| actual balance:   ", actual);
 
       exitCode += 2;
     } else {
       console.log(
-        chalk.greenBright(
-          "Diff [ OK ]: balances match: ".concat(actualBalance.toString()),
-        ),
+        chalk.greenBright("Diff [ OK ]: balances match: ".concat(actual)),
       );
     }
   }

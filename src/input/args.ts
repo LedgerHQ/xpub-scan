@@ -91,7 +91,7 @@ export const getArgs = (): TODO_TypeThis => {
     })
     .option("balance", {
       description:
-        "Import balance for comparison (has to be in satoshis or similar base unit) for comparison",
+        "Import balance for comparison (has to be in base unit) for comparison",
       demand: false,
       type: "string",
     })
