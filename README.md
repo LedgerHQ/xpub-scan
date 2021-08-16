@@ -39,6 +39,18 @@ $ npm i -g @ledgerhq/xpub-scan
 $ xpub-scan [options] <xpub>
 ```
 
+Running programmatically example:
+
+```
+import { Scanner } from "../src/actions/scanner";
+
+const scanResult = async (xpub: string) => {
+  await new Scanner({ itemToScan: xpub }).scan();
+};
+
+scanResult("your_xpub");
+```
+
 ## Development
 
 Install dependencies:
