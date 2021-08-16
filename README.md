@@ -40,6 +40,7 @@ $ xpub-scan [options] <xpub>
 ```
 
 Running programmatically example:
+
 ```
 import { Scanner } from "../src/actions/scanner";
 

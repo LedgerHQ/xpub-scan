@@ -21,7 +21,7 @@ export interface ScannerArguments {
   diff?: boolean;
   import?: string;
   addresses?: string;
-  balance?: number;
+  balance?: string;
   utxos?: string;
   operations?: string;
   save?: string;

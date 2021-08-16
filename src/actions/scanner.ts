@@ -118,7 +118,7 @@ export class Scanner {
         save(meta, data, this.args.save);
       }
 
-      if (this.args.diff || this.args.balance || this.args.balance === 0) {
+      if (this.args.diff || this.args.balance || this.args.balance === "0") {
         const actualBalance = summary.reduce(
           (accumulator, s) => accumulator + s.balance,
           0,
