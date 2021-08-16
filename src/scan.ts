@@ -11,6 +11,8 @@ async function scan() {
   process.exit(scanResult.exitCode);
 }
 
+scan();
+
 // see https://nodejs.org/api/process.html#process_signal_events
 function handleSignal(signal: string) {
   console.log(`Received ${signal}`);
