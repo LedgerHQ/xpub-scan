@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { ScanLimits } from "./models/scanLimits";
 
-export type TODO_TypeThis = any;
+export type TODO_TypeThis = unknown;
 
 export interface ScannerArguments {
   _?: string;
