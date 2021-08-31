@@ -11,7 +11,9 @@ import { save } from "./saveAnalysis";
 import { configuration } from "../configuration/settings";
 import { ScanData, ScanMeta, ScannerArguments, ScanResult } from "../types";
 import { init } from "../helpers";
-import { version } from "../../package.json";
+
+// eslint-disable-next-line
+const { version } = require("../package.json"); // do not modify
 
 export class Scanner {
   args;
