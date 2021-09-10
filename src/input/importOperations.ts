@@ -31,14 +31,7 @@ const getFileContents = (path: string): string => {
   if (!fs.existsSync(path)) {
     throw new Error("Imported file " + path + " does not exist");
   }
-
-  try {
-    const contents = fs.readFileSync(path, "utf-8");
-    return contents;
-  } catch (err) {
-    console.log(chalk.red("File error"));
-    throw new Error(err);
-  }
+  return fs.readFileSync(path, "utf-8");
 };
 
 /**
@@ -384,6 +377,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
  */
 const importOperations = (path: string): Operation[] => {
   const contents = getFileContents(path);
+
   const firstLine = contents.split(/\r?\n/)[0].replace('"', "");
 
   let operations: Operation[] = [];

@@ -44,7 +44,7 @@ export async function retry<T>(
   job: () => Promise<T>,
   { retries = 5, retryDelayMS = 0 } = {},
 ): Promise<T> {
-  let err: Error | null = null;
+  let err: any = null;
   for (let i = 0; i < retries; i++) {
     try {
       const res = await job();
