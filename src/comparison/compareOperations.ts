@@ -241,13 +241,15 @@ const areAggregated = (
     return false;
   }
 
-  let totalAmount = new BigNumber(0);
+  let actualAmountTotal = new BigNumber(0);
 
   for (const actualOp of actualOps) {
-    totalAmount = totalAmount.plus(actualOp.amount);
+    actualAmountTotal = actualAmountTotal.plus(actualOp.amount);
   }
 
-  return totalAmount === importedOp.amount;
+  const importedAmount = new BigNumber(importedOp.amount);
+
+  return actualAmountTotal.isEqualTo(importedAmount);
 };
 
 /**
