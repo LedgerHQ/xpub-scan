@@ -224,6 +224,7 @@ describe("helpers", () => {
     });
 
     it("should error after all retries has been consumed", async () => {
+      const retriesCount = 23;
       const mock = {
         job: async () => {
           throw new Error("Job failed");
@@ -232,11 +233,11 @@ describe("helpers", () => {
       let err;
       const spy = jest.spyOn(mock, "job");
       try {
-        await retry(mock.job, { retries: 23 });
+        await retry(mock.job, { retries: retriesCount });
       } catch (e) {
         err = e;
       }
-      expect(spy).toHaveBeenCalledTimes(23);
+      expect(spy).toHaveBeenCalledTimes(retriesCount);
       expect(err).toEqual(new Error("Job failed"));
     });
 

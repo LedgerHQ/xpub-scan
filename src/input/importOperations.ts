@@ -27,17 +27,17 @@ const sanitizeInputedAddress = (address: string): string => {
  * @returns string
  *          Imported contents
  */
-const getFileContents = (path: string): string => {
+const getFileContents = (path: string): string | void => {
   if (!fs.existsSync(path)) {
     throw new Error("Imported file " + path + " does not exist");
   }
-
   try {
-    const contents = fs.readFileSync(path, "utf-8");
-    return contents;
-  } catch (err) {
-    console.log(chalk.red("File error"));
-    throw new Error(err);
+    return fs.readFileSync(path, "utf-8");
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.log(chalk.red("File error"));
+      throw new Error(err.message);
+    }
   }
 };
 
@@ -383,7 +383,8 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
  *          Imported transactions
  */
 const importOperations = (path: string): Operation[] => {
-  const contents = getFileContents(path);
+  const contents = getFileContents(path)!;
+
   const firstLine = contents.split(/\r?\n/)[0].replace('"', "");
 
   let operations: Operation[] = [];

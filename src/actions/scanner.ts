@@ -13,7 +13,7 @@ import { ScanData, ScanMeta, ScannerArguments, ScanResult } from "../types";
 import { init } from "../helpers";
 
 // eslint-disable-next-line
-const { version } = require("../package.json"); // do not modify
+const { version } = require("../../package.json"); // do not modify
 
 export class Scanner {
   args;

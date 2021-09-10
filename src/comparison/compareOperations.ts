@@ -88,7 +88,7 @@ const areMatching = (
     return false;
   }
 
-  if (!importedOperation.amount.equals(actualOperation.amount)) {
+  if (!importedOperation.amount.isEqualTo(actualOperation.amount)) {
     return false;
   }
 
