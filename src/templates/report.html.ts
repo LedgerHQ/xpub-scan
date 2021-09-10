@@ -105,6 +105,10 @@ export const reportTemplate = `
         font-weight: bold !important;
       }
 
+      .failed_operation {
+        color: #5C0471 !important;
+      }
+
       .comparison_mismatch {
         color: #cc0000 !important;
       }

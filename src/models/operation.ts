@@ -6,7 +6,8 @@ type OperationType =
   //                                                            sending funds to change address
   | "Sent" // Sent - common case
   | "Sent to self" // Sent - edge case 1: The recipient is the sender (identity)
-  | "Sent to sibling"; // Sent - edge case 2: recipient belongs to same xpub ("sibling")
+  | "Sent to sibling" // Sent - edge case 2: recipient belongs to same xpub ("sibling")
+  | "Failed to send"; // Sent - edge case 3: failed send operation that impacts the balance (fees) (Ethereum)
 
 class Operation {
   operationType: OperationType;
@@ -61,6 +62,11 @@ class Operation {
 
   setOperationType(operationType: OperationType) {
     this.operationType = operationType;
+
+    // if the operation has failed, set its amount to 0
+    if (operationType === "Failed to send") {
+      this.amount = new BigNumber(0);
+    }
   }
 
   getOperationType() {
