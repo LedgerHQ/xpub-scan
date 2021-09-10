@@ -27,7 +27,7 @@ const sanitizeInputedAddress = (address: string): string => {
  * @returns string
  *          Imported contents
  */
-const getFileContents = (path: string): string | void => {
+const getFileContents = (path: string): string => {
   if (!fs.existsSync(path)) {
     throw new Error("Imported file " + path + " does not exist");
   }
@@ -38,6 +38,7 @@ const getFileContents = (path: string): string | void => {
       console.log(chalk.red("File error"));
       throw new Error(err.message);
     }
+    throw new Error("Unknown error");
   }
 };
 
@@ -383,7 +384,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
  *          Imported transactions
  */
 const importOperations = (path: string): Operation[] => {
-  const contents = getFileContents(path)!;
+  const contents = getFileContents(path);
 
   const firstLine = contents.split(/\r?\n/)[0].replace('"', "");
 

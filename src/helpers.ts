@@ -56,6 +56,8 @@ export async function retry<T>(
         if (retryDelayMS && i < retries - 1) {
           await new Promise((r) => setTimeout(r, retryDelayMS));
         }
+      } else {
+        throw new Error("Unknown error");
       }
     }
   }
