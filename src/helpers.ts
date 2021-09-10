@@ -49,15 +49,11 @@ export async function retry<T>(
     try {
       const res = await job();
       return res;
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        err = e;
-        // wait before retrying if it's not the last try
-        if (retryDelayMS && i < retries - 1) {
-          await new Promise((r) => setTimeout(r, retryDelayMS));
-        }
-      } else {
-        throw new Error("Unknown error");
+    } catch (e) {
+      err = e;
+      // wait before retrying if it's not the last try
+      if (retryDelayMS && i < retries - 1) {
+        await new Promise((r) => setTimeout(r, retryDelayMS));
       }
     }
   }

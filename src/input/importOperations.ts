@@ -31,15 +31,7 @@ const getFileContents = (path: string): string => {
   if (!fs.existsSync(path)) {
     throw new Error("Imported file " + path + " does not exist");
   }
-  try {
-    return fs.readFileSync(path, "utf-8");
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.log(chalk.red("File error"));
-      throw new Error(err.message);
-    }
-    throw new Error("Unknown error");
-  }
+  return fs.readFileSync(path, "utf-8");
 };
 
 /**
