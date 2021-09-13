@@ -257,9 +257,10 @@ function getAccountBasedTransactions(address: Address) {
 
     if (isSender) {
       // Sender
-      const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
+      const amount = new BigNumber(
+        tx.recipients.reduce((a, b) => +a + +b.amount, 0),
+      );
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
-
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);

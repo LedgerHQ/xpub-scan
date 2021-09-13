@@ -106,7 +106,7 @@ export const reportTemplate = `
       }
 
       .failed_operation {
-        color: #5C0471 !important;
+        color: #4e2cb1 !important;
       }
 
       .comparison_mismatch {

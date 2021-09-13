@@ -193,6 +193,13 @@ const showOperations = (
       break;
   }
 
+  if (
+    A.operationType === "Failed to send" ||
+    B?.operationType === "Failed to send"
+  ) {
+    actual = chalk.blueBright(actual.concat(" [failed]"));
+  }
+
   switch (status) {
     case "Match":
       console.log(

@@ -310,10 +310,10 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
           continue; // if diff: ignore matches
         }
 
-        if (e.operationType !== "Sent (failed") {
-          comparisons.push('<tr class="comparison_match">');
-        } else {
+        if (opType === "Failed to send") {
           comparisons.push('<tr class="failed_operation">');
+        } else {
+          comparisons.push('<tr class="comparison_match">');
         }
       } else if (e.status.includes("aggregated")) {
         if (onlyDiff) {
