@@ -164,6 +164,12 @@ function createTooltip(opType: string) {
             Sent to another address, belonging to the same xpub (sibling)
         </span>
         `;
+  } else if (opType === "Failed to send") {
+    tooltip = `
+        <span class="tooltiptext">
+            Send operation failed (it can impact the balance)
+        </span>
+        `;
   }
 
   return '<div class="tooltip">' + opType + tooltip + "</div>";
@@ -303,7 +309,12 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
         if (onlyDiff) {
           continue; // if diff: ignore matches
         }
-        comparisons.push('<tr class="comparison_match">');
+
+        if (opType === "Failed to send") {
+          comparisons.push('<tr class="failed_operation">');
+        } else {
+          comparisons.push('<tr class="comparison_match">');
+        }
       } else if (e.status.includes("aggregated")) {
         if (onlyDiff) {
           continue; // if diff: ignore aggregated operations
@@ -435,7 +446,12 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
 
   const transactions: string[] = [];
   for (const e of object.transactions) {
-    transactions.push("<tr><td>" + e.date + "</td>");
+    transactions.push(
+      e.operationType === "Failed to send"
+        ? '<tr class="failed_operation">'
+        : "<tr>",
+    );
+    transactions.push("<td>" + e.date + "</td>");
     transactions.push("<td>" + e.block + "</td>");
     transactions.push("<td>" + renderTxid(e.txid) + "</td>");
     transactions.push(

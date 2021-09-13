@@ -184,8 +184,11 @@ function showSortedOperations(sortedOperations: Operation[]) {
         // case 2. Sent to a sibling address
         // (different non-change address belonging to same xpub)
         status = status.concat(" ↺");
+      } else if (operationType === "Failed to send") {
+        // case 3. Failed to send (Ethereum)
+        status = status.concat(" x");
       } else {
-        // case 3. Sent to external address
+        // case 4. Sent to external address
         status = status.concat(" →");
       }
     }

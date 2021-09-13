@@ -222,20 +222,23 @@ function getAccountBasedTransactions(address: Address) {
   const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
-    // ignore failed transactions
-    if (tx.blockchainSpecific.transactionStatus !== "0x1") {
-      return;
-    }
-
-    const timestamp = String(
-      dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
+    const isSender = tx.senders.some(
+      (t) => t.address.toLowerCase() === address.toString().toLowerCase(),
     );
 
     const isRecipient = tx.recipients.some(
       (t) => t.address.toLowerCase() === address.toString().toLowerCase(),
     );
-    const isSender = tx.senders.some(
-      (t) => t.address.toLowerCase() === address.toString().toLowerCase(),
+
+    const isFailedOperation = tx.blockchainSpecific.transactionStatus !== "0x1";
+
+    // ignore failed *incoming* transactions
+    if (isFailedOperation && isRecipient) {
+      return;
+    }
+
+    const timestamp = String(
+      dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
     );
 
     if (isRecipient) {
@@ -254,13 +257,20 @@ function getAccountBasedTransactions(address: Address) {
 
     if (isSender) {
       // Sender
-      const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
+      const amount = new BigNumber(
+        tx.recipients.reduce((a, b) => +a + +b.amount, 0),
+      );
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
-
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
       op.setTxid(tx.transactionId);
-      op.setOperationType(isRecipient ? "Sent to self" : "Sent");
+
+      if (!isFailedOperation) {
+        op.setOperationType(isRecipient ? "Sent to self" : "Sent");
+      } else {
+        // failed outgoing operation
+        op.setOperationType("Failed to send");
+      }
 
       op.setBlockNumber(tx.minedInBlockHeight);
 
