@@ -170,6 +170,12 @@ function createTooltip(opType: string) {
             Send operation failed (it can impact the balance)
         </span>
         `;
+  } else if (opType.includes("token")) {
+    tooltip = `
+        <span class="tooltiptext">
+            Ethereum token (e.g. ERC20) related operation
+        </span>
+        `;
   }
 
   return '<div class="tooltip">' + opType + tooltip + "</div>";
