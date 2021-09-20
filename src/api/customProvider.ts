@@ -56,6 +56,7 @@ interface RawTransaction {
   transactionTimestamp: number;
 }
 
+// returns the transactional payloads
 async function getPayloads(
   coin: string,
   address: string,
@@ -99,6 +100,16 @@ async function getPayloads(
   return payloads;
 }
 
+// returns the basic operations payloads
+async function getOperationsPayloads(coin: string, address: Address) {
+  return getPayloads(coin, address.toString(), "/transactions");
+}
+
+// returns the Ethereum tokens-related payloads
+async function getTokenPayloads(coin: string, address: Address) {
+  return getPayloads(coin, address.toString(), "/tokens-transfers");
+}
+
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 async function getStats(address: Address) {
@@ -122,17 +133,13 @@ async function getStats(address: Address) {
 
   // get basic transactions
   if (txCount > 0) {
-    const payloads = await getPayloads(
-      coin,
-      address.toString(),
-      "/transactions",
-    );
+    const payloads = await getOperationsPayloads(coin, address);
 
-    // eslint-disable-next-line prefer-spread
-    payloads.push.apply(
-      payloads,
-      await getPayloads(coin, address.toString(), "/tokens-transfers"),
-    );
+    // Ethereum: add token-related transactions
+    if (configuration.currency.symbol === currencies.eth.symbol) {
+      // eslint-disable-next-line prefer-spread
+      payloads.push.apply(payloads, await getTokenPayloads(coin, address));
+    }
 
     // flatten the payloads
     // eslint-disable-next-line prefer-spread
