@@ -16,6 +16,7 @@ import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 
 interface RawTransaction {
+  // COMMON
   transactionId: string;
   minedInBlockHeight: number;
   timestamp: number;
@@ -44,6 +45,55 @@ interface RawTransaction {
     }[];
     transactionStatus: string;
   };
+
+  // TOKEN SPECIFIC
+  recipientAddress: string;
+  senderAddress: string;
+  tokenName: string;
+  tokenSymbol: string;
+}
+
+async function getPayloads(
+  coin: string,
+  address: string,
+  transactionType: string,
+) {
+  const maxItemsPerRequest = 50;
+  const payloads = [];
+
+  const getTxsURLTemplate = configuration.externalProviderURL
+    .replace("{coin}", coin)
+    .replace("{address}", address.toString())
+    .concat(
+      transactionType
+        .concat("?limit=")
+        .concat(maxItemsPerRequest.toString())
+        .concat("&offset={offset}"),
+    );
+
+  // to handle large number of transactions by address, use the index+limit logic
+  // offered by the custom provider
+  let offset = 0;
+  for (; ; /* continue until no more item */ offset += maxItemsPerRequest) {
+    const getTxsURL = getTxsURLTemplate.replace("{offset}", String(offset));
+
+    const txs = await helpers.getJSON<TODO_TypeThis>(
+      getTxsURL,
+      configuration.APIKey,
+    );
+
+    const payload = txs.data.items;
+
+    // when the limit includes the total number of transactions,
+    // no need to go further
+    if (payload.length === 0) {
+      break;
+    }
+
+    payloads.push(payload);
+  }
+
+  return payloads;
 }
 
 // returns the basic stats related to an address:
@@ -67,40 +117,19 @@ async function getStats(address: Address) {
   address.setStats(txCount, fundedSum, spentSum);
   address.setBalance(balance);
 
-  const maxItemsPerRequest = 50;
-
+  // get basic transactions
   if (txCount > 0) {
-    const getTxsURLTemplate = configuration.externalProviderURL
-      .replace("{coin}", coin)
-      .replace("{address}", address.toString())
-      .concat(
-        "/transactions?limit="
-          .concat(maxItemsPerRequest.toString())
-          .concat("&offset={offset}"),
-      );
+    const payloads = await getPayloads(
+      coin,
+      address.toString(),
+      "/transactions",
+    );
 
-    // to handle large number of transactions by address, use the index+limit logic
-    // offered by the custom provider
-    const payloads = [];
-    let offset = 0;
-    for (; ; /* continue until no more item */ offset += maxItemsPerRequest) {
-      const getTxsURL = getTxsURLTemplate.replace("{offset}", String(offset));
-
-      const txs = await helpers.getJSON<TODO_TypeThis>(
-        getTxsURL,
-        configuration.APIKey,
-      );
-
-      const payload = txs.data.items;
-
-      payloads.push(payload);
-
-      // when the limit includes the total number of transactions,
-      // no need to go further
-      if (payload.length === 0) {
-        break;
-      }
-    }
+    // eslint-disable-next-line prefer-spread
+    payloads.push.apply(
+      payloads,
+      await getPayloads(coin, address.toString(), "/tokens-transfers"),
+    );
 
     // flatten the payloads
     // eslint-disable-next-line prefer-spread
@@ -222,6 +251,11 @@ function getAccountBasedTransactions(address: Address) {
   const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
+    // skip token-related transactions
+    if (typeof tx.senderAddress !== "undefined") {
+      return;
+    }
+
     const isSender = tx.senders.some(
       (t) => t.address.toLowerCase() === address.toString().toLowerCase(),
     );
