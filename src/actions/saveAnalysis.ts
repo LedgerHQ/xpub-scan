@@ -312,6 +312,8 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
         if (opType === "Failed to send") {
           comparisons.push('<tr class="failed_operation">');
+        } else if (opType.includes("token")) {
+          comparisons.push('<tr class="token_operation">');
         } else {
           comparisons.push('<tr class="comparison_match">');
         }
@@ -446,11 +448,15 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
 
   const transactions: string[] = [];
   for (const e of object.transactions) {
-    transactions.push(
-      e.operationType === "Failed to send"
-        ? '<tr class="failed_operation">'
-        : "<tr>",
-    );
+    let rowStyle = "<tr>";
+
+    if (e.operationType === "Failed to send") {
+      rowStyle = '<tr class="failed_operation">';
+    } else if (e.operationType.includes("token")) {
+      rowStyle = '<tr class="token_operation">';
+    }
+
+    transactions.push(rowStyle);
     transactions.push("<td>" + e.date + "</td>");
     transactions.push("<td>" + e.block + "</td>");
     transactions.push("<td>" + renderTxid(e.txid) + "</td>");

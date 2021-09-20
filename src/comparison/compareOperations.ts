@@ -200,6 +200,10 @@ const showOperations = (
     actual = chalk.blueBright(actual.concat(" [failed]"));
   }
 
+  if (A.operationType.includes("token") || B?.operationType.includes("token")) {
+    actual = chalk.white(actual.concat(" [token]"));
+  }
+
   switch (status) {
     case "Match":
       console.log(

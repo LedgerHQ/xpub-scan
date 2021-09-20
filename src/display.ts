@@ -191,6 +191,11 @@ function showSortedOperations(sortedOperations: Operation[]) {
         // case 4. Sent to external address
         status = status.concat(" →");
       }
+
+      if (operationType.includes("token")) {
+        // Token (Ethereum)
+        status = status.concat(" t");
+      }
     }
 
     console.log(status);
