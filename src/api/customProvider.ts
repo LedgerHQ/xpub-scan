@@ -78,7 +78,9 @@ async function getPayloads(
   // to handle large number of transactions by address, use the index+limit logic
   // offered by the custom provider
   let offset = 0;
-  for (; ; /* continue until no more item */ offset += maxItemsPerRequest) {
+  let itemsRemainingToBeFetched = true;
+
+  while (itemsRemainingToBeFetched) {
     const getTxsURL = getTxsURLTemplate.replace("{offset}", String(offset));
 
     const txs = await helpers.getJSON<TODO_TypeThis>(
@@ -91,10 +93,13 @@ async function getPayloads(
     // when the limit includes the total number of transactions,
     // no need to go further
     if (payload.length === 0) {
+      itemsRemainingToBeFetched = false;
       break;
     }
 
     payloads.push(payload);
+
+    offset += maxItemsPerRequest;
   }
 
   return payloads;
