@@ -109,6 +109,10 @@ export const reportTemplate = `
         color: #4e2cb1 !important;
       }
 
+      .token_operation {
+        color: #214c9c !important;
+      }
+
       .comparison_mismatch {
         color: #cc0000 !important;
       }

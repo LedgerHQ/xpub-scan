@@ -16,6 +16,7 @@ import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 
 interface RawTransaction {
+  // COMMON
   transactionId: string;
   minedInBlockHeight: number;
   timestamp: number;
@@ -44,6 +45,74 @@ interface RawTransaction {
     }[];
     transactionStatus: string;
   };
+
+  // TOKEN SPECIFIC
+  transactionHash: string;
+  recipientAddress: string;
+  senderAddress: string;
+  tokenName: string;
+  tokenSymbol: string;
+  tokensAmount: number;
+  transactionTimestamp: number;
+}
+
+// returns the transactional payloads
+async function getPayloads(
+  coin: string,
+  address: string,
+  transactionType: string,
+) {
+  const maxItemsPerRequest = 50;
+  const payloads = [];
+
+  const getTxsURLTemplate = configuration.externalProviderURL
+    .replace("{coin}", coin)
+    .replace("{address}", address.toString())
+    .concat(
+      transactionType
+        .concat("?limit=")
+        .concat(maxItemsPerRequest.toString())
+        .concat("&offset={offset}"),
+    );
+
+  // to handle large number of transactions by address, use the index+limit logic
+  // offered by the custom provider
+  let offset = 0;
+  let itemsRemainingToBeFetched = true;
+
+  while (itemsRemainingToBeFetched) {
+    const getTxsURL = getTxsURLTemplate.replace("{offset}", String(offset));
+
+    const txs = await helpers.getJSON<TODO_TypeThis>(
+      getTxsURL,
+      configuration.APIKey,
+    );
+
+    const payload = txs.data.items;
+
+    // when the limit includes the total number of transactions,
+    // no need to go further
+    if (payload.length === 0) {
+      itemsRemainingToBeFetched = false;
+      break;
+    }
+
+    payloads.push(payload);
+
+    offset += maxItemsPerRequest;
+  }
+
+  return payloads;
+}
+
+// returns the basic operations payloads
+async function getOperationsPayloads(coin: string, address: Address) {
+  return getPayloads(coin, address.toString(), "/transactions");
+}
+
+// returns the Ethereum tokens-related payloads
+async function getTokenPayloads(coin: string, address: Address) {
+  return getPayloads(coin, address.toString(), "/tokens-transfers");
 }
 
 // returns the basic stats related to an address:
@@ -67,39 +136,14 @@ async function getStats(address: Address) {
   address.setStats(txCount, fundedSum, spentSum);
   address.setBalance(balance);
 
-  const maxItemsPerRequest = 50;
-
+  // get basic transactions
   if (txCount > 0) {
-    const getTxsURLTemplate = configuration.externalProviderURL
-      .replace("{coin}", coin)
-      .replace("{address}", address.toString())
-      .concat(
-        "/transactions?limit="
-          .concat(maxItemsPerRequest.toString())
-          .concat("&offset={offset}"),
-      );
+    const payloads = await getOperationsPayloads(coin, address);
 
-    // to handle large number of transactions by address, use the index+limit logic
-    // offered by the custom provider
-    const payloads = [];
-    let offset = 0;
-    for (; ; /* continue until no more item */ offset += maxItemsPerRequest) {
-      const getTxsURL = getTxsURLTemplate.replace("{offset}", String(offset));
-
-      const txs = await helpers.getJSON<TODO_TypeThis>(
-        getTxsURL,
-        configuration.APIKey,
-      );
-
-      const payload = txs.data.items;
-
-      payloads.push(payload);
-
-      // when the limit includes the total number of transactions,
-      // no need to go further
-      if (payload.length === 0) {
-        break;
-      }
+    // Ethereum: add token-related transactions
+    if (configuration.currency.symbol === currencies.eth.symbol) {
+      // eslint-disable-next-line prefer-spread
+      payloads.push.apply(payloads, await getTokenPayloads(coin, address));
     }
 
     // flatten the payloads
@@ -222,6 +266,11 @@ function getAccountBasedTransactions(address: Address) {
   const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
+    // skip token-related transactions
+    if (typeof tx.senderAddress !== "undefined") {
+      return;
+    }
+
     const isSender = tx.senders.some(
       (t) => t.address.toLowerCase() === address.toString().toLowerCase(),
     );
@@ -271,6 +320,57 @@ function getAccountBasedTransactions(address: Address) {
         // failed outgoing operation
         op.setOperationType("Failed to send");
       }
+
+      op.setBlockNumber(tx.minedInBlockHeight);
+
+      address.addSentOperation(op);
+    }
+  });
+
+  address.setTransactions(transactions);
+
+  getTokenTransactions(address);
+}
+
+function getTokenTransactions(address: Address) {
+  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const transactions: Transaction[] = [];
+
+  rawTransactions.forEach((tx: RawTransaction) => {
+    // skip basic transactions
+    if (typeof tx.senderAddress === "undefined") {
+      return;
+    }
+
+    const isSender =
+      tx.senderAddress.toLocaleLowerCase() ===
+      address.toString().toLocaleLowerCase();
+    const isRecipient =
+      tx.recipientAddress.toLocaleLowerCase() ===
+      address.toString().toLocaleLowerCase();
+
+    const amount = new BigNumber(0); // TODO: tx.tokensAmount
+
+    // ignore *incoming* transactions
+    if (isRecipient) {
+      return;
+    }
+
+    const timestamp = String(
+      dateFormat(
+        new Date(tx.transactionTimestamp * 1000),
+        "yyyy-mm-dd HH:MM:ss",
+      ),
+    );
+
+    if (isSender) {
+      // Sender
+      const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
+      const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
+      op.setAddress(address.toString());
+      op.setTxid(tx.transactionHash);
+
+      op.setOperationType("Sent (token)");
 
       op.setBlockNumber(tx.minedInBlockHeight);
 

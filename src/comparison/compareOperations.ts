@@ -197,7 +197,11 @@ const showOperations = (
     A.operationType === "Failed to send" ||
     B?.operationType === "Failed to send"
   ) {
-    actual = chalk.blueBright(actual.concat(" [failed]"));
+    actual = chalk.blueBright(actual.concat("\t[failed]"));
+  }
+
+  if (A.operationType.includes("token") || B?.operationType.includes("token")) {
+    actual = chalk.white(actual.concat("\t[token]"));
   }
 
   switch (status) {

@@ -5,6 +5,7 @@ type OperationType =
   | "Received (non-sibling to change)" // Received - edge case: address not belonging to the xpub
   //                                                            sending funds to change address
   | "Sent" // Sent - common case
+  | "Sent (token)" // Sent - token
   | "Sent to self" // Sent - edge case 1: The recipient is the sender (identity)
   | "Sent to sibling" // Sent - edge case 2: recipient belongs to same xpub ("sibling")
   | "Failed to send"; // Sent - edge case 3: failed send operation that impacts the balance (fees) (Ethereum)
