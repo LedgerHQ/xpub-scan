@@ -108,7 +108,7 @@ const renderAddress = (address: string): string => {
   const maxLength = 35;
 
   if (!address) {
-    return "";
+    return "".padEnd(maxLength + 4, " ");
   }
 
   if (address.length < maxLength) {

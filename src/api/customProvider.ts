@@ -345,16 +345,12 @@ function getTokenTransactions(address: Address) {
     const isSender =
       tx.senderAddress.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
+
     const isRecipient =
       tx.recipientAddress.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
 
     const amount = new BigNumber(0); // TODO: tx.tokensAmount
-
-    // ignore *incoming* transactions
-    if (isRecipient) {
-      return;
-    }
 
     const timestamp = String(
       dateFormat(
@@ -362,6 +358,20 @@ function getTokenTransactions(address: Address) {
         "yyyy-mm-dd HH:MM:ss",
       ),
     );
+
+    if (isRecipient) {
+      // Recipient
+      const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
+      const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
+      op.setAddress(address.toString());
+      op.setTxid(tx.transactionHash);
+
+      op.setOperationType("Received (token)");
+
+      op.setBlockNumber(tx.minedInBlockHeight);
+
+      address.addFundedOperation(op);
+    }
 
     if (isSender) {
       // Sender

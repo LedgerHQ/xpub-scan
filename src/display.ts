@@ -161,19 +161,16 @@ function showSortedOperations(sortedOperations: Operation[]) {
       status = status.concat("\t").concat(address.padEnd(42, " ")).concat("\t");
     }
 
-    if (
-      op.operationType === "Received" ||
-      op.operationType === "Received (non-sibling to change)"
-    ) {
+    if (op.operationType.includes("Received")) {
       // ... +{amount} ←
-      status = status.concat("+").concat(amount).concat(" ←");
+      status = status.concat("+").concat(amount.padEnd(14, " ")).concat(" ←");
 
       if (op.operationType === "Received (non-sibling to change)") {
         status = status.concat(" c");
       }
     } else {
       // ... -{amount} →|⮂|↺
-      status = status.concat("-").concat(amount);
+      status = status.concat("-").concat(amount.padEnd(14, " "));
 
       const operationType = op.getOperationType();
 
@@ -191,11 +188,11 @@ function showSortedOperations(sortedOperations: Operation[]) {
         // case 4. Sent to external address
         status = status.concat(" →");
       }
+    }
 
-      if (operationType.includes("token")) {
-        // Token (Ethereum)
-        status = status.concat(" t");
-      }
+    if (op.operationType.includes("token")) {
+      // Token (Ethereum)
+      status = status.concat(" t");
     }
 
     console.log(status);
