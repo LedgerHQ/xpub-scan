@@ -362,7 +362,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
 
       operations.push(op);
     } else if (type === "NONE") {
-      const op = new Operation(date[0], amount);
+      const op = new Operation(date[0], new BigNumber(0));
 
       op.setOperationType("Received (token)");
 
