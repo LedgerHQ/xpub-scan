@@ -9,7 +9,9 @@ type OperationType =
   | "Sent (token)" // Sent - token
   | "Sent to self" // Sent - edge case 1: The recipient is the sender (identity)
   | "Sent to sibling" // Sent - edge case 2: recipient belongs to same xpub ("sibling")
-  | "Failed to send"; // Sent - edge case 3: failed send operation that impacts the balance (fees) (Ethereum)
+  | "Failed to send" // Sent - edge case 3: failed send operation that impacts the balance (fees) (Ethereum)
+  | "SCI (caller)" // Called a smart contract
+  | "SCI (recipient)"; // Recipient of a smart contract interaction
 
 class Operation {
   operationType: OperationType;

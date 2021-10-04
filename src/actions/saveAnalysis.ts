@@ -324,6 +324,8 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
           comparisons.push('<tr class="failed_operation">');
         } else if (opType.includes("token")) {
           comparisons.push('<tr class="token_operation">');
+        } else if (opType.includes("SCI")) {
+          comparisons.push('<tr class="sci_operation">');
         } else {
           comparisons.push('<tr class="comparison_match">');
         }
@@ -464,6 +466,8 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
       rowStyle = '<tr class="failed_operation">';
     } else if (e.operationType.includes("token")) {
       rowStyle = '<tr class="token_operation">';
+    } else if (e.operationType.includes("SCI")) {
+      rowStyle = '<tr class="sci_operation">';
     }
 
     transactions.push(rowStyle);

@@ -46,7 +46,7 @@ interface RawTransaction {
     transactionStatus: string;
   };
 
-  // TOKEN SPECIFIC
+  // TOKENS
   transactionHash: string;
   recipientAddress: string;
   senderAddress: string;
@@ -54,6 +54,14 @@ interface RawTransaction {
   tokenSymbol: string;
   tokensAmount: number;
   transactionTimestamp: number;
+
+  // INTERNAL TRANSACTIONS
+  parentHash: string;
+  recipient: string;
+  sender: string;
+  operationID: string;
+  operationType: string;
+  amount: string;
 }
 
 // returns the transactional payloads
@@ -115,6 +123,11 @@ async function getTokenPayloads(coin: string, address: Address) {
   return getPayloads(coin, address.toString(), "/tokens-transfers");
 }
 
+// returns the Ethereum internal transactions
+async function getInternalTransactionsPayloads(coin: string, address: Address) {
+  return getPayloads(coin, address.toString(), "/internal");
+}
+
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
 async function getStats(address: Address) {
@@ -140,10 +153,15 @@ async function getStats(address: Address) {
   if (txCount > 0) {
     const payloads = await getOperationsPayloads(coin, address);
 
-    // Ethereum: add token-related transactions
+    // Ethereum: add token-related and internal transactions
     if (configuration.currency.symbol === currencies.eth.symbol) {
       // eslint-disable-next-line prefer-spread
       payloads.push.apply(payloads, await getTokenPayloads(coin, address));
+      // eslint-disable-next-line prefer-spread
+      payloads.push.apply(
+        payloads,
+        await getInternalTransactionsPayloads(coin, address),
+      );
     }
 
     // flatten the payloads
@@ -266,8 +284,8 @@ function getAccountBasedTransactions(address: Address) {
   const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
-    // skip token-related transactions
-    if (typeof tx.senderAddress !== "undefined") {
+    // skip non-basic operations
+    if (typeof tx.blockchainSpecific === "undefined") {
       return;
     }
 
@@ -330,6 +348,7 @@ function getAccountBasedTransactions(address: Address) {
   address.setTransactions(transactions);
 
   getTokenTransactions(address);
+  getInternalTransactions(address);
 }
 
 function getTokenTransactions(address: Address) {
@@ -337,7 +356,7 @@ function getTokenTransactions(address: Address) {
   const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
-    // skip basic transactions
+    // skip non-token operations
     if (typeof tx.senderAddress === "undefined") {
       return;
     }
@@ -350,7 +369,7 @@ function getTokenTransactions(address: Address) {
       tx.recipientAddress.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
 
-    const amount = new BigNumber(0); // TODO: tx.tokensAmount
+    const amount = new BigNumber(0); // TODO (Smart Check): tx.amount
 
     const timestamp = String(
       dateFormat(
@@ -381,6 +400,61 @@ function getTokenTransactions(address: Address) {
       op.setTxid(tx.transactionHash);
 
       op.setOperationType("Sent (token)");
+
+      op.setBlockNumber(tx.minedInBlockHeight);
+
+      address.addSentOperation(op);
+    }
+  });
+
+  address.setTransactions(transactions);
+}
+
+function getInternalTransactions(address: Address) {
+  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const transactions: Transaction[] = [];
+
+  rawTransactions.forEach((tx: RawTransaction) => {
+    // skip non-internal transactions
+    if (typeof tx.operationType === "undefined") {
+      return;
+    }
+
+    const isSender =
+      tx.sender.toLocaleLowerCase() === address.toString().toLocaleLowerCase();
+
+    const isRecipient =
+      tx.recipient.toLocaleLowerCase() ===
+      address.toString().toLocaleLowerCase();
+
+    const amount = new BigNumber(0); // TODO (Smart Check): tx.amount
+
+    const timestamp = String(
+      dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
+    );
+
+    if (isRecipient) {
+      // Recipient
+      const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
+      const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
+      op.setAddress(address.toString());
+      op.setTxid(tx.parentHash);
+
+      op.setOperationType("SCI (recipient)");
+
+      op.setBlockNumber(tx.minedInBlockHeight);
+
+      address.addFundedOperation(op);
+    }
+
+    if (isSender) {
+      // Sender
+      const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
+      const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
+      op.setAddress(address.toString());
+      op.setTxid(tx.parentHash);
+
+      op.setOperationType("SCI (caller)");
 
       op.setBlockNumber(tx.minedInBlockHeight);
 

@@ -113,6 +113,10 @@ export const reportTemplate = `
         color: #214c9c !important;
       }
 
+      .sci_operation {
+        color: #2825db !important;
+      }
+
       .comparison_mismatch {
         color: #cc0000 !important;
       }
