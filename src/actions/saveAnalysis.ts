@@ -63,7 +63,17 @@ function getUrl(itemType: string, item: string) {
   if (configuration.currency.symbol === currencies.bch.symbol) {
     url = EXTERNAL_EXPLORERS_URLS.bch;
     url = url.replace("{coin}", "bitcoin-cash");
+    itemTypes.address = "address";
     itemTypes.transaction = "transaction";
+  }
+
+  // Ethereum
+  //
+  // item types:  "address" | "tx"
+  if (configuration.currency.symbol === currencies.eth.symbol) {
+    url = EXTERNAL_EXPLORERS_URLS.eth;
+    itemTypes.address = "address";
+    itemTypes.transaction = "tx";
   }
 
   // specify item type
@@ -80,12 +90,6 @@ function getUrl(itemType: string, item: string) {
           itemType +
           "\" (expected: 'address' or 'transaction')",
       );
-  }
-
-  if (configuration.currency.symbol === currencies.eth.symbol) {
-    // Ethereum:
-    // remove prefix from transaction (Blockcypher requirement)
-    item = item.toLowerCase().replace("0x", "");
   }
 
   return url

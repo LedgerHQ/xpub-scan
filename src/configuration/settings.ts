@@ -64,6 +64,7 @@ const DERIVATION_SCOPE = {
 const EXTERNAL_EXPLORERS_URLS = {
   general: "https://live.blockcypher.com/{coin}/{type}/{item}",
   bch: "https://blockchair.com/{coin}/{type}/{item}",
+  eth: "https://etherscan.io/{type}/{item}",
 };
 
 dotenv.config();
