@@ -114,7 +114,7 @@ export const reportTemplate = `
       }
 
       .sci_operation {
-        color: #2825db !important;
+        color: #214c9c !important;
       }
 
       .comparison_mismatch {

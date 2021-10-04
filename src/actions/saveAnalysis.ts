@@ -180,6 +180,12 @@ function createTooltip(opType: string) {
             Ethereum token (e.g. ERC20) related operation
         </span>
         `;
+  } else if (opType.includes("SCI")) {
+    tooltip = `
+        <span class="tooltiptext">
+            Ethereum smart contract interaction (not a token transfer)
+        </span>
+        `;
   }
 
   return '<div class="tooltip">' + opType + tooltip + "</div>";
