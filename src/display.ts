@@ -195,6 +195,11 @@ function showSortedOperations(sortedOperations: Operation[]) {
       status = status.concat(" t");
     }
 
+    if (op.operationType.includes("SCI")) {
+      // SCI (Ethereum)
+      status = status.concat(" sci");
+    }
+
     console.log(status);
   });
 

@@ -204,6 +204,10 @@ const showOperations = (
     actual = chalk.white(actual.concat("\t[token]"));
   }
 
+  if (A.operationType.includes("SCI") || B?.operationType.includes("SCI")) {
+    actual = chalk.white(actual.concat("\t[sci]"));
+  }
+
   switch (status) {
     case "Match":
       console.log(

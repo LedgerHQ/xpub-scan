@@ -364,7 +364,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     } else if (type === "NONE") {
       const op = new Operation(date[0], new BigNumber(0));
 
-      op.setOperationType("Received (token)");
+      op.setOperationType("SCI (recipient)");
 
       op.setTxid(txid);
 
