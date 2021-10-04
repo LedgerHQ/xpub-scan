@@ -108,7 +108,7 @@ const renderAddress = (address: string): string => {
   const maxLength = 35;
 
   if (!address) {
-    return "";
+    return "".padEnd(maxLength + 4, " ");
   }
 
   if (address.length < maxLength) {
@@ -202,6 +202,10 @@ const showOperations = (
 
   if (A.operationType.includes("token") || B?.operationType.includes("token")) {
     actual = chalk.white(actual.concat("\t[token]"));
+  }
+
+  if (A.operationType.includes("SCI") || B?.operationType.includes("SCI")) {
+    actual = chalk.white(actual.concat("\t[sci]"));
   }
 
   switch (status) {

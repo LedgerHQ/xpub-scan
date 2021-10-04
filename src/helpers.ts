@@ -243,8 +243,9 @@ export function toAccountUnit(
 
   let convertedValue: BigNumber;
   if (configuration.currency.symbol === currencies.eth.symbol) {
-    convertedValue = amount.dividedBy(configuration.currency.precision);
-    return convertedValue.toFixed(ETH_FIXED_PRECISION);
+    return (amount.toNumber() / configuration.currency.precision).toFixed(
+      ETH_FIXED_PRECISION,
+    );
   } else {
     convertedValue = amount.dividedBy(configuration.currency.precision);
 

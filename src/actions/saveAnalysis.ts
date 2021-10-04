@@ -63,7 +63,17 @@ function getUrl(itemType: string, item: string) {
   if (configuration.currency.symbol === currencies.bch.symbol) {
     url = EXTERNAL_EXPLORERS_URLS.bch;
     url = url.replace("{coin}", "bitcoin-cash");
+    itemTypes.address = "address";
     itemTypes.transaction = "transaction";
+  }
+
+  // Ethereum
+  //
+  // item types:  "address" | "tx"
+  if (configuration.currency.symbol === currencies.eth.symbol) {
+    url = EXTERNAL_EXPLORERS_URLS.eth;
+    itemTypes.address = "address";
+    itemTypes.transaction = "tx";
   }
 
   // specify item type
@@ -80,12 +90,6 @@ function getUrl(itemType: string, item: string) {
           itemType +
           "\" (expected: 'address' or 'transaction')",
       );
-  }
-
-  if (configuration.currency.symbol === currencies.eth.symbol) {
-    // Ethereum:
-    // remove prefix from transaction (Blockcypher requirement)
-    item = item.toLowerCase().replace("0x", "");
   }
 
   return url
@@ -174,6 +178,12 @@ function createTooltip(opType: string) {
     tooltip = `
         <span class="tooltiptext">
             Ethereum token (e.g. ERC20) related operation
+        </span>
+        `;
+  } else if (opType.includes("SCI")) {
+    tooltip = `
+        <span class="tooltiptext">
+            Ethereum smart contract interaction (not a token transfer)
         </span>
         `;
   }
@@ -320,6 +330,8 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
           comparisons.push('<tr class="failed_operation">');
         } else if (opType.includes("token")) {
           comparisons.push('<tr class="token_operation">');
+        } else if (opType.includes("SCI")) {
+          comparisons.push('<tr class="sci_operation">');
         } else {
           comparisons.push('<tr class="comparison_match">');
         }
@@ -460,6 +472,8 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
       rowStyle = '<tr class="failed_operation">';
     } else if (e.operationType.includes("token")) {
       rowStyle = '<tr class="token_operation">';
+    } else if (e.operationType.includes("SCI")) {
+      rowStyle = '<tr class="sci_operation">';
     }
 
     transactions.push(rowStyle);

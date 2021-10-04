@@ -361,6 +361,14 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
       op.setAddress(sanitizeInputedAddress(addresses.join(",")));
 
       operations.push(op);
+    } else if (type === "NONE") {
+      const op = new Operation(date[0], new BigNumber(0));
+
+      op.setOperationType("SCI (recipient)");
+
+      op.setTxid(txid);
+
+      operations.push(op);
     }
   }
 
