@@ -113,6 +113,10 @@ export const reportTemplate = `
         color: #214c9c !important;
       }
 
+      .token_details {
+        font-size: 0.8em;
+      }
+
       .sci_operation {
         color: #214c9c !important;
       }

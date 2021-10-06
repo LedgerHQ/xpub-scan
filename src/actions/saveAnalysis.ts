@@ -346,10 +346,26 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
       comparisons.push("<td>" + imported.date + "</td>");
       comparisons.push("<td>" + imported.address + "</td>");
-      comparisons.push("<td>" + imported.amount + "</td>");
+
+      let importedAmount = imported.amount;
+
+      if (typeof e.imported.token !== "undefined") {
+        importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.name} (${e.imported.token.symbol})</span> `;
+      }
+
+      comparisons.push("<td>" + importedAmount + "</td>");
+
       comparisons.push("<td>" + actual.date + "</td>");
       comparisons.push("<td>" + actual.address + "</td>");
-      comparisons.push("<td>" + actual.amount + "</td>");
+
+      let actualAmount = actual.amount;
+
+      if (typeof e.actual.token !== "undefined") {
+        actualAmount += `<br><span class="token_details"> ${e.actual.token.amount} ${e.actual.token.name} (${e.actual.token.symbol})</span> `;
+      }
+
+      comparisons.push("<td>" + actualAmount + "</td>");
+
       comparisons.push("<td>" + renderTxid(txid) + "</td>");
       comparisons.push("<td>" + createTooltip(opType) + "</td>");
       comparisons.push("<td>" + e.status + "</td></tr>");
