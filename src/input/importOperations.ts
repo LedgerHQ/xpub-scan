@@ -332,10 +332,14 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     const date =
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.time) || "";
 
-    if (type === "RECEIVE") {
-      const op = new Operation(date[0], amount);
-      op.setOperationType("Received");
+    const token = operation.token;
+    const dapp = operation.dapp;
 
+    let op = new Operation();
+
+    if (type === "RECEIVE") {
+      op = new Operation(date[0], amount);
+      op.setOperationType("Received");
       op.setTxid(txid);
 
       const addresses = [];
@@ -344,13 +348,10 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
       }
 
       op.setAddress(sanitizeInputedAddress(addresses.join(",")));
-
-      operations.push(op);
     } else if (type === "SEND") {
-      const op = new Operation(date[0], amount);
+      op = new Operation(date[0], amount);
 
       op.setOperationType("Sent");
-
       op.setTxid(txid);
 
       const addresses = [];
@@ -359,17 +360,22 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
       }
 
       op.setAddress(sanitizeInputedAddress(addresses.join(",")));
-
-      operations.push(op);
     } else if (type === "NONE") {
-      const op = new Operation(date[0], new BigNumber(0));
+      op = new Operation(date[0], new BigNumber(0));
 
       op.setOperationType("SCI (recipient)");
-
       op.setTxid(txid);
-
-      operations.push(op);
     }
+
+    if (typeof token !== "undefined") {
+      op.addToken(token.symbol, token.name, new BigNumber(token.amount));
+    }
+
+    if (typeof dapp !== "undefined") {
+      op.addDapp(dapp.name);
+    }
+
+    operations.push(op);
   }
 
   return operations;

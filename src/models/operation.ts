@@ -21,14 +21,26 @@ class Operation {
   address: string;
   cashAddress: string | undefined; // Bitcoin Cash: Cash Address format
   amount: BigNumber;
+  token: {
+    name: string;
+    symbol: string;
+    amount: BigNumber;
+  };
+  dapp: {
+    name: string;
+  };
 
-  constructor(date: string, amount: BigNumber | string) {
-    this.date = date;
+  constructor(date?: string, amount?: BigNumber | string) {
+    if (typeof date !== "undefined") {
+      this.date = date;
+    }
 
-    if (typeof amount === "string") {
-      this.amount = new BigNumber(amount);
-    } else {
-      this.amount = amount;
+    if (typeof amount !== "undefined") {
+      if (typeof amount === "string") {
+        this.amount = new BigNumber(amount);
+      } else {
+        this.amount = amount;
+      }
     }
   }
 
@@ -75,6 +87,20 @@ class Operation {
 
   getOperationType() {
     return this.operationType;
+  }
+
+  addToken(symbol: string, name: string, amount: BigNumber) {
+    this.token = {
+      name,
+      symbol,
+      amount,
+    };
+  }
+
+  addDapp(name: string) {
+    this.dapp = {
+      name,
+    };
   }
 }
 
