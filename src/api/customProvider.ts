@@ -369,7 +369,11 @@ function getTokenTransactions(address: Address) {
       tx.recipientAddress.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
 
-    const amount = new BigNumber(0); // TODO (Smart Check): tx.amount
+    const amount = new BigNumber(0);
+
+    const tokenAmount = new BigNumber(tx.tokensAmount);
+    const tokenName = tx.tokenName;
+    const tokenSymbol = tx.tokenSymbol;
 
     const timestamp = String(
       dateFormat(
@@ -389,6 +393,8 @@ function getTokenTransactions(address: Address) {
 
       op.setBlockNumber(tx.minedInBlockHeight);
 
+      op.addToken(tokenSymbol, tokenName, tokenAmount);
+
       address.addFundedOperation(op);
     }
 
@@ -402,6 +408,8 @@ function getTokenTransactions(address: Address) {
       op.setOperationType("Sent (token)");
 
       op.setBlockNumber(tx.minedInBlockHeight);
+
+      op.addToken(tokenSymbol, tokenName, tokenAmount);
 
       address.addSentOperation(op);
     }

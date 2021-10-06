@@ -368,7 +368,8 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     }
 
     if (typeof token !== "undefined") {
-      op.addToken(token.symbol, token.name, new BigNumber(token.amount));
+      const tokenAmount = token.amount / 10 ** token.magnitude;
+      op.addToken(token.symbol, token.name, new BigNumber(tokenAmount));
     }
 
     if (typeof dapp !== "undefined") {

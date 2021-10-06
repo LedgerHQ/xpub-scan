@@ -71,6 +71,8 @@ const areMatching = (
 ): boolean => {
   const importedAddress = importedOperation.getAddress();
 
+  // 1. Check addresses
+
   // only check if imported address is set (not always the case: see type B CSV)
   // besides, imported address can be a superset of actual address as the
   // imported operation can have several addresses; therefore, `includes` has to
@@ -88,8 +90,32 @@ const areMatching = (
     return false;
   }
 
+  // 2. Check amounts
   if (!importedOperation.amount.isEqualTo(actualOperation.amount)) {
     return false;
+  }
+
+  // 3. (If applicable) check tokens
+  const importedToken = importedOperation.token;
+  const actualToken = actualOperation.token;
+  if (typeof importedToken !== "undefined") {
+    if (!importedToken.amount.isEqualTo(actualToken.amount)) {
+      return false;
+    }
+
+    if (
+      importedToken.name.toLocaleLowerCase() !==
+      actualToken.name.toLocaleLowerCase()
+    ) {
+      return false;
+    }
+
+    if (
+      importedToken.symbol.toLocaleLowerCase() !==
+      actualToken.symbol.toLocaleLowerCase()
+    ) {
+      return false;
+    }
   }
 
   return true;
