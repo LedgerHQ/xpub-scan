@@ -396,8 +396,6 @@ function getTokenTransactions(address: Address) {
       tx.recipientAddress.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
 
-    const amount = new BigNumber(0);
-
     const tokenAmount = new BigNumber(tx.tokensAmount);
     const tokenName = tx.tokenName;
     const tokenSymbol = tx.tokenSymbol;
@@ -411,6 +409,7 @@ function getTokenTransactions(address: Address) {
 
     if (isRecipient) {
       // Recipient
+      const amount = new BigNumber(tx.recipients[0].amount);
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -427,6 +426,7 @@ function getTokenTransactions(address: Address) {
 
     if (isSender) {
       // Sender
+      const amount = new BigNumber(tx.senders[0].amount); // TODO: remove fees
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());

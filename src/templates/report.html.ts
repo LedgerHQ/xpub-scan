@@ -117,6 +117,7 @@ export const reportTemplate = `
         display: block;
         margin: 10px 0;
         font-size: 0.8em;
+        text-align: center;
       }
 
       .sci_operation {
@@ -186,6 +187,7 @@ export const reportTemplate = `
       }
 
       td {
+        vertical-align: top;
         border-right: 1px solid #fff;
         border-left: 1px solid #e8e8e8;
         border-top: 1px solid #fff;
