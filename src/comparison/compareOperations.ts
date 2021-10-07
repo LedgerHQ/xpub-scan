@@ -104,18 +104,21 @@ const areMatching = (
     }
 
     if (
-      importedToken.name.toLocaleLowerCase() !==
-      actualToken.name.toLocaleLowerCase()
-    ) {
-      return false;
-    }
-
-    if (
       importedToken.symbol.toLocaleLowerCase() !==
       actualToken.symbol.toLocaleLowerCase()
     ) {
       return false;
     }
+
+    // name comparison is disable because there is currently no mapping
+    // between official names and our own names
+
+    // if (
+    //   importedToken.name.toLocaleLowerCase() !==
+    //   actualToken.name.toLocaleLowerCase()
+    // ) {
+    //   return false;
+    // }
   }
 
   return true;

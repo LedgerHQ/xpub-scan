@@ -114,6 +114,8 @@ export const reportTemplate = `
       }
 
       .token_details {
+        display: block;
+        margin: 10px 0;
         font-size: 0.8em;
       }
 
