@@ -20,7 +20,7 @@ interface RawTransaction {
   transactionId: string;
   minedInBlockHeight: number;
   timestamp: number;
-  fees: {
+  fee: {
     amount: number;
     unit: string;
   };
@@ -147,6 +147,8 @@ async function getTokenPayloads(coin: string, address: Address) {
     // add data related to recipients and senders
     tokenOperation.recipients = transaction.recipients;
     tokenOperation.senders = transaction.senders;
+
+    tokenOperation.fee = transaction.fee;
   }
 
   return tokenOperations;
@@ -426,7 +428,8 @@ function getTokenTransactions(address: Address) {
 
     if (isSender) {
       // Sender
-      const amount = new BigNumber(tx.senders[0].amount); // TODO: remove fees
+      const fees = new BigNumber(tx.fee.amount);
+      const amount = new BigNumber(tx.senders[0].amount).minus(fees);
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
