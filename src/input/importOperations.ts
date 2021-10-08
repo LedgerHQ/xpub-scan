@@ -373,7 +373,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     }
 
     if (typeof dapp !== "undefined") {
-      op.addDapp(dapp.name);
+      op.addDapp(dapp.contract_name);
     }
 
     operations.push(op);

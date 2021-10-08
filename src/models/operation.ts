@@ -27,7 +27,7 @@ class Operation {
     amount: BigNumber;
   };
   dapp: {
-    name: string;
+    contract_name: string;
   };
 
   constructor(date?: string, amount?: BigNumber | string) {
@@ -97,9 +97,9 @@ class Operation {
     };
   }
 
-  addDapp(name: string) {
+  addDapp(contract_name: string) {
     this.dapp = {
-      name,
+      contract_name,
     };
   }
 }

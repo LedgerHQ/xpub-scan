@@ -192,7 +192,12 @@ function showSortedOperations(sortedOperations: Operation[]) {
 
     if (op.operationType.includes("token")) {
       // Token (Ethereum)
-      status = status.concat(" t");
+      status = status.concat(" token");
+    }
+
+    if (op.operationType.includes("dapp")) {
+      // Token (Ethereum)
+      status = status.concat(" dapp");
     }
 
     if (op.operationType.includes("SCI")) {

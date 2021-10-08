@@ -121,6 +121,21 @@ const areMatching = (
     // }
   }
 
+  // 4. (If applicable) check dapp
+  const importedDapp = importedOperation.dapp;
+  const actualDapp = actualOperation.token; // currently, as far as the external provider is concerned, token == Dapp
+  if (
+    typeof importedDapp !== "undefined" &&
+    typeof actualDapp !== "undefined"
+  ) {
+    if (
+      importedDapp.contract_name.toLocaleLowerCase() !==
+      actualDapp.name.toLocaleLowerCase()
+    ) {
+      return false;
+    }
+  }
+
   return true;
 };
 
@@ -231,6 +246,10 @@ const showOperations = (
 
   if (A.operationType.includes("token") || B?.operationType.includes("token")) {
     actual = chalk.white(actual.concat("\t[token]"));
+  }
+
+  if (A.operationType.includes("dapp") || B?.operationType.includes("dapp")) {
+    actual = chalk.white(actual.concat("\t[dapp]"));
   }
 
   if (A.operationType.includes("SCI") || B?.operationType.includes("SCI")) {

@@ -180,6 +180,12 @@ function createTooltip(opType: string) {
             Ethereum token (e.g. ERC20) related operation
         </span>
         `;
+  } else if (opType.includes("dapp")) {
+    tooltip = `
+        <span class="tooltiptext">
+            Ethereum Dapp related operation
+        </span>
+        `;
   } else if (opType.includes("SCI")) {
     tooltip = `
         <span class="tooltiptext">
@@ -351,6 +357,10 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
       if (typeof e.imported.token !== "undefined") {
         importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.symbol}<br>${e.imported.token.name}</span> `;
+      }
+
+      if (typeof e.imported.dapp !== "undefined") {
+        importedAmount += `<br><span class="dapp_details">${e.imported.dapp.contract_name}</span> `;
       }
 
       comparisons.push("<td>" + importedAmount + "</td>");
