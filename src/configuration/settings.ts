@@ -78,6 +78,7 @@ export const configuration = {
   silent: false,
   quiet: false,
   gap_limit: process.env.GAP_LIMIT || DEFAULT_GAP_LIMIT,
+  augmentedImport: false, // augmented JSON to compare smart contract interactions
 };
 
 export {

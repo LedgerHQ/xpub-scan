@@ -111,7 +111,7 @@ async function getPayloads(
   return payloads;
 }
 
-// returns the transactional payloads
+// returns the transactional payload
 async function getTransactionPayload(coin: string, transactionHash: string) {
   const url = configuration.externalProviderURL
     .replace("{coin}", coin)
@@ -411,7 +411,17 @@ function getTokenTransactions(address: Address) {
 
     if (isRecipient) {
       // Recipient
-      const amount = new BigNumber(tx.recipients[0].amount);
+      let amount = new BigNumber(0);
+
+      for (const recipient of tx.recipients) {
+        if (
+          recipient.address.toLocaleLowerCase() ===
+          address.toString().toLocaleLowerCase()
+        ) {
+          amount = amount.plus(recipient.amount);
+        }
+      }
+
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -465,7 +475,7 @@ function getInternalTransactions(address: Address) {
       tx.recipient.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
 
-    const amount = new BigNumber(tx.amount);
+    const amount = new BigNumber(0);
 
     const timestamp = String(
       dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),

@@ -333,7 +333,6 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
       /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/gi.exec(operation.time) || "";
 
     const token = operation.token;
-    const dapp = operation.dapp;
 
     let op = new Operation();
 
@@ -368,13 +367,21 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
     }
 
     if (typeof token !== "undefined") {
-      const tokenAmount = token.amount / 10 ** token.magnitude;
+      configuration.augmentedImport = true;
+      const tokenAmount = new BigNumber(token.amount).dividedBy(
+        10 ** token.magnitude,
+      );
       op.addToken(token.symbol, token.name, new BigNumber(tokenAmount));
     }
 
-    if (typeof dapp !== "undefined") {
-      op.addDapp(dapp.contract_name);
-    }
+    // TODO: enable Dapps import when this object will contain
+    // more information
+    //
+    // const dapp = operation.dapp;
+    // if (typeof dapp !== "undefined") {
+    // configuration.augmentedImport = true;
+    //   op.addDapp(dapp.contract_name);
+    // }
 
     operations.push(op);
   }

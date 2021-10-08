@@ -68,7 +68,7 @@ const compareOps = (A: Operation, B: Operation): number => {
 const areMatching = (
   importedOperation: Operation,
   actualOperation: Operation,
-): boolean => {
+): ComparisonStatus => {
   const importedAddress = importedOperation.getAddress();
 
   // 1. Check addresses
@@ -87,12 +87,12 @@ const areMatching = (
       .toLowerCase()
       .includes(importedAddress.toLowerCase())
   ) {
-    return false;
+    return "Mismatch: addresses";
   }
 
   // 2. Check amounts
   if (!importedOperation.amount.isEqualTo(actualOperation.amount)) {
-    return false;
+    return "Mismatch: amounts";
   }
 
   // 3. (If applicable) check tokens
@@ -100,14 +100,14 @@ const areMatching = (
   const actualToken = actualOperation.token;
   if (typeof importedToken !== "undefined") {
     if (!importedToken.amount.isEqualTo(actualToken.amount)) {
-      return false;
+      return "Mismatch: token amounts";
     }
 
     if (
       importedToken.symbol.toLocaleLowerCase() !==
       actualToken.symbol.toLocaleLowerCase()
     ) {
-      return false;
+      return "Mismatch: token tickers";
     }
 
     // name comparison is disable because there is currently no mapping
@@ -132,11 +132,11 @@ const areMatching = (
       importedDapp.contract_name.toLocaleLowerCase() !==
       actualDapp.name.toLocaleLowerCase()
     ) {
-      return false;
+      return "Mismatch: Dapp";
     }
   }
 
-  return true;
+  return "Match";
 };
 
 /**
@@ -195,9 +195,10 @@ const showOperations = (
   switch (status) {
     case "Match":
     /* fallthrough */
-    case "Match (aggregated)":
+    case status.match(/^Mismatch.*/)?.input:
     /* fallthrough */
-    case "Mismatch":
+    case "Missing Operation":
+      /* fallthrough */
       imported = A.date
         .padEnd(24, " ")
         .concat(renderAddress(A.address))
@@ -268,7 +269,7 @@ const showOperations = (
     case "Missing (aggregated)":
       console.log(chalk.green(imported.padEnd(halfColorPadding, " ")), actual);
       break;
-    case "Mismatch":
+    case status.match(/^Mismatch.*/)?.input:
     /* fallthrough */
     case "Missing Operation":
     /* fallthrough */
@@ -528,14 +529,16 @@ const checkImportedOperations = (
         continue;
       }
 
-      if (!areMatching(importedOp, actualOp)) {
+      const comparisonResult = areMatching(importedOp, actualOp);
+
+      if (comparisonResult !== "Match") {
         // mismatch
-        showOperations("Mismatch", importedOp, actualOp);
+        showOperations(comparisonResult, importedOp, actualOp);
 
         comparisons.push({
           imported: importedOp,
           actual: actualOp,
-          status: "Mismatch",
+          status: comparisonResult,
         });
       } else {
         // match
