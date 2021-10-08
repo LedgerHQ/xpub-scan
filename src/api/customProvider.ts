@@ -138,7 +138,7 @@ async function getTokenPayloads(coin: string, address: Address) {
   const tokenOperations = [].concat(...rawTokenOperations);
 
   // augment token operations with transaction data
-  for (let tokenOperation of tokenOperations as Array<RawTransaction>) {
+  for (const tokenOperation of tokenOperations as Array<RawTransaction>) {
     const transaction = await getTransactionPayload(
       coin,
       tokenOperation.transactionHash,

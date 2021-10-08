@@ -356,11 +356,11 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let importedAmount = imported.amount;
 
       if (typeof e.imported.token !== "undefined") {
-        importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.symbol}<br>${e.imported.token.name}</span> `;
+        importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.symbol}<br>${e.imported.token.name}</span>`;
       }
 
       if (typeof e.imported.dapp !== "undefined") {
-        importedAmount += `<br><span class="dapp_details">${e.imported.dapp.contract_name}</span> `;
+        importedAmount += `<br><span class="dapp_details">${e.imported.dapp.contract_name}</span>`;
       }
 
       comparisons.push("<td>" + importedAmount + "</td>");
@@ -371,7 +371,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let actualAmount = actual.amount;
 
       if (typeof e.actual.token !== "undefined") {
-        actualAmount += `<br><span class="token_details"> ${e.actual.token.amount} ${e.actual.token.symbol}<br>${e.actual.token.name}</span> `;
+        actualAmount += `<br><span class="token_details"> ${e.actual.token.amount} ${e.actual.token.symbol}<br>${e.actual.token.name}</span>`;
       }
 
       comparisons.push("<td>" + actualAmount + "</td>");

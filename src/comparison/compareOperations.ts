@@ -110,7 +110,7 @@ const areMatching = (
       return "Mismatch: token tickers";
     }
 
-    // name comparison is disable because there is currently no mapping
+    // name comparison is disabled because there is currently no mapping
     // between official names and our own names
 
     // if (
@@ -196,8 +196,6 @@ const showOperations = (
     case "Match":
     /* fallthrough */
     case status.match(/^Mismatch.*/)?.input:
-    /* fallthrough */
-    case "Missing Operation":
       /* fallthrough */
       imported = A.date
         .padEnd(24, " ")

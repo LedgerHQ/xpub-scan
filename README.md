@@ -12,7 +12,7 @@ Given a master public key (xpub, Ltub, _etc._), get the balances of its derived 
 - Derives specific addresses (by account+index) or all active ones
 - Searches if a given address has been derived from a given master public key (perfect and partial match)
 - Supports legacy, SegWit, and Native SegWit
-- Automatically checks some categories of CSV files containing operations history
+- Automatically checks some categories of CSV or JSON files containing operations history
 
 ## Prerequisites
 
