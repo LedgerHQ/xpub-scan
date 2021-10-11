@@ -10,9 +10,9 @@ base_path = f"{ os.getcwd() }/__tests__/ci/"
 
 def print_test_status(is_success, product, test_type):
     print()
-    print("=" * 15, "Test result", "=" * 15)
+    print("=" * 20, "Test result", "=" * 20)
     print("PASS" if is_success else "FAIL", f"— {product} ({test_type})")
-    print("=" * 43, "\n")
+    print("=" * 53, "\n")
 
 
 def xpub_scan(data, filepath):

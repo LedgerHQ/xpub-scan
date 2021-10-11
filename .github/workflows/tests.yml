@@ -1,6 +1,12 @@
 name: Regression tests
 
-on: [push] # temporary
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   regression-tests:
