@@ -306,12 +306,20 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let opType = "";
 
       // by default: no imported operation
-      const imported = { date: "", address: "(no operation)", amount: "" };
+      const imported = {
+        date: "",
+        address: "(no operation)",
+        amount: "",
+        token: undefined,
+        dapp: undefined,
+      };
 
       if (typeof e.imported !== "undefined") {
         imported.date = e.imported.date;
         imported.address = renderAddress(e.imported.address);
         imported.amount = renderAmount(e.imported.amount);
+        imported.token = e.imported.token;
+        imported.dapp = e.imported.dapp;
         txid = e.imported.txid;
         opType = e.imported.operationType;
       }
@@ -363,11 +371,11 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
       let importedAmount = imported.amount;
 
-      if (typeof e.imported.token !== "undefined") {
+      if (typeof imported.token !== "undefined") {
         importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.symbol}<br>${e.imported.token.name}</span>`;
       }
 
-      if (typeof e.imported.dapp !== "undefined") {
+      if (typeof imported.dapp !== "undefined") {
         importedAmount += `<br><span class="dapp_details">${e.imported.dapp.contract_name}</span>`;
       }
 
