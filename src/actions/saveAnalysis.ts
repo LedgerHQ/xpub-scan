@@ -317,12 +317,20 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       }
 
       // by default: no actual operation
-      const actual = { date: "", address: "(no operation)", amount: "" };
+      const actual = {
+        date: "",
+        address: "(no operation)",
+        amount: "",
+        token: undefined,
+        dapp: undefined,
+      };
 
       if (typeof e.actual !== "undefined") {
         actual.date = e.actual.date;
         actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
         actual.amount = renderAmount(e.actual.amount);
+        actual.token = e.actual.token;
+        actual.dapp = e.actual.dapp;
         txid = e.actual.txid;
         opType = e.actual.operationType;
       }
@@ -370,7 +378,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
       let actualAmount = actual.amount;
 
-      if (typeof e.actual.token !== "undefined") {
+      if (typeof actual.token !== "undefined") {
         actualAmount += `<br><span class="token_details"> ${e.actual.token.amount} ${e.actual.token.symbol}<br>${e.actual.token.name}</span>`;
       }
 
