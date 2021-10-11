@@ -21,4 +21,4 @@ jobs:
           # use custom provider
           export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
 
-          python ./__tests__/check.py $XPUB $FILE
+          python ./__tests__/ci/check.py $XPUB $FILE
