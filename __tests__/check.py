@@ -38,6 +38,8 @@ def run_positive_test(data):
 
     print_test_status(is_success, data['product'], "positive test")
 
+    return is_success
+
 
 def run_negative_test(data):
     filepath = f"{base_path}/datasets/negative_tests/{data['filename']}"
@@ -48,6 +50,8 @@ def run_negative_test(data):
     is_success = return_code != 0
 
     print_test_status(is_success, data['product'], "negative test")
+
+    return is_success
 
 
 if __name__ == "__main__":
