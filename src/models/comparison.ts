@@ -4,7 +4,11 @@ type ComparisonStatus =
   | "Match" // perfect match between imported and actual operation
   | "Match (aggregated)" // aggregated operation
   | "Missing (aggregated)" // aggregation operation (resulting missing imported operation)
-  | "Mismatch" // address or amount mismatch
+  | "Mismatch: addresses" // addresses mismatch
+  | "Mismatch: amounts" // amounts mismatch
+  | "Mismatch: token amounts" // token amounts mismatch
+  | "Mismatch: token tickers" // token tickers mismatch
+  | "Mismatch: Dapp" // Dapp mismatch
   | "Missing Operation" // missing expected imported operation
   | "Extra Operation"; // imported operation without corresponding actual operation
 

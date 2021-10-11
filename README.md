@@ -2,7 +2,9 @@
 
 ![XPUB](./doc/logo.png)
 
-Given a master public key (xpub, Ltub, _etc._), get the balances of its derived legacy, native SegWit, and SegWit addresses, or check whether an address has been derived from it.
+Blockchain test oracle and forensics tool.
+
+Given an extended public key (xpub, Ltub, _etc._), get the balances of its derived active addresses and the associated list of operations, or check whether an address has been derived from it.
 
 ![Example](./doc/demo_balance.gif)
 
@@ -12,7 +14,7 @@ Given a master public key (xpub, Ltub, _etc._), get the balances of its derived 
 - Derives specific addresses (by account+index) or all active ones
 - Searches if a given address has been derived from a given master public key (perfect and partial match)
 - Supports legacy, SegWit, and Native SegWit
-- Automatically checks some categories of CSV files containing operations history
+- Automatically checks supported CSV or JSON files containing operations history
 
 ## Prerequisites
 
@@ -35,8 +37,16 @@ $ npm i -g @ledgerhq/xpub-scan
 
 ## Usage
 
+### Bitcoin, Litecoin
+
 ```
-$ xpub-scan [options] <xpub>
+$ xpub-scan <xpub> [options]
+```
+
+### Ethereum
+
+```
+$ xpub-scan <address> --currency eth [options]
 ```
 
 Running programmatically example:
@@ -84,6 +94,10 @@ By default, Bitcoin xpubs and Litecoin ltubs are automatically detected.
 To scan Bitcoin Cash xpubs, use the `--currency bch` argument:
 
 `$ xpub-scan --currency bch <xpub> …`
+
+To scan Litecoin xpubs, use the `--currency ltc` argument:
+
+`$ xpub-scan --currency ltc <xpub> …`
 
 ## Usage 1. Check Balances
 

@@ -110,6 +110,12 @@ export class Scanner {
         mode = "Full scan";
       }
 
+      if (configuration.augmentedImport) {
+        // Augmented import mode:
+        // Use of an augmented JSON to compare smart contract interactions
+        mode += " | Augmented Import";
+      }
+
       const meta: ScanMeta = {
         xpub: this.itemToScan,
         date: this.now,

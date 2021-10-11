@@ -20,7 +20,7 @@ interface RawTransaction {
   transactionId: string;
   minedInBlockHeight: number;
   timestamp: number;
-  fees: {
+  fee: {
     amount: number;
     unit: string;
   };
@@ -74,8 +74,9 @@ async function getPayloads(
   const payloads = [];
 
   const getTxsURLTemplate = configuration.externalProviderURL
+    .concat("/addresses/")
+    .concat(address.toString())
     .replace("{coin}", coin)
-    .replace("{address}", address.toString())
     .concat(
       transactionType
         .concat("?limit=")
@@ -89,12 +90,9 @@ async function getPayloads(
   let itemsRemainingToBeFetched = true;
 
   while (itemsRemainingToBeFetched) {
-    const getTxsURL = getTxsURLTemplate.replace("{offset}", String(offset));
+    const url = getTxsURLTemplate.replace("{offset}", String(offset));
 
-    const txs = await helpers.getJSON<TODO_TypeThis>(
-      getTxsURL,
-      configuration.APIKey,
-    );
+    const txs = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
 
     const payload = txs.data.items;
 
@@ -113,6 +111,18 @@ async function getPayloads(
   return payloads;
 }
 
+// returns the transactional payload
+async function getTransactionPayload(coin: string, transactionHash: string) {
+  const url = configuration.externalProviderURL
+    .replace("{coin}", coin)
+    .concat("/transactions/")
+    .concat(transactionHash);
+
+  const txs = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
+
+  return txs.data.item;
+}
+
 // returns the basic operations payloads
 async function getOperationsPayloads(coin: string, address: Address) {
   return getPayloads(coin, address.toString(), "/transactions");
@@ -120,7 +130,28 @@ async function getOperationsPayloads(coin: string, address: Address) {
 
 // returns the Ethereum tokens-related payloads
 async function getTokenPayloads(coin: string, address: Address) {
-  return getPayloads(coin, address.toString(), "/tokens-transfers");
+  const rawTokenOperations = await getPayloads(
+    coin,
+    address.toString(),
+    "/tokens-transfers",
+  );
+  const tokenOperations = [].concat(...rawTokenOperations);
+
+  // augment token operations with transaction data
+  for (const tokenOperation of tokenOperations as Array<RawTransaction>) {
+    const transaction = await getTransactionPayload(
+      coin,
+      tokenOperation.transactionHash,
+    );
+
+    // add data related to recipients and senders
+    tokenOperation.recipients = transaction.recipients;
+    tokenOperation.senders = transaction.senders;
+
+    tokenOperation.fee = transaction.fee;
+  }
+
+  return tokenOperations;
 }
 
 // returns the Ethereum internal transactions
@@ -135,8 +166,9 @@ async function getStats(address: Address) {
   const coin = configuration.currency.name.toLowerCase().replace(" ", "-");
 
   const url = configuration.externalProviderURL
-    .replace("{coin}", coin)
-    .replace("{address}", address.toString());
+    .concat("/addresses/")
+    .concat(address.toString())
+    .replace("{coin}", coin);
 
   const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
   const item = res.data.item;
@@ -281,7 +313,6 @@ function getTransactions(address: Address) {
 
 function getAccountBasedTransactions(address: Address) {
   const rawTransactions = JSON.parse(address.getRawTransactions());
-  const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
     // skip non-basic operations
@@ -345,8 +376,6 @@ function getAccountBasedTransactions(address: Address) {
     }
   });
 
-  address.setTransactions(transactions);
-
   getTokenTransactions(address);
   getInternalTransactions(address);
 }
@@ -369,7 +398,9 @@ function getTokenTransactions(address: Address) {
       tx.recipientAddress.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
 
-    const amount = new BigNumber(0); // TODO (Smart Check): tx.amount
+    const tokenAmount = new BigNumber(tx.tokensAmount);
+    const tokenName = tx.tokenName;
+    const tokenSymbol = tx.tokenSymbol;
 
     const timestamp = String(
       dateFormat(
@@ -380,6 +411,17 @@ function getTokenTransactions(address: Address) {
 
     if (isRecipient) {
       // Recipient
+      let amount = new BigNumber(0);
+
+      for (const recipient of tx.recipients) {
+        if (
+          recipient.address.toLocaleLowerCase() ===
+          address.toString().toLocaleLowerCase()
+        ) {
+          amount = amount.plus(recipient.amount);
+        }
+      }
+
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -389,11 +431,15 @@ function getTokenTransactions(address: Address) {
 
       op.setBlockNumber(tx.minedInBlockHeight);
 
+      op.addToken(tokenSymbol, tokenName, tokenAmount);
+
       address.addFundedOperation(op);
     }
 
     if (isSender) {
       // Sender
+      const fees = new BigNumber(tx.fee.amount);
+      const amount = new BigNumber(tx.senders[0].amount).minus(fees);
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -402,6 +448,8 @@ function getTokenTransactions(address: Address) {
       op.setOperationType("Sent (token)");
 
       op.setBlockNumber(tx.minedInBlockHeight);
+
+      op.addToken(tokenSymbol, tokenName, tokenAmount);
 
       address.addSentOperation(op);
     }
@@ -427,7 +475,7 @@ function getInternalTransactions(address: Address) {
       tx.recipient.toLocaleLowerCase() ===
       address.toString().toLocaleLowerCase();
 
-    const amount = new BigNumber(0); // TODO (Smart Check): tx.amount
+    const amount = new BigNumber(0);
 
     const timestamp = String(
       dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),

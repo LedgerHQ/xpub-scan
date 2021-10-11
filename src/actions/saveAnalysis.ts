@@ -180,6 +180,12 @@ function createTooltip(opType: string) {
             Ethereum token (e.g. ERC20) related operation
         </span>
         `;
+  } else if (opType.includes("dapp")) {
+    tooltip = `
+        <span class="tooltiptext">
+            Ethereum Dapp related operation
+        </span>
+        `;
   } else if (opType.includes("SCI")) {
     tooltip = `
         <span class="tooltiptext">
@@ -300,23 +306,39 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let opType = "";
 
       // by default: no imported operation
-      const imported = { date: "", address: "(no operation)", amount: "" };
+      const imported = {
+        date: "",
+        address: "(no operation)",
+        amount: "",
+        token: undefined,
+        dapp: undefined,
+      };
 
       if (typeof e.imported !== "undefined") {
         imported.date = e.imported.date;
         imported.address = renderAddress(e.imported.address);
         imported.amount = renderAmount(e.imported.amount);
+        imported.token = e.imported.token;
+        imported.dapp = e.imported.dapp;
         txid = e.imported.txid;
         opType = e.imported.operationType;
       }
 
       // by default: no actual operation
-      const actual = { date: "", address: "(no operation)", amount: "" };
+      const actual = {
+        date: "",
+        address: "(no operation)",
+        amount: "",
+        token: undefined,
+        dapp: undefined,
+      };
 
       if (typeof e.actual !== "undefined") {
         actual.date = e.actual.date;
         actual.address = renderAddress(e.actual.address, e.actual.cashAddress);
         actual.amount = renderAmount(e.actual.amount);
+        actual.token = e.actual.token;
+        actual.dapp = e.actual.dapp;
         txid = e.actual.txid;
         opType = e.actual.operationType;
       }
@@ -346,10 +368,30 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
       comparisons.push("<td>" + imported.date + "</td>");
       comparisons.push("<td>" + imported.address + "</td>");
-      comparisons.push("<td>" + imported.amount + "</td>");
+
+      let importedAmount = imported.amount;
+
+      if (typeof imported.token !== "undefined") {
+        importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.symbol}<br>${e.imported.token.name}</span>`;
+      }
+
+      if (typeof imported.dapp !== "undefined") {
+        importedAmount += `<br><span class="dapp_details">${e.imported.dapp.contract_name}</span>`;
+      }
+
+      comparisons.push("<td>" + importedAmount + "</td>");
+
       comparisons.push("<td>" + actual.date + "</td>");
       comparisons.push("<td>" + actual.address + "</td>");
-      comparisons.push("<td>" + actual.amount + "</td>");
+
+      let actualAmount = actual.amount;
+
+      if (typeof actual.token !== "undefined") {
+        actualAmount += `<br><span class="token_details"> ${e.actual.token.amount} ${e.actual.token.symbol}<br>${e.actual.token.name}</span>`;
+      }
+
+      comparisons.push("<td>" + actualAmount + "</td>");
+
       comparisons.push("<td>" + renderTxid(txid) + "</td>");
       comparisons.push("<td>" + createTooltip(opType) + "</td>");
       comparisons.push("<td>" + e.status + "</td></tr>");

@@ -18,7 +18,7 @@ const DEFAULT_API_URLS = {
 };
 
 const CUSTOM_API_URL =
-  "https://rest.cryptoapis.io/v2/blockchain-data/{coin}/{network}/addresses/{address}";
+  "https://rest.cryptoapis.io/v2/blockchain-data/{coin}/{network}";
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
@@ -78,6 +78,7 @@ export const configuration = {
   silent: false,
   quiet: false,
   gap_limit: process.env.GAP_LIMIT || DEFAULT_GAP_LIMIT,
+  augmentedImport: false, // augmented JSON to compare smart contract interactions
 };
 
 export {

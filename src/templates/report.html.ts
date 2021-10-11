@@ -113,6 +113,12 @@ export const reportTemplate = `
         color: #214c9c !important;
       }
 
+      .token_details {
+        display: block;
+        margin: 10px 0;
+        text-align: center;
+      }
+
       .sci_operation {
         color: #214c9c !important;
       }
@@ -180,6 +186,7 @@ export const reportTemplate = `
       }
 
       td {
+        vertical-align: top;
         border-right: 1px solid #fff;
         border-left: 1px solid #e8e8e8;
         border-top: 1px solid #fff;

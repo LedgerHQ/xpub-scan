@@ -68,8 +68,10 @@ const compareOps = (A: Operation, B: Operation): number => {
 const areMatching = (
   importedOperation: Operation,
   actualOperation: Operation,
-): boolean => {
+): ComparisonStatus => {
   const importedAddress = importedOperation.getAddress();
+
+  // 1. Check addresses
 
   // only check if imported address is set (not always the case: see type B CSV)
   // besides, imported address can be a superset of actual address as the
@@ -85,14 +87,56 @@ const areMatching = (
       .toLowerCase()
       .includes(importedAddress.toLowerCase())
   ) {
-    return false;
+    return "Mismatch: addresses";
   }
 
+  // 2. Check amounts
   if (!importedOperation.amount.isEqualTo(actualOperation.amount)) {
-    return false;
+    return "Mismatch: amounts";
   }
 
-  return true;
+  // 3. (If applicable) check tokens
+  const importedToken = importedOperation.token;
+  const actualToken = actualOperation.token;
+  if (typeof importedToken !== "undefined") {
+    if (!importedToken.amount.isEqualTo(actualToken.amount)) {
+      return "Mismatch: token amounts";
+    }
+
+    if (
+      importedToken.symbol.toLocaleLowerCase() !==
+      actualToken.symbol.toLocaleLowerCase()
+    ) {
+      return "Mismatch: token tickers";
+    }
+
+    // name comparison is disabled because there is currently no mapping
+    // between official names and our own names
+
+    // if (
+    //   importedToken.name.toLocaleLowerCase() !==
+    //   actualToken.name.toLocaleLowerCase()
+    // ) {
+    //   return false;
+    // }
+  }
+
+  // 4. (If applicable) check dapp
+  const importedDapp = importedOperation.dapp;
+  const actualDapp = actualOperation.token; // currently, as far as the external provider is concerned, token == Dapp
+  if (
+    typeof importedDapp !== "undefined" &&
+    typeof actualDapp !== "undefined"
+  ) {
+    if (
+      importedDapp.contract_name.toLocaleLowerCase() !==
+      actualDapp.name.toLocaleLowerCase()
+    ) {
+      return "Mismatch: Dapp";
+    }
+  }
+
+  return "Match";
 };
 
 /**
@@ -151,9 +195,8 @@ const showOperations = (
   switch (status) {
     case "Match":
     /* fallthrough */
-    case "Match (aggregated)":
-    /* fallthrough */
-    case "Mismatch":
+    case status.match(/^Mismatch.*/)?.input:
+      /* fallthrough */
       imported = A.date
         .padEnd(24, " ")
         .concat(renderAddress(A.address))
@@ -204,6 +247,10 @@ const showOperations = (
     actual = chalk.white(actual.concat("\t[token]"));
   }
 
+  if (A.operationType.includes("dapp") || B?.operationType.includes("dapp")) {
+    actual = chalk.white(actual.concat("\t[dapp]"));
+  }
+
   if (A.operationType.includes("SCI") || B?.operationType.includes("SCI")) {
     actual = chalk.white(actual.concat("\t[sci]"));
   }
@@ -220,7 +267,7 @@ const showOperations = (
     case "Missing (aggregated)":
       console.log(chalk.green(imported.padEnd(halfColorPadding, " ")), actual);
       break;
-    case "Mismatch":
+    case status.match(/^Mismatch.*/)?.input:
     /* fallthrough */
     case "Missing Operation":
     /* fallthrough */
@@ -480,14 +527,16 @@ const checkImportedOperations = (
         continue;
       }
 
-      if (!areMatching(importedOp, actualOp)) {
+      const comparisonResult = areMatching(importedOp, actualOp);
+
+      if (comparisonResult !== "Match") {
         // mismatch
-        showOperations("Mismatch", importedOp, actualOp);
+        showOperations(comparisonResult, importedOp, actualOp);
 
         comparisons.push({
           imported: importedOp,
           actual: actualOp,
-          status: "Mismatch",
+          status: comparisonResult,
         });
       } else {
         // match
