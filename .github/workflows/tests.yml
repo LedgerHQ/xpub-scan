@@ -1,0 +1,24 @@
+name: Regression tests
+
+on: [push] # temporary
+
+jobs:
+  regression-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies and build
+        run: |
+          yarn && yarn build
+
+      - name: Run tests
+        run: |
+          # use custom provider
+          export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
+
+          python ./__tests__/check.py $XPUB $FILE positive
