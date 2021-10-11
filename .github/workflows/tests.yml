@@ -22,9 +22,37 @@ jobs:
         run: |
           yarn && yarn build
 
-      - name: Run tests
+      - name: Regression Tests — Live-common (JSON)
         run: |
           # use custom provider
           export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
 
-          python ./__tests__/ci/check.py $XPUB $FILE
+          python ./__tests__/ci/check.py "Live-common"
+
+      - name: Regression Tests — Live Desktop (CSV)
+        run: |
+          # use custom provider
+          export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
+
+          python ./__tests__/ci/check.py "Live Desktop"
+
+      - name: Regression Tests — Custom G (CSV)
+        run: |
+          # use custom provider
+          export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
+
+          python ./__tests__/ci/check.py "Custom G"
+
+      - name: Regression Tests — Custom L (JSON)
+        run: |
+          # use custom provider
+          export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
+
+          python ./__tests__/ci/check.py "Custom L"
+
+      - name: Regression Tests — Custom W (JSON)
+        run: |
+          # use custom provider
+          export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
+
+          python ./__tests__/ci/check.py "Custom W"

@@ -55,10 +55,16 @@ def run_negative_test(data):
 
 
 if __name__ == "__main__":
+    product_under_test = sys.argv[1].lower().strip()
+
     with open(f"{base_path}/datasets.json", 'r') as f:
         dataset = json.load(f)
 
     for data in dataset:
+
+        if product_under_test not in data['product'].lower():
+            continue
+
         test_types = data['test_types']
 
         for test_type in test_types:
