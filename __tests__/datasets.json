@@ -1,6 +1,6 @@
 [
     {
-        "product": "Live Desktop (CSV)",
+        "product": "Live Desktop / SegWit",
         "test_types": ["positive", "negative"],
         "coin_ticker": "BTC",
         "network": "testnet",
