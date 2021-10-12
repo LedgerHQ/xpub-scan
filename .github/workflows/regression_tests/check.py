@@ -31,6 +31,8 @@ def xpub_scan(data, filepath):
 def run_positive_test(data):
     filepath = f"{base_path}/datasets/positive_tests/{data['filename']}"
 
+    print(f"Filepath: {filepath}") 
+
     return_code = xpub_scan(data, filepath)
 
     # positive test passes if the command does not fail
