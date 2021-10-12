@@ -62,7 +62,9 @@ if __name__ == "__main__":
 
     for data in dataset:
 
-        if product_under_test not in data['product'].lower():
+        product = data['product'].lower().replace('-', ' ')
+
+        if product_under_test not in product:
             continue
 
         test_types = data['test_types']
