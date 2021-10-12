@@ -5,7 +5,7 @@ import os
 from subprocess import Popen, PIPE
 import sys
 
-base_path = f"{ os.getcwd() }/__tests__/ci/"
+base_path = f"{ os.getcwd() }/.github/workflows/regression_tests"
 
 
 def print_test_status(is_success, product, test_type):
