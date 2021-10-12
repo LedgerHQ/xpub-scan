@@ -12,7 +12,7 @@ jobs:
   regression-tests:
     strategy:
       matrix:
-        product: [common-live, live-desktop, custom-g, custom-l, custom-w]
+        product: [live-common, live-desktop, custom-g, custom-l, custom-w]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
