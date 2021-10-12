@@ -24,7 +24,6 @@ jobs:
       - name: Install dependencies and build
         run: |
           yarn && yarn build
-
       - name: Regression Tests — ${{ matrix.product }}
         run: |
           # use custom provider
