@@ -1,0 +1,38 @@
+[
+  {
+    "product": "Live-common / SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDCCpYzH6NwKVnAipf8ChTfiTG4XtmxncwL97rQGLJ3SqfFCWzDq78LX1a7s2WXJsyfvR6bMiLkC7FSXLGoBo3dsH6DE9JKJb6LQSPasuSWj",
+    "filename": "Live-common_SegWit_0.json",
+    "simulated_discrepancy": "Mismatch: amount"
+  },
+  {
+    "product": "Live-common / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDesZsTU8M34dQB96jM7cxBFStFCi8hqeHEwqu6M2LCjQWsf3THFxEtgygXX8uL5v4HeZLXbSVVP3LMy1Cgd8S85oMESAYWSH5mGG8YtjYS",
+    "filename": "Live-common_Native-SegWit_0.json",
+    "simulated_discrepancy": "Extra operation"
+  },
+  {
+    "product": "Live Desktop / SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDCCpYzH6NwKVnAipf8ChTfiTG4XtmxncwL97rQGLJ3SqfFCWzDq78LX1a7s2WXJsyfvR6bMiLkC7FSXLGoBo3dsH6DE9JKJb6LQSPasuSWj",
+    "filename": "Live_SegWit_0.csv",
+    "simulated_discrepancy": "Mismatch: amount"
+  },
+  {
+    "product": "Live Desktop / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDesZsTU8M34dQB96jM7cxBFStFCi8hqeHEwqu6M2LCjQWsf3THFxEtgygXX8uL5v4HeZLXbSVVP3LMy1Cgd8S85oMESAYWSH5mGG8YtjYS",
+    "filename": "Live_Native-SegWit_0.csv",
+    "simulated_discrepancy": "Missing operation"
+  }
+]

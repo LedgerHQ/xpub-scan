@@ -10,6 +10,9 @@ on:
 
 jobs:
   regression-tests:
+    strategy:
+      matrix:
+        product: [Live-Common, Live-Desktop, Custom-G, Custom-L, Custom-W]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,10 +24,9 @@ jobs:
       - name: Install dependencies and build
         run: |
           yarn && yarn build
-
-      - name: Run tests
+      - name: Regression Tests — ${{ matrix.product }}
         run: |
           # use custom provider
           export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
 
-          python ./__tests__/ci/check.py $XPUB $FILE
+          python .github/workflows/regression_tests/check.py ${{ matrix.product }}

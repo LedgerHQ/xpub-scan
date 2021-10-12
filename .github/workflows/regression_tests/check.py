@@ -5,7 +5,7 @@ import os
 from subprocess import Popen, PIPE
 import sys
 
-base_path = f"{ os.getcwd() }/__tests__/ci/"
+base_path = f"{ os.getcwd() }/.github/workflows/regression_tests"
 
 
 def print_test_status(is_success, product, test_type):
@@ -55,10 +55,18 @@ def run_negative_test(data):
 
 
 if __name__ == "__main__":
+    product_under_test = sys.argv[1].lower().strip().replace('-', ' ')
+
     with open(f"{base_path}/datasets.json", 'r') as f:
         dataset = json.load(f)
 
     for data in dataset:
+
+        product = data['product'].lower().replace('-', ' ')
+
+        if product_under_test not in product:
+            continue
+
         test_types = data['test_types']
 
         for test_type in test_types:
