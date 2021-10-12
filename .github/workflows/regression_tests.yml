@@ -1,0 +1,33 @@
+name: Regression tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request_target:
+    branches:
+      - master
+
+jobs:
+  regression-tests:
+    strategy:
+      matrix:
+        product: [Live-Common, Live-Desktop, Custom-G, Custom-L, Custom-W]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies and build
+        run: |
+          yarn && yarn build
+
+      - name: Regression Tests — ${{ matrix.product }}
+        run: |
+          # use custom provider
+          export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
+
+          python ./__tests__/ci/check.py ${{ matrix.product }}
