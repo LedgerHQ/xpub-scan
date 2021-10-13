@@ -110,13 +110,17 @@ export const reportTemplate = `
       }
 
       .token_operation {
-        color: #214c9c !important;
+        color: #2c4c88 !important;
       }
 
       .token_details {
         display: block;
         margin: 10px 0;
+        padding: 10px;
+        line-height: 1.4;
         text-align: center;
+        background-color: #dcdefb;
+        box-shadow: 1px 1px 1px #0e2985;
       }
 
       .sci_operation {

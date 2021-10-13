@@ -12,6 +12,13 @@ import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 
+function renderToken(token: any) {
+  const renderedAmount = new BigNumber(token.amount).toFormat(6);
+  return `<br><span class="token_details">${parseFloat(renderedAmount)} ${
+    token.symbol
+  }<br>${token.name}</span>`;
+}
+
 // align float numbers or zeros
 function renderAmount(amount: string | number) {
   const decimalPrecision = 8;
@@ -28,6 +35,8 @@ function renderAmount(amount: string | number) {
 
   // align any number: insert filler on the left
   renderedAmount = renderedAmount.padStart(decimalPrecision * 2, filler);
+
+  renderedAmount = renderedAmount.replace(/^0+(\d)|(\d)0+$/gm, "$1$2"); // remove trailing zeros
 
   // insert non-breaking spaces by replacing the filler with `&nbsp;`
   return (
@@ -380,7 +389,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let importedAmount = imported.amount;
 
       if (typeof imported.token !== "undefined") {
-        importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.symbol}<br>${e.imported.token.name}</span>`;
+        importedAmount += renderToken(e.imported.token);
       }
 
       if (typeof imported.dapp !== "undefined") {
@@ -395,7 +404,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let actualAmount = actual.amount;
 
       if (typeof actual.token !== "undefined") {
-        actualAmount += `<br><span class="token_details"> ${e.actual.token.amount} ${e.actual.token.symbol}<br>${e.actual.token.name}</span>`;
+        actualAmount += renderToken(actual.token);
       }
 
       comparisons.push("<td>" + actualAmount + "</td>");
@@ -540,7 +549,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     let amount = renderAmount(e.amount);
 
     if (typeof e.token !== "undefined") {
-      amount += `<br><span class="token_details">${e.token.amount} ${e.token.symbol}<br>${e.token.name}</span>`;
+      amount += renderToken(e.token);
     }
 
     if (typeof e.dapp !== "undefined") {
