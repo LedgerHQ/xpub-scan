@@ -11,7 +11,8 @@ type OperationType =
   | "Sent to sibling" // Sent - edge case 2: recipient belongs to same xpub ("sibling")
   | "Failed to send" // Sent - edge case 3: failed send operation that impacts the balance (fees) (Ethereum)
   | "SCI (caller)" // Called a smart contract
-  | "SCI (recipient)"; // Recipient of a smart contract interaction
+  | "SCI (recipient)" // Recipient of a smart contract interaction
+  | "Swapped"; // Swapped Ethers for tokens
 
 class Operation {
   operationType: OperationType;

@@ -200,6 +200,11 @@ function showSortedOperations(sortedOperations: Operation[]) {
       status = status.concat(" dapp");
     }
 
+    if (op.operationType.includes("Swapped")) {
+      // Swapped (Ethereum)
+      status = status.concat(" Swapped");
+    }
+
     if (op.operationType.includes("SCI")) {
       // SCI (Ethereum)
       status = status.concat(" sci");

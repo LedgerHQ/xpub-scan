@@ -409,25 +409,47 @@ function getTokenTransactions(address: Address) {
       ),
     );
 
+    // compute amount
+    // (note: the dualities isSender/isRecipient and has sent/has received do not necessarily
+    //        overlap (e.g., a recipient can also have sent in the swapping context)
+    const fees = new BigNumber(tx.fee.amount);
+    let amount = new BigNumber(0);
+    let hasSent = false;
+
+    // case 1. has received
+    for (const recipient of tx.recipients) {
+      if (
+        recipient.address.toLocaleLowerCase() ===
+        address.toString().toLocaleLowerCase()
+      ) {
+        amount = amount.plus(recipient.amount);
+      }
+    }
+
+    // case 2. has sent
+    for (const sender of tx.senders) {
+      if (
+        sender.address.toLocaleLowerCase() ===
+        address.toString().toLocaleLowerCase()
+      ) {
+        amount = amount.minus(sender.amount);
+        hasSent = true;
+      }
+    }
+
+    if (hasSent) {
+      amount = amount.plus(fees); // if has sent, add fees
+    }
+
     if (isRecipient) {
       // Recipient
-      let amount = new BigNumber(0);
-
-      for (const recipient of tx.recipients) {
-        if (
-          recipient.address.toLocaleLowerCase() ===
-          address.toString().toLocaleLowerCase()
-        ) {
-          amount = amount.plus(recipient.amount);
-        }
-      }
-
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
       op.setTxid(tx.transactionHash);
 
-      op.setOperationType("Received (token)");
+      // operation type: if is recipient but has sent: swap operation
+      op.setOperationType(hasSent ? "Swapped" : "Received (token)");
 
       op.setBlockNumber(tx.minedInBlockHeight);
 
@@ -437,9 +459,6 @@ function getTokenTransactions(address: Address) {
     }
 
     if (isSender) {
-      // Sender
-      const fees = new BigNumber(tx.fee.amount);
-      const amount = new BigNumber(tx.senders[0].amount).minus(fees);
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());

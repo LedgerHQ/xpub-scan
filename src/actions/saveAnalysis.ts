@@ -192,6 +192,14 @@ function createTooltip(opType: string) {
             Ethereum smart contract interaction (not a token transfer)
         </span>
         `;
+  } else if (opType === "Swapped") {
+    tooltip = `
+        <span class="tooltiptext">
+            Swapped Ethers for tokens (note that it is expected for the imported ETH amount to be positive and for the actual one to be negative)
+        </span>
+        `;
+  } else {
+    return opType;
   }
 
   return '<div class="tooltip">' + opType + tooltip + "</div>";
@@ -350,7 +358,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
         if (opType === "Failed to send") {
           comparisons.push('<tr class="failed_operation">');
-        } else if (opType.includes("token")) {
+        } else if (opType.includes("token") || opType.includes("Swapped")) {
           comparisons.push('<tr class="token_operation">');
         } else if (opType.includes("SCI")) {
           comparisons.push('<tr class="sci_operation">');
@@ -512,7 +520,9 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
 
     if (e.operationType === "Failed to send") {
       rowStyle = '<tr class="failed_operation">';
-    } else if (e.operationType.includes("token")) {
+    } else if (
+      e.operationType.includes("token" || e.operationType.includes("Swapped"))
+    ) {
       rowStyle = '<tr class="token_operation">';
     } else if (e.operationType.includes("SCI")) {
       rowStyle = '<tr class="sci_operation">';
