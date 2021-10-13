@@ -358,7 +358,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
         if (opType === "Failed to send") {
           comparisons.push('<tr class="failed_operation">');
-        } else if (opType.includes("token") || opType.includes("Swapped")) {
+        } else if (opType.includes("token") || opType === "Swapped") {
           comparisons.push('<tr class="token_operation">');
         } else if (opType.includes("SCI")) {
           comparisons.push('<tr class="sci_operation">');
@@ -521,7 +521,8 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     if (e.operationType === "Failed to send") {
       rowStyle = '<tr class="failed_operation">';
     } else if (
-      e.operationType.includes("token" || e.operationType.includes("Swapped"))
+      e.operationType.includes("token") ||
+      e.operationType === "Swapped"
     ) {
       rowStyle = '<tr class="token_operation">';
     } else if (e.operationType.includes("SCI")) {
