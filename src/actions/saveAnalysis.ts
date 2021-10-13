@@ -536,7 +536,18 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     transactions.push(
       "<td>" + renderAddress(e.address, e.cashAddress) + "</td>",
     );
-    transactions.push("<td>" + renderAmount(e.amount) + "</td>");
+
+    let amount = renderAmount(e.amount);
+
+    if (typeof e.token !== "undefined") {
+      amount += `<br><span class="token_details">${e.token.amount} ${e.token.symbol}<br>${e.token.name}</span>`;
+    }
+
+    if (typeof e.dapp !== "undefined") {
+      amount += `<br><span class="dapp_details">${e.dapp.contract_name}</span>`;
+    }
+
+    transactions.push("<td>" + amount + "</td>");
     transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
   }
 
