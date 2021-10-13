@@ -91,7 +91,12 @@ const areMatching = (
   }
 
   // 2. Check amounts
-  if (!importedOperation.amount.isEqualTo(actualOperation.amount)) {
+  // Note: absolute values are compared because one of the amounts can be negative (i.e., swap)
+  if (
+    !importedOperation.amount
+      .absoluteValue()
+      .isEqualTo(actualOperation.amount.absoluteValue())
+  ) {
     return "Mismatch: amounts";
   }
 
@@ -253,6 +258,13 @@ const showOperations = (
 
   if (A.operationType.includes("SCI") || B?.operationType.includes("SCI")) {
     actual = chalk.white(actual.concat("\t[sci]"));
+  }
+
+  if (
+    A.operationType.includes("Swapped") ||
+    B?.operationType.includes("Swapped")
+  ) {
+    actual = chalk.white(actual.concat("\t[swap]"));
   }
 
   switch (status) {

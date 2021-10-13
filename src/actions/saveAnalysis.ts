@@ -12,6 +12,13 @@ import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 
+function renderToken(token: any) {
+  const renderedAmount = new BigNumber(token.amount).toFormat(6);
+  return `<br><span class="token_details">${parseFloat(renderedAmount)} ${
+    token.symbol
+  }<br>${token.name}</span>`;
+}
+
 // align float numbers or zeros
 function renderAmount(amount: string | number) {
   const decimalPrecision = 8;
@@ -28,6 +35,8 @@ function renderAmount(amount: string | number) {
 
   // align any number: insert filler on the left
   renderedAmount = renderedAmount.padStart(decimalPrecision * 2, filler);
+
+  renderedAmount = renderedAmount.replace(/^0+(\d)|(\d)0+$/gm, "$1$2"); // remove trailing zeros
 
   // insert non-breaking spaces by replacing the filler with `&nbsp;`
   return (
@@ -192,6 +201,14 @@ function createTooltip(opType: string) {
             Ethereum smart contract interaction (not a token transfer)
         </span>
         `;
+  } else if (opType === "Swapped") {
+    tooltip = `
+        <span class="tooltiptext">
+            Swapped Ethers for tokens (note that it is expected for the imported ETH amount to be positive and for the actual one to be negative)
+        </span>
+        `;
+  } else {
+    return opType;
   }
 
   return '<div class="tooltip">' + opType + tooltip + "</div>";
@@ -350,7 +367,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
 
         if (opType === "Failed to send") {
           comparisons.push('<tr class="failed_operation">');
-        } else if (opType.includes("token")) {
+        } else if (opType.includes("token") || opType === "Swapped") {
           comparisons.push('<tr class="token_operation">');
         } else if (opType.includes("SCI")) {
           comparisons.push('<tr class="sci_operation">');
@@ -372,7 +389,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let importedAmount = imported.amount;
 
       if (typeof imported.token !== "undefined") {
-        importedAmount += `<br><span class="token_details">${e.imported.token.amount} ${e.imported.token.symbol}<br>${e.imported.token.name}</span>`;
+        importedAmount += renderToken(e.imported.token);
       }
 
       if (typeof imported.dapp !== "undefined") {
@@ -387,7 +404,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let actualAmount = actual.amount;
 
       if (typeof actual.token !== "undefined") {
-        actualAmount += `<br><span class="token_details"> ${e.actual.token.amount} ${e.actual.token.symbol}<br>${e.actual.token.name}</span>`;
+        actualAmount += renderToken(actual.token);
       }
 
       comparisons.push("<td>" + actualAmount + "</td>");
@@ -512,7 +529,10 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
 
     if (e.operationType === "Failed to send") {
       rowStyle = '<tr class="failed_operation">';
-    } else if (e.operationType.includes("token")) {
+    } else if (
+      e.operationType.includes("token") ||
+      e.operationType === "Swapped"
+    ) {
       rowStyle = '<tr class="token_operation">';
     } else if (e.operationType.includes("SCI")) {
       rowStyle = '<tr class="sci_operation">';
@@ -525,7 +545,18 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     transactions.push(
       "<td>" + renderAddress(e.address, e.cashAddress) + "</td>",
     );
-    transactions.push("<td>" + renderAmount(e.amount) + "</td>");
+
+    let amount = renderAmount(e.amount);
+
+    if (typeof e.token !== "undefined") {
+      amount += renderToken(e.token);
+    }
+
+    if (typeof e.dapp !== "undefined") {
+      amount += `<br><span class="dapp_details">${e.dapp.contract_name}</span>`;
+    }
+
+    transactions.push("<td>" + amount + "</td>");
     transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
   }
 
