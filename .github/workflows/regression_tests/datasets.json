@@ -34,5 +34,23 @@
     "xpub": "tpubDDesZsTU8M34dQB96jM7cxBFStFCi8hqeHEwqu6M2LCjQWsf3THFxEtgygXX8uL5v4HeZLXbSVVP3LMy1Cgd8S85oMESAYWSH5mGG8YtjYS",
     "filename": "Live_Native-SegWit_0.csv",
     "simulated_discrepancy": "Missing operation"
+  },
+  {
+    "product": "Custom G / Legacy",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDeVY9LV9mbHM6f6pMkk3yKbJtEtXGZGuZgHe4LvSctECW77Y31ddoe5hrFzSb6f5zicMzfx3g3CDj13NCBRPWJbiKxZdPmuvnqvbDNkvnB",
+    "filename": "Custom_G_Legacy_0.csv",
+    "simulated_discrepancy": "Mismatch: amount"
+  },
+  {
+    "product": "Custom G / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDUQPBGDGYAHmFG4h8Rg7CyB96oiQJ4kx1GC8tvpgWYFKTEKdXNbsAnvrJQoyxJj6n5ZGpsd82Z85DdyjFtJ4JiNKauZxnUWpvTkX3x6p5d",
+    "filename": "Custom_G_Native-SegWit_0.csv",
+    "simulated_discrepancy": "Missing operation"
   }
 ]
