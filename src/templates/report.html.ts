@@ -6,7 +6,7 @@ export const reportTemplate = `
     <title>Xpub Scan Report - {xpub}</title>
     <style>
       body {
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: Lucida console, Helvetica, sans-serif;
         margin: 0px;
       }
 
@@ -14,6 +14,8 @@ export const reportTemplate = `
         margin: 0;
         margin-bottom: 6px;
         padding: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
 
       .monospaced {
@@ -97,6 +99,26 @@ export const reportTemplate = `
         list-style: none;
       }
 
+      .label {
+        font-size: 0.95em;
+        display: block;
+        padding: 5px 5px;
+        text-align: center;
+        border-radius: 6px;
+      }
+
+      .match_label {
+        color: #053605;
+        background-color: #a9dda9;
+        box-shadow: 1px 1px 1px #105a07;
+      }
+
+      .mismatch_label {
+        color: #950a0a;
+        background-color: #f7c7c7;
+        box-shadow: 1px 1px 1px #a93f3f;
+      }
+
       .summary_empty {
         color: #666 !important;
       }
@@ -128,7 +150,7 @@ export const reportTemplate = `
       }
 
       .comparison_mismatch {
-        color: #cc0000 !important;
+        color: #db1111 !important;
       }
 
       .comparison_aggregated {
