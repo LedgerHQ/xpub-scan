@@ -1,25 +1,91 @@
 #!/usr/bin/python3
 
+from typing import final
+from bs4 import BeautifulSoup
 import json
 import os
+from pathlib import Path
 from subprocess import Popen, PIPE
 import sys
 
 base_path = f"{ os.getcwd() }/.github/workflows/regression_tests"
 
 
-def print_test_status(is_success, product, test_type):
+def print_test_status(test_type, product, is_success=None, simulated_discrepancy=None):
+    header = "Current test" if is_success is None else "Test result"
+
     print()
-    print("=" * 20, "Test result", "=" * 20)
-    print("PASS" if is_success else "FAIL", f"— {product} ({test_type})")
-    print("=" * 53, "\n")
+    print("=" * 20, header, "=" * 20)
+
+    if is_success is not None:
+        print("PASS" if is_success else "FAIL", "— ", end="")
+    
+    print(f"{product} ({test_type})")
+
+    if simulated_discrepancy:
+        print(f"Simulated discrepancy: `{simulated_discrepancy}`")
+
+    print("=" * (42 + len(header)), "\n")
+
+
+def chech_xpub_scan_reports(data, simulated_discrepancy=None):
+    xpub = data['xpub']
+
+    report_path = f"{base_path}/{xpub}"
+
+    html_report_filepath = f"{report_path}.html"
+    json_report_filepath = f"{report_path}.json"
+
+    # check HTML report
+    ###################
+
+    # the HTML report must exist
+    try:
+        html_report = open(html_report_filepath, 'r').read()
+    except:
+        raise SystemExit('HTML report not found')
+
+    # the HTML report must be a valid HTML file
+    if not bool(BeautifulSoup(html_report, "html.parser").find()):
+        print(html_report)
+        raise SystemExit('Invalid HTML report')
+
+    os.remove(html_report_filepath)
+
+    # (negative test) the HTML report must contain the simulated discrepancy
+    if simulated_discrepancy and simulated_discrepancy.lower() not in html_report.lower():
+        raise SystemExit(
+            f"Simulated discrepancy `{simulated_discrepancy}` not found in the HTML report")
+
+    # check JSON report
+    ###################
+
+    # the JSON report must exist
+    try:
+        json_report = open(json_report_filepath, 'r').read()
+    except:
+        raise SystemExit('JSON report not found')
+
+    # the JSON report must be a valid JSON file
+    try:
+        json.loads(json_report)
+    except ValueError:
+        print(json_report)
+        raise SystemExit('Invalid JSON report')
+    finally:
+        os.remove(json_report_filepath)
+
+    # (negative test) the JSON report must contain the simulated discrepancy
+    if simulated_discrepancy and simulated_discrepancy.lower() not in json_report.lower():
+        raise SystemExit(
+            f"Simulated discrepancy `{simulated_discrepancy}` not found in the JSON report")
 
 
 def xpub_scan(data, filepath):
     xpub = data['xpub']
     coin = data['coin_ticker']
 
-    cmd = f"node lib/scan.js {xpub} --currency {coin} --operations {filepath} --diff --custom-provider --quiet"
+    cmd = f"node lib/scan.js {xpub} --currency {coin} --operations {filepath} --diff --custom-provider --quiet --save {base_path}"
 
     with Popen(cmd.split(), stdout=PIPE, bufsize=1, universal_newlines=True) as p:
         for line in p.stdout:
@@ -29,27 +95,37 @@ def xpub_scan(data, filepath):
 
 
 def run_positive_test(data):
+    print_test_status("positive test", data['product'])
+    
     filepath = f"{base_path}/datasets/positive_tests/{data['filename']}"
 
     return_code = xpub_scan(data, filepath)
 
+    chech_xpub_scan_reports(data)
+
     # positive test passes if the command does not fail
     is_success = return_code == 0
 
-    print_test_status(is_success, data['product'], "positive test")
+    print_test_status("positive test", data['product'], is_success)
 
     return is_success
 
 
 def run_negative_test(data):
+    print_test_status("negative test", data['product'])
+
     filepath = f"{base_path}/datasets/negative_tests/{data['filename']}"
 
+    simulated_discrepancy = data['simulated_discrepancy']
+
     return_code = xpub_scan(data, filepath)
+
+    chech_xpub_scan_reports(data, simulated_discrepancy)
 
     # negative test passes if the command fails
     is_success = return_code != 0
 
-    print_test_status(is_success, data['product'], "negative test")
+    print_test_status("negative test", data['product'], is_success, simulated_discrepancy)
 
     return is_success
 
