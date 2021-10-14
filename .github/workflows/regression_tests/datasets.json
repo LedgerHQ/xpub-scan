@@ -6,7 +6,7 @@
     "network": "testnet",
     "xpub": "tpubDCCpYzH6NwKVnAipf8ChTfiTG4XtmxncwL97rQGLJ3SqfFCWzDq78LX1a7s2WXJsyfvR6bMiLkC7FSXLGoBo3dsH6DE9JKJb6LQSPasuSWj",
     "filename": "Live-common_SegWit_0.json",
-    "simulated_discrepancy": "Mismatch: amount"
+    "simulated_discrepancy": "Mismatch: amounts"
   },
   {
     "product": "Live-common / Native SegWit",
@@ -24,7 +24,7 @@
     "network": "testnet",
     "xpub": "tpubDCCpYzH6NwKVnAipf8ChTfiTG4XtmxncwL97rQGLJ3SqfFCWzDq78LX1a7s2WXJsyfvR6bMiLkC7FSXLGoBo3dsH6DE9JKJb6LQSPasuSWj",
     "filename": "Live_SegWit_0.csv",
-    "simulated_discrepancy": "Mismatch: amount"
+    "simulated_discrepancy": "Mismatch: amounts"
   },
   {
     "product": "Live Desktop / Native SegWit",
@@ -42,7 +42,7 @@
     "network": "testnet",
     "xpub": "tpubDDeVY9LV9mbHM6f6pMkk3yKbJtEtXGZGuZgHe4LvSctECW77Y31ddoe5hrFzSb6f5zicMzfx3g3CDj13NCBRPWJbiKxZdPmuvnqvbDNkvnB",
     "filename": "Custom_G_Legacy_0.csv",
-    "simulated_discrepancy": "Mismatch: amount"
+    "simulated_discrepancy": "Mismatch: amounts"
   },
   {
     "product": "Custom G / Native SegWit",
