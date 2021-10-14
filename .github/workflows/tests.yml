@@ -3,7 +3,7 @@ name: Regression tests
 on:
   push:
     branches:
-      - "*" # test
+      - master
   pull_request_target:
     branches:
       - master
