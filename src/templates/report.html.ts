@@ -163,7 +163,7 @@ export const reportTemplate = `
       }
 
       .right_sep {
-        border-right: 8px solid #ffffff;
+        border-right: 6px solid #ffffff;
       }
 
       strong {

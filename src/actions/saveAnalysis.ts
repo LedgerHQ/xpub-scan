@@ -420,7 +420,7 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       comparisons.push("<td>" + createTooltip(opType) + "</td>");
       comparisons.push(
         '<td><span class="label ' +
-          (e.status === "Match" ? "match_label" : "mismatch_label") +
+          (e.status.includes("Match") ? "match_label" : "mismatch_label") +
           '">',
       );
       comparisons.push(e.status + "</span></td></tr>");
