@@ -205,7 +205,7 @@ async function getStats(address: Address) {
     // (related to a bug from the custom provider)
     const uniqueRawTransactions: any[] = [];
 
-    for (var i = rawTransactions.length - 1; i >= 0; i--) {
+    for (let i = rawTransactions.length - 1; i >= 0; i--) {
       const transaction = rawTransactions[i];
       const h = hash(transaction);
       if (!uniqueRawTransactions.includes(h)) {
