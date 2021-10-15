@@ -14,6 +14,7 @@ import { TODO_TypeThis } from "../types";
 import bchaddr from "bchaddrjs";
 import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
+import hash from "object-hash";
 
 interface RawTransaction {
   // COMMON
@@ -200,6 +201,21 @@ async function getStats(address: Address) {
     // eslint-disable-next-line prefer-spread
     const rawTransactions = [].concat.apply([], payloads);
 
+    // Remove duplicates
+    // (related to a bug from the custom provider)
+    const uniqueRawTransactions: any[] = [];
+
+    for (let i = rawTransactions.length - 1; i >= 0; i--) {
+      const transaction = rawTransactions[i];
+      const h = hash(transaction);
+      if (!uniqueRawTransactions.includes(h)) {
+        uniqueRawTransactions.push(h);
+      } else {
+        // remove duplicate
+        rawTransactions.splice(i, 1);
+      }
+    }
+
     address.setRawTransactions(JSON.stringify(rawTransactions));
   }
 }
@@ -382,7 +398,6 @@ function getAccountBasedTransactions(address: Address) {
 
 function getTokenTransactions(address: Address) {
   const rawTransactions = JSON.parse(address.getRawTransactions());
-  const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
     // skip non-token operations
@@ -473,13 +488,10 @@ function getTokenTransactions(address: Address) {
       address.addSentOperation(op);
     }
   });
-
-  address.setTransactions(transactions);
 }
 
 function getInternalTransactions(address: Address) {
   const rawTransactions = JSON.parse(address.getRawTransactions());
-  const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
     // skip non-internal transactions
@@ -528,8 +540,6 @@ function getInternalTransactions(address: Address) {
       address.addSentOperation(op);
     }
   });
-
-  address.setTransactions(transactions);
 }
 
 export { getStats, getTransactions, getAccountBasedTransactions };

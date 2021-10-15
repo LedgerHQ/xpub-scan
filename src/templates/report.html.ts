@@ -145,6 +145,11 @@ export const reportTemplate = `
         box-shadow: 1px 1px 1px #0e2985;
       }
 
+      .token_mismatch {
+        background-color: #f7c7c7 !important;
+        box-shadow: 1px 1px 1px #950a0a !important;
+      }
+
       .sci_operation {
         color: #214c9c !important;
       }
@@ -155,6 +160,10 @@ export const reportTemplate = `
 
       .comparison_aggregated {
         color: #000080 !important;
+      }
+
+      .right_sep {
+        border-right: 6px solid #ffffff;
       }
 
       strong {
