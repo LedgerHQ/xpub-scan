@@ -11,12 +11,19 @@ import { Address } from "../models/address";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
+import { ComparisonStatus } from "../models/comparison";
 
-function renderToken(token: any) {
+function renderToken(token: any, status?: ComparisonStatus) {
   const renderedAmount = new BigNumber(token.amount).toFormat(6);
-  return `<br><span class="token_details">${parseFloat(renderedAmount)} ${
-    token.symbol
-  }<br>${token.name}</span>`;
+
+  let renderedToken =
+    `<br><span class="token_details` +
+    (status! !== "Match" ? ` token_mismatch` : ``) +
+    `">`;
+  renderedToken += `${parseFloat(renderedAmount)} ${token.symbol}<br>${
+    token.name
+  }</span>`;
+  return renderedToken;
 }
 
 // align float numbers or zeros
@@ -275,8 +282,8 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
     <table>
         <thead>
             <tr style="text-align: center">
-                <th rowspan="1" colspan="3">Imported (from product)</th>
-                <th rowspan="1" colspan="3">Actual (from external provider)</th>
+                <th rowspan="1" colspan="3" class="right_sep">IMPORTED OPERATION, FROM PRODUCT</th>
+                <th rowspan="1" colspan="3" class="right_sep">ACTUAL OPERATION, FROM EXTERNAL PROVIDER</th>
                 <th rowspan="2" colspan="1">TXID</th>
                 <th rowspan="2" colspan="1">Type</th>
                 <th rowspan="2" colspan="1">Status</th>
@@ -284,10 +291,10 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
             <tr>
                 <th>Date</th>
                 <th>Address</th>
-                <th>Amount</th>
+                <th class="right_sep">Amount</th>
                 <th>Date</th>
                 <th>Address</th>
-                <th>Amount</th>
+                <th class="right_sep">Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -389,14 +396,14 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let importedAmount = imported.amount;
 
       if (typeof imported.token !== "undefined") {
-        importedAmount += renderToken(e.imported.token);
+        importedAmount += renderToken(e.imported.token, e.status);
       }
 
       if (typeof imported.dapp !== "undefined") {
         importedAmount += `<br><span class="dapp_details">${e.imported.dapp.contract_name}</span>`;
       }
 
-      comparisons.push("<td>" + importedAmount + "</td>");
+      comparisons.push('<td class="right_sep">' + importedAmount + "</td>");
 
       comparisons.push("<td>" + actual.date + "</td>");
       comparisons.push("<td>" + actual.address + "</td>");
@@ -404,10 +411,10 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
       let actualAmount = actual.amount;
 
       if (typeof actual.token !== "undefined") {
-        actualAmount += renderToken(actual.token);
+        actualAmount += renderToken(actual.token, e.status);
       }
 
-      comparisons.push("<td>" + actualAmount + "</td>");
+      comparisons.push('<td class="right_sep">' + actualAmount + "</td>");
 
       comparisons.push("<td>" + renderTxid(txid) + "</td>");
       comparisons.push("<td>" + createTooltip(opType) + "</td>");
