@@ -4,7 +4,7 @@ import { Currency } from "../models/currency";
 // GENERAL
 // -------
 const VERBOSE = false;
-const ETH_FIXED_PRECISION = 10; // Decimal places for ETH (recommended for custom provider: 10)
+const ETH_FIXED_PRECISION = 10; // Decimal places for ETH (recommended for Crypto APIs provider: 10)
 
 // CHECK BALANCES
 // --------------

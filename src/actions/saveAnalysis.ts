@@ -18,7 +18,9 @@ function renderToken(token: any, status?: ComparisonStatus) {
 
   let renderedToken =
     `<br><span class="token_details` +
-    (status! !== "Match" ? ` token_mismatch` : ``) +
+    (typeof status == "undefined" || status.includes("Match")
+      ? ``
+      : ` token_mismatch`) +
     `">`;
   renderedToken += `${parseFloat(renderedAmount)} ${token.symbol}<br>${
     token.name
@@ -285,8 +287,8 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
                 <th rowspan="1" colspan="3" class="right_sep">IMPORTED OPERATION, FROM PRODUCT</th>
                 <th rowspan="1" colspan="3" class="right_sep">ACTUAL OPERATION, FROM EXTERNAL PROVIDER</th>
                 <th rowspan="2" colspan="1">TXID</th>
-                <th rowspan="2" colspan="1">Type</th>
-                <th rowspan="2" colspan="1">Status</th>
+                <th rowspan="2" colspan="1">TYPE</th>
+                <th rowspan="2" colspan="1">STATUS</th>
             </tr>
             <tr>
                 <th>Date</th>
@@ -592,6 +594,11 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     removeAttributeQuotes: true,
     minifyCSS: true,
     removeComments: true,
+    useShortDoctype: true,
+    removeRedundantAttributes: true,
+    removeOptionalTags: true,
+    removeEmptyAttributes: true,
+    removeEmptyElements: false, // do NOT remove empty elements (e.g., empty addresses)
   });
 
   fs.writeFileSync(filepath, minifiedReport);
