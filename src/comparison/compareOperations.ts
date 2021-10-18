@@ -103,7 +103,10 @@ const areMatching = (
   // 3. (If applicable) check tokens
   const importedToken = importedOperation.token;
   const actualToken = actualOperation.token;
-  if (typeof importedToken !== "undefined") {
+  if (
+    typeof importedToken !== "undefined" &&
+    typeof actualToken !== "undefined"
+  ) {
     if (!importedToken.amount.isEqualTo(actualToken.amount)) {
       return "Mismatch: token amounts";
     }

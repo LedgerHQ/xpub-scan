@@ -14,13 +14,13 @@ async function getStats(address: Address) {
       await defaultProvider.getStats(address);
       break;
 
-    case "custom":
+    case "Crypto APIs":
       await customProvider.getStats(address);
       break;
 
     default:
       throw new Error(
-        "Should not be reachable: providerType should be 'default' or 'custom'",
+        "Should not be reachable: providerType should be 'default' or 'Crypto APIs'",
       );
   }
 }
@@ -32,13 +32,13 @@ function getTransactions(address: Address, ownAddresses?: OwnAddresses) {
         defaultProvider.getAccountBasedTransactions(address);
         break;
 
-      case "custom":
+      case "Crypto APIs":
         customProvider.getAccountBasedTransactions(address);
         break;
 
       default:
         throw new Error(
-          "Should not be reachable: providerType should be 'default' or 'custom'",
+          "Should not be reachable: providerType should be 'default' or 'Crypto APIs'",
         );
     }
 
@@ -58,13 +58,13 @@ function preprocessTransactions(address: Address) {
       defaultProvider.getTransactions(address);
       break;
 
-    case "custom":
+    case "Crypto APIs":
       customProvider.getTransactions(address);
       break;
 
     default:
       throw new Error(
-        "Should not be reachable: providerType should be 'default' or 'custom'",
+        "Should not be reachable: providerType should be 'default' or 'Crypto APIs'",
       );
   }
 }

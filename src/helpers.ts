@@ -108,7 +108,7 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
 }
 
 /**
- * Configure the external provider URL (i.e., default v. custom provider)
+ * Configure the external provider URL (i.e., default v. Crypto APIs provider)
  * @param  {string} currency?
  *          Symbol of the currency (e.g. 'BCH')
  * @returns void
@@ -121,7 +121,7 @@ const setExternalProviderURL = (): void => {
       configuration.testnet ? "testnet" : "mainnet",
     );
 
-    configuration.providerType = "custom";
+    configuration.providerType = "Crypto APIs";
 
     return;
   }
