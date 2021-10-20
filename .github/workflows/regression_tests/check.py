@@ -24,13 +24,13 @@ def print_test_status(test_type: str, product: str, is_success: bool = None, rep
     if simulated_discrepancy:
         print(f"Simulated discrepancy: `{simulated_discrepancy}`")
 
-    if report_status:
-        print(f"Xpub Scan HTML+JSON reports status: {report_status}")
+    if report_status and is_success:
+        print(f"Xpub Scan HTML+JSON reports status: {report_status[1]}")
 
     print("=" * (42 + len(header)), "\n")
 
 
-def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> str:
+def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> tuple:
     xpub = data['xpub']
 
     report_path = f"{base_path}/{xpub}"
@@ -45,18 +45,18 @@ def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> st
     try:
         html_report = open(html_report_filepath, 'r').read()
     except:
-        return 'HTML report not found'
+        return (False, 'HTML report not found')
 
     # the HTML report must be a valid HTML file
     if not bool(BeautifulSoup(html_report, "html.parser").find()):
         print(html_report)
-        return 'Invalid HTML report'
+        return (False, 'Invalid HTML report')
 
     os.remove(html_report_filepath)
 
     # (negative test) the HTML report must contain the simulated discrepancy
     if simulated_discrepancy and simulated_discrepancy.lower() not in html_report.lower():
-        return f"Simulated discrepancy `{simulated_discrepancy}` not found in the HTML report"
+        return (False, f"Simulated discrepancy `{simulated_discrepancy}` not found in the HTML report")
 
     # check JSON report
     ###################
@@ -65,22 +65,22 @@ def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> st
     try:
         json_report = open(json_report_filepath, 'r').read()
     except:
-        return 'JSON report not found'
+        return (False, 'JSON report not found')
 
     # the JSON report must be a valid JSON file
     try:
         json.loads(json_report)
     except ValueError:
         print(json_report)
-        return 'Invalid JSON report'
+        return (False, 'Invalid JSON report')
     finally:
         os.remove(json_report_filepath)
 
     # (negative test) the JSON report must contain the simulated discrepancy
     if simulated_discrepancy and simulated_discrepancy.lower() not in json_report.lower():
-        return f"Simulated discrepancy `{simulated_discrepancy}` not found in the JSON report"
+        return (False, f"Simulated discrepancy `{simulated_discrepancy}` not found in the JSON report")
 
-    return 'ok'
+    return (True, 'ok')
 
 
 def xpub_scan(data: dict, filepath: str) -> int:
@@ -106,7 +106,7 @@ def run_positive_test(data: dict) -> bool:
     report_status = chech_xpub_scan_reports(data)
 
     # positive test passes if the command does not fail
-    is_success = return_code == 0 and report_status == "ok"
+    is_success = return_code == 0 and report_status[0]
 
     print_test_status(
         "positive test", data['product'], is_success, report_status)
@@ -126,7 +126,7 @@ def run_negative_test(data: dict) -> bool:
     report_status = chech_xpub_scan_reports(data, simulated_discrepancy)
 
     # negative test passes if the command fails
-    is_success = return_code != 0 and report_status == "ok"
+    is_success = return_code != 0 and report_status[0]
 
     print_test_status(
         "negative test", data['product'], is_success, report_status, simulated_discrepancy)
