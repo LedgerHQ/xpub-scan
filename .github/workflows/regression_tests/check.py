@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from typing import final
 from bs4 import BeautifulSoup
 import json
 import os
@@ -11,7 +10,7 @@ import sys
 base_path = f"{ os.getcwd() }/.github/workflows/regression_tests"
 
 
-def print_test_status(test_type, product, is_success=None, report_status=None, simulated_discrepancy=None):
+def print_test_status(test_type: str, product: str, is_success: bool = None, report_status: str = None, simulated_discrepancy: str = None):
     header = "Current test" if is_success is None else "Test result"
 
     print()
@@ -31,7 +30,7 @@ def print_test_status(test_type, product, is_success=None, report_status=None, s
     print("=" * (42 + len(header)), "\n")
 
 
-def chech_xpub_scan_reports(data, simulated_discrepancy=None):
+def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> str:
     xpub = data['xpub']
 
     report_path = f"{base_path}/{xpub}"
@@ -81,10 +80,10 @@ def chech_xpub_scan_reports(data, simulated_discrepancy=None):
     if simulated_discrepancy and simulated_discrepancy.lower() not in json_report.lower():
         return f"Simulated discrepancy `{simulated_discrepancy}` not found in the JSON report"
 
-    return "ok"
+    return 'ok'
 
 
-def xpub_scan(data, filepath):
+def xpub_scan(data: dict, filepath: str) -> int:
     xpub = data['xpub']
     coin = data['coin_ticker']
 
@@ -97,7 +96,7 @@ def xpub_scan(data, filepath):
     return p.returncode
 
 
-def run_positive_test(data):
+def run_positive_test(data: dict) -> bool:
     print_test_status("positive test", data['product'])
 
     filepath = f"{base_path}/datasets/positive_tests/{data['filename']}"
@@ -115,7 +114,7 @@ def run_positive_test(data):
     return is_success
 
 
-def run_negative_test(data):
+def run_negative_test(data: dict) -> bool:
     print_test_status("negative test", data['product'])
 
     filepath = f"{base_path}/datasets/negative_tests/{data['filename']}"
