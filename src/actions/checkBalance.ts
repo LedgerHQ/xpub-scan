@@ -16,6 +16,7 @@ import BigNumber from "bignumber.js";
 async function scanAddresses(
   derivationMode: DerivationMode,
   xpub: string,
+  balanceOnly: boolean,
   scanLimits?: ScanLimits,
 ) {
   display.logStatus(
@@ -127,9 +128,11 @@ async function scanAddresses(
 
   // process transactions
   display.transientLine(chalk.yellowBright("Processing transactions..."));
-  addresses.forEach((address) => {
-    getTransactions(address, ownAddresses);
-  });
+  if (!balanceOnly){
+    addresses.forEach((address) => {
+      getTransactions(address, ownAddresses);
+    });
+  }
   display.transientLine(/* delete address */);
 
   display.logStatus(derivationMode.concat(" addresses scanned\n"));
@@ -140,7 +143,7 @@ async function scanAddresses(
   };
 }
 
-async function addressAnalysis(addressToScan: string) {
+async function addressAnalysis(addressToScan: string, balanceOnly: boolean) {
   if (!configuration.silent) {
     console.log(chalk.bold("\nScanned address\n"));
   }
@@ -151,7 +154,9 @@ async function addressAnalysis(addressToScan: string) {
 
   await getStats(address);
 
-  getTransactions(address);
+  if (!balanceOnly){
+    getTransactions(address);
+  }
 
   display.updateAddressDetails(address);
 
@@ -163,15 +168,15 @@ async function addressAnalysis(addressToScan: string) {
   };
 }
 
-async function run(itemToScan: string, scanLimits?: ScanLimits) {
+async function run(itemToScan: string, balanceOnly: boolean, scanLimits?: ScanLimits) {
   if (configuration.currency.utxo_based) {
-    return xpubAnalysis(itemToScan, scanLimits);
+    return xpubAnalysis(itemToScan, balanceOnly, scanLimits);
   } else {
-    return addressAnalysis(itemToScan);
+    return addressAnalysis(itemToScan, balanceOnly);
   }
 }
 
-async function xpubAnalysis(xpub: string, scanLimits?: ScanLimits) {
+async function xpubAnalysis(xpub: string, balanceOnly: boolean, scanLimits?: ScanLimits) {
   let activeAddresses: Address[] = [];
   const summary: TODO_TypeThis[] = [];
 
@@ -192,7 +197,7 @@ async function xpubAnalysis(xpub: string, scanLimits?: ScanLimits) {
   }
 
   for (const derivationMode of derivationModes!) {
-    const results = await scanAddresses(derivationMode, xpub, scanLimits);
+    const results = await scanAddresses(derivationMode, xpub, balanceOnly, scanLimits);
 
     activeAddresses = activeAddresses.concat(results.addresses);
 

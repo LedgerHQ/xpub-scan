@@ -6,6 +6,7 @@ export type TODO_TypeThis = any;
 export interface ScannerArguments {
   _?: string;
   itemToScan: string;
+  balanceOnly: boolean;
   scanLimits?: ScanLimits;
   currency?: string;
   testnet?: boolean;

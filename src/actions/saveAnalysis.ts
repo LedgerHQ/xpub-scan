@@ -638,7 +638,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
 
   let utxos: TODO_TypeThis[] = [];
 
-  if (configuration.currency.utxo_based) {
+  if (configuration.currency.utxo_based && !meta.balanceOnly) {
     utxos = data.addresses
       .filter((a: Address) => a.isUTXO())
       .map((e: TODO_TypeThis) => {
