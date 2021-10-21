@@ -184,22 +184,19 @@ async function getStats(address: Address) {
 
   // get basic transactions
   if (txCount > 0) {
-    const payloads = await getOperationsPayloads(coin, address);
+    let payloads = await getOperationsPayloads(coin, address);
 
     // Ethereum: add token-related and internal transactions
     if (configuration.currency.symbol === currencies.eth.symbol) {
-      // eslint-disable-next-line prefer-spread
-      payloads.push.apply(payloads, await getTokenPayloads(coin, address));
-      // eslint-disable-next-line prefer-spread
-      payloads.push.apply(
+      payloads = payloads.concat(await getTokenPayloads(coin, address));
+      payloads = payloads.concat(
         payloads,
         await getInternalTransactionsPayloads(coin, address),
       );
     }
 
     // flatten the payloads
-    // eslint-disable-next-line prefer-spread
-    const rawTransactions = [].concat.apply([], payloads);
+    const rawTransactions = [].concat(...payloads);
 
     // Remove duplicates
     // (related to a bug from the custom provider)
@@ -216,7 +213,7 @@ async function getStats(address: Address) {
       }
     }
 
-    address.setRawTransactions(JSON.stringify(rawTransactions));
+    address.setRawTransactions(rawTransactions);
   }
 }
 
@@ -224,7 +221,7 @@ async function getStats(address: Address) {
 // into an array of processed transactions:
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getTransactions(address: Address) {
-  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const rawTransactions = address.getRawTransactions();
   const transactions: Transaction[] = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
@@ -328,7 +325,7 @@ function getTransactions(address: Address) {
 }
 
 function getAccountBasedTransactions(address: Address) {
-  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const rawTransactions = address.getRawTransactions();
 
   rawTransactions.forEach((tx: RawTransaction) => {
     // skip non-basic operations
@@ -397,7 +394,7 @@ function getAccountBasedTransactions(address: Address) {
 }
 
 function getTokenTransactions(address: Address) {
-  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const rawTransactions = address.getRawTransactions();
 
   rawTransactions.forEach((tx: RawTransaction) => {
     // skip non-token operations
@@ -491,7 +488,7 @@ function getTokenTransactions(address: Address) {
 }
 
 function getInternalTransactions(address: Address) {
-  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const rawTransactions = address.getRawTransactions();
 
   rawTransactions.forEach((tx: RawTransaction) => {
     // skip non-internal transactions
