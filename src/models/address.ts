@@ -14,7 +14,7 @@ class Address {
   index: number;
   balance: BigNumber;
   transactions: Transaction[];
-  rawTransactions: string; // TODO: perhaps not needed
+  rawTransactions: any[];
   stats: Stats;
   ins: Operation[];
   outs: Operation[];
@@ -43,7 +43,7 @@ class Address {
     this.transactions = transactions;
   }
 
-  setRawTransactions(rawTransactions: string) {
+  setRawTransactions(rawTransactions: any[]) {
     this.rawTransactions = rawTransactions;
   }
 
@@ -122,7 +122,7 @@ class Address {
     const rawTransactions = this.rawTransactions;
 
     if (typeof rawTransactions === "undefined") {
-      return "[]"; // if no transaction, return an empty stringified JSON array
+      return []; // if no transaction, return an empty array
     } else {
       return rawTransactions;
     }

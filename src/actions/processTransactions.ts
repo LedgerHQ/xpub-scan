@@ -183,8 +183,7 @@ function getSortedOperations(...addresses: TODO_TypeThis): Operation[] {
   const processedTxids: string[] = [];
 
   // flatten the array of arrays in one dimension, and iterate
-  // eslint-disable-next-line prefer-spread
-  [].concat.apply([], addresses).forEach((address: Address) => {
+  [].concat(...addresses).forEach((address: Address) => {
     address.getFundedOperations().forEach((op: Operation) => {
       op.setAddress(address.toString());
 
@@ -229,8 +228,7 @@ function getSortedUTXOS(...addresses: TODO_TypeThis): Address[] {
   const utxos: Address[] = [];
 
   // flatten the array of arrays in one dimension, and iterate
-  // eslint-disable-next-line prefer-spread
-  [].concat.apply([], addresses).forEach((address: Address) => {
+  [].concat(...addresses).forEach((address: Address) => {
     if (address.isUTXO()) {
       utxos.push(address);
     }

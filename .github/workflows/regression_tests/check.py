@@ -21,14 +21,13 @@ def print_test_status(test_type: str, product: str, is_success: bool = None, rep
 
     print(f"{product} ({test_type})")
 
-    if simulated_discrepancy:
-        print(f"Simulated discrepancy: `{simulated_discrepancy}`")
-
     if report_status and is_success:
         print(f"Xpub Scan HTML+JSON reports status: {report_status[1]}")
 
-    print("=" * (42 + len(header)), "\n")
+    if simulated_discrepancy:
+        print(f"Simulated discrepancy: `{simulated_discrepancy}`")
 
+    print("=" * (42 + len(header)), "\n")
 
 def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> tuple:
     xpub = data['xpub']
@@ -134,9 +133,7 @@ def run_negative_test(data: dict) -> bool:
     return is_success
 
 
-if __name__ == "__main__":
-    product_under_test = sys.argv[1].lower().strip().replace('-', ' ')
-
+def run_tests(product_under_test=None):
     with open(f"{base_path}/datasets.json", 'r') as f:
         dataset = json.load(f)
 
@@ -144,7 +141,7 @@ if __name__ == "__main__":
 
         product = data['product'].lower().replace('-', ' ')
 
-        if product_under_test not in product:
+        if product_under_test and product_under_test not in product:
             continue
 
         test_types = data['test_types']
@@ -155,3 +152,13 @@ if __name__ == "__main__":
 
             if not is_success:
                 sys.exit(1)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        # test one product, specifyied as argument
+        product_under_test = sys.argv[1].lower().strip().replace('-', ' ')
+        run_tests(product_under_test)
+    else:
+        # test all
+        run_tests()

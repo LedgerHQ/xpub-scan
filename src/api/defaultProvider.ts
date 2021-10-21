@@ -93,7 +93,7 @@ async function getStats(address: Address) {
   address.setStats(res.data.total_txs, fundedSum, spentSum);
   address.setBalance(balance);
 
-  address.setRawTransactions(JSON.stringify(res.data.txs));
+  address.setRawTransactions(res.data.txs);
 }
 
 async function getBchStats(address: Address) {
@@ -127,10 +127,9 @@ async function getBchStats(address: Address) {
   }
 
   // flatten the payloads
-  // eslint-disable-next-line prefer-spread
-  const rawTransactions = [].concat.apply([], payloads);
+  const rawTransactions = [].concat(...payloads);
 
-  address.setRawTransactions(JSON.stringify(rawTransactions));
+  address.setRawTransactions(rawTransactions);
 }
 
 async function getEthStats(address: Address) {
@@ -174,7 +173,7 @@ async function getEthStats(address: Address) {
     res.txrefs[i].total = resTxs.total;
   }
 
-  address.setRawTransactions(JSON.stringify(res.txrefs));
+  address.setRawTransactions(res.txrefs);
 }
 
 // transforms raw transactions associated with an address
@@ -192,7 +191,7 @@ function getTransactions(address: Address) {
   }
 
   // 1. get raw transactions
-  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const rawTransactions = address.getRawTransactions();
 
   // 2. parse raw transactions
   const transactions: Transaction[] = [];
@@ -242,7 +241,7 @@ function getTransactions(address: Address) {
 // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
 function getBitcoinCashTransactions(address: Address) {
   // 1. get raw transactions
-  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const rawTransactions = address.getRawTransactions();
 
   // 2. parse raw transactions
   const transactions: Transaction[] = [];
@@ -319,7 +318,7 @@ function getBitcoinCashTransactions(address: Address) {
 // into an array of processed transactions:
 function getAccountBasedTransactions(address: Address) {
   // 1. get raw transactions
-  const rawTransactions = JSON.parse(address.getRawTransactions());
+  const rawTransactions = address.getRawTransactions();
 
   // 2. parse raw transactions
   const transactions: Transaction[] = [];
