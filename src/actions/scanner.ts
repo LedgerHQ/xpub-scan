@@ -126,6 +126,7 @@ export class Scanner {
         mode,
         preDerivationSize: this.args.preDerivationSize,
         derivationMode: configuration.specificDerivationMode,
+        balanceOnly: this.balanceOnly,
       };
 
       const data: ScanData = {

@@ -42,6 +42,7 @@ export interface ScanMeta {
   mode: string;
   preDerivationSize?: number;
   derivationMode: string;
+  balanceOnly: boolean;
 }
 
 export interface ScanData {
