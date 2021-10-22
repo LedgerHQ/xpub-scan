@@ -573,8 +573,11 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     transactions.push("<td>" + amount + "</td>");
     transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
   }
-
-  report = report.replace("{transactions}", transactions.join(""));
+  if (object.meta.balanceOnly){
+    report = report.replace("{transactions}", "");
+  } else {
+    report = report.replace("{transactions}", transactions.join(""));
+  }
 
   // comparisons and diff
   if (
