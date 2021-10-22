@@ -8,14 +8,14 @@ import * as customProvider from "../api/customProvider";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 
-async function getStats(address: Address) {
+async function getStats(address: Address, balanceOnly: boolean) {
   switch (configuration.providerType) {
     case "default":
       await defaultProvider.getStats(address);
       break;
 
     case "Crypto APIs":
-      await customProvider.getStats(address);
+      await customProvider.getStats(address, balanceOnly);
       break;
 
     default:

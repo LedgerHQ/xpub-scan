@@ -162,7 +162,7 @@ async function getInternalTransactionsPayloads(coin: string, address: Address) {
 
 // returns the basic stats related to an address:
 // its balance, funded and spend sums and counts
-async function getStats(address: Address) {
+async function getStats(address: Address, balanceOnly: boolean) {
   // important: coin name is required to be lower case for custom provider
   const coin = configuration.currency.name.toLowerCase().replace(" ", "-");
 
@@ -182,8 +182,8 @@ async function getStats(address: Address) {
   address.setStats(txCount, fundedSum, spentSum);
   address.setBalance(balance);
 
-  // get basic transactions
-  if (txCount > 0) {
+  // get transactions (when applicable)
+  if (txCount > 0 && !balanceOnly) {
     let payloads = await getOperationsPayloads(coin, address);
 
     // Ethereum: add token-related and internal transactions

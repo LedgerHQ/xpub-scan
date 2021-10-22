@@ -85,7 +85,7 @@ async function scanAddresses(
         process.stdout.write(chalk.yellow(status + "..."));
       }
 
-      await getStats(address);
+      await getStats(address, balanceOnly);
 
       const addressStats = address.getStats();
 
@@ -152,7 +152,7 @@ async function addressAnalysis(addressToScan: string, balanceOnly: boolean) {
 
   display.updateAddressDetails(address);
 
-  await getStats(address);
+  await getStats(address, balanceOnly);
 
   if (!balanceOnly) {
     getTransactions(address);
