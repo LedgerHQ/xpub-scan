@@ -94,12 +94,15 @@ export const getArgs = (): TODO_TypeThis => {
         "Import balance for comparison (has to be in base unit) for comparison",
       demand: false,
       type: "string",
-    }).option("balance-only", {
-      description: "Do not fetch operations, only balance of the account (utxo-list for btc)",
+    })
+    .option("balance-only", {
+      description:
+        "Do not fetch operations, only balance of the account (utxo-list for btc)",
       demand: false,
       type: "boolean",
       default: false,
-    }).option("utxos", {
+    })
+    .option("utxos", {
       description: "Import UTXOs (file) for comparison",
       demand: false,
       type: "string",

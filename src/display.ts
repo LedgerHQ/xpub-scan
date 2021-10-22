@@ -287,7 +287,7 @@ function showResults(
   }
 
   showSortedUTXOs(sortedUTXOs);
-  if (!balanceOnly){
+  if (!balanceOnly) {
     showSortedOperations(sortedOperations);
   }
 

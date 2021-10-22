@@ -385,33 +385,13 @@ export const reportTemplate = `
     </div>
     </li>
 
-    {utxos}
+    {utxos_table}
 
-    <li class="tab">
-    <input type="radio" name="tabs" id="tab4" />
-    <label for="tab4">Transactions</label>
-    <div id="tab-content4" class="content">
-    <div class="warning">{warning}</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Block</th>
-            <th>Tx id</th>
-            <th>Address</th>
-            <th>Amount</th>
-            <th>Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions}
-        </tbody>
-      </table>
-    </div>
-    </li>
+    {transactions_table}
 
-    {comparisons}
-    {diff}
+    {comparisons_table}
+
+    {diff_table}
     </ul>
 
   </body>

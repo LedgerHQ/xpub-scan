@@ -223,8 +223,97 @@ function createTooltip(opType: string) {
   return '<div class="tooltip">' + opType + tooltip + "</div>";
 }
 
-function makeUTXOSTable(object: TODO_TypeThis) {
-  if (typeof object.utxos === "undefined" || object.utxos.length === 0) {
+function makeTransactionsTable(outputData: TODO_TypeThis) {
+  // balance only mode: do not display the transaction table
+  if (outputData.meta.balanceOnly) {
+    return "";
+  }
+
+  let transactionsTable = `
+    <li class="tab">
+      <input type="radio" name="tabs" id="tab4" />
+      <label for="tab4">Transactions</label>
+      <div id="tab-content4" class="content">
+      <div class="warning">{warning}</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Block</th>
+              <th>Tx id</th>
+              <th>Address</th>
+              <th>Amount</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions}
+          </tbody>
+        </table>
+      </div>
+      </li>
+    `;
+
+  // display warning if default provider is being used
+  if (outputData.meta.provider === "default") {
+    transactionsTable = transactionsTable.replace(
+      "{warning}",
+      "Default provider used: only the last ~50 operations by address are displayed",
+    );
+  } else {
+    transactionsTable = transactionsTable.replace("{warning}", "");
+  }
+
+  const transactions: string[] = [];
+  for (const e of outputData.transactions) {
+    let rowStyle = "<tr>";
+
+    if (e.operationType === "Failed to send") {
+      rowStyle = '<tr class="failed_operation">';
+    } else if (
+      e.operationType.includes("token") ||
+      e.operationType === "Swapped"
+    ) {
+      rowStyle = '<tr class="token_operation">';
+    } else if (e.operationType.includes("SCI")) {
+      rowStyle = '<tr class="sci_operation">';
+    }
+
+    transactions.push(rowStyle);
+    transactions.push("<td>" + e.date + "</td>");
+    transactions.push("<td>" + e.block + "</td>");
+    transactions.push("<td>" + renderTxid(e.txid) + "</td>");
+    transactions.push(
+      "<td>" + renderAddress(e.address, e.cashAddress) + "</td>",
+    );
+
+    let amount = renderAmount(e.amount);
+
+    if (typeof e.token !== "undefined") {
+      amount += renderToken(e.token);
+    }
+
+    if (typeof e.dapp !== "undefined") {
+      amount += `<br><span class="dapp_details">${e.dapp.contract_name}</span>`;
+    }
+
+    transactions.push("<td>" + amount + "</td>");
+    transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
+  }
+
+  transactionsTable = transactionsTable.replace(
+    "{transactions}",
+    transactions.join(""),
+  );
+
+  return transactionsTable;
+}
+
+function makeUTXOSTable(outputData: TODO_TypeThis) {
+  if (
+    typeof outputData.utxos === "undefined" ||
+    outputData.utxos.length === 0
+  ) {
     return "";
   }
 
@@ -254,7 +343,7 @@ function makeUTXOSTable(object: TODO_TypeThis) {
 
   const utxos: string[] = [];
 
-  for (const e of object.utxos) {
+  for (const e of outputData.utxos) {
     utxos.push("<tr><td>" + e.derivationMode + "</td>");
 
     const derivationPath =
@@ -275,7 +364,7 @@ function makeUTXOSTable(object: TODO_TypeThis) {
   return UTXOSTable.replace("{utxos}", utxos.join(""));
 }
 
-function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
+function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
   let comparisonsTemplate = `
     <li class="tab">
     <input type="radio" name="tabs" id="tab{id}" />
@@ -310,14 +399,14 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
   let comp;
 
   if (!onlyDiff) {
-    comp = object.comparisons;
+    comp = outputData.comparisons;
     comparisonsTemplate = comparisonsTemplate.replace(
       "{label}",
       "Comparisons:all",
     );
     comparisonsTemplate = comparisonsTemplate.split("{id}").join("5"); // comparisons:all has id 5
   } else {
-    comp = object.diffs;
+    comp = outputData.diffs;
     comparisonsTemplate = comparisonsTemplate.replace(
       "{label}",
       "Comparisons:diff",
@@ -436,37 +525,37 @@ function makeComparisonsTable(object: TODO_TypeThis, onlyDiff?: boolean) {
   }
 }
 
-function saveHTML(object: TODO_TypeThis, filepath: string) {
+function saveHTML(outputData: TODO_TypeThis, filepath: string) {
   let report = reportTemplate;
 
   // meta
-  if (typeof object.meta.preDerivationSize === "undefined") {
+  if (typeof outputData.meta.preDerivationSize === "undefined") {
     report = report.replace("{pre_derivation_size}", "");
   } else {
     report = report.replace(
       "{pre_derivation_size}",
-      `| pre-derivation size: ${object.meta.preDerivationSize}`,
+      `| pre-derivation size: ${outputData.meta.preDerivationSize}`,
     );
   }
 
-  if (typeof object.meta.derivationMode === "undefined") {
+  if (typeof outputData.meta.derivationMode === "undefined") {
     report = report.replace("{derivation_mode}", "");
   } else {
     report = report.replace(
       "{derivation_mode}",
-      `| specific derivation mode: ${object.meta.derivationMode}`,
+      `| specific derivation mode: ${outputData.meta.derivationMode}`,
     );
   }
 
-  for (const key of Object.keys(object.meta)) {
-    report = report.split("{" + key + "}").join(object.meta[key]);
+  for (const key of Object.keys(outputData.meta)) {
+    report = report.split("{" + key + "}").join(outputData.meta[key]);
   }
 
   // warning range
-  if (!object.meta.mode.startsWith("Full")) {
+  if (!outputData.meta.mode.startsWith("Full")) {
     report = report.replace(
       "{warning_range}",
-      `<div id='warning_range'>The data is based on a partial scan:<br/> ${object.meta.mode}</div>`,
+      `<div id='warning_range'>The data is based on a partial scan:<br/> ${outputData.meta.mode}</div>`,
     );
   } else {
     report = report.replace("{warning_range}", "");
@@ -474,7 +563,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
 
   // summary
   const summary: string[] = [];
-  for (const e of object.summary) {
+  for (const e of outputData.summary) {
     if (typeof e.derivationMode !== "undefined") {
       summary.push("<tr><td>" + e.derivationMode + "</td>");
     } else {
@@ -497,7 +586,7 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   // addresses
   const addresses: string[] = [];
 
-  for (const e of object.addresses) {
+  for (const e of outputData.addresses) {
     if (typeof e.derivation.account !== "undefined") {
       addresses.push("<tr><td>" + e.derivationMode + "</td>");
       const derivationPath =
@@ -523,72 +612,30 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
   report = report.replace("{addresses}", addresses.join(""));
 
   // UTXOs
-  report = report.replace("{utxos}", makeUTXOSTable(object));
+  report = report.replace("{utxos_table}", makeUTXOSTable(outputData));
 
   // transactions
-
-  // display warning if default provider is being used
-  if (object.meta.provider === "default") {
-    report = report.replace(
-      "{warning}",
-      "Default provider used: only the last ~50 operations by address are displayed",
-    );
-  } else {
-    report = report.replace("{warning}", "");
-  }
-
-  const transactions: string[] = [];
-  for (const e of object.transactions) {
-    let rowStyle = "<tr>";
-
-    if (e.operationType === "Failed to send") {
-      rowStyle = '<tr class="failed_operation">';
-    } else if (
-      e.operationType.includes("token") ||
-      e.operationType === "Swapped"
-    ) {
-      rowStyle = '<tr class="token_operation">';
-    } else if (e.operationType.includes("SCI")) {
-      rowStyle = '<tr class="sci_operation">';
-    }
-
-    transactions.push(rowStyle);
-    transactions.push("<td>" + e.date + "</td>");
-    transactions.push("<td>" + e.block + "</td>");
-    transactions.push("<td>" + renderTxid(e.txid) + "</td>");
-    transactions.push(
-      "<td>" + renderAddress(e.address, e.cashAddress) + "</td>",
-    );
-
-    let amount = renderAmount(e.amount);
-
-    if (typeof e.token !== "undefined") {
-      amount += renderToken(e.token);
-    }
-
-    if (typeof e.dapp !== "undefined") {
-      amount += `<br><span class="dapp_details">${e.dapp.contract_name}</span>`;
-    }
-
-    transactions.push("<td>" + amount + "</td>");
-    transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
-  }
-  if (object.meta.balanceOnly){
-    report = report.replace("{transactions}", "");
-  } else {
-    report = report.replace("{transactions}", transactions.join(""));
-  }
+  report = report.replace(
+    "{transactions_table}",
+    makeTransactionsTable(outputData),
+  );
 
   // comparisons and diff
   if (
-    typeof object.comparisons === "undefined" ||
-    object.comparisons.length === 0
+    typeof outputData.comparisons === "undefined" ||
+    outputData.comparisons.length === 0
   ) {
-    report = report.replace("{comparisons}", "");
-    report = report.replace("{diff}", "");
+    report = report.replace("{comparisons_table}", "");
+    report = report.replace("{diff_table}", "");
   } else {
-    report = report.replace("{comparisons}", makeComparisonsTable(object));
-    report = report.replace("{diff}", makeComparisonsTable(object, true));
+    report = report.replace(
+      "{comparisons_table}",
+      makeComparisonsTable(outputData),
+    );
+    report = report.replace(
+      "{diff_table}",
+      makeComparisonsTable(outputData, true),
+    );
   }
 
   filepath += ".html";
@@ -606,11 +653,11 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
 
   fs.writeFileSync(filepath, minifiedReport);
 
-  console.log("HTML report saved: ".concat(filepath));
+  console.log("\nHTML report saved: ".concat(filepath));
 }
 
-function saveJSON(object: TODO_TypeThis, filepath: string) {
-  const JSONobject = JSON.stringify(object, null, 2);
+function saveJSON(outputData: TODO_TypeThis, filepath: string) {
+  const JSONobject = JSON.stringify(outputData, null, 2);
 
   if (filepath.toLocaleLowerCase() === "stdout") {
     // display
@@ -626,6 +673,8 @@ function saveJSON(object: TODO_TypeThis, filepath: string) {
 }
 
 function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
+  const balanceOnly = meta.balanceOnly;
+
   // convert amounts into base unit
   const addresses: TODO_TypeThis[] = data.addresses.map((e: TODO_TypeThis) => {
     return {
@@ -641,7 +690,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
 
   let utxos: TODO_TypeThis[] = [];
 
-  if (configuration.currency.utxo_based && !meta.balanceOnly) {
+  if (configuration.currency.utxo_based) {
     utxos = data.addresses
       .filter((a: Address) => a.isUTXO())
       .map((e: TODO_TypeThis) => {
@@ -653,9 +702,10 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
           balance: toBaseUnit(e.balance),
           funded: toBaseUnit(e.stats.funded),
           spent: toBaseUnit(e.stats.spent),
-          txid: e.transactions[0].txid,
-          height: e.transactions[0].blockHeight,
-          time: e.transactions[0].date,
+          // balance only mode: ignore the following fields
+          txid: balanceOnly ? undefined : e.transactions[0].txid,
+          height: balanceOnly ? undefined : e.transactions[0].blockHeight,
+          time: balanceOnly ? undefined : e.transactions[0].date,
         };
       });
   }
@@ -667,15 +717,15 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     };
   });
 
-  const transactions: TODO_TypeThis[] = (!meta.balanceOnly ? data.transactions.map(
-      (e: TODO_TypeThis) => {
+  const transactions: TODO_TypeThis[] = !balanceOnly
+    ? data.transactions.map((e: TODO_TypeThis) => {
         return {
           ...e,
           cashAddress: toUnprefixedCashAddress(e.address),
           amount: toBaseUnit(e.amount),
         };
-      },
-    ) : []);
+      })
+    : [];
 
   const comparisons: TODO_TypeThis[] =
     typeof data.comparisons !== "undefined"
@@ -730,13 +780,14 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       preDerivationSize: meta.preDerivationSize,
       derivationMode: meta.derivationMode,
       warningRange,
+      balanceOnly,
     },
     addresses,
     utxos,
     summary,
-    transactions,
+    transactions: balanceOnly ? undefined : transactions, // ignore in balance only mode
     comparisons,
-    diffs,
+    diffs: balanceOnly ? undefined : diffs, // ignore in balance only mode
   };
 
   // if no filepath/filename specify -> set to current directory
