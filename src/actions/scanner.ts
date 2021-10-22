@@ -81,7 +81,7 @@ export class Scanner {
       const summary = scanResult.summary;
       const actualTransactions = getSortedOperations(actualAddresses);
 
-      display.showResults(actualUTXOs, actualTransactions, summary);
+      display.showResults(actualUTXOs, actualTransactions, summary, this.balanceOnly);
 
       const partialScan = typeof this.scanLimits !== "undefined";
 

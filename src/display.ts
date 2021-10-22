@@ -280,13 +280,16 @@ function showResults(
   sortedUTXOs: Address[],
   sortedOperations: Operation[],
   summary: TODO_TypeThis[],
+  balanceOnly: boolean,
 ) {
   if (configuration.silent) {
     return;
   }
 
   showSortedUTXOs(sortedUTXOs);
-  showSortedOperations(sortedOperations);
+  if (!balanceOnly){
+    showSortedOperations(sortedOperations);
+  }
 
   console.log(chalk.bold("\nSummary\n"));
   for (const total of summary) {
