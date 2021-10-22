@@ -23,6 +23,7 @@ export class Scanner {
   testnet;
   derivationMode;
   itemToScan;
+  balanceOnly: boolean;
   now = new Date();
   exitCode = 0;
 
@@ -34,6 +35,7 @@ export class Scanner {
     this.testnet = args.testnet;
     this.derivationMode = args.derivationMode;
     this.itemToScan = args.itemToScan; // xpub or address
+    this.balanceOnly = args.balanceOnly;
     init(
       this.itemToScan,
       args.silent,
@@ -71,6 +73,7 @@ export class Scanner {
 
       const scanResult = await checkBalances.run(
         this.itemToScan,
+        this.balanceOnly,
         this.scanLimits,
       );
       const actualAddresses = scanResult.addresses;
@@ -78,7 +81,7 @@ export class Scanner {
       const summary = scanResult.summary;
       const actualTransactions = getSortedOperations(actualAddresses);
 
-      display.showResults(actualUTXOs, actualTransactions, summary);
+      display.showResults(actualUTXOs, actualTransactions, summary, this.balanceOnly);
 
       const partialScan = typeof this.scanLimits !== "undefined";
 
@@ -123,6 +126,7 @@ export class Scanner {
         mode,
         preDerivationSize: this.args.preDerivationSize,
         derivationMode: configuration.specificDerivationMode,
+        balanceOnly: this.balanceOnly,
       };
 
       const data: ScanData = {

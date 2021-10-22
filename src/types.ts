@@ -6,6 +6,7 @@ export type TODO_TypeThis = any;
 export interface ScannerArguments {
   _?: string;
   itemToScan: string;
+  balanceOnly: boolean;
   scanLimits?: ScanLimits;
   currency?: string;
   testnet?: boolean;
@@ -41,6 +42,7 @@ export interface ScanMeta {
   mode: string;
   preDerivationSize?: number;
   derivationMode: string;
+  balanceOnly: boolean;
 }
 
 export interface ScanData {

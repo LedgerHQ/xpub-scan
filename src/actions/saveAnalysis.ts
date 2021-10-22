@@ -573,8 +573,11 @@ function saveHTML(object: TODO_TypeThis, filepath: string) {
     transactions.push("<td>" + amount + "</td>");
     transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
   }
-
-  report = report.replace("{transactions}", transactions.join(""));
+  if (object.meta.balanceOnly){
+    report = report.replace("{transactions}", "");
+  } else {
+    report = report.replace("{transactions}", transactions.join(""));
+  }
 
   // comparisons and diff
   if (
@@ -638,7 +641,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
 
   let utxos: TODO_TypeThis[] = [];
 
-  if (configuration.currency.utxo_based) {
+  if (configuration.currency.utxo_based && !meta.balanceOnly) {
     utxos = data.addresses
       .filter((a: Address) => a.isUTXO())
       .map((e: TODO_TypeThis) => {
@@ -664,15 +667,15 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     };
   });
 
-  const transactions: TODO_TypeThis[] = data.transactions.map(
-    (e: TODO_TypeThis) => {
-      return {
-        ...e,
-        cashAddress: toUnprefixedCashAddress(e.address),
-        amount: toBaseUnit(e.amount),
-      };
-    },
-  );
+  const transactions: TODO_TypeThis[] = (!meta.balanceOnly ? data.transactions.map(
+      (e: TODO_TypeThis) => {
+        return {
+          ...e,
+          cashAddress: toUnprefixedCashAddress(e.address),
+          amount: toBaseUnit(e.amount),
+        };
+      },
+    ) : []);
 
   const comparisons: TODO_TypeThis[] =
     typeof data.comparisons !== "undefined"
@@ -710,7 +713,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     warningRange = `! The data is based on a partial scan: ${meta.mode} !`;
   }
 
-  const object = {
+  const outputData = {
     meta: {
       by: "xpub scan <https://github.com/LedgerHQ/xpub-scan>",
       version: meta.version,
@@ -744,10 +747,10 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   let filepath = directory;
   if (filepath.toLocaleLowerCase() !== "stdout") {
     filepath += `/${meta.xpub}`;
-    saveHTML(object, filepath); // do not save HTML if stdout
+    saveHTML(outputData, filepath); // do not save HTML if stdout
   }
 
-  saveJSON(object, filepath);
+  saveJSON(outputData, filepath);
 
   // add empty line to separate this text block from potential check results
   console.log();
