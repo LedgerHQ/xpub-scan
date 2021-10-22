@@ -128,7 +128,7 @@ async function scanAddresses(
 
   // process transactions
   display.transientLine(chalk.yellowBright("Processing transactions..."));
-  if (!balanceOnly){
+  if (!balanceOnly) {
     addresses.forEach((address) => {
       getTransactions(address, ownAddresses);
     });
@@ -154,7 +154,7 @@ async function addressAnalysis(addressToScan: string, balanceOnly: boolean) {
 
   await getStats(address);
 
-  if (!balanceOnly){
+  if (!balanceOnly) {
     getTransactions(address);
   }
 
@@ -168,7 +168,11 @@ async function addressAnalysis(addressToScan: string, balanceOnly: boolean) {
   };
 }
 
-async function run(itemToScan: string, balanceOnly: boolean, scanLimits?: ScanLimits) {
+async function run(
+  itemToScan: string,
+  balanceOnly: boolean,
+  scanLimits?: ScanLimits,
+) {
   if (configuration.currency.utxo_based) {
     return xpubAnalysis(itemToScan, balanceOnly, scanLimits);
   } else {
@@ -176,7 +180,11 @@ async function run(itemToScan: string, balanceOnly: boolean, scanLimits?: ScanLi
   }
 }
 
-async function xpubAnalysis(xpub: string, balanceOnly: boolean, scanLimits?: ScanLimits) {
+async function xpubAnalysis(
+  xpub: string,
+  balanceOnly: boolean,
+  scanLimits?: ScanLimits,
+) {
   let activeAddresses: Address[] = [];
   const summary: TODO_TypeThis[] = [];
 
@@ -197,7 +205,12 @@ async function xpubAnalysis(xpub: string, balanceOnly: boolean, scanLimits?: Sca
   }
 
   for (const derivationMode of derivationModes!) {
-    const results = await scanAddresses(derivationMode, xpub, balanceOnly, scanLimits);
+    const results = await scanAddresses(
+      derivationMode,
+      xpub,
+      balanceOnly,
+      scanLimits,
+    );
 
     activeAddresses = activeAddresses.concat(results.addresses);
 

@@ -47,9 +47,10 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
     }
   }
 
-  if (args.balanceOnly && (args.operations || args.import)){
+  if (args.balanceOnly && (args.operations || args.import)) {
     throw new Error("You cannot pass an operation file in --balance-only mode");
   }
+
   // currency: exists
   if (typeof currency !== "undefined") {
     args.currency = args.currency.toUpperCase();

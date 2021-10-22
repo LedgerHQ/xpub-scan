@@ -81,7 +81,12 @@ export class Scanner {
       const summary = scanResult.summary;
       const actualTransactions = getSortedOperations(actualAddresses);
 
-      display.showResults(actualUTXOs, actualTransactions, summary, this.balanceOnly);
+      display.showResults(
+        actualUTXOs,
+        actualTransactions,
+        summary,
+        this.balanceOnly,
+      );
 
       const partialScan = typeof this.scanLimits !== "undefined";
 
@@ -117,6 +122,11 @@ export class Scanner {
         // Augmented import mode:
         // Use of an augmented JSON to compare smart contract interactions
         mode += " | Augmented Import";
+      }
+
+      if (this.balanceOnly) {
+        // Balance only mode
+        mode += " | Balance Only";
       }
 
       const meta: ScanMeta = {
