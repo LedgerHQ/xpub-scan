@@ -375,7 +375,7 @@ export const reportTemplate = `
 
     <li class="tab">
     <input type="radio" name="tabs" id="tab2" />
-    <label for="tab2">Addresses</label>
+    <label for="tab2">{addresses_count} Addresses</label>
     <div id="tab-content2" class="content">
       <table>
         <thead>
