@@ -31,7 +31,7 @@ jobs:
     needs: unit-tests
     strategy:
       matrix:
-        product: [Live-Common, Live-Desktop, Custom-G, Custom-L, Custom-W]
+        product: [Live-Common, Live-Desktop, Custom-G, Custom-W]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
