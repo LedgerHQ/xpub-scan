@@ -128,7 +128,7 @@ export const reportTemplate = `
       }
 
       .skipped_label {
-        color: #000;
+        color: #000000a1;
         background-color: #cdc9c9;
         box-shadow: rgba(51, 51, 51, 1) 1px 1px 2px;
       }
@@ -170,7 +170,7 @@ export const reportTemplate = `
       }
 
       .skipped_comparison {
-        color: #cdc9c9 !important;
+        color: #7d7d7d !important;
       }
 
       .comparison_mismatch {

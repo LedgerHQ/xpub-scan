@@ -520,7 +520,13 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
             : "mismatch_label") +
           '">',
       );
-      comparisons.push(e.status + "</span></td></tr>");
+      comparisons.push(
+        e.status +
+          (e.status === "Skipped"
+            ? ` (> block #${configuration.blockHeightUpperLimit})`
+            : "") +
+          "</span></td></tr>",
+      );
     }
   }
 
@@ -761,7 +767,11 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
 
   if (typeof comparisons !== "undefined") {
     diffs =
-      comparisons.filter((comparison) => comparison.status !== "Match") || [];
+      comparisons.filter(
+        (comparison) =>
+          !comparison.status.startsWith("Match") &&
+          comparison.status !== "Skipped",
+      ) || [];
   }
 
   let warningRange;

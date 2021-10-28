@@ -282,11 +282,6 @@ const showOperations = (
     case "Missing (aggregated)":
       console.log(chalk.green(imported.padEnd(halfColorPadding, " ")), actual);
       break;
-    case "Skipped":
-      console.log(
-        chalk.grey(imported.padEnd(fullColorPadding, " ").concat(actual)),
-      );
-      break;
     case status.match(/^Mismatch.*/)?.input:
     /* fallthrough */
     case "Missing Operation":
@@ -449,8 +444,6 @@ const checkImportedOperations = (
     importedOps.sort(compareOps);
     actualOps.sort(compareOps);
 
-    console.dir(actualOps, { depth: null }); // $$$
-
     // sort II (edge cases):
     // sort operations with same txid, same date, and same amount
     // that cannot be sorted by address
@@ -589,7 +582,38 @@ const checkImportedOperations = (
     }
   }
 
-  return comparisons;
+  // Sort the comparisons
+
+  // 1. Split the comparisons in two segments:
+  //   first segment (can be empty): skipped comparisons
+  //   second segment: unskipped comparisons
+  const skippedComparisons = [];
+  for (let i = comparisons.length - 1; i >= 0; i--) {
+    const comparison = comparisons[i];
+
+    if (comparison.status === "Skipped") {
+      skippedComparisons.push(comparison);
+      comparisons.splice(i, 1);
+    }
+  }
+
+  // 2. Sort the skipped comparisons by date
+  skippedComparisons.sort((a, b) => {
+    return a.actual!.date > b.actual!.date
+      ? -1
+      : a.actual!.date < b.actual!.date
+      ? 1
+      : 0;
+  });
+
+  // 3. Merge the two segments into one.
+  // The comparisons are then sorted this way:
+  //   first: all skipped comparisons, sorted by date
+  //   second: all unskipped comparisons, sorted following the
+  //           imported operations ordering
+  const sortedComparisons = skippedComparisons.concat(comparisons);
+
+  return sortedComparisons;
 };
 
 export { checkImportedOperations };
