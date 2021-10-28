@@ -434,7 +434,8 @@ const importOperations = (path: string): Operation[] => {
 
   helpers.getJSON(blockHeightURL).then((response) => {
     if (typeof response == "object") {
-      configuration.maxBlockNumber = (<BlockInfo>response).data.blocks || 0;
+      configuration.blockHeightUpperLimit =
+        (<BlockInfo>response).data.blocks || 0;
     }
   });
 

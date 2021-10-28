@@ -10,7 +10,8 @@ type ComparisonStatus =
   | "Mismatch: token tickers" // token tickers mismatch
   | "Mismatch: Dapp" // Dapp mismatch
   | "Missing Operation" // missing expected imported operation
-  | "Extra Operation"; // imported operation without corresponding actual operation
+  | "Extra Operation" // imported operation without corresponding actual operation
+  | "Skipped"; // comparison is skipped when the block height upper limit has been reached
 
 class Comparison {
   imported: Operation | undefined;

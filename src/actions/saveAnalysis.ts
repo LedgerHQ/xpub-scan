@@ -477,6 +477,8 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
           continue; // if diff: ignore aggregated operations
         }
         comparisons.push('<tr class="comparison_aggregated">');
+      } else if (e.status === "Skipped") {
+        comparisons.push('<tr class="skipped_comparison">');
       } else {
         comparisons.push('<tr class="comparison_mismatch">');
       }
@@ -511,7 +513,11 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
       comparisons.push("<td>" + createTooltip(opType) + "</td>");
       comparisons.push(
         '<td><span class="label ' +
-          (e.status.includes("Match") ? "match_label" : "mismatch_label") +
+          (e.status.includes("Match")
+            ? "match_label"
+            : e.status === "Skipped"
+            ? "skipped_label"
+            : "mismatch_label") +
           '">',
       );
       comparisons.push(e.status + "</span></td></tr>");

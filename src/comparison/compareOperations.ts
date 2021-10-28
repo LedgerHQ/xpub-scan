@@ -282,6 +282,11 @@ const showOperations = (
     case "Missing (aggregated)":
       console.log(chalk.green(imported.padEnd(halfColorPadding, " ")), actual);
       break;
+    case "Skipped":
+      console.log(
+        chalk.grey(imported.padEnd(fullColorPadding, " ").concat(actual)),
+      );
+      break;
     case status.match(/^Mismatch.*/)?.input:
     /* fallthrough */
     case "Missing Operation":
@@ -357,6 +362,7 @@ const checkImportedOperations = (
 
   const allComparingCriteria: ComparingCriterion[] = [];
   const comparisons: Comparison[] = [];
+  const blockHeightUpperLimit = configuration.blockHeightUpperLimit;
 
   // filter imported operations if scan is limited (range scan)
   if (partialComparison) {
@@ -443,6 +449,8 @@ const checkImportedOperations = (
     importedOps.sort(compareOps);
     actualOps.sort(compareOps);
 
+    console.dir(actualOps, { depth: null }); // $$$
+
     // sort II (edge cases):
     // sort operations with same txid, same date, and same amount
     // that cannot be sorted by address
@@ -518,6 +526,21 @@ const checkImportedOperations = (
 
       // actual operation with no corresponding imported operation
       if (typeof importedOp === "undefined") {
+        // if the block height upper limit is reached, skip the comparison...
+        if (
+          blockHeightUpperLimit > 0 &&
+          actualOp.getBlockNumber() > blockHeightUpperLimit
+        ) {
+          comparisons.push({
+            imported: undefined,
+            actual: actualOp,
+            status: "Skipped",
+          });
+
+          continue;
+        }
+
+        // ...else, this is a missing operation
         showOperations("Missing Operation", actualOp);
 
         comparisons.push({

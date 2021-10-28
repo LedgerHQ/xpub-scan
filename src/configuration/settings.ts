@@ -81,7 +81,7 @@ export const configuration = {
   quiet: false,
   gap_limit: process.env.GAP_LIMIT || DEFAULT_GAP_LIMIT,
   augmentedImport: false, // augmented JSON to compare smart contract interactions
-  maxBlockNumber: 0, // comparison mode: block height limit
+  blockHeightUpperLimit: 0, // comparison mode: block height limit
 };
 
 export {
