@@ -4,6 +4,7 @@ import chalk from "chalk";
 import { currencies, DerivationMode } from "../configuration/currencies";
 import { TODO_TypeThis } from "../types";
 import { Currency } from "../models/currency";
+import { configuration } from "../configuration/settings";
 
 /**
  * Ensure that args are valid
@@ -29,6 +30,7 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
   const fromIndex = args.fromIndex;
   const toIndex = args.toIndex;
   const preDerivationSize = args.preDerivationSize;
+  const blockHeightLimit = args.blockHeightLimit;
 
   // xpub: set, non-empty
   if (typeof itemToScan === "undefined" || itemToScan === "") {
@@ -130,6 +132,20 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
         throw new Error("Imported file " + importedFile + " does not exist");
       }
     }
+  }
+
+  if (blockHeightLimit) {
+    if (!args.operations) {
+      throw new Error(
+        "The block height limit can only be used in comparison mode",
+      );
+    }
+
+    if (blockHeightLimit < 0) {
+      throw new Error("The block height limit cannot be negative");
+    }
+
+    configuration.blockHeightUpperLimit = blockHeightLimit;
   }
 
   // save dirpath: exists, is a directory, writable

@@ -117,6 +117,11 @@ export const getArgs = (): TODO_TypeThis => {
       demand: false,
       type: "boolean",
       default: false,
+    })
+    .option("block-height-limit", {
+      description: "Block height limit",
+      demand: false,
+      type: "number",
     }).argv;
 
   checkArgs(args, process.argv);
