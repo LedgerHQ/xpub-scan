@@ -47,7 +47,7 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
     }
   }
 
-  if (args.balanceOnly && (args.operations || args.import)) {
+  if (args.balanceOnly && args.operations) {
     throw new Error("You cannot pass an operation file in --balance-only mode");
   }
 
@@ -120,16 +120,6 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
         " Warning: `--utxos` option has not been implemented yet. Skipped. ",
       ),
     );
-  }
-
-  // deprecated: --import
-  if (typeof args.import !== "undefined") {
-    console.log(
-      chalk.bgYellowBright.black(
-        " Warning: `--import` option is deprecated. Please use `--operations` instead. ",
-      ),
-    );
-    args.operations = args.import;
   }
 
   // imported files: non-empty, exist
