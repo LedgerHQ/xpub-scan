@@ -1,7 +1,7 @@
 import * as bjs from "bitcoinjs-lib";
 import * as bip32 from "bip32";
-import * as bch from "bitcoincashjs";
 import bchaddr from "bchaddrjs";
+import bitcore from "bitcore-lib-cash";
 
 import { DerivationMode } from "../configuration/currencies";
 import { configuration } from "../configuration/settings";
@@ -65,12 +65,14 @@ function getLegacyBitcoinCashAddress(
   account: number,
   index: number,
 ): string {
-  const CASH_ADDR_FORMAT = bch.Address.CashAddrFormat;
-
-  const node = new bch.HDPublicKey(xpub);
+  const node = new bitcore.HDPublicKey(xpub);
   const child = node.derive(account).derive(index);
-  const address = new bch.Address(child.publicKey, bch.Networks.livenet);
-  const addrstr = address.toString(CASH_ADDR_FORMAT).split(":");
+  const address = new bitcore.Address(
+    child.publicKey,
+    bitcore.Networks.livenet,
+  );
+  const addrstr = address.toString().split(":");
+
   if (addrstr.length === 2) {
     return bchaddr.toLegacyAddress(addrstr[1]);
   } else {
