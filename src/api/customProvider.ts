@@ -2,17 +2,16 @@
 // Crypto APIs 2.0 <https://cryptoapis.io/>
 // https://developers.cryptoapis.io/technical-documentation/general-information/overview
 
-import dateFormat from "dateformat";
-
 import * as helpers from "../helpers";
+import { currencies } from "../configuration/currencies";
 import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
 import { TODO_TypeThis } from "../types";
 
+import { format } from "date-fns";
 import bchaddr from "bchaddrjs";
-import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 import hash from "object-hash";
 
@@ -311,9 +310,7 @@ function getTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.minedInBlockHeight,
-        String(
-          dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
-        ), // unix time to readable format
+        format(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"), // unix time to readable format
         tx.transactionId,
         ins,
         outs,
@@ -348,10 +345,10 @@ function getAccountBasedTransactions(address: Address) {
       return;
     }
 
-    const timestamp = String(
-      dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
+    const timestamp = format(
+      new Date(tx.timestamp * 1000),
+      "yyyy-mm-dd HH:MM:ss",
     );
-
     if (isRecipient) {
       // Recipient
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
@@ -414,13 +411,10 @@ function getTokenTransactions(address: Address) {
     const tokenName = tx.tokenName;
     const tokenSymbol = tx.tokenSymbol;
 
-    const timestamp = String(
-      dateFormat(
-        new Date(tx.transactionTimestamp * 1000),
-        "yyyy-mm-dd HH:MM:ss",
-      ),
+    const timestamp = format(
+      new Date(tx.transactionTimestamp * 1000),
+      "yyyy-mm-dd HH:MM:ss",
     );
-
     // compute amount
     // (note: the dualities isSender/isRecipient and has sent/has received do not necessarily
     //        overlap (e.g., a recipient can also have sent in the swapping context)
@@ -505,8 +499,9 @@ function getInternalTransactions(address: Address) {
 
     const amount = new BigNumber(0);
 
-    const timestamp = String(
-      dateFormat(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"),
+    const timestamp = format(
+      new Date(tx.timestamp * 1000),
+      "yyyy-mm-dd HH:MM:ss",
     );
 
     if (isRecipient) {

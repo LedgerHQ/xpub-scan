@@ -1,5 +1,3 @@
-import dateFormat from "dateformat";
-
 import { getJSON, toAccountUnit } from "../helpers";
 import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
@@ -7,7 +5,9 @@ import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
+
 import BigNumber from "bignumber.js";
+import { format } from "date-fns";
 
 // raw transactions provided by default API
 interface RawTransaction {
@@ -225,7 +225,7 @@ function getTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.block_no,
-        String(dateFormat(new Date(tx.time * 1000), "yyyy-mm-dd HH:MM:ss")), // unix time to readable format
+        format(new Date(tx.time * 1000), "yyyy-mm-dd HH:MM:ss"), // unix time to readable format
         tx.txid,
         ins,
         outs,
@@ -303,7 +303,7 @@ function getBitcoinCashTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.blockheight,
-        String(dateFormat(new Date(tx.time * 1000), "yyyy-mm-dd HH:MM:ss")), // unix time to readable format
+        format(new Date(tx.time * 1000), "yyyy-mm-dd HH:MM:ss"), // unix time to readable format
         tx.txid,
         ins,
         outs,
@@ -362,7 +362,7 @@ function getAccountBasedTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.block_height,
-        String(dateFormat(new Date(tx.confirmed), "yyyy-mm-dd'T'HH:MM:ss'Z'")),
+        format(new Date(tx.confirmed), "yyyy-mm-dd'T'HH:MM:ss'Z'"),
         txHash,
         ins,
         outs,
