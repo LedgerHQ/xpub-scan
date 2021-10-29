@@ -357,6 +357,7 @@ const checkImportedOperations = (
 
   const allComparingCriteria: ComparingCriterion[] = [];
   const comparisons: Comparison[] = [];
+  const blockHeightUpperLimit = configuration.blockHeightUpperLimit;
 
   // filter imported operations if scan is limited (range scan)
   if (partialComparison) {
@@ -518,6 +519,21 @@ const checkImportedOperations = (
 
       // actual operation with no corresponding imported operation
       if (typeof importedOp === "undefined") {
+        // if the block height upper limit is reached, skip the comparison...
+        if (
+          blockHeightUpperLimit > 0 &&
+          actualOp.getBlockNumber() > blockHeightUpperLimit
+        ) {
+          comparisons.push({
+            imported: undefined,
+            actual: actualOp,
+            status: "Skipped",
+          });
+
+          continue;
+        }
+
+        // ...else, this is a missing operation
         showOperations("Missing Operation", actualOp);
 
         comparisons.push({
@@ -566,7 +582,38 @@ const checkImportedOperations = (
     }
   }
 
-  return comparisons;
+  // Sort the comparisons
+
+  // 1. Split the comparisons in two segments:
+  //   first segment (can be empty): skipped comparisons
+  //   second segment: unskipped comparisons
+  const skippedComparisons = [];
+  for (let i = comparisons.length - 1; i >= 0; i--) {
+    const comparison = comparisons[i];
+
+    if (comparison.status === "Skipped") {
+      skippedComparisons.push(comparison);
+      comparisons.splice(i, 1);
+    }
+  }
+
+  // 2. Sort the skipped comparisons by date
+  skippedComparisons.sort((a, b) => {
+    return a.actual!.date > b.actual!.date
+      ? -1
+      : a.actual!.date < b.actual!.date
+      ? 1
+      : 0;
+  });
+
+  // 3. Merge the two segments into one.
+  // The comparisons are then sorted this way:
+  //   first: all skipped comparisons, sorted by date
+  //   second: all unskipped comparisons, sorted following the
+  //           imported operations ordering
+  const sortedComparisons = skippedComparisons.concat(comparisons);
+
+  return sortedComparisons;
 };
 
 export { checkImportedOperations };

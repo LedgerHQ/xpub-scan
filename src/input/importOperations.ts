@@ -2,10 +2,20 @@ import fs from "fs";
 import chalk from "chalk";
 
 import { Operation } from "../models/operation";
-import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
+import {
+  configuration,
+  BLOCK_HEIGHT_API_URL,
+  ETH_FIXED_PRECISION,
+} from "../configuration/settings";
 import BigNumber from "bignumber.js";
-import { toAccountUnit } from "../helpers";
+import * as helpers from "../helpers";
 import { currencies } from "../configuration/currencies";
+
+interface BlockInfo {
+  data: {
+    blocks: number;
+  };
+}
 
 /**
  * Remove forbidden chars from address(es)
@@ -35,13 +45,13 @@ const getFileContents = (path: string): string => {
 };
 
 /**
- * Import transactions from a type A CSV
+ * Import transactions from a Custom G CSV
  * @param  {string} contents
  *          Contents from file to import
  * @returns Operation
  *          Imported operations
  */
-const importFromCSVTypeA = (contents: string): Operation[] => {
+const importFromCustomGCSV = (contents: string): Operation[] => {
   const operations: Operation[] = [];
 
   // temporary fix: offset if CSV refers to storageLimit
@@ -53,7 +63,7 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
     .slice(1)
     .forEach((line) => {
       // split using delimiter ',' except when between double quotes
-      // as a type A CSV can have several addresses in the same field:
+      // as a Custom G CSV can have several addresses in the same field:
       // ...,'<address1>,<address2>,<address3',...
       const tokens = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
@@ -108,13 +118,13 @@ const importFromCSVTypeA = (contents: string): Operation[] => {
 };
 
 /**
- * Import transactions from a type B CSV
+ * Import transactions from a Live Desktop CSV
  * @param  {string} contents
  *          Contents from file to import
  * @returns Operation
  *          Imported operations
  */
-const importFromCSVTypeB = (contents: string): Operation[] => {
+const importFromLiveDesktopCSV = (contents: string): Operation[] => {
   const operations: Operation[] = [];
 
   contents
@@ -213,7 +223,7 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
     const feesInBaseUnit = new BigNumber(operation.fees); // in base unit
 
     if (type === "receive") {
-      const op = new Operation(date[0], toAccountUnit(valueInBaseUnit));
+      const op = new Operation(date[0], helpers.toAccountUnit(valueInBaseUnit));
       op.setTxid(txid);
       op.setOperationType("Received");
 
@@ -232,7 +242,10 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
       const amountInBaseUnit = valueInBaseUnit.minus(feesInBaseUnit);
       // ... and convert the total back to unit of account
       // (otherwise, there would be floating number issues)
-      const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
+      const op = new Operation(
+        date[0],
+        helpers.toAccountUnit(amountInBaseUnit),
+      );
       op.setTxid(txid);
       op.setOperationType("Sent");
 
@@ -253,13 +266,13 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
 };
 
 /**
- * Import transactions from a type B JSON
+ * Import transactions from a Live Common JSON
  * @param  {string} contents
  *          Contents from file to import
  * @returns Operation
  *          Imported operations
  */
-const importFromJSONTypeB = (contents: string): Operation[] => {
+const importFromLiveCommonJSON = (contents: string): Operation[] => {
   const operations: Operation[] = [];
 
   let ops;
@@ -283,7 +296,7 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
     const sender = operation.senders.join(",");
 
     if (type === "IN") {
-      const op = new Operation(date[0], toAccountUnit(valueInBaseUnit));
+      const op = new Operation(date[0], helpers.toAccountUnit(valueInBaseUnit));
       op.setTxid(txid);
       op.setOperationType("Received");
       op.setAddress(sanitizeInputedAddress(recipient));
@@ -294,7 +307,10 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
       const amountInBaseUnit = valueInBaseUnit.minus(feesInBaseUnit);
       // ... and convert the total back to unit of account
       // (otherwise, there would be floating number issues)
-      const op = new Operation(date[0], toAccountUnit(amountInBaseUnit));
+      const op = new Operation(
+        date[0],
+        helpers.toAccountUnit(amountInBaseUnit),
+      );
       op.setTxid(txid);
       op.setOperationType("Sent");
       op.setAddress(sanitizeInputedAddress(sender));
@@ -307,13 +323,13 @@ const importFromJSONTypeB = (contents: string): Operation[] => {
 };
 
 /**
- * Import transactions from a type C JSON
+ * Import transactions from a Custom W JSON
  * @param  {string} contents
  *          Contents from file to import
  * @returns Operation
  *          Imported operations
  */
-const importFromJSONTypeC = (contents: string): Operation[] => {
+const importFromCustomWJSON = (contents: string): Operation[] => {
   const operations: Operation[] = [];
 
   let ops;
@@ -326,7 +342,7 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
 
   for (const operation of ops) {
     const type = operation.type;
-    const amount = toAccountUnit(new BigNumber(operation.amount));
+    const amount = helpers.toAccountUnit(new BigNumber(operation.amount));
     const txid = operation.transaction.hash;
 
     const date =
@@ -398,6 +414,35 @@ const importFromJSONTypeC = (contents: string): Operation[] => {
  *          Imported transactions
  */
 const importOperations = (path: string): Operation[] => {
+  // get the current block height as upper limit for the comparison
+
+  let blockHeightURL;
+
+  if (configuration.testnet) {
+    // testnet: append `TEST` to the coin symbol
+    // (see: see: https://sochain.com/api#networks-supported)
+    blockHeightURL = BLOCK_HEIGHT_API_URL.replace(
+      "{coin}",
+      `${configuration.currency.symbol}TEST`,
+    );
+  } else {
+    blockHeightURL = BLOCK_HEIGHT_API_URL.replace(
+      "{coin}",
+      configuration.currency.symbol,
+    );
+  }
+
+  helpers.getJSON(blockHeightURL).then((response) => {
+    if (typeof response == "object") {
+      // only set the block height upper limit if it has not been
+      // set by the user
+      if (configuration.blockHeightUpperLimit === 0) {
+        configuration.blockHeightUpperLimit =
+          (<BlockInfo>response).data.blocks || 0;
+      }
+    }
+  });
+
   const contents = getFileContents(path);
 
   const firstLine = contents.split(/\r?\n/)[0].replace('"', "");
@@ -406,11 +451,11 @@ const importOperations = (path: string): Operation[] => {
 
   // CSV FILES
   if (firstLine.substring(0, 8) === "Creation") {
-    // type A CSV: 'Creation' is the first token
-    operations = importFromCSVTypeA(contents);
+    // Custom G CSV: 'Creation' is the first token
+    operations = importFromCustomGCSV(contents);
   } else if (firstLine.substring(0, 9) === "Operation") {
-    // type B CSV: 'Operation' is the first token
-    operations = importFromCSVTypeB(contents);
+    // Live Desktop CSV: 'Operation' is the first token
+    operations = importFromLiveDesktopCSV(contents);
   }
 
   // JSON FILES
@@ -418,14 +463,14 @@ const importOperations = (path: string): Operation[] => {
     if (contents.includes("cursor")) {
       // type A JSON: contains a reference to 'cursor',
       //              an ambiguous term, but sufficient to
-      //              distinguish it from type B JSON files
+      //              distinguish it from type Live Common JSON files
       operations = importFromJSONTypeA(contents);
     } else if (contents.includes("libcore")) {
-      // type B JSON: contains an explicit reference to 'libcore'
-      operations = importFromJSONTypeB(contents);
+      // Live Common JSON: contains an explicit reference to 'libcore'
+      operations = importFromLiveCommonJSON(contents);
     } else if (contents.includes("uid")) {
-      // type C JSON: contains an explicit reference to 'uid'
-      operations = importFromJSONTypeC(contents);
+      // Custom W JSON: contains an explicit reference to 'uid'
+      operations = importFromCustomWJSON(contents);
     }
   } else {
     throw new Error("Format not recognized.");

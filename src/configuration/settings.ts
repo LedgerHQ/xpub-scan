@@ -11,6 +11,8 @@ const ETH_FIXED_PRECISION = 10; // Decimal places for ETH (recommended for Crypt
 
 // Providers
 // (use {coin} and {address} as placeholders for the coin name and the address)
+const BLOCK_HEIGHT_API_URL = " https://sochain.com/api/v2/get_info/{coin}";
+
 const DEFAULT_API_URLS = {
   general: "https://sochain.com/api/v2/address/{coin}/{address}",
   bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}",
@@ -77,11 +79,14 @@ export const configuration = {
   providerType: "default",
   silent: false,
   quiet: false,
+  commandLineMode: false,
   gap_limit: process.env.GAP_LIMIT || DEFAULT_GAP_LIMIT,
   augmentedImport: false, // augmented JSON to compare smart contract interactions
+  blockHeightUpperLimit: 0, // comparison mode: block height limit
 };
 
 export {
+  BLOCK_HEIGHT_API_URL,
   DEFAULT_API_URLS,
   CUSTOM_API_URL,
   VERBOSE,

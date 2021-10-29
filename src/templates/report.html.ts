@@ -127,6 +127,12 @@ export const reportTemplate = `
         box-shadow: rgba(169, 63, 63, 1) 1px 1px 2px;
       }
 
+      .skipped_label {
+        color: #000000a1;
+        background-color: #cdc9c9;
+        box-shadow: rgba(51, 51, 51, 1) 1px 1px 2px;
+      }
+
       .summary_empty {
         color: #666 !important;
       }
@@ -163,8 +169,12 @@ export const reportTemplate = `
         color: #214c9c !important;
       }
 
+      .skipped_comparison {
+        color: #7d7d7d !important;
+      }
+
       .comparison_mismatch {
-        color: #950a0a;
+        color: #950a0a !important;
       }
 
       .comparison_aggregated {
@@ -365,7 +375,7 @@ export const reportTemplate = `
 
     <li class="tab">
     <input type="radio" name="tabs" id="tab2" />
-    <label for="tab2">Addresses</label>
+    <label for="tab2">{addresses_count} Addresses</label>
     <div id="tab-content2" class="content">
       <table>
         <thead>

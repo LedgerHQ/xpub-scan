@@ -232,7 +232,7 @@ function makeTransactionsTable(outputData: TODO_TypeThis) {
   let transactionsTable = `
     <li class="tab">
       <input type="radio" name="tabs" id="tab4" />
-      <label for="tab4">Transactions</label>
+      <label for="tab4">${outputData.transactions.length} Transactions</label>
       <div id="tab-content4" class="content">
       <div class="warning">{warning}</div>
         <table>
@@ -320,7 +320,7 @@ function makeUTXOSTable(outputData: TODO_TypeThis) {
   const UTXOSTable = `
     <li class="tab">
     <input type="radio" name="tabs" id="tab3" />
-    <label for="tab3">UTXOS</label>
+    <label for="tab3">${outputData.utxos.length} UTXOS</label>
     <div id="tab-content3" class="content">
       <table>
         <thead>
@@ -368,7 +368,9 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
   let comparisonsTemplate = `
     <li class="tab">
     <input type="radio" name="tabs" id="tab{id}" />
-    <label for="tab{id}">{label}</label>
+    <label for="tab{id}">${
+      onlyDiff ? outputData.diffs.length : outputData.comparisons.length
+    } {label}</label>
     <div id="tab-content{id}" class="content">
     <table>
         <thead>
@@ -400,18 +402,12 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
 
   if (!onlyDiff) {
     comp = outputData.comparisons;
-    comparisonsTemplate = comparisonsTemplate.replace(
-      "{label}",
-      "Comparisons:all",
-    );
-    comparisonsTemplate = comparisonsTemplate.split("{id}").join("5"); // comparisons:all has id 5
+    comparisonsTemplate = comparisonsTemplate.replace("{label}", "Comparisons");
+    comparisonsTemplate = comparisonsTemplate.split("{id}").join("5"); // comparisons have id 5
   } else {
     comp = outputData.diffs;
-    comparisonsTemplate = comparisonsTemplate.replace(
-      "{label}",
-      "Comparisons:diff",
-    );
-    comparisonsTemplate = comparisonsTemplate.split("{id}").join("6"); // comparisons:diff has id 6
+    comparisonsTemplate = comparisonsTemplate.replace("{label}", "Differences");
+    comparisonsTemplate = comparisonsTemplate.split("{id}").join("6"); // differences have id 6
   }
 
   const comparisons: string[] = [];
@@ -477,6 +473,8 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
           continue; // if diff: ignore aggregated operations
         }
         comparisons.push('<tr class="comparison_aggregated">');
+      } else if (e.status === "Skipped") {
+        comparisons.push('<tr class="skipped_comparison">');
       } else {
         comparisons.push('<tr class="comparison_mismatch">');
       }
@@ -511,10 +509,20 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
       comparisons.push("<td>" + createTooltip(opType) + "</td>");
       comparisons.push(
         '<td><span class="label ' +
-          (e.status.includes("Match") ? "match_label" : "mismatch_label") +
+          (e.status.includes("Match")
+            ? "match_label"
+            : e.status === "Skipped"
+            ? "skipped_label"
+            : "mismatch_label") +
           '">',
       );
-      comparisons.push(e.status + "</span></td></tr>");
+      comparisons.push(
+        e.status +
+          (e.status === "Skipped"
+            ? ` (> block #${configuration.blockHeightUpperLimit})`
+            : "") +
+          "</span></td></tr>",
+      );
     }
   }
 
@@ -609,6 +617,7 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
     addresses.push("<td>" + spent + "</td></tr>");
   }
 
+  report = report.replace("{addresses_count}", addresses.length.toFixed());
   report = report.replace("{addresses}", addresses.join(""));
 
   // UTXOs
@@ -755,7 +764,11 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
 
   if (typeof comparisons !== "undefined") {
     diffs =
-      comparisons.filter((comparison) => comparison.status !== "Match") || [];
+      comparisons.filter(
+        (comparison) =>
+          !comparison.status.startsWith("Match") &&
+          comparison.status !== "Skipped",
+      ) || [];
   }
 
   let warningRange;

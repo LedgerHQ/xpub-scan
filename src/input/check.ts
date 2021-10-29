@@ -4,6 +4,7 @@ import chalk from "chalk";
 import { currencies, DerivationMode } from "../configuration/currencies";
 import { TODO_TypeThis } from "../types";
 import { Currency } from "../models/currency";
+import { configuration } from "../configuration/settings";
 
 /**
  * Ensure that args are valid
@@ -11,10 +12,13 @@ import { Currency } from "../models/currency";
  * @returns void
  */
 export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
+  // (important) Command line mode: enable output
+  configuration.commandLineMode = true;
+
   args.itemToScan = args._[0];
 
   if (Number(args.itemToScan)) {
-    args.itemToScan = argv[2]; // TODO(ETH): comment
+    args.itemToScan = argv[2];
   }
 
   const itemToScan = args.itemToScan;
@@ -29,6 +33,7 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
   const fromIndex = args.fromIndex;
   const toIndex = args.toIndex;
   const preDerivationSize = args.preDerivationSize;
+  const blockHeightLimit = args.blockHeightLimit;
 
   // xpub: set, non-empty
   if (typeof itemToScan === "undefined" || itemToScan === "") {
@@ -47,7 +52,7 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
     }
   }
 
-  if (args.balanceOnly && (args.operations || args.import)) {
+  if (args.balanceOnly && args.operations) {
     throw new Error("You cannot pass an operation file in --balance-only mode");
   }
 
@@ -122,16 +127,6 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
     );
   }
 
-  // deprecated: --import
-  if (typeof args.import !== "undefined") {
-    console.log(
-      chalk.bgYellowBright.black(
-        " Warning: `--import` option is deprecated. Please use `--operations` instead. ",
-      ),
-    );
-    args.operations = args.import;
-  }
-
   // imported files: non-empty, exist
   const importedFiles = [args.addresses, args.utxos, args.operations];
   for (const importedFile of importedFiles) {
@@ -140,6 +135,20 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
         throw new Error("Imported file " + importedFile + " does not exist");
       }
     }
+  }
+
+  if (blockHeightLimit) {
+    if (!args.operations) {
+      throw new Error(
+        "The block height limit can only be used in comparison mode",
+      );
+    }
+
+    if (blockHeightLimit < 0) {
+      throw new Error("The block height limit cannot be negative");
+    }
+
+    configuration.blockHeightUpperLimit = blockHeightLimit;
   }
 
   // save dirpath: exists, is a directory, writable
