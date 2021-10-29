@@ -47,6 +47,14 @@ export class Scanner {
   }
 
   async scan(): Promise<ScanResult> {
+    // library mode: suppress all outputs
+    if (!configuration.commandLineMode) {
+      /* eslint-disable */
+      console.log = function () {};
+      /* eslint-enable */
+      configuration.silent = true;
+    }
+
     if (this.address) {
       // comparison mode
       await compare.run(this.itemToScan, this.address);
