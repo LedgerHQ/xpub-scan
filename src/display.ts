@@ -72,7 +72,9 @@ function updateAddressDetails(address: Address) {
 
   if (typeof address.getStats() === "undefined") {
     // if no stats, display just half of the line
-    process.stdout.write(stats);
+    if (configuration.commandLineMode) {
+      process.stdout.write(stats);
+    }
     return;
   } else {
     // else, display the full line

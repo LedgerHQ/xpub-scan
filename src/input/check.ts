@@ -12,10 +12,13 @@ import { configuration } from "../configuration/settings";
  * @returns void
  */
 export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
+  // (important) Command line mode: enable output
+  configuration.commandLineMode = true;
+
   args.itemToScan = args._[0];
 
   if (Number(args.itemToScan)) {
-    args.itemToScan = argv[2]; // TODO(ETH): comment
+    args.itemToScan = argv[2];
   }
 
   const itemToScan = args.itemToScan;
