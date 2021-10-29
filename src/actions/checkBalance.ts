@@ -8,7 +8,7 @@ import { ScanLimits } from "../models/scanLimits";
 import { configuration } from "../configuration/settings";
 import { DerivationMode } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
-import { TODO_TypeThis } from "../types";
+import { Summary } from "../types";
 import BigNumber from "bignumber.js";
 
 // scan all active addresses
@@ -160,7 +160,12 @@ async function addressAnalysis(addressToScan: string, balanceOnly: boolean) {
 
   display.updateAddressDetails(address);
 
-  const summary = [{ balance: address.getBalance() }];
+  const summary = [
+    {
+      derivationMode: DerivationMode.ETHEREUM,
+      balance: new BigNumber(address.getBalance()),
+    },
+  ];
 
   return {
     addresses: [address],
@@ -186,7 +191,7 @@ async function xpubAnalysis(
   scanLimits?: ScanLimits,
 ) {
   let activeAddresses: Address[] = [];
-  const summary: TODO_TypeThis[] = [];
+  const summary: Summary[] = [];
 
   let derivationModes = configuration.currency.derivationModes;
 

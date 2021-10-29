@@ -5,6 +5,7 @@ export enum DerivationMode {
   NATIVE = "Native SegWit",
   SEGWIT = "SegWit",
   BCH = "Bitcoin Cash",
+  ETHEREUM = "Ethereum",
 }
 
 // TODO: complete migratation from settings to currencies
@@ -49,5 +50,6 @@ export const currencies = {
     symbol: "ETH",
     precision: 10 ** 18,
     utxo_based: false,
+    derivationModes: [DerivationMode.ETHEREUM],
   },
 };

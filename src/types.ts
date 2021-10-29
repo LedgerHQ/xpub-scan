@@ -1,4 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+import BigNumber from "bignumber.js";
+import { DerivationMode } from "./configuration/currencies";
 import { ScanLimits } from "./models/scanLimits";
 
 export type TODO_TypeThis = any;
@@ -46,8 +48,13 @@ export interface ScanMeta {
 }
 
 export interface ScanData {
-  summary: TODO_TypeThis[];
+  summary: Summary[];
   addresses: TODO_TypeThis[];
   transactions: TODO_TypeThis[];
   comparisons: TODO_TypeThis;
+}
+
+export interface Summary {
+  derivationMode: DerivationMode;
+  balance: BigNumber;
 }

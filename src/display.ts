@@ -4,8 +4,8 @@ import chalk from "chalk";
 import { Address } from "./models/address";
 import { Operation } from "./models/operation";
 import { configuration } from "./configuration/settings";
-import { TODO_TypeThis } from "./types";
-import { currencies } from "./configuration/currencies";
+import { Summary } from "./types";
+import { DerivationMode } from "./configuration/currencies";
 import BigNumber from "bignumber.js";
 
 function renderAmount(amount: BigNumber): string {
@@ -220,27 +220,22 @@ function showSortedOperations(sortedOperations: Operation[]) {
 }
 
 // display the summary: total balance by address type
-function showSummary(derivationMode: string, totalBalance: string) {
+function showSummary(derivationMode: DerivationMode, totalBalance: BigNumber) {
   if (configuration.silent) {
     return;
   }
 
-  if (configuration.currency.symbol == currencies.eth.symbol) {
-    derivationMode = "Ethereum";
-  }
-
+  const derivation = derivationMode.toString();
   const balance = renderAmount(new BigNumber(totalBalance));
 
   if (balance === "0") {
     console.log(
-      chalk.grey(
-        derivationMode.padEnd(16, " ").concat(balance.padEnd(12, " ")),
-      ),
+      chalk.grey(derivation.padEnd(16, " ").concat(balance.padEnd(12, " "))),
     );
   } else {
     console.log(
       chalk
-        .whiteBright(derivationMode.padEnd(16, " "))
+        .whiteBright(derivation.padEnd(16, " "))
         .concat(chalk.greenBright(balance.padEnd(12, " "))),
     );
   }
@@ -281,7 +276,7 @@ function transientLine(message?: string) {
 function showResults(
   sortedUTXOs: Address[],
   sortedOperations: Operation[],
-  summary: TODO_TypeThis[],
+  summary: Summary[],
   balanceOnly: boolean,
 ) {
   if (configuration.silent) {
