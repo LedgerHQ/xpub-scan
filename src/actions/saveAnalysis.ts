@@ -666,8 +666,11 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
 }
 
 function saveJSON(outputData: TODO_TypeThis, filepath: string) {
+  // stringify -> parse -> stringify to remove `undefined` in final JSON
   const JSONobject = JSON.stringify(
-    JSON.parse(JSON.stringify(outputData)), null, 2
+    JSON.parse(JSON.stringify(outputData)),
+    null,
+    2,
   );
 
   if (filepath.toLocaleLowerCase() === "stdout") {
