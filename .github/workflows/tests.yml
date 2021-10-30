@@ -15,13 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install verification tools
+      - name: Check dependencies
         run: |
-          npm install -g depcheck
-
-      - name: Verify dependencies
-        run: |
-          depcheck --ignores="ts-node"
           npm outdated
           npm audit --audit-level=low --json
 
