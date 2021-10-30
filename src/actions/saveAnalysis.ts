@@ -92,6 +92,11 @@ function getUrl(itemType: string, item: string) {
     url = EXTERNAL_EXPLORERS_URLS.eth;
     itemTypes.address = "address";
     itemTypes.transaction = "tx";
+
+    if (configuration.testnet) {
+      // https://etherscan.io -> https://ropsten.etherscan.io
+      url = url.replace("https://", "https://ropsten.");
+    }
   }
 
   // specify item type
@@ -625,10 +630,13 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
     addresses.push("<td>" + spent + "</td></tr>");
   }
 
-  report = report.replace("{addresses_count}", addresses.length.toFixed());
+  report = report.replace(
+    "{addresses_count}",
+    outputData.addresses.length.toFixed(),
+  );
   report = report.replace(
     "{addresses_plural}",
-    addresses.length > 1 ? "es" : "",
+    outputData.addresses.length > 1 ? "es" : "",
   );
   report = report.replace("{addresses}", addresses.join(""));
 
@@ -800,7 +808,12 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       xpub: meta.xpub,
       analysis_date: meta.date,
       currency: configuration.currency.name.concat(
-        configuration.testnet ? " (testnet)" : " (mainnet)",
+        configuration.testnet
+          ? configuration.currency.symbol === currencies.eth.symbol &&
+            typeof configuration.APIKey !== "undefined"
+            ? " (ropsten)"
+            : " (testnet)"
+          : " (mainnet)",
       ),
       provider: configuration.providerType,
       provider_url: configuration.externalProviderURL,
