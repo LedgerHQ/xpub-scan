@@ -320,7 +320,9 @@ function makeUTXOSTable(outputData: TODO_TypeThis) {
   const UTXOSTable = `
     <li class="tab">
     <input type="radio" name="tabs" id="tab3" />
-    <label for="tab3">${outputData.utxos.length} UTXOS</label>
+    <label for="tab3">${outputData.utxos.length} UTXO${
+    outputData.utxos.length > 1 ? "S" : ""
+  }</label>
     <div id="tab-content3" class="content">
       <table>
         <thead>
@@ -402,11 +404,17 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
 
   if (!onlyDiff) {
     comp = outputData.comparisons;
-    comparisonsTemplate = comparisonsTemplate.replace("{label}", "Comparisons");
+    comparisonsTemplate = comparisonsTemplate.replace(
+      "{label}",
+      `Comparison${outputData.comparisons.length > 1 ? "s" : ""}`,
+    );
     comparisonsTemplate = comparisonsTemplate.split("{id}").join("5"); // comparisons have id 5
   } else {
     comp = outputData.diffs;
-    comparisonsTemplate = comparisonsTemplate.replace("{label}", "Differences");
+    comparisonsTemplate = comparisonsTemplate.replace(
+      "{label}",
+      `Difference${outputData.diffs.length > 1 ? "s" : ""}`,
+    );
     comparisonsTemplate = comparisonsTemplate.split("{id}").join("6"); // differences have id 6
   }
 
@@ -618,6 +626,10 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
   }
 
   report = report.replace("{addresses_count}", addresses.length.toFixed());
+  report = report.replace(
+    "{addresses_plural}",
+    addresses.length > 1 ? "es" : "",
+  );
   report = report.replace("{addresses}", addresses.join(""));
 
   // UTXOs
