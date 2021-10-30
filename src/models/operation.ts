@@ -1,3 +1,4 @@
+import { toLegacyAddress } from "bchaddrjs";
 import BigNumber from "bignumber.js";
 
 type OperationType =
@@ -20,7 +21,7 @@ class Operation {
   date: string;
   block: number;
   address: string;
-  cashAddress: string | undefined; // Bitcoin Cash: Cash Address format
+  cashAddress?: string; // Bitcoin Cash: Cash Address format
   amount: BigNumber;
   token: {
     name: string;
@@ -71,10 +72,22 @@ class Operation {
 
   setCashAddress(cashAddress: string | undefined) {
     this.cashAddress = cashAddress;
+
+    // set the corresponding legacy address representation if it is undefined
+    if (
+      typeof this.address === "undefined" &&
+      typeof this.cashAddress !== "undefined"
+    ) {
+      this.address = toLegacyAddress(this.cashAddress);
+    }
   }
 
   getAddress() {
     return this.address;
+  }
+
+  getCashAddress() {
+    return this.cashAddress;
   }
 
   setOperationType(operationType: OperationType) {

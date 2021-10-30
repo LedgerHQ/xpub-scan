@@ -666,7 +666,9 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
 }
 
 function saveJSON(outputData: TODO_TypeThis, filepath: string) {
-  const JSONobject = JSON.stringify(outputData, null, 2);
+  const JSONobject = JSON.stringify(
+    JSON.parse(JSON.stringify(outputData)), null, 2
+  );
 
   if (filepath.toLocaleLowerCase() === "stdout") {
     // display

@@ -29,6 +29,7 @@ def print_test_status(test_type: str, product: str, is_success: bool = None, rep
 
     print("=" * (42 + len(header)), "\n")
 
+
 def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> tuple:
     xpub = data['xpub']
 
@@ -85,8 +86,9 @@ def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> tu
 def xpub_scan(data: dict, filepath: str) -> int:
     xpub = data['xpub']
     coin = data['coin_ticker']
+    balance = data['balance']
 
-    cmd = f"node lib/scan.js {xpub} --currency {coin} --operations {filepath} --diff --custom-provider --quiet --save {base_path}"
+    cmd = f"node lib/scan.js {xpub} --currency {coin} --operations {filepath} --balance {balance} --diff --custom-provider --quiet --save {base_path}"
 
     with Popen(cmd.split(), stdout=PIPE, bufsize=1, universal_newlines=True) as p:
         for line in p.stdout:

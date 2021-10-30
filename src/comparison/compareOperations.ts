@@ -69,24 +69,53 @@ const areMatching = (
   importedOperation: Operation,
   actualOperation: Operation,
 ): ComparisonStatus => {
-  const importedAddress = importedOperation.getAddress();
-
   // 1. Check addresses
 
   // only check if imported address is set (not always the case: see type B CSV)
   // besides, imported address can be a superset of actual address as the
   // imported operation can have several addresses; therefore, `includes` has to
   // be used
+
+  let mismatchingAddresses = false;
+
+  // imported address can be undefined
+  const importedAddress =
+    typeof importedOperation.getAddress() !== "undefined"
+      ? importedOperation.getAddress().toLowerCase()
+      : undefined;
+
+  // actual address is not expected to be undefined
+  const actualAddress = actualOperation.getAddress().toLowerCase();
+
   if (
     importedAddress &&
-    !importedAddress
-      .toLowerCase()
-      .includes(actualOperation.getAddress().toLowerCase()) &&
-    !actualOperation
-      .getAddress()
-      .toLowerCase()
-      .includes(importedAddress.toLowerCase())
+    !importedAddress.includes(actualAddress) &&
+    !actualAddress.includes(importedAddress)
   ) {
+    mismatchingAddresses = true;
+  }
+
+  // Bitcoin Cash cash addresses
+  const importedCashAddress =
+    typeof importedOperation.getCashAddress() !== "undefined"
+      ? importedOperation.getCashAddress()!.toLowerCase()
+      : undefined;
+
+  const actualCashAddress =
+    typeof actualOperation.getCashAddress() !== "undefined"
+      ? actualOperation.getCashAddress()!.toLowerCase()
+      : undefined;
+
+  if (
+    importedCashAddress &&
+    actualCashAddress &&
+    !importedCashAddress.includes(actualCashAddress) &&
+    !actualCashAddress.includes(importedCashAddress)
+  ) {
+    mismatchingAddresses = true;
+  }
+
+  if (mismatchingAddresses) {
     return "Mismatch: addresses";
   }
 
