@@ -630,10 +630,13 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
     addresses.push("<td>" + spent + "</td></tr>");
   }
 
-  report = report.replace("{addresses_count}", addresses.length.toFixed());
+  report = report.replace(
+    "{addresses_count}",
+    outputData.addresses.length.toFixed(),
+  );
   report = report.replace(
     "{addresses_plural}",
-    addresses.length > 1 ? "es" : "",
+    outputData.addresses.length > 1 ? "es" : "",
   );
   report = report.replace("{addresses}", addresses.join(""));
 
