@@ -160,7 +160,7 @@ export class Scanner {
 
       if (this.args.diff || this.args.balance || this.args.balance === "0") {
         const actualBalance = summary.reduce(
-          (accumulator, s) => accumulator + s.balance,
+          (accumulator, s) => accumulator + s.balance.toNumber(),
           0,
         );
 

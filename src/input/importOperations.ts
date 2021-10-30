@@ -299,7 +299,13 @@ const importFromLiveCommonJSON = (contents: string): Operation[] => {
       const op = new Operation(date[0], helpers.toAccountUnit(valueInBaseUnit));
       op.setTxid(txid);
       op.setOperationType("Received");
-      op.setAddress(sanitizeInputedAddress(recipient));
+
+      if (configuration.currency.symbol === currencies.bch.symbol) {
+        // BCH: Live-common returns the cash address format
+        op.setCashAddress(sanitizeInputedAddress(recipient));
+      } else {
+        op.setAddress(sanitizeInputedAddress(recipient));
+      }
 
       operations.push(op);
     } else if (type === "OUT") {
@@ -313,7 +319,13 @@ const importFromLiveCommonJSON = (contents: string): Operation[] => {
       );
       op.setTxid(txid);
       op.setOperationType("Sent");
-      op.setAddress(sanitizeInputedAddress(sender));
+
+      if (configuration.currency.symbol === currencies.bch.symbol) {
+        // BCH: Live-common returns the cash address format
+        op.setCashAddress(sanitizeInputedAddress(sender));
+      } else {
+        op.setAddress(sanitizeInputedAddress(sender));
+      }
 
       operations.push(op);
     }

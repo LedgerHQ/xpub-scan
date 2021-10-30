@@ -57,7 +57,7 @@ const showDiff = (
 
     if (mismatches.length > 0) {
       console.log(chalk.redBright("Diff [ KO ]: operations mismatches"));
-      console.dir(mismatches);
+      console.dir(JSON.parse(JSON.stringify(mismatches)));
       exitCode += 1;
     } else {
       console.log(chalk.greenBright("Diff [ OK ]: operations match"));
