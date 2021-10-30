@@ -260,11 +260,16 @@ export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
   // testnet
   if (typeof testnet !== "undefined" && testnet) {
     // temporary guard clause:
-    // only Bitcoin testnet is supported at the moment
+    // only Bitcoin and Ethereum testnet are supported at the moment
     if (
-      args.xpub.substring(0.4).toLocaleLowerCase() !== "tpub" &&
-      typeof currency !== "undefined" &&
-      currency.toUpperCase() !== "BTC"
+      // case 1. non-tpub
+      (typeof args.xpub !== "undefined" &&
+        args.xpub.substring(0.4).toLocaleLowerCase() !== "tpub") ||
+      // case 2. non-ETH
+      (typeof currency !== "undefined" && currency.toUpperCase() !== "ETH") ||
+      // case 3. ETH via default provider
+      (currency.toUpperCase() === "ETH" &&
+        typeof process.env.XPUB_SCAN_CUSTOM_API_KEY_V2 === "undefined")
     ) {
       throw new Error(
         "The analysis of this currency cannot be performed on testnet",

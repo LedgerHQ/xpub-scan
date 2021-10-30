@@ -6,12 +6,16 @@
     "xpub-scan": "./lib/scan.js"
   },
   "scripts": {
+    "clean": "yarn cache clean --force && rm -rf lib/",
     "build": "tsc && chmod +x ./lib/scan.js",
     "test": "jest",
     "lint": "eslint .",
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
-    "ci": "yarn lint && yarn ts:check && prettier --list-different . && yarn test"
+    "ci": "yarn lint && yarn ts:check && prettier --list-different . && yarn test",
+    "check:dep": "depcheck --ignores=\"ts-node\" && npm outdate && npm audit --audit-level=low",
+    "regression": "python3 .github/workflows/regression_tests/check.py",
+    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p . && yarn regression"
   },
   "repository": {
     "type": "git",

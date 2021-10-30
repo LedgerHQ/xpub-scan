@@ -118,7 +118,11 @@ const setExternalProviderURL = (): void => {
   if (process.env.XPUB_SCAN_CUSTOM_API_KEY_V2) {
     configuration.externalProviderURL = CUSTOM_API_URL.replace(
       "{network}",
-      configuration.testnet ? "testnet" : "mainnet",
+      configuration.testnet
+        ? configuration.currency.symbol === currencies.eth.symbol
+          ? "ropsten"
+          : "testnet"
+        : "mainnet",
     );
 
     configuration.providerType = "Crypto APIs";
