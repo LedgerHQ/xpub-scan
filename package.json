@@ -15,6 +15,7 @@
     "ci": "yarn lint && yarn ts:check && prettier --list-different . && yarn test",
     "check:dep": "depcheck --ignores=\"ts-node\" && npm outdate && npm audit --audit-level=low",
     "regression": "python3 .github/workflows/regression_tests/check.py",
+    "dev:test": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p .",
     "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p . && yarn regression"
   },
   "repository": {
