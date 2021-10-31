@@ -6,6 +6,7 @@ import {
   EXTERNAL_EXPLORERS_URLS,
 } from "../configuration/settings";
 import { reportTemplate } from "../templates/report.html";
+import { base64WhiteLogo, base64YellowLogo } from "../templates/logos.base64";
 import { toAccountUnit, toBaseUnit, toUnprefixedCashAddress } from "../helpers";
 import { Address } from "../models/address";
 import { TODO_TypeThis } from "../types";
@@ -37,13 +38,13 @@ function renderAmount(amount: string | number) {
 
   if (n.isZero()) {
     // align '0': insert filler on the right
-    renderedAmount = "0".padEnd(decimalPrecision + 4, filler);
+    renderedAmount = "0".padEnd(decimalPrecision, filler);
   } else {
     renderedAmount = toAccountUnit(n, 8);
   }
 
   // align any number: insert filler on the left
-  renderedAmount = renderedAmount.padStart(decimalPrecision * 2, filler);
+  renderedAmount = renderedAmount.padStart(decimalPrecision, filler);
 
   renderedAmount = renderedAmount.replace(/^0+(\d)|(\d)0+$/gm, "$1$2"); // remove trailing zeros
 
@@ -549,6 +550,17 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
 function saveHTML(outputData: TODO_TypeThis, filepath: string) {
   let report = reportTemplate;
 
+  // background color and logo
+  if (configuration.testnet) {
+    // yellow if testnet
+    report = report.replace("{body_background_color}", "#f7f48a");
+    report = report.replace("{logo_base_64}", base64YellowLogo);
+  } else {
+    // white otherwise
+    report = report.replace("{body_background_color}", "#ffffff");
+    report = report.replace("{logo_base_64}", base64WhiteLogo);
+  }
+
   // meta
   if (typeof outputData.meta.preDerivationSize === "undefined") {
     report = report.replace("{pre_derivation_size}", "");
@@ -801,6 +813,9 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     warningRange = `! The data is based on a partial scan: ${meta.mode} !`;
   }
 
+  const providerUrl = configuration.externalProviderURL.split("/");
+  const providerBaseUrl = providerUrl[0] + "//" + providerUrl[2];
+
   const outputData = {
     meta: {
       by: "xpub scan <https://github.com/LedgerHQ/xpub-scan>",
@@ -816,7 +831,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
           : " (mainnet)",
       ),
       provider: configuration.providerType,
-      provider_url: configuration.externalProviderURL,
+      provider_url: providerBaseUrl,
       gap_limit: configuration.gap_limit,
       unit: "Base unit (i.e., satoshis or equivalent unit)",
       mode: meta.mode,
