@@ -2,20 +2,10 @@ import fs from "fs";
 import chalk from "chalk";
 
 import { Operation } from "../models/operation";
-import {
-  configuration,
-  BLOCK_HEIGHT_API_URL,
-  ETH_FIXED_PRECISION,
-} from "../configuration/settings";
+import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import BigNumber from "bignumber.js";
 import * as helpers from "../helpers";
 import { currencies } from "../configuration/currencies";
-
-interface BlockInfo {
-  data: {
-    blocks: number;
-  };
-}
 
 /**
  * Remove forbidden chars from address(es)
@@ -426,35 +416,6 @@ const importFromCustomWJSON = (contents: string): Operation[] => {
  *          Imported transactions
  */
 const importOperations = (path: string): Operation[] => {
-  // get the current block height as upper limit for the comparison
-
-  let blockHeightURL;
-
-  if (configuration.testnet) {
-    // testnet: append `TEST` to the coin symbol
-    // (see: see: https://sochain.com/api#networks-supported)
-    blockHeightURL = BLOCK_HEIGHT_API_URL.replace(
-      "{coin}",
-      `${configuration.currency.symbol}TEST`,
-    );
-  } else {
-    blockHeightURL = BLOCK_HEIGHT_API_URL.replace(
-      "{coin}",
-      configuration.currency.symbol,
-    );
-  }
-
-  helpers.getJSON(blockHeightURL).then((response) => {
-    if (typeof response == "object") {
-      // only set the block height upper limit if it has not been
-      // set by the user
-      if (configuration.blockHeightUpperLimit === 0) {
-        configuration.blockHeightUpperLimit =
-          (<BlockInfo>response).data.blocks || 0;
-      }
-    }
-  });
-
   const contents = getFileContents(path);
 
   const firstLine = contents.split(/\r?\n/)[0].replace('"', "");
