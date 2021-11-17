@@ -1,10 +1,14 @@
 import * as bjs from "bitcoinjs-lib";
-import * as bip32 from "bip32";
 import bchaddr from "bchaddrjs";
 import bitcore from "bitcore-lib-cash";
 
 import { DerivationMode } from "../configuration/currencies";
 import { configuration } from "../configuration/settings";
+
+import BIP32Factory from "bip32";
+import * as ecc from "tiny-secp256k1";
+
+const bip32 = BIP32Factory(ecc);
 
 // derive legacy address at account and index positions
 function getLegacyAddress(

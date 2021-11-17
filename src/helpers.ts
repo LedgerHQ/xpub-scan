@@ -1,5 +1,4 @@
 import axios from "axios";
-import * as bip32 from "bip32";
 import chalk from "chalk";
 import bchaddr from "bchaddrjs";
 
@@ -11,6 +10,11 @@ import {
 } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
 import BigNumber from "bignumber.js";
+
+import BIP32Factory from "bip32";
+import * as ecc from "tiny-secp256k1";
+
+const bip32 = BIP32Factory(ecc);
 
 export async function getJSON<T>(
   url: string,
