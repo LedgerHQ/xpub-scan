@@ -62,7 +62,7 @@
   {
     "product": "Live Desktop / LTC / Native SegWit",
     "test_types": ["positive", "negative"],
-    "coin_ticker": "BTC",
+    "coin_ticker": "LTC",
     "network": "mainnet",
     "xpub": "Ltub2ZoLFXBt7mLeb4out9duUxMmqCSX9mqi73NcQ8nyjQsJEm76JP1poExdj9rRCFfHyuUVKgj5t2B2EBsmFvKivKzVpmKKZ4XiAVx65s3WZ8j",
     "filename": "LTC/Live_Native-SegWit_0.csv",
@@ -72,7 +72,7 @@
   {
     "product": "Live Desktop / LTC / SegWit",
     "test_types": ["positive", "negative"],
-    "coin_ticker": "BTC",
+    "coin_ticker": "LTC",
     "network": "mainnet",
     "xpub": "Ltub2YtB7BE1XHRENt5p13yZz9CCcdqqjXZChEroRCb8RXUw2EcunQMNNJ4FKHnPVUu5NUMpbC9ewVvk6Wt1WqVPv3fsKwsxiWJWXpufHGnBFtg",
     "filename": "LTC/Live_SegWit_0.csv",
