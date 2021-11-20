@@ -438,8 +438,8 @@ const importOperations = (path: string): Operation[] => {
       //              an ambiguous term, but sufficient to
       //              distinguish it from type Live Common JSON files
       operations = importFromJSONTypeA(contents);
-    } else if (contents.includes("libcore")) {
-      // Live Common JSON: contains an explicit reference to 'libcore'
+    } else if (contents.includes("seedIdentifier")) {
+      // Live Common JSON: contains an explicit reference to 'seedIdentifier'
       operations = importFromLiveCommonJSON(contents);
     } else if (contents.includes("uid")) {
       // Custom W JSON: contains an explicit reference to 'uid'

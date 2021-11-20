@@ -141,6 +141,10 @@ def run_tests(product_under_test=None):
 
     for data in dataset:
 
+        # skip separators
+        if '_separator_' in data:
+            continue
+
         product = data['product'].lower().replace('-', ' ')
 
         if product_under_test and product_under_test not in product:

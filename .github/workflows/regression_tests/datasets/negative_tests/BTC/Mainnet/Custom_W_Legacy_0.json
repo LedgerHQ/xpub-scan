@@ -1,0 +1,433 @@
+{
+  "previous": "1637411901000",
+  "operations": [
+    {
+      "uid": "db706aa46d71cbdffa1ac5028c7f803fef0ed6b917d2857ae9f7ba44e786fe9a",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 31,
+      "time": "2021-11-20T12:38:21.000+0000",
+      "block_height": 710566,
+      "type": "SEND",
+      "amount": "70000",
+      "fees": "2244",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": [
+        "1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78",
+        "12bNVFv2eTy5wkDQKFT78a47Pk8TEaQjBL"
+      ],
+      "recipients": ["3Q2AxuRxJnvddAa1wAm8PXeQCiBhkCGndi"],
+      "self_recipients": [],
+      "transaction": {
+        "block": {
+          "hash": "0000000000000000000b96dc8d6e75dc3eb4f995a10545f84ad1b8f1de4b9893",
+          "height": 710566,
+          "time": "2021-11-20T12:52:04.000+0000"
+        },
+        "fees": "2244",
+        "hash": "6a832f494b57870a4cb8c9d4094373a6726ad501a12ee1106b371ef592df1df6",
+        "time": "2021-11-20T12:38:21.000+0000",
+        "inputs": [
+          {
+            "address": "1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78",
+            "value": "12300",
+            "previous_transaction_hash": "1591f1cca0e197d337bd6e55621e1df0888f15c283b6538e0fb74f7e68a4faab",
+            "previous_output_index": 0
+          },
+          {
+            "address": "12bNVFv2eTy5wkDQKFT78a47Pk8TEaQjBL",
+            "value": "70000",
+            "previous_transaction_hash": "91bef9ebc0b0c680765faaa2e050f6ca871ce3c7fca69a22278aa77692041974",
+            "previous_output_index": 0
+          }
+        ],
+        "lock_time": 0,
+        "outputs": [
+          {
+            "transaction_hash": "6a832f494b57870a4cb8c9d4094373a6726ad501a12ee1106b371ef592df1df6",
+            "output_index": 0,
+            "value": "70000",
+            "script": ""
+          },
+          {
+            "address": "1GiCSuc1harcGUePV2EfZxmKoJou8V6KVE",
+            "transaction_hash": "6a832f494b57870a4cb8c9d4094373a6726ad501a12ee1106b371ef592df1df6",
+            "output_index": 1,
+            "value": "10056",
+            "script": "76A914AC547F137094459445CC03234A1007EF6A4BB92588AC"
+          }
+        ]
+      }
+    },
+    {
+      "uid": "8632eaf123e9cf71fe0c9b946f8176f3d7760051b3ba91f3f9da79297d9b936d",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 33,
+      "time": "2021-11-20T12:11:19.000+0000",
+      "block_height": 710564,
+      "type": "RECEIVE",
+      "amount": "70000",
+      "fees": "774",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": [
+        "35Nmr5AzLgj7dgNVAqBf5R79nPoVw2XmAZ",
+        "3EBHXFYLnXrjLSsy9SJ1x61cURhPGsetyH"
+      ],
+      "recipients": [
+        "12bNVFv2eTy5wkDQKFT78a47Pk8TEaQjBL",
+        "3ABEPGqmMW6nDfukW8iA8M93gsSMyPmyAM"
+      ],
+      "self_recipients": ["12bNVFv2eTy5wkDQKFT78a47Pk8TEaQjBL"],
+      "transaction": {
+        "block": {
+          "hash": "00000000000000000001338b537f738a5c3b2e3c3f280bce875ccef0d4117bc7",
+          "height": 710564,
+          "time": "2021-11-20T12:13:24.000+0000"
+        },
+        "fees": "774",
+        "hash": "91bef9ebc0b0c680765faaa2e050f6ca871ce3c7fca69a22278aa77692041974",
+        "time": "2021-11-20T12:11:19.000+0000",
+        "inputs": [
+          {
+            "address": "35Nmr5AzLgj7dgNVAqBf5R79nPoVw2XmAZ",
+            "value": "70000",
+            "previous_transaction_hash": "814ef9f1dc6fa7a1d5a4b9166775c3c1f3beba9236f62d412ec9a77c314d9811",
+            "previous_output_index": 0
+          },
+          {
+            "address": "3EBHXFYLnXrjLSsy9SJ1x61cURhPGsetyH",
+            "value": "10842",
+            "previous_transaction_hash": "814ef9f1dc6fa7a1d5a4b9166775c3c1f3beba9236f62d412ec9a77c314d9811",
+            "previous_output_index": 1
+          }
+        ],
+        "lock_time": 0,
+        "outputs": [
+          {
+            "address": "12bNVFv2eTy5wkDQKFT78a47Pk8TEaQjBL",
+            "transaction_hash": "91bef9ebc0b0c680765faaa2e050f6ca871ce3c7fca69a22278aa77692041974",
+            "output_index": 0,
+            "value": "70000",
+            "script": "76A91411783480BBAC3AAFEE18437A1DAEDB43EA41217088AC"
+          },
+          {
+            "transaction_hash": "91bef9ebc0b0c680765faaa2e050f6ca871ce3c7fca69a22278aa77692041974",
+            "output_index": 1,
+            "value": "10068",
+            "script": ""
+          }
+        ]
+      }
+    },
+    {
+      "uid": "6ac51634b8b2a2bf4fd7ddff2f135f50e5d0a9cb10742fa5eda6e2026880b468",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 36,
+      "time": "2021-11-20T12:02:12.000+0000",
+      "block_height": 710561,
+      "type": "RECEIVE",
+      "amount": "12300",
+      "fees": "504",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": ["35sTVC31afDZ7irNhpiK9MxF1Kpdg5w6Mj"],
+      "recipients": [
+        "1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78",
+        "31yCYm3udMy69jsnL9qs22cKJc3Pm4yXak"
+      ],
+      "self_recipients": ["1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78"],
+      "transaction": {
+        "block": {
+          "hash": "0000000000000000000be53a3816374cb02ed846ac58ba451ddb7f6dec1d32e2",
+          "height": 710561,
+          "time": "2021-11-20T12:03:08.000+0000"
+        },
+        "fees": "504",
+        "hash": "1591f1cca0e197d337bd6e55621e1df0888f15c283b6538e0fb74f7e68a4faab",
+        "time": "2021-11-20T12:02:12.000+0000",
+        "inputs": [
+          {
+            "address": "35sTVC31afDZ7irNhpiK9MxF1Kpdg5w6Mj",
+            "value": "24730",
+            "previous_transaction_hash": "6e5b6d2ac1dfd7f150900bc479b44bded03c9f61724af82f9f7d211cd9eae298",
+            "previous_output_index": 0
+          }
+        ],
+        "lock_time": 0,
+        "outputs": [
+          {
+            "address": "1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78",
+            "transaction_hash": "1591f1cca0e197d337bd6e55621e1df0888f15c283b6538e0fb74f7e68a4faab",
+            "output_index": 0,
+            "value": "12300",
+            "script": "76A9148082F8B9B00A34F7D1DE8DC58C39FC39D17464F688AC"
+          },
+          {
+            "transaction_hash": "1591f1cca0e197d337bd6e55621e1df0888f15c283b6538e0fb74f7e68a4faab",
+            "output_index": 1,
+            "value": "11926",
+            "script": ""
+          }
+        ]
+      }
+    },
+    {
+      "uid": "6ac51634b8b2a2bf4fd7ddff2f135f50e5d0a9cb10742fa5eda6e2026880b468",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 36,
+      "time": "2021-11-20T12:02:12.000+0000",
+      "block_height": 710561,
+      "type": "RECEIVE",
+      "amount": "12300",
+      "fees": "504",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": ["35sTVC31afDZ7irNhpiK9MxF1Kpdg5w6Mj"],
+      "recipients": [
+        "1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78",
+        "31yCYm3udMy69jsnL9qs22cKJc3Pm4yXak"
+      ],
+      "self_recipients": ["1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78"],
+      "transaction": {
+        "block": {
+          "hash": "0000000000000000000be53a3816374cb02ed846ac58ba451ddb7f6dec1d32e2",
+          "height": 710561,
+          "time": "2021-11-20T12:03:08.000+0000"
+        },
+        "fees": "504",
+        "hash": "1591f1cca0e197d337bd6e55621e1df0888f15c283b6538e0fb74f7e68a4faab",
+        "time": "2021-11-20T12:02:12.000+0000",
+        "inputs": [
+          {
+            "address": "35sTVC31afDZ7irNhpiK9MxF1Kpdg5w6Mj",
+            "value": "24730",
+            "previous_transaction_hash": "6e5b6d2ac1dfd7f150900bc479b44bded03c9f61724af82f9f7d211cd9eae298",
+            "previous_output_index": 0
+          }
+        ],
+        "lock_time": 0,
+        "outputs": [
+          {
+            "address": "1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78",
+            "transaction_hash": "1591f1cca0e197d337bd6e55621e1df0888f15c283b6538e0fb74f7e68a4faab",
+            "output_index": 0,
+            "value": "12300",
+            "script": "76A9148082F8B9B00A34F7D1DE8DC58C39FC39D17464F688AC"
+          },
+          {
+            "transaction_hash": "1591f1cca0e197d337bd6e55621e1df0888f15c283b6538e0fb74f7e68a4faab",
+            "output_index": 1,
+            "value": "11926",
+            "script": ""
+          }
+        ]
+      }
+    },
+    {
+      "uid": "df4da470bd0d861f10ad9d0cc9dbf9381621d983240d949d7bcb51798d2095c8",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 10867,
+      "time": "2021-09-09T06:27:56.000+0000",
+      "block_height": 699730,
+      "type": "SEND",
+      "amount": "18848",
+      "fees": "1152",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": ["1AC4EypEKiobnZfDv1pSEt28g3D4MwY5WB"],
+      "recipients": ["35sTVC31afDZ7irNhpiK9MxF1Kpdg5w6Mj"],
+      "self_recipients": [],
+      "transaction": {
+        "block": {
+          "hash": "0000000000000000000794852a819747f9dc5a3cb760180ee7f65f998e8f33a0",
+          "height": 699730,
+          "time": "2021-09-09T06:36:59.000+0000"
+        },
+        "fees": "1152",
+        "hash": "f03c816864709ac8875664bb5e0abeed37ce6ffc7900a274e34b1387856d07db",
+        "time": "2021-09-09T06:27:56.000+0000",
+        "inputs": [
+          {
+            "address": "1AC4EypEKiobnZfDv1pSEt28g3D4MwY5WB",
+            "value": "20000",
+            "previous_transaction_hash": "8cb13b15e3f27346058a529b6be5d6641310c8e6826fc9ecdc1041d8a56b8465",
+            "previous_output_index": 0
+          }
+        ],
+        "lock_time": 0,
+        "outputs": [
+          {
+            "transaction_hash": "f03c816864709ac8875664bb5e0abeed37ce6ffc7900a274e34b1387856d07db",
+            "output_index": 0,
+            "value": "18848",
+            "script": ""
+          }
+        ]
+      }
+    },
+    {
+      "uid": "3343c63be699284dced5be8dac7276165848898634dbeaa659a6a856aa8cf8d9",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 10958,
+      "time": "2021-09-08T12:52:10.000+0000",
+      "block_height": 699639,
+      "type": "SEND",
+      "amount": "8848",
+      "fees": "1152",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": ["12hLWc8AXB6sikou3raetiMtNWR3dXjR5r"],
+      "recipients": ["15oi4MHTSqL2oGBUoGZwLvcGE6gsFud3j5"],
+      "self_recipients": [],
+      "transaction": {
+        "block": {
+          "hash": "000000000000000000098059d521e1cccbc4c62dd5220e4c78b9ed896255cd4d",
+          "height": 699639,
+          "time": "2021-09-08T15:59:48.000+0000"
+        },
+        "fees": "1152",
+        "hash": "963337725ad9778dd63149ffe5e15fe1fe8aa536bf7f041f3c985291e0c464d5",
+        "time": "2021-09-08T12:52:10.000+0000",
+        "inputs": [
+          {
+            "address": "12hLWc8AXB6sikou3raetiMtNWR3dXjR5r",
+            "value": "10000",
+            "previous_transaction_hash": "3c4fc2f83afb29b036d43ed99a0b6c044d39c608cd16e0e9a739c818128132e7",
+            "previous_output_index": 0
+          }
+        ],
+        "lock_time": 0,
+        "outputs": [
+          {
+            "transaction_hash": "963337725ad9778dd63149ffe5e15fe1fe8aa536bf7f041f3c985291e0c464d5",
+            "output_index": 0,
+            "value": "8848",
+            "script": ""
+          }
+        ]
+      }
+    },
+    {
+      "uid": "b24002a3991788a7c0df54d4c01c43b91159d9e7774353f0722f0cff6340236d",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 10958,
+      "time": "2021-09-08T12:50:09.000+0000",
+      "block_height": 699639,
+      "type": "RECEIVE",
+      "amount": "10000",
+      "fees": "1870",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": [
+        "1LwVbvPGL23S4NbRGFHqDrYeUqcoBJWf6m",
+        "15p5JY8HyRrPt68eBNyZv7nSeb82cwMGdB"
+      ],
+      "recipients": [
+        "12hLWc8AXB6sikou3raetiMtNWR3dXjR5r",
+        "17SqoYyAdqcLEWfY6WUNLXi3LjaCotVy4H"
+      ],
+      "self_recipients": ["12hLWc8AXB6sikou3raetiMtNWR3dXjR5r"],
+      "transaction": {
+        "block": {
+          "hash": "000000000000000000098059d521e1cccbc4c62dd5220e4c78b9ed896255cd4d",
+          "height": 699639,
+          "time": "2021-09-08T15:59:48.000+0000"
+        },
+        "fees": "1870",
+        "hash": "3c4fc2f83afb29b036d43ed99a0b6c044d39c608cd16e0e9a739c818128132e7",
+        "time": "2021-09-08T12:50:09.000+0000",
+        "inputs": [
+          {
+            "address": "1LwVbvPGL23S4NbRGFHqDrYeUqcoBJWf6m",
+            "value": "3192",
+            "previous_transaction_hash": "13ebd480ea59aa514b70b8935b40338d6f498da184afed4dc91a3c5e1a7a7fee",
+            "previous_output_index": 1
+          },
+          {
+            "address": "15p5JY8HyRrPt68eBNyZv7nSeb82cwMGdB",
+            "value": "10000",
+            "previous_transaction_hash": "079196dab93742aa5a6bb77d9d3f9b5310f45e339b300c125057d66d14fb8c7e",
+            "previous_output_index": 0
+          }
+        ],
+        "lock_time": 699621,
+        "outputs": [
+          {
+            "address": "12hLWc8AXB6sikou3raetiMtNWR3dXjR5r",
+            "transaction_hash": "3c4fc2f83afb29b036d43ed99a0b6c044d39c608cd16e0e9a739c818128132e7",
+            "output_index": 0,
+            "value": "10000",
+            "script": "76A91412990CFE09B9018B673F022D0AF59CEB0B49D85888AC"
+          },
+          {
+            "transaction_hash": "3c4fc2f83afb29b036d43ed99a0b6c044d39c608cd16e0e9a739c818128132e7",
+            "output_index": 1,
+            "value": "1322",
+            "script": ""
+          }
+        ]
+      }
+    },
+    {
+      "uid": "39fbc0743d21a52bfe4e03d2a8201b4e6455cbb7cfbe3d826567d4da1fd52106",
+      "currency_name": "bitcoin",
+      "currency_family": "BITCOIN",
+      "confirmations": 10974,
+      "time": "2021-09-08T12:44:41.000+0000",
+      "block_height": 699623,
+      "type": "RECEIVE",
+      "amount": "20000",
+      "fees": "1008",
+      "wallet_name": "bitcoin",
+      "account_index": 0,
+      "senders": ["32bzwVVxAsvVWuPSyVq7xhoH8NNy8nhq2i"],
+      "recipients": [
+        "1AC4EypEKiobnZfDv1pSEt28g3D4MwY5WB",
+        "3541vUPkUXLoHY2JNQzakRgwF3MHeqQCh3"
+      ],
+      "self_recipients": ["1AC4EypEKiobnZfDv1pSEt28g3D4MwY5WB"],
+      "transaction": {
+        "block": {
+          "hash": "0000000000000000000448752538edb844001fe02c4d81b10c15a8721aae43b6",
+          "height": 699623,
+          "time": "2021-09-08T13:04:44.000+0000"
+        },
+        "fees": "1008",
+        "hash": "8cb13b15e3f27346058a529b6be5d6641310c8e6826fc9ecdc1041d8a56b8465",
+        "time": "2021-09-08T12:44:41.000+0000",
+        "inputs": [
+          {
+            "address": "32bzwVVxAsvVWuPSyVq7xhoH8NNy8nhq2i",
+            "value": "71230",
+            "previous_transaction_hash": "f35b554a713fdf7981cd554219b24b348092048558d8a68903b29fa775f2b531",
+            "previous_output_index": 1
+          }
+        ],
+        "lock_time": 0,
+        "outputs": [
+          {
+            "address": "1AC4EypEKiobnZfDv1pSEt28g3D4MwY5WB",
+            "transaction_hash": "8cb13b15e3f27346058a529b6be5d6641310c8e6826fc9ecdc1041d8a56b8465",
+            "output_index": 0,
+            "value": "20000",
+            "script": "76A91464D069C15B649EFE057CB3277D47A146B68AF71188AC"
+          },
+          {
+            "transaction_hash": "8cb13b15e3f27346058a529b6be5d6641310c8e6826fc9ecdc1041d8a56b8465",
+            "output_index": 1,
+            "value": "50222",
+            "script": ""
+          }
+        ]
+      }
+    }
+  ]
+}

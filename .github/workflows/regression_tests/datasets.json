@@ -1,11 +1,126 @@
 [
   {
+    "_separator_": "[========== BITCOIN MAINNET ==========]"
+  },
+  {
+    "_separator_": "[---------- Bitcoin mainnet: Live ----------]"
+  },
+  {
+    "product": "Live Desktop / BTC / Legacy",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6C9vKwUFiBLbQKS6mhEAtEYhS24sVz8MkvMjxQSECTZVCnFmy675zojLthvXVuQf15RT6ggmt7PTgLBV2tLHHdJenoEkNWe5VPBETncxf2q",
+    "filename": "BTC/Mainnet/Live_Legacy_0.csv",
+    "simulated_discrepancy": "Extra operation",
+    "balance": 10056
+  },
+  {
+    "product": "Live-common / BTC / Legacy",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6C9vKwUFiBLbQKS6mhEAtEYhS24sVz8MkvMjxQSECTZVCnFmy675zojLthvXVuQf15RT6ggmt7PTgLBV2tLHHdJenoEkNWe5VPBETncxf2q",
+    "filename": "BTC/Mainnet/Live-common_Legacy_0.json",
+    "simulated_discrepancy": "Mismatch: addresses",
+    "balance": 10056
+  },
+  {
+    "product": "Live Desktop / BTC / SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6DDeKs272C9xQyta6cxqz4JwVLFsVSHhv6dbj89ZptN7pt2QHtGt119YtXTKdfA5Hk2TD4F35FuyzXCEQujSDRowuVMnPfY57cnqmk2AKVX",
+    "filename": "BTC/Mainnet/Live_SegWit_0.csv",
+    "simulated_discrepancy": "Mismatch: amounts",
+    "balance": 11002
+  },
+  {
+    "product": "Live-common / BTC / SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6DDeKs272C9xQyta6cxqz4JwVLFsVSHhv6dbj89ZptN7pt2QHtGt119YtXTKdfA5Hk2TD4F35FuyzXCEQujSDRowuVMnPfY57cnqmk2AKVX",
+    "filename": "BTC/Mainnet/Live-common_SegWit_0.json",
+    "simulated_discrepancy": "Missing operation",
+    "balance": 11002
+  },
+  {
+    "product": "Live Desktop / BTC / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p",
+    "filename": "BTC/Mainnet/Live_Native-SegWit_0.csv",
+    "simulated_discrepancy": "Extra operation",
+    "balance": 7280
+  },
+  {
+    "product": "Live-common / BTC / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p",
+    "filename": "BTC/Mainnet/Live-common_Native-SegWit_0.json",
+    "simulated_discrepancy": "Mismatch: amounts",
+    "balance": 7280
+  },
+  {
+    "_separator_": "[---------- Bitcoin mainnet: Custom ----------]"
+  },
+  {
+    "product": "Custom G / BTC / Legacy",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6CVFeCvb41hAga6bQqT5pDNjseaX6EnGkNVR7T5TCCkv7BMRgQGQBm2FfwiLYjCoNrdjt161UVHtrqPfkQvq2FpdEvR232dTia4uz8fj5du",
+    "filename": "BTC/Mainnet/Custom_G_Legacy_0.csv",
+    "simulated_discrepancy": "Mismatch: amounts",
+    "balance": 6000
+  },
+  {
+    "product": "Custom G / BTC / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6DMPzoRnLSvbdkdLp58sih46Xiw4hn9mPCGBWKGzyZqR3fDWkDQdJLnzUL6p5RQE5SeH4djucsDuAzgZjyFwGKR8r5RvnFVBQQyWciCf8Me",
+    "filename": "BTC/Mainnet/Custom_G_Native-SegWit_0.csv",
+    "simulated_discrepancy": "Missing operation",
+    "balance": 59562
+  },
+  {
+    "product": "Custom W / BTC / Legacy",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6C9vKwUFiBLbQKS6mhEAtEYhS24sVz8MkvMjxQSECTZVCnFmy675zojLthvXVuQf15RT6ggmt7PTgLBV2tLHHdJenoEkNWe5VPBETncxf2q",
+    "filename": "BTC/Mainnet/Custom_W_Legacy_0.json",
+    "simulated_discrepancy": "Extra operation",
+    "balance": 10056
+  },
+  {
+    "product": "Custom W / BTC / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p",
+    "filename": "BTC/Mainnet/Custom_W_Native-SegWit_0.json",
+    "simulated_discrepancy": "Missing operation",
+    "balance": 7280
+  },
+  {
+    "_separator_": "[========== BITCOIN TESTNET ==========]"
+  },
+  {
+    "_separator_": "[---------- Bitcoin testnet: Live ----------]"
+  },
+  {
     "product": "Live-common / BTC / SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
     "xpub": "tpubDCCpYzH6NwKVnAipf8ChTfiTG4XtmxncwL97rQGLJ3SqfFCWzDq78LX1a7s2WXJsyfvR6bMiLkC7FSXLGoBo3dsH6DE9JKJb6LQSPasuSWj",
-    "filename": "BTC/Live-common_SegWit_0.json",
+    "filename": "BTC/Testnet/Live-common_SegWit_0.json",
     "simulated_discrepancy": "Mismatch: amounts",
     "balance": 5085784
   },
@@ -15,7 +130,7 @@
     "coin_ticker": "BTC",
     "network": "testnet",
     "xpub": "tpubDDesZsTU8M34dQB96jM7cxBFStFCi8hqeHEwqu6M2LCjQWsf3THFxEtgygXX8uL5v4HeZLXbSVVP3LMy1Cgd8S85oMESAYWSH5mGG8YtjYS",
-    "filename": "BTC/Live-common_Native-SegWit_0.json",
+    "filename": "BTC/Testnet/Live-common_Native-SegWit_0.json",
     "simulated_discrepancy": "Extra operation",
     "balance": 16091685
   },
@@ -25,9 +140,68 @@
     "coin_ticker": "BTC",
     "network": "testnet",
     "xpub": "tpubDCCpYzH6NwKVnAipf8ChTfiTG4XtmxncwL97rQGLJ3SqfFCWzDq78LX1a7s2WXJsyfvR6bMiLkC7FSXLGoBo3dsH6DE9JKJb6LQSPasuSWj",
-    "filename": "BTC/Live_SegWit_0.csv",
+    "filename": "BTC/Testnet/Live_SegWit_0.csv",
     "simulated_discrepancy": "Mismatch: amounts",
     "balance": 5085784
+  },
+  {
+    "product": "Live Desktop / BTC / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDesZsTU8M34dQB96jM7cxBFStFCi8hqeHEwqu6M2LCjQWsf3THFxEtgygXX8uL5v4HeZLXbSVVP3LMy1Cgd8S85oMESAYWSH5mGG8YtjYS",
+    "filename": "BTC/Testnet/Live_Native-SegWit_0.csv",
+    "simulated_discrepancy": "Missing operation",
+    "balance": 16091685
+  },
+  {
+    "_separator_": "[---------- Bitcoin testnet: Custom ----------]"
+  },
+  {
+    "product": "Custom G / BTC / Legacy",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDeVY9LV9mbHM6f6pMkk3yKbJtEtXGZGuZgHe4LvSctECW77Y31ddoe5hrFzSb6f5zicMzfx3g3CDj13NCBRPWJbiKxZdPmuvnqvbDNkvnB",
+    "filename": "BTC/Testnet/Custom_G_Legacy_0.csv",
+    "simulated_discrepancy": "Mismatch: amounts",
+    "balance": 5472237
+  },
+  {
+    "product": "Custom G / BTC / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDUQPBGDGYAHmFG4h8Rg7CyB96oiQJ4kx1GC8tvpgWYFKTEKdXNbsAnvrJQoyxJj6n5ZGpsd82Z85DdyjFtJ4JiNKauZxnUWpvTkX3x6p5d",
+    "filename": "BTC/Testnet/Custom_G_Native-SegWit_0.csv",
+    "simulated_discrepancy": "Missing operation",
+    "balance": 20120262
+  },
+  {
+    "product": "Custom W / BTC / Legacy",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDeVY9LV9mbHM6f6pMkk3yKbJtEtXGZGuZgHe4LvSctECW77Y31ddoe5hrFzSb6f5zicMzfx3g3CDj13NCBRPWJbiKxZdPmuvnqvbDNkvnB",
+    "filename": "BTC/Testnet/Custom_W_Legacy_0.json",
+    "simulated_discrepancy": "Extra operation",
+    "balance": 5472237
+  },
+  {
+    "product": "Custom W / BTC / Native SegWit",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "testnet",
+    "xpub": "tpubDDUQPBGDGYAHmFG4h8Rg7CyB96oiQJ4kx1GC8tvpgWYFKTEKdXNbsAnvrJQoyxJj6n5ZGpsd82Z85DdyjFtJ4JiNKauZxnUWpvTkX3x6p5d",
+    "filename": "BTC/Testnet/Custom_W_Native-SegWit_0.json",
+    "simulated_discrepancy": "Missing operation",
+    "balance": 20120262
+  },
+  {
+    "_separator_": "[========== BITCOIN CASH MAINNET ==========]"
+  },
+  {
+    "_separator_": "[---------- Bitcoin cash mainnet: Live ----------]"
   },
   {
     "product": "Live-common / BCH",
@@ -50,14 +224,10 @@
     "balance": 8314
   },
   {
-    "product": "Live Desktop / BTC / Native SegWit",
-    "test_types": ["positive", "negative"],
-    "coin_ticker": "BTC",
-    "network": "testnet",
-    "xpub": "tpubDDesZsTU8M34dQB96jM7cxBFStFCi8hqeHEwqu6M2LCjQWsf3THFxEtgygXX8uL5v4HeZLXbSVVP3LMy1Cgd8S85oMESAYWSH5mGG8YtjYS",
-    "filename": "BTC/Live_Native-SegWit_0.csv",
-    "simulated_discrepancy": "Missing operation",
-    "balance": 16091685
+    "_separator_": "[========== LITECOIN MAINNET ==========]"
+  },
+  {
+    "_separator_": "[---------- Litecoin mainnet: Live ----------]"
   },
   {
     "product": "Live Desktop / LTC / Native SegWit",
@@ -80,43 +250,29 @@
     "balance": 20000000
   },
   {
-    "product": "Custom G / BTC / Legacy",
+    "_separator_": "[========== ETHEREUM MAINNET ==========]"
+  },
+  {
+    "_separator_": "[---------- Ethereum mainnet: Live ----------]"
+  },
+  {
+    "product": "Live Desktop / ETH",
     "test_types": ["positive", "negative"],
-    "coin_ticker": "BTC",
-    "network": "testnet",
-    "xpub": "tpubDDeVY9LV9mbHM6f6pMkk3yKbJtEtXGZGuZgHe4LvSctECW77Y31ddoe5hrFzSb6f5zicMzfx3g3CDj13NCBRPWJbiKxZdPmuvnqvbDNkvnB",
-    "filename": "BTC/Custom_G_Legacy_0.csv",
+    "coin_ticker": "ETH",
+    "network": "mainnet",
+    "xpub": "0x243b14754EF82F881a4a81f9af07c58Ea5eb4a87",
+    "filename": "ETH/Mainnet/Live_0.csv",
+    "simulated_discrepancy": "Missing operation",
+    "balance": 1858515270441823
+  },
+  {
+    "product": "Live-common / ETH",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "ETH",
+    "network": "mainnet",
+    "xpub": "0x243b14754EF82F881a4a81f9af07c58Ea5eb4a87",
+    "filename": "ETH/Mainnet/Live-common_0.json",
     "simulated_discrepancy": "Mismatch: amounts",
-    "balance": 5472237
-  },
-  {
-    "product": "Custom G / BTC / Native SegWit",
-    "test_types": ["positive", "negative"],
-    "coin_ticker": "BTC",
-    "network": "testnet",
-    "xpub": "tpubDDUQPBGDGYAHmFG4h8Rg7CyB96oiQJ4kx1GC8tvpgWYFKTEKdXNbsAnvrJQoyxJj6n5ZGpsd82Z85DdyjFtJ4JiNKauZxnUWpvTkX3x6p5d",
-    "filename": "BTC/Custom_G_Native-SegWit_0.csv",
-    "simulated_discrepancy": "Missing operation",
-    "balance": 20120262
-  },
-  {
-    "product": "Custom W / BTC / Legacy",
-    "test_types": ["positive", "negative"],
-    "coin_ticker": "BTC",
-    "network": "testnet",
-    "xpub": "tpubDDeVY9LV9mbHM6f6pMkk3yKbJtEtXGZGuZgHe4LvSctECW77Y31ddoe5hrFzSb6f5zicMzfx3g3CDj13NCBRPWJbiKxZdPmuvnqvbDNkvnB",
-    "filename": "BTC/Custom_W_Legacy_0.json",
-    "simulated_discrepancy": "Extra operation",
-    "balance": 5472237
-  },
-  {
-    "product": "Custom W / BTC / Native SegWit",
-    "test_types": ["positive", "negative"],
-    "coin_ticker": "BTC",
-    "network": "testnet",
-    "xpub": "tpubDDUQPBGDGYAHmFG4h8Rg7CyB96oiQJ4kx1GC8tvpgWYFKTEKdXNbsAnvrJQoyxJj6n5ZGpsd82Z85DdyjFtJ4JiNKauZxnUWpvTkX3x6p5d",
-    "filename": "BTC/Custom_W_Native-SegWit_0.json",
-    "simulated_discrepancy": "Missing operation",
-    "balance": 20120262
+    "balance": 1858515270441823
   }
 ]
