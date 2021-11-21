@@ -135,9 +135,11 @@ def run_negative_test(data: dict) -> bool:
     return is_success
 
 
-def run_tests(product_under_test=None):
+def run_tests(product_under_test=None, currency=None):
     with open(f"{base_path}/datasets.json", 'r') as f:
         dataset = json.load(f)
+
+    ran_tests = False
 
     for data in dataset:
 
@@ -150,21 +152,33 @@ def run_tests(product_under_test=None):
         if product_under_test and product_under_test not in product:
             continue
 
+        if currency and currency not in data['coin_ticker']:
+            continue
+
         test_types = data['test_types']
 
         for test_type in test_types:
             is_success = run_positive_test(
                 data) if test_type == "positive" else run_negative_test(data)
 
+            ran_tests = True
+
             if not is_success:
                 sys.exit(1)
 
+    if not ran_tests:
+        print(f"No {product_under_test.upper()} x {currency} test [skipped]")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         # test one product, specifyied as argument
         product_under_test = sys.argv[1].lower().strip().replace('-', ' ')
-        run_tests(product_under_test)
+
+        currency = None
+        if len(sys.argv) == 3:
+            currency = sys.argv[2].upper()
+
+        run_tests(product_under_test, currency)
     else:
         # test all
         run_tests()

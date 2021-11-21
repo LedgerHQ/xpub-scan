@@ -6,7 +6,7 @@
     "_separator_": "[---------- Bitcoin mainnet: Live ----------]"
   },
   {
-    "product": "Live Desktop / BTC / Legacy",
+    "product": "Live Desktop / BTC mainnet / Legacy",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -16,7 +16,7 @@
     "balance": 10056
   },
   {
-    "product": "Live-common / BTC / Legacy",
+    "product": "Live-common / BTC mainnet / Legacy",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -26,7 +26,7 @@
     "balance": 10056
   },
   {
-    "product": "Live Desktop / BTC / SegWit",
+    "product": "Live Desktop / BTC mainnet / SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -36,7 +36,7 @@
     "balance": 11002
   },
   {
-    "product": "Live-common / BTC / SegWit",
+    "product": "Live-common / BTC mainnet / SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -46,7 +46,7 @@
     "balance": 11002
   },
   {
-    "product": "Live Desktop / BTC / Native SegWit",
+    "product": "Live Desktop / BTC mainnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -56,7 +56,7 @@
     "balance": 7280
   },
   {
-    "product": "Live-common / BTC / Native SegWit",
+    "product": "Live-common / BTC mainnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -69,7 +69,7 @@
     "_separator_": "[---------- Bitcoin mainnet: Custom ----------]"
   },
   {
-    "product": "Custom G / BTC / Legacy",
+    "product": "Custom G / BTC mainnet / Legacy",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -79,17 +79,17 @@
     "balance": 6000
   },
   {
-    "product": "Custom G / BTC / Native SegWit",
+    "product": "Custom G / BTC mainnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
     "xpub": "xpub6DMPzoRnLSvbdkdLp58sih46Xiw4hn9mPCGBWKGzyZqR3fDWkDQdJLnzUL6p5RQE5SeH4djucsDuAzgZjyFwGKR8r5RvnFVBQQyWciCf8Me",
     "filename": "BTC/Mainnet/Custom_G_Native-SegWit_0.csv",
     "simulated_discrepancy": "Missing operation",
-    "balance": 59562
+    "balance": 9270
   },
   {
-    "product": "Custom W / BTC / Legacy",
+    "product": "Custom W / BTC mainnet / Legacy",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -99,7 +99,7 @@
     "balance": 10056
   },
   {
-    "product": "Custom W / BTC / Native SegWit",
+    "product": "Custom W / BTC mainnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "mainnet",
@@ -115,7 +115,7 @@
     "_separator_": "[---------- Bitcoin testnet: Live ----------]"
   },
   {
-    "product": "Live-common / BTC / SegWit",
+    "product": "Live-common / BTC testnet / SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -125,7 +125,7 @@
     "balance": 5085784
   },
   {
-    "product": "Live-common / BTC / Native SegWit",
+    "product": "Live-common / BTC testnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -135,7 +135,7 @@
     "balance": 16091685
   },
   {
-    "product": "Live Desktop / BTC / SegWit",
+    "product": "Live Desktop / BTC testnet / SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -145,7 +145,7 @@
     "balance": 5085784
   },
   {
-    "product": "Live Desktop / BTC / Native SegWit",
+    "product": "Live Desktop / BTC testnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -158,7 +158,7 @@
     "_separator_": "[---------- Bitcoin testnet: Custom ----------]"
   },
   {
-    "product": "Custom G / BTC / Legacy",
+    "product": "Custom G / BTC testnet / Legacy",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -168,7 +168,7 @@
     "balance": 5472237
   },
   {
-    "product": "Custom G / BTC / Native SegWit",
+    "product": "Custom G / BTC testnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -178,7 +178,7 @@
     "balance": 20120262
   },
   {
-    "product": "Custom W / BTC / Legacy",
+    "product": "Custom W / BTC testnet / Legacy",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -188,7 +188,7 @@
     "balance": 5472237
   },
   {
-    "product": "Custom W / BTC / Native SegWit",
+    "product": "Custom W / BTC testnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BTC",
     "network": "testnet",
@@ -204,7 +204,7 @@
     "_separator_": "[---------- Bitcoin cash mainnet: Live ----------]"
   },
   {
-    "product": "Live-common / BCH",
+    "product": "Live-common / BCH mainnet",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BCH",
     "network": "mainnet",
@@ -214,7 +214,7 @@
     "balance": 8314
   },
   {
-    "product": "Live Desktop / BCH",
+    "product": "Live Desktop / BCH mainnet",
     "test_types": ["positive", "negative"],
     "coin_ticker": "BCH",
     "network": "mainnet",
@@ -230,7 +230,7 @@
     "_separator_": "[---------- Litecoin mainnet: Live ----------]"
   },
   {
-    "product": "Live Desktop / LTC / Native SegWit",
+    "product": "Live Desktop / LTC mainnet / Native SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "LTC",
     "network": "mainnet",
@@ -240,7 +240,7 @@
     "balance": 30000000
   },
   {
-    "product": "Live Desktop / LTC / SegWit",
+    "product": "Live Desktop / LTC mainnet / SegWit",
     "test_types": ["positive", "negative"],
     "coin_ticker": "LTC",
     "network": "mainnet",
@@ -256,7 +256,7 @@
     "_separator_": "[---------- Ethereum mainnet: Live ----------]"
   },
   {
-    "product": "Live Desktop / ETH",
+    "product": "Live Desktop / ETH mainnet",
     "test_types": ["positive", "negative"],
     "coin_ticker": "ETH",
     "network": "mainnet",
@@ -266,7 +266,7 @@
     "balance": 1858515270441823
   },
   {
-    "product": "Live-common / ETH",
+    "product": "Live-common / ETH mainnet",
     "test_types": ["positive", "negative"],
     "coin_ticker": "ETH",
     "network": "mainnet",
