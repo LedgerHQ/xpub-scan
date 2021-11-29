@@ -12,7 +12,7 @@ import { Address } from "../models/address";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
-import { ComparisonStatus } from "../models/comparison";
+import { ComparisonStatus, Comparison } from "../models/comparison";
 
 function renderToken(token: any, status?: ComparisonStatus) {
   const renderedAmount = new BigNumber(token.amount).toFormat(6);
@@ -773,9 +773,9 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       })
     : [];
 
-  const comparisons: TODO_TypeThis[] =
+  const comparisons: Comparison[] =
     typeof data.comparisons !== "undefined"
-      ? data.comparisons.map((e: TODO_TypeThis) => {
+      ? data.comparisons.map((e: Comparison) => {
           return {
             ...e,
             imported:
@@ -797,7 +797,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
         })
       : undefined;
 
-  let diffs = [];
+  let diffs: Comparison[] = [];
 
   if (typeof comparisons !== "undefined") {
     diffs =

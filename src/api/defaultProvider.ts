@@ -3,7 +3,6 @@ import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
-import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 
 import BigNumber from "bignumber.js";
@@ -83,7 +82,7 @@ async function getStats(address: Address) {
     .replace("{coin}", coin)
     .replace("{address}", address.toString());
 
-  const res = await getJSON<TODO_TypeThis>(url);
+  const res = await getJSON<any>(url);
 
   // TODO: check potential errors here (API returning invalid data...)
   const fundedSum = res.data.received_value;
@@ -101,7 +100,7 @@ async function getBchStats(address: Address) {
     .replace("{type}", "details")
     .replace("{address}", address.asCashAddress()!);
 
-  const res = await getJSON<TODO_TypeThis>(urlStats);
+  const res = await getJSON<any>(urlStats);
 
   // TODO: check potential errors here (API returning invalid data...)
   const fundedSum = res.totalReceived;
@@ -119,7 +118,7 @@ async function getBchStats(address: Address) {
   let totalPages = 1;
 
   for (let i = 0; i < totalPages; i++) {
-    const response = await getJSON<TODO_TypeThis>(
+    const response = await getJSON<any>(
       urlTxs.concat("?page=").concat(i.toString()),
     );
     totalPages = response.pagesTotal;
@@ -137,7 +136,7 @@ async function getEthStats(address: Address) {
     .replace("{type}", "addrs")
     .replace("{item}", address.toString());
 
-  const res = await getJSON<TODO_TypeThis>(url);
+  const res = await getJSON<any>(url);
 
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const removeScientificNotation = (value: any) =>
@@ -169,7 +168,7 @@ async function getEthStats(address: Address) {
       .replace("{type}", "txs")
       .replace("{item}", res.txrefs[i].tx_hash);
 
-    const resTxs = await getJSON<TODO_TypeThis>(urlTxs);
+    const resTxs = await getJSON<any>(urlTxs);
     res.txrefs[i].total = resTxs.total;
   }
 

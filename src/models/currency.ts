@@ -1,10 +1,10 @@
+import * as bjs from "bitcoinjs-lib";
 import { DerivationMode } from "../configuration/currencies";
-import { TODO_TypeThis } from "../types";
 
 class Currency {
   name: string;
   symbol: string;
-  network?: TODO_TypeThis;
+  network?: bjs.networks.Network;
   derivationModes?: Array<DerivationMode>;
   precision: number;
   utxo_based: boolean;

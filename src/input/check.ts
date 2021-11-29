@@ -2,7 +2,6 @@ import fs from "fs";
 import chalk from "chalk";
 
 import { currencies, DerivationMode } from "../configuration/currencies";
-import { TODO_TypeThis } from "../types";
 import { Currency } from "../models/currency";
 import { configuration } from "../configuration/settings";
 
@@ -11,7 +10,7 @@ import { configuration } from "../configuration/settings";
  * @param  {any} args
  * @returns void
  */
-export const checkArgs = (args: TODO_TypeThis, argv: string[]): void => {
+export const checkArgs = (args: any, argv: string[]): void => {
   // (important) Command line mode: enable output
   configuration.commandLineMode = true;
 
