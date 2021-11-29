@@ -8,7 +8,6 @@ import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
 import { Transaction } from "../models/transaction";
 import { Operation } from "../models/operation";
-import { TODO_TypeThis } from "../types";
 
 import { format } from "date-fns";
 import bchaddr from "bchaddrjs";
@@ -92,7 +91,7 @@ async function getPayloads(
   while (itemsRemainingToBeFetched) {
     const url = getTxsURLTemplate.replace("{offset}", String(offset));
 
-    const txs = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
+    const txs = await helpers.getJSON<any>(url, configuration.APIKey);
 
     const payload = txs.data.items;
 
@@ -118,7 +117,7 @@ async function getTransactionPayload(coin: string, transactionHash: string) {
     .concat("/transactions/")
     .concat(transactionHash);
 
-  const txs = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
+  const txs = await helpers.getJSON<any>(url, configuration.APIKey);
 
   return txs.data.item;
 }
@@ -170,7 +169,7 @@ async function getStats(address: Address, balanceOnly: boolean) {
     .concat(address.toString())
     .replace("{coin}", coin);
 
-  const res = await helpers.getJSON<TODO_TypeThis>(url, configuration.APIKey);
+  const res = await helpers.getJSON<any>(url, configuration.APIKey);
   const item = res.data.item;
 
   const fundedSum = item.totalReceived.amount;

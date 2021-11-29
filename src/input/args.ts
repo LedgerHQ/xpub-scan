@@ -1,14 +1,12 @@
 import yargs from "yargs";
 import { checkArgs } from "./check";
 
-import { TODO_TypeThis } from "../types";
-
 /**
  * Returns the valid args entered by the user
  * @returns any
  *          The validated args
  */
-export const getArgs = (): TODO_TypeThis => {
+export const getArgs = (): any => {
   const args = yargs
     // primary options
     .option("currency", {

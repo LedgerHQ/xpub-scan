@@ -2,12 +2,22 @@ import chalk from "chalk";
 
 import { getDerivationMode, getAddress } from "./deriveAddresses";
 import { DERIVATION_SCOPE } from "../configuration/settings";
-import { TODO_TypeThis } from "../types";
 
 interface Result {
   partial?: string;
   account?: number;
   index?: number;
+}
+
+interface SearchRange {
+  account: {
+    min: number;
+    max: number;
+  };
+  index: {
+    min: number;
+    max: number;
+  };
 }
 
 function showError(message: string, derived?: string, provided?: string) {
@@ -85,7 +95,7 @@ function partialMatch(derived: string, provided: string) {
 function search(
   xpub: string,
   providedAddress: string,
-  range: TODO_TypeThis,
+  range: SearchRange,
   searchType: string,
 ): Result {
   const derivationMode = getDerivationMode(providedAddress);
@@ -100,7 +110,10 @@ function search(
       const derivedAddress = getAddress(derivationMode, xpub, account, index);
 
       // m/{account}/{index}
-      const derivationPath = "m/".concat(account).concat("/").concat(index);
+      const derivationPath = "m/"
+        .concat(account.toFixed())
+        .concat("/")
+        .concat(index.toFixed());
 
       // quick|deep search    {derivation path}  {derived address}
       const status = searchType
