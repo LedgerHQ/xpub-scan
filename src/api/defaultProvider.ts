@@ -361,7 +361,7 @@ function getAccountBasedTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.block_height,
-        format(new Date(tx.confirmed), "yyyy-mm-dd'T'HH:MM:ss'Z'"),
+        format(new Date(tx.confirmed), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
         txHash,
         ins,
         outs,
