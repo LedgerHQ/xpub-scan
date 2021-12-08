@@ -224,7 +224,7 @@ function getTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.block_no,
-        format(new Date(tx.time * 1000), "yyyy-mm-dd HH:MM:ss"), // unix time to readable format
+        format(new Date(tx.time * 1000), "yyyy-MM-dd HH:mm:ss"), // unix time to readable format
         tx.txid,
         ins,
         outs,
@@ -302,7 +302,7 @@ function getBitcoinCashTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.blockheight,
-        format(new Date(tx.time * 1000), "yyyy-mm-dd HH:MM:ss"), // unix time to readable format
+        format(new Date(tx.time * 1000), "yyyy-MM-dd HH:mm:ss"), // unix time to readable format
         tx.txid,
         ins,
         outs,

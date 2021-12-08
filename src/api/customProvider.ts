@@ -309,7 +309,7 @@ function getTransactions(address: Address) {
     transactions.push(
       new Transaction(
         tx.minedInBlockHeight,
-        format(new Date(tx.timestamp * 1000), "yyyy-mm-dd HH:MM:ss"), // unix time to readable format
+        format(new Date(tx.timestamp * 1000), "yyyy-MM-dd HH:mm:ss"),
         tx.transactionId,
         ins,
         outs,
@@ -346,7 +346,7 @@ function getAccountBasedTransactions(address: Address) {
 
     const timestamp = format(
       new Date(tx.timestamp * 1000),
-      "yyyy-mm-dd HH:MM:ss",
+      "yyyy-MM-dd HH:mm:ss",
     );
     if (isRecipient) {
       // Recipient
@@ -412,7 +412,7 @@ function getTokenTransactions(address: Address) {
 
     const timestamp = format(
       new Date(tx.transactionTimestamp * 1000),
-      "yyyy-mm-dd HH:MM:ss",
+      "yyyy-MM-dd HH:mm:ss",
     );
     // compute amount
     // (note: the dualities isSender/isRecipient and has sent/has received do not necessarily
@@ -500,7 +500,7 @@ function getInternalTransactions(address: Address) {
 
     const timestamp = format(
       new Date(tx.timestamp * 1000),
-      "yyyy-mm-dd HH:MM:ss",
+      "yyyy-MM-dd HH:mm:ss",
     );
 
     if (isRecipient) {
