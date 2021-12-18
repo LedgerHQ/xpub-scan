@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   check-dependencies:
@@ -21,8 +22,8 @@ jobs:
           npm i -g check-outdated
       - name: Check dependencies
         run: |
-          npm i > /dev/null 2>&1
-          depcheck --ignores="ts-node,tiny-secp256k1"
+          yarn
+          depcheck --ignores="ts-node,tiny-secp256k1,@types/jest"
           check-outdated --ignore-packages tiny-secp256k1,@types/tiny-secp256k1,chalk
           npm audit --audit-level=low --json
 
