@@ -2,6 +2,9 @@
 import BigNumber from "bignumber.js";
 import { DerivationMode } from "./configuration/currencies";
 import { ScanLimits } from "./models/scanLimits";
+import { Address } from "./models/address";
+import { Operation } from "./models/operation";
+import { Comparison } from "./models/comparison";
 
 export type TODO_TypeThis = any;
 
@@ -49,9 +52,9 @@ export interface ScanMeta {
 
 export interface ScanData {
   summary: Summary[];
-  addresses: TODO_TypeThis[];
-  transactions: TODO_TypeThis[];
-  comparisons: TODO_TypeThis;
+  addresses: Address[];
+  transactions: Operation[];
+  comparisons?: Comparison[];
 }
 
 export interface Summary {

@@ -9,10 +9,11 @@ import { reportTemplate } from "../templates/report.html";
 import { base64WhiteLogo, base64YellowLogo } from "../templates/logos.base64";
 import { toAccountUnit, toBaseUnit, toUnprefixedCashAddress } from "../helpers";
 import { Address } from "../models/address";
-import { TODO_TypeThis } from "../types";
+import { Summary, TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 import { ComparisonStatus, Comparison } from "../models/comparison";
+import { Operation } from "../models/operation";
 
 function renderToken(token: any, status?: ComparisonStatus) {
   const renderedAmount = new BigNumber(token.amount).toFormat(6);
@@ -722,7 +723,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
   const balanceOnly = meta.balanceOnly;
 
   // convert amounts into base unit
-  const addresses: TODO_TypeThis[] = data.addresses.map((e: TODO_TypeThis) => {
+  const addresses: Address[] = data.addresses.map((e: Address) => {
     return {
       derivationMode: e.derivationMode,
       derivation: e.getDerivation(),
@@ -734,12 +735,12 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     };
   });
 
-  let utxos: TODO_TypeThis[] = [];
+  let utxos: Address[] = [];
 
   if (configuration.currency.utxo_based) {
     utxos = data.addresses
       .filter((a: Address) => a.isUTXO())
-      .map((e: TODO_TypeThis) => {
+      .map((e: Address) => {
         return {
           derivationMode: e.derivationMode,
           derivation: e.getDerivation(),
@@ -756,15 +757,15 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       });
   }
 
-  const summary: TODO_TypeThis[] = data.summary.map((e: TODO_TypeThis) => {
+  const summary: Summary[] = data.summary.map((e: Summary) => {
     return {
       ...e,
       balance: toBaseUnit(new BigNumber(e.balance)),
     };
   });
 
-  const transactions: TODO_TypeThis[] = !balanceOnly
-    ? data.transactions.map((e: TODO_TypeThis) => {
+  const transactions: Operation[] = !balanceOnly
+    ? data.transactions.map((e: Operation) => {
         return {
           ...e,
           cashAddress: toUnprefixedCashAddress(e.address),
