@@ -181,7 +181,7 @@ async function getStats(address: Address, balanceOnly: boolean) {
   address.setBalance(balance);
 
   // get transactions (when applicable)
-  if (txCount > 0 && !balanceOnly) {
+  if (!balanceOnly) {
     let payloads = await getOperationsPayloads(coin, address);
 
     // Ethereum: add token-related and internal transactions
