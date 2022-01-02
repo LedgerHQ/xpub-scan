@@ -263,7 +263,7 @@ export const checkArgs = (args: any, argv: string[]): void => {
     if (
       // case 1. non-tpub
       (typeof args.xpub !== "undefined" &&
-        args.xpub.substring(0.4).toLocaleLowerCase() !== "tpub") ||
+        args.xpub.substring(0, 4).toLocaleLowerCase() !== "tpub") ||
       // case 2. non-ETH
       (typeof currency !== "undefined" && currency.toUpperCase() !== "ETH") ||
       // case 3. ETH via default provider

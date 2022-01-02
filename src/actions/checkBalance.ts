@@ -152,7 +152,7 @@ async function addressAnalysis(itemToScan: string, balanceOnly: boolean) {
 
   let address = undefined;
 
-  if (itemToScan.startsWith("xpub")) {
+  if (itemToScan.substring(0, 4).toLocaleLowerCase() === "xpub") {
     // if the item to scan is an xpub, derive the first address...
     const derivationMode =
       configuration.currency.derivationModes?.at(0) || DerivationMode.UNKNOWN;

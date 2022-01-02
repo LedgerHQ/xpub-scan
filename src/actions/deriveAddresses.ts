@@ -137,7 +137,9 @@ function getDerivationMode(address: string) {
     return DerivationMode.LEGACY;
   } else {
     throw new Error(
-      "INVALID ADDRESS: ".concat(address).concat(" is not a valid or a supported address"),
+      "INVALID ADDRESS: "
+        .concat(address)
+        .concat(" is not a valid or a supported address"),
     );
   }
 }
