@@ -54,6 +54,7 @@
     "date-fns": "^2.27.0",
     "dotenv": "^10.0.0",
     "eslint": "^8.6.0",
+    "ethereumjs-wallet": "^1.0.2",
     "html-minifier": "^4.0.0",
     "jest": "^27.4.5",
     "object-hash": "^2.2.0",
