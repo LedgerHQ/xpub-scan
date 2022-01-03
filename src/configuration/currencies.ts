@@ -6,6 +6,7 @@ export enum DerivationMode {
   SEGWIT = "SegWit",
   BCH = "Bitcoin Cash",
   ETHEREUM = "Ethereum",
+  UNKNOWN = "Unknown",
 }
 
 // TODO: complete migratation from settings to currencies

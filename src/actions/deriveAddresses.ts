@@ -1,6 +1,7 @@
 import * as bjs from "bitcoinjs-lib";
 import bchaddr from "bchaddrjs";
 import bitcore from "bitcore-lib-cash";
+import Wallet from "ethereumjs-wallet";
 
 import { DerivationMode } from "../configuration/currencies";
 import { configuration } from "../configuration/settings";
@@ -84,13 +85,26 @@ function getLegacyBitcoinCashAddress(
   }
 }
 
+// derive unique address from Ethereum xpub
+function getEthereumAddress(xpub: string): string {
+  return Wallet.fromExtendedPublicKey(xpub).getAddressString();
+}
+
 // get address given an address type
 function getAddress(
   derivationMode: DerivationMode,
   xpub: string,
-  account: number,
-  index: number,
+  account?: number,
+  index?: number,
 ): string {
+  if (typeof account === "undefined") {
+    account = 0;
+  }
+
+  if (typeof index === "undefined") {
+    index = 0;
+  }
+
   switch (derivationMode) {
     case DerivationMode.LEGACY:
       return getLegacyAddress(xpub, account, index);
@@ -100,9 +114,13 @@ function getAddress(
       return getNativeSegWitAddress(xpub, account, index);
     case DerivationMode.BCH:
       return getLegacyBitcoinCashAddress(xpub, account, index);
+    case DerivationMode.ETHEREUM:
+      return getEthereumAddress(xpub);
+    case DerivationMode.UNKNOWN:
+    /* fallthrough */
+    default:
+      throw new Error("Unknown derivation mode");
   }
-
-  throw new Error("Should not be reachable");
 }
 
 // infer address type from its syntax
@@ -119,7 +137,9 @@ function getDerivationMode(address: string) {
     return DerivationMode.LEGACY;
   } else {
     throw new Error(
-      "INVALID ADDRESS: ".concat(address).concat(" is not a valid address"),
+      "INVALID ADDRESS: "
+        .concat(address)
+        .concat(" is not a valid or a supported address"),
     );
   }
 }

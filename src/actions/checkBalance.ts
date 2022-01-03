@@ -9,6 +9,8 @@ import { configuration } from "../configuration/settings";
 import { DerivationMode } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 import { Summary } from "../types";
+import { getAddress } from "../actions/deriveAddresses";
+
 import BigNumber from "bignumber.js";
 
 // scan all active addresses
@@ -143,12 +145,26 @@ async function scanAddresses(
   };
 }
 
-async function addressAnalysis(addressToScan: string, balanceOnly: boolean) {
+async function addressAnalysis(itemToScan: string, balanceOnly: boolean) {
   if (!configuration.silent) {
     console.log(chalk.bold("\nScanned address\n"));
   }
 
-  const address = new Address(addressToScan);
+  let address = undefined;
+
+  if (itemToScan.substring(0, 4).toLocaleLowerCase() === "xpub") {
+    // if the item to scan is an xpub, derive the first address...
+    const derivationMode =
+      configuration.currency.derivationModes?.at(0) || DerivationMode.UNKNOWN;
+    address = new Address(getAddress(derivationMode, itemToScan));
+  } else {
+    // ... otherwise, it is an address: instantiate it directly
+    address = new Address(itemToScan);
+  }
+
+  if (typeof address === "undefined") {
+    throw new Error(`Address cannot be instantiated from "${itemToScan}"`);
+  }
 
   display.updateAddressDetails(address);
 
