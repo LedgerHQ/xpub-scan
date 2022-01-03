@@ -17,7 +17,7 @@ jobs:
 
       - name: Install depcheck
         run: |
-          npm i -g depcheck
+          # npm i -g depcheck
           npm i -g check-outdated
       - name: Check dependencies
         run: |
