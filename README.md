@@ -66,13 +66,13 @@ scanResult("your_xpub");
 Install dependencies:
 
 ```
-$ yarn
+$ npm ci
 ```
 
 Build the project
 
 ```
-$ yarn build
+$ npm run build
 ```
 
 Run the built version:
