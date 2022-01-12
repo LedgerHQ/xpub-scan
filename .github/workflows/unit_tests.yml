@@ -21,7 +21,7 @@ jobs:
           npm i -g check-outdated
       - name: Check dependencies
         run: |
-          npm i > /dev/null 2>&1
+          npm ci > /dev/null 2>&1
           # temporarily disable depcheck because of a bug: https://github.com/depcheck/depcheck/issues/687
           # depcheck --ignores=\"ts-node,tiny-secp256k1,@types/jest\"
           check-outdated --ignore-packages tiny-secp256k1,@types/tiny-secp256k1,chalk
