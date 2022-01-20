@@ -31,7 +31,7 @@
   "homepage": "https://github.com/LedgerHQ/xpub-scan#readme",
   "dependencies": {
     "@babel/core": "7.16.10",
-    "@babel/preset-env": "7.16.10",
+    "@babel/preset-env": "7.16.11",
     "@babel/preset-typescript": "7.16.7",
     "@types/bchaddrjs": "0.4.0",
     "@types/bitcore-lib-cash": "8.23.5",

@@ -10,7 +10,7 @@
       "license": "MIT",
       "dependencies": {
         "@babel/core": "7.16.10",
-        "@babel/preset-env": "7.16.10",
+        "@babel/preset-env": "7.16.11",
         "@babel/preset-typescript": "7.16.7",
         "@types/bchaddrjs": "0.4.0",
         "@types/bitcore-lib-cash": "8.23.5",
@@ -4226,7 +4226,9 @@
       "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
       "hasInstallScript": true,
       "optional": true,
-      "os": ["darwin"],
+      "os": [
+        "darwin"
+      ],
       "engines": {
         "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
       }
@@ -8033,8 +8035,7 @@
       }
     },
     "@babel/preset-env": {
-      "version": "7.16.10",
-      "resolved": "https://registry.npmjs.org/@babel/preset-env/-/preset-env-7.16.10.tgz",
+      "version": "https://registry.npmjs.org/@babel/preset-env/-/preset-env-7.16.10.tgz",
       "integrity": "sha512-iCac3fZn9oOcLqc1N2/copPiX7aoxzsvjeDdXoZobrlbQ6YGgS3bL9HyldOJ8V8AY5P7pFynCATrn7M4dMw0Yg==",
       "requires": {
         "@babel/compat-data": "^7.16.8",
