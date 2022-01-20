@@ -331,7 +331,7 @@ function getAccountBasedTransactions(address: Address) {
       "yyyy-MM-dd HH:mm:ss",
     );
 
-    // RECIPIENT
+    // the address currently being analyzed is a — recipient —
     if (isRecipient) {
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
@@ -345,7 +345,7 @@ function getAccountBasedTransactions(address: Address) {
       address.addFundedOperation(op);
     }
 
-    // SENDER
+    // the address currently being analyzed is a — sender —
     if (isSender) {
       const amount = new BigNumber(
         tx.recipients.reduce((a, b) => +a + +b.amount, 0),
@@ -429,8 +429,8 @@ function getTokenTransactions(address: Address) {
       amount = amount.plus(fees); // if has sent, add fees
     }
 
+    // the address currently being analyzed is a — recipient —
     if (isRecipient) {
-      // Recipient
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -446,6 +446,7 @@ function getTokenTransactions(address: Address) {
       address.addFundedOperation(op);
     }
 
+    // the address currently being analyzed is a — sender —
     if (isSender) {
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
@@ -486,8 +487,8 @@ function getInternalTransactions(address: Address) {
       "yyyy-MM-dd HH:mm:ss",
     );
 
+    // the address currently being analyzed is a — recipient —
     if (isRecipient) {
-      // Recipient
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -500,8 +501,8 @@ function getInternalTransactions(address: Address) {
       address.addFundedOperation(op);
     }
 
+    // the address currently being analyzed is a — sender —
     if (isSender) {
-      // Sender
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
