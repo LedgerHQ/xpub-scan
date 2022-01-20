@@ -14,6 +14,11 @@ import bchaddr from "bchaddrjs";
 import BigNumber from "bignumber.js";
 import hash from "object-hash";
 
+type Transactors = Array<{
+  address: string;
+  amount: string;
+}>;
+
 interface RawTransaction {
   // COMMON
   transactionId: string;
@@ -23,23 +28,16 @@ interface RawTransaction {
     amount: number;
     unit: string;
   };
-  recipients: Array<{
-    address: string;
-    amount: string;
-  }>;
-  senders: Array<{
-    address: string;
-    amount: string;
-  }>;
+  recipients: Transactors;
+  senders: Transactors;
   blockchainSpecific: {
     vin: {
       addresses: string[];
       value: string;
+      vout: number;
     }[];
     vout: {
-      scriptPubKey: {
-        addresses: string[];
-      };
+      isSpent: boolean;
       value: string;
     }[];
     transactionStatus: string;
@@ -222,88 +220,68 @@ function getTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
   const transactions: Transaction[] = [];
 
+  // Bitcoin Cash addresses are expressed as cash addresses by the custom provider:
+  // they have to be converted into legacy ones (if needed)
+  const processAddress = (originalAddress: string) => {
+    if (configuration.currency.symbol === currencies.bch.symbol) {
+      return bchaddr.toLegacyAddress(originalAddress);
+    } else {
+      return originalAddress;
+    }
+  };
+
   rawTransactions.forEach((tx: RawTransaction) => {
     const ins: Operation[] = [];
     const outs: Operation[] = [];
-    let amount = new BigNumber(0);
-    let processIn = false;
-    let processOut = false;
 
-    // 1. Detect operation type
-    for (const txin of tx.blockchainSpecific.vin) {
-      for (let inAddress of txin.addresses) {
-        // provider Bitcoin Cash addresses are expressed as cash addresses:
-        // they have to be converted into legacy ones
-        if (configuration.currency.symbol === currencies.bch.symbol) {
-          inAddress = bchaddr.toLegacyAddress(inAddress);
-        }
+    // identify whether the address belongs to the list of transactors or not
+    const addressBelongsToTransactors = (transactors: Transactors) => {
+      return transactors.some((t) =>
+        processAddress(t.address).includes(address.toString()),
+      );
+    };
 
-        if (inAddress.includes(address.toString())) {
-          processOut = true;
-          break;
+    // the address currently being analyzed is a — recipient —
+    if (addressBelongsToTransactors(tx.recipients)) {
+      for (const recipient of tx.recipients) {
+        if (processAddress(recipient.address).includes(address.toString())) {
+          // add one operation per sender
+          for (const sender of tx.senders) {
+            const op = new Operation(
+              String(tx.timestamp),
+              new BigNumber(recipient.amount),
+            );
+
+            op.setAddress(processAddress(sender.address));
+
+            op.setTxid(tx.transactionId);
+            op.setOperationType("Received");
+
+            ins.push(op);
+          }
         }
       }
     }
 
-    for (const txout of tx.blockchainSpecific.vout) {
-      for (let outAddress of txout.scriptPubKey.addresses) {
-        // provider Bitcoin Cash addresses are expressed as cash addresses:
-        // they have to be converted into legacy ones
-        if (configuration.currency.symbol === currencies.bch.symbol) {
-          outAddress = bchaddr.toLegacyAddress(outAddress);
-        }
+    // the address currently being analyzed is a — sender —
+    if (addressBelongsToTransactors(tx.senders)) {
+      let amountSent = new BigNumber(0);
 
-        if (outAddress.includes(address.toString()!)) {
-          // when IN op, amount corresponds to txout
-          const txoutValue = new BigNumber(txout.value);
-          amount = amount.plus(txoutValue);
-          processIn = true;
-        }
+      for (let i = 0; i < tx.recipients.length; i++) {
+        const recipient = tx.recipients[i];
+
+        // note: the amount sent is specified in blockchainSpecific.vout
+        // _at the same index as the recipient_
+        amountSent = amountSent.plus(tx.blockchainSpecific.vout[i].value);
+
+        const op = new Operation(String(tx.timestamp), amountSent);
+
+        op.setAddress(processAddress(recipient.address));
+        op.setTxid(tx.transactionId);
+        op.setOperationType("Sent");
+
+        outs.push(op);
       }
-    }
-
-    // 2. Process operations
-    if (processIn) {
-      tx.blockchainSpecific.vin.forEach((txin) => {
-        txin.addresses.forEach((inAddress) => {
-          const op = new Operation(String(tx.timestamp), amount);
-
-          if (configuration.currency.symbol === currencies.bch.symbol) {
-            // provider Bitcoin Cash addresses are expressed as cash addresses:
-            // they have to be converted into legacy ones
-            inAddress = bchaddr.toLegacyAddress(inAddress);
-          }
-
-          op.setAddress(inAddress);
-          op.setTxid(tx.transactionId);
-          op.setOperationType("Received");
-
-          ins.push(op);
-        });
-      });
-    }
-
-    if (processOut) {
-      tx.blockchainSpecific.vout.forEach((txout) => {
-        txout.scriptPubKey.addresses.forEach((outAddress) => {
-          const op = new Operation(
-            String(tx.timestamp),
-            new BigNumber(txout.value),
-          );
-
-          if (configuration.currency.symbol === currencies.bch.symbol) {
-            // provider Bitcoin Cash addresses are expressed as cash addresses:
-            // they have to be converted into legacy ones
-            outAddress = bchaddr.toLegacyAddress(outAddress);
-          }
-
-          op.setAddress(outAddress);
-          op.setTxid(tx.transactionId);
-          op.setOperationType("Sent");
-
-          outs.push(op);
-        });
-      });
     }
 
     transactions.push(
@@ -348,8 +326,9 @@ function getAccountBasedTransactions(address: Address) {
       new Date(tx.timestamp * 1000),
       "yyyy-MM-dd HH:mm:ss",
     );
+
+    // the address currently being analyzed is a — recipient —
     if (isRecipient) {
-      // Recipient
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
 
@@ -362,8 +341,8 @@ function getAccountBasedTransactions(address: Address) {
       address.addFundedOperation(op);
     }
 
+    // the address currently being analyzed is a — sender —
     if (isSender) {
-      // Sender
       const amount = new BigNumber(
         tx.recipients.reduce((a, b) => +a + +b.amount, 0),
       );
@@ -446,8 +425,8 @@ function getTokenTransactions(address: Address) {
       amount = amount.plus(fees); // if has sent, add fees
     }
 
+    // the address currently being analyzed is a — recipient —
     if (isRecipient) {
-      // Recipient
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -463,6 +442,7 @@ function getTokenTransactions(address: Address) {
       address.addFundedOperation(op);
     }
 
+    // the address currently being analyzed is a — sender —
     if (isSender) {
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
@@ -503,8 +483,8 @@ function getInternalTransactions(address: Address) {
       "yyyy-MM-dd HH:mm:ss",
     );
 
+    // the address currently being analyzed is a — recipient —
     if (isRecipient) {
-      // Recipient
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
@@ -517,8 +497,8 @@ function getInternalTransactions(address: Address) {
       address.addFundedOperation(op);
     }
 
+    // the address currently being analyzed is a — sender —
     if (isSender) {
-      // Sender
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
       const op = new Operation(timestamp, new BigNumber(fixedAmount)); // ETH: use fixed-point notation
       op.setAddress(address.toString());
