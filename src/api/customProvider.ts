@@ -235,20 +235,16 @@ function getTransactions(address: Address) {
     const outs: Operation[] = [];
 
     // identify whether the address belongs to the list of transactors or not
-    const addressBelongsToTransactors = (Transactors: Transactors) => {
-      for (const transactor of Transactors) {
-        if (processAddress(transactor.address).includes(address.toString()!)) {
-          return true;
-        }
-      }
-
-      return false;
+    const addressBelongsToTransactors = (transactors: Transactors) => {
+      return transactors.some((t) =>
+        processAddress(t.address).includes(address.toString()),
+      );
     };
 
     // the address currently being analyzed is a — recipient —
     if (addressBelongsToTransactors(tx.recipients)) {
       for (const recipient of tx.recipients) {
-        if (processAddress(recipient.address).includes(address.toString()!)) {
+        if (processAddress(recipient.address).includes(address.toString())) {
           // add one operation per sender
           for (const sender of tx.senders) {
             const op = new Operation(
