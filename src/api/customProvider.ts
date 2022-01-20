@@ -255,16 +255,19 @@ function getTransactions(address: Address) {
         }
 
         if (recipientAddress.includes(address.toString()!)) {
-          const op = new Operation(
-            String(tx.timestamp),
-            new BigNumber(recipient.amount),
-          );
+          // add one operation per sender
+          for (const sender of tx.senders) {
+            const op = new Operation(
+              String(tx.timestamp),
+              new BigNumber(recipient.amount),
+            );
 
-          op.setAddress(recipientAddress);
-          op.setTxid(tx.transactionId);
-          op.setOperationType("Received");
+            op.setAddress(sender.address);
+            op.setTxid(tx.transactionId);
+            op.setOperationType("Received");
 
-          ins.push(op);
+            ins.push(op);
+          }
         }
       }
     }
@@ -272,6 +275,7 @@ function getTransactions(address: Address) {
     // address is a — sender —
     if (addressBelongsToTransactors(tx.senders)) {
       let amountSent = new BigNumber(0);
+
       for (let i = 0; i < tx.recipients.length; i++) {
         const recipient = tx.recipients[i];
 
@@ -283,11 +287,7 @@ function getTransactions(address: Address) {
           recipientAddress = bchaddr.toLegacyAddress(recipientAddress);
         }
 
-        const vout = tx.blockchainSpecific.vout[i];
-
-        if (vout.isSpent) {
-          amountSent = amountSent.plus(vout.value);
-        }
+        amountSent = amountSent.plus(tx.blockchainSpecific.vout[i].value);
 
         const op = new Operation(String(tx.timestamp), amountSent);
 
