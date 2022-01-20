@@ -220,6 +220,16 @@ function getTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
   const transactions: Transaction[] = [];
 
+  // Bitcoin Cash addresses are expressed as cash addresses by the custom provider:
+  // they have to be converted into legacy ones (if needed)
+  const processAddress = (originalAddress: string) => {
+    if (configuration.currency.symbol === currencies.bch.symbol) {
+      return bchaddr.toLegacyAddress(originalAddress);
+    } else {
+      return originalAddress;
+    }
+  };
+
   rawTransactions.forEach((tx: RawTransaction) => {
     const ins: Operation[] = [];
     const outs: Operation[] = [];
@@ -227,15 +237,7 @@ function getTransactions(address: Address) {
     // identify whether the address belongs to the list of transactors or not
     const addressBelongsToTransactors = (Transactors: Transactors) => {
       for (const transactor of Transactors) {
-        let transactorAddress = transactor.address;
-
-        if (configuration.currency.symbol === currencies.bch.symbol) {
-          // provider Bitcoin Cash addresses are expressed as cash addresses:
-          // they have to be converted into legacy ones
-          transactorAddress = bchaddr.toLegacyAddress(transactorAddress);
-        }
-
-        if (transactorAddress.includes(address.toString()!)) {
+        if (processAddress(transactor.address).includes(address.toString()!)) {
           return true;
         }
       }
@@ -246,15 +248,7 @@ function getTransactions(address: Address) {
     // address is a — recipient —
     if (addressBelongsToTransactors(tx.recipients)) {
       for (const recipient of tx.recipients) {
-        let recipientAddress = recipient.address;
-
-        if (configuration.currency.symbol === currencies.bch.symbol) {
-          // provider Bitcoin Cash addresses are expressed as cash addresses:
-          // they have to be converted into legacy ones
-          recipientAddress = bchaddr.toLegacyAddress(recipientAddress);
-        }
-
-        if (recipientAddress.includes(address.toString()!)) {
+        if (processAddress(recipient.address).includes(address.toString()!)) {
           // add one operation per sender
           for (const sender of tx.senders) {
             const op = new Operation(
@@ -262,7 +256,8 @@ function getTransactions(address: Address) {
               new BigNumber(recipient.amount),
             );
 
-            op.setAddress(sender.address);
+            op.setAddress(processAddress(sender.address));
+
             op.setTxid(tx.transactionId);
             op.setOperationType("Received");
 
@@ -279,19 +274,11 @@ function getTransactions(address: Address) {
       for (let i = 0; i < tx.recipients.length; i++) {
         const recipient = tx.recipients[i];
 
-        let recipientAddress = recipient.address;
-
-        if (configuration.currency.symbol === currencies.bch.symbol) {
-          // provider Bitcoin Cash addresses are expressed as cash addresses:
-          // they have to be converted into legacy ones
-          recipientAddress = bchaddr.toLegacyAddress(recipientAddress);
-        }
-
         amountSent = amountSent.plus(tx.blockchainSpecific.vout[i].value);
 
         const op = new Operation(String(tx.timestamp), amountSent);
 
-        op.setAddress(recipientAddress);
+        op.setAddress(processAddress(recipient.address));
         op.setTxid(tx.transactionId);
         op.setOperationType("Sent");
 
