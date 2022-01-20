@@ -14,6 +14,11 @@ import bchaddr from "bchaddrjs";
 import BigNumber from "bignumber.js";
 import hash from "object-hash";
 
+type Transactors = Array<{
+  address: string;
+  amount: string;
+}>;
+
 interface RawTransaction {
   // COMMON
   transactionId: string;
@@ -23,23 +28,16 @@ interface RawTransaction {
     amount: number;
     unit: string;
   };
-  recipients: Array<{
-    address: string;
-    amount: string;
-  }>;
-  senders: Array<{
-    address: string;
-    amount: string;
-  }>;
+  recipients: Transactors;
+  senders: Transactors;
   blockchainSpecific: {
     vin: {
       addresses: string[];
       value: string;
+      vout: number;
     }[];
     vout: {
-      scriptPubKey: {
-        addresses: string[];
-      };
+      isSpent: boolean;
       value: string;
     }[];
     transactionStatus: string;
@@ -225,85 +223,80 @@ function getTransactions(address: Address) {
   rawTransactions.forEach((tx: RawTransaction) => {
     const ins: Operation[] = [];
     const outs: Operation[] = [];
-    let amount = new BigNumber(0);
-    let processIn = false;
-    let processOut = false;
 
-    // 1. Detect operation type
-    for (const txin of tx.blockchainSpecific.vin) {
-      for (let inAddress of txin.addresses) {
-        // provider Bitcoin Cash addresses are expressed as cash addresses:
-        // they have to be converted into legacy ones
+    // identify whether the address belongs to the list of transactors or not
+    const addressBelongsToTransactors = (Transactors: Transactors) => {
+      for (const transactor of Transactors) {
+        let transactorAddress = transactor.address;
+
         if (configuration.currency.symbol === currencies.bch.symbol) {
-          inAddress = bchaddr.toLegacyAddress(inAddress);
+          // provider Bitcoin Cash addresses are expressed as cash addresses:
+          // they have to be converted into legacy ones
+          transactorAddress = bchaddr.toLegacyAddress(transactorAddress);
         }
 
-        if (inAddress.includes(address.toString())) {
-          processOut = true;
-          break;
+        if (transactorAddress.includes(address.toString()!)) {
+          return true;
         }
       }
-    }
 
-    for (const txout of tx.blockchainSpecific.vout) {
-      for (let outAddress of txout.scriptPubKey.addresses) {
-        // provider Bitcoin Cash addresses are expressed as cash addresses:
-        // they have to be converted into legacy ones
+      return false;
+    };
+
+    // address is a — recipient —
+    if (addressBelongsToTransactors(tx.recipients)) {
+      for (const recipient of tx.recipients) {
+        let recipientAddress = recipient.address;
+
         if (configuration.currency.symbol === currencies.bch.symbol) {
-          outAddress = bchaddr.toLegacyAddress(outAddress);
+          // provider Bitcoin Cash addresses are expressed as cash addresses:
+          // they have to be converted into legacy ones
+          recipientAddress = bchaddr.toLegacyAddress(recipientAddress);
         }
 
-        if (outAddress.includes(address.toString()!)) {
-          // when IN op, amount corresponds to txout
-          const txoutValue = new BigNumber(txout.value);
-          amount = amount.plus(txoutValue);
-          processIn = true;
-        }
-      }
-    }
+        if (recipientAddress.includes(address.toString()!)) {
+          const op = new Operation(
+            String(tx.timestamp),
+            new BigNumber(recipient.amount),
+          );
 
-    // 2. Process operations
-    if (processIn) {
-      tx.blockchainSpecific.vin.forEach((txin) => {
-        txin.addresses.forEach((inAddress) => {
-          const op = new Operation(String(tx.timestamp), amount);
-
-          if (configuration.currency.symbol === currencies.bch.symbol) {
-            // provider Bitcoin Cash addresses are expressed as cash addresses:
-            // they have to be converted into legacy ones
-            inAddress = bchaddr.toLegacyAddress(inAddress);
-          }
-
-          op.setAddress(inAddress);
+          op.setAddress(recipientAddress);
           op.setTxid(tx.transactionId);
           op.setOperationType("Received");
 
           ins.push(op);
-        });
-      });
+        }
+      }
     }
 
-    if (processOut) {
-      tx.blockchainSpecific.vout.forEach((txout) => {
-        txout.scriptPubKey.addresses.forEach((outAddress) => {
-          const op = new Operation(
-            String(tx.timestamp),
-            new BigNumber(txout.value),
-          );
+    // address is a — sender —
+    if (addressBelongsToTransactors(tx.senders)) {
+      let amountSent = new BigNumber(0);
+      for (let i = 0; i < tx.recipients.length; i++) {
+        const recipient = tx.recipients[i];
 
-          if (configuration.currency.symbol === currencies.bch.symbol) {
-            // provider Bitcoin Cash addresses are expressed as cash addresses:
-            // they have to be converted into legacy ones
-            outAddress = bchaddr.toLegacyAddress(outAddress);
-          }
+        let recipientAddress = recipient.address;
 
-          op.setAddress(outAddress);
-          op.setTxid(tx.transactionId);
-          op.setOperationType("Sent");
+        if (configuration.currency.symbol === currencies.bch.symbol) {
+          // provider Bitcoin Cash addresses are expressed as cash addresses:
+          // they have to be converted into legacy ones
+          recipientAddress = bchaddr.toLegacyAddress(recipientAddress);
+        }
 
-          outs.push(op);
-        });
-      });
+        const vout = tx.blockchainSpecific.vout[i];
+
+        if (vout.isSpent) {
+          amountSent = amountSent.plus(vout.value);
+        }
+
+        const op = new Operation(String(tx.timestamp), amountSent);
+
+        op.setAddress(recipientAddress);
+        op.setTxid(tx.transactionId);
+        op.setOperationType("Sent");
+
+        outs.push(op);
+      }
     }
 
     transactions.push(
@@ -348,8 +341,9 @@ function getAccountBasedTransactions(address: Address) {
       new Date(tx.timestamp * 1000),
       "yyyy-MM-dd HH:mm:ss",
     );
+
+    // RECIPIENT
     if (isRecipient) {
-      // Recipient
       const amount = tx.recipients.reduce((a, b) => +a + +b.amount, 0);
       const fixedAmount = amount.toFixed(ETH_FIXED_PRECISION);
 
@@ -362,8 +356,8 @@ function getAccountBasedTransactions(address: Address) {
       address.addFundedOperation(op);
     }
 
+    // SENDER
     if (isSender) {
-      // Sender
       const amount = new BigNumber(
         tx.recipients.reduce((a, b) => +a + +b.amount, 0),
       );
