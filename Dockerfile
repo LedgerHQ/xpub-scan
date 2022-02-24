@@ -7,9 +7,9 @@ RUN apk add --update --no-cache python3 make g++ && ln -sf python3 /usr/bin/pyth
 
 WORKDIR /app
 
-COPY npm-shrinkwrap.json ./
+COPY package.json npm-shrinkwrap.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
