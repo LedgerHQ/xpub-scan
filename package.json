@@ -14,10 +14,10 @@
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
     "ci": "yarn lint && yarn ts:check && prettier --list-different . && yarn test",
-    "check:dep": "npm ci > /dev/null 2>&1 && check-outdated --ignore-packages tiny-secp256k1,@types/tiny-secp256k1,chalk && npm audit --audit-level=low",
+    "check:dep": "npm ci > /dev/null 2>&1 && check-outdated --ignore-packages tiny-secp256k1,@types/tiny-secp256k1,chalk && npm audit --audit-level=low && npm shrinkwrap",
     "regression": "python3 .github/workflows/regression_tests/check.py",
     "dev:test": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p .",
-    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p . && yarn regression"
+    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && npm ci && yarn && tsc -p . && yarn regression"
   },
   "repository": {
     "type": "git",
