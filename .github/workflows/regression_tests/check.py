@@ -229,7 +229,7 @@ if __name__ == "__main__":
             provider = sys.argv[3].lower()
 
             # when testing the default provider, remove the API KEY env var
-            if provider == "default":
+            if provider == "default" and os.environ.get("XPUB_SCAN_CUSTOM_API_KEY_V2") is not None:
                 del os.environ["XPUB_SCAN_CUSTOM_API_KEY_V2"]
 
         run_tests(product_under_test, currency, provider)
