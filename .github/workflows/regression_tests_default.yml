@@ -34,6 +34,6 @@ jobs:
         run: |
           yarn && yarn build
 
-      - name: Regression Tests — default provider - ${{ matrix.product }} x ${{ matrix.currency }}
+      - name: ${{ matrix.product }} x ${{ matrix.currency }}
         run: |
           python .github/workflows/regression_tests/check.py ${{ matrix.product }} ${{ matrix.currency }} default

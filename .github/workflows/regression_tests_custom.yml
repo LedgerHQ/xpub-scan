@@ -33,7 +33,7 @@ jobs:
         run: |
           yarn && yarn build
 
-      - name: Regression Tests — custom provider - ${{ matrix.product }} x ${{ matrix.currency }}
+      - name: ${{ matrix.product }} x ${{ matrix.currency }}
         run: |
           export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
 
