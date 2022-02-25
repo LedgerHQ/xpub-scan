@@ -13,10 +13,10 @@ jobs:
   regression-tests-default:
     name: Regression tests - default provider - CLI
     strategy:
+      max-parallel: 1
       matrix:
         product: [Live-Common, Live-Desktop, Custom-G, Custom-W]
         currency: [BTC, ETH, LTC, BCH]
-        max-parallel: 1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
