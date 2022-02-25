@@ -11,11 +11,12 @@ on:
 
 jobs:
   regression-tests:
-    name: Regression tests (CLI)
+    name: Regression tests - CLI
     strategy:
       matrix:
         product: [Live-Common, Live-Desktop, Custom-G, Custom-W]
         currency: [BTC, ETH, LTC, BCH]
+        provider: [custom, default]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -33,9 +34,8 @@ jobs:
         run: |
           yarn && yarn build
 
-      - name: Regression Tests — ${{ matrix.product }} x ${{ matrix.currency }}
+      - name: Regression Tests — ${{ matrix.product }} x ${{ matrix.currency }} x ${{ matrix.provider }}
         run: |
-          # use custom provider
           export XPUB_SCAN_CUSTOM_API_KEY_V2=${{ secrets.XPUB_SCAN_CUSTOM_API_KEY_V2 }}
 
-          python .github/workflows/regression_tests/check.py ${{ matrix.product }} ${{ matrix.currency }}
+          python .github/workflows/regression_tests/check.py ${{ matrix.product }} ${{ matrix.currency }} ${{ matrix.provider }}
