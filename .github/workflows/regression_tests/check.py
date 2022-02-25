@@ -109,6 +109,9 @@ def xpub_scan(data: dict, filepath: str, provider: str) -> int:
 
     cmd = f"node lib/scan.js {xpub} --currency {coin} --operations {filepath} --diff --quiet --save {base_path}"
 
+    if provider == "custom":
+        cmd += " --custom-provider"
+
     # Do not check balance using the default provider as far as Ethereum is concerned
     # Indeed, the default provider does not give enough information
     # Example:

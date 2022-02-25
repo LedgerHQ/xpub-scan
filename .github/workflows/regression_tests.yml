@@ -16,7 +16,7 @@ jobs:
       matrix:
         product: [Live-Common, Live-Desktop, Custom-G, Custom-W]
         currency: [BTC, ETH, LTC, BCH]
-        provider: [default, custom]
+        provider: [custom, default]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
