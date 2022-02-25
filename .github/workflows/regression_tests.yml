@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  regression-tests-default:
+  regression-tests:
     name: Regression tests - CLI
     strategy:
       matrix:
