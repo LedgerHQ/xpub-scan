@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from subprocess import Popen, PIPE
 import sys
+import time
 
 base_path = f"{ os.getcwd() }/.github/workflows/regression_tests"
 
@@ -103,6 +104,11 @@ def chech_xpub_scan_reports(data: dict, simulated_discrepancy: str = None) -> tu
 
 
 def xpub_scan(data: dict, filepath: str, provider: str) -> int:
+
+    # when testing the default providers, add a delay between the tests (API rate limits)
+    if provider == "default":
+        time.sleep(60)
+
     xpub = data["xpub"]
     coin = data["coin_ticker"]
     balance = data["balance"]
