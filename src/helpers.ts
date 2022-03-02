@@ -16,7 +16,7 @@ import * as ecc from "tiny-secp256k1";
 
 const bip32 = BIP32Factory(ecc);
 
-export async function getJSON<T>(
+async function getJSON<T>(
   url: string,
   APIKey?: string,
   { retries, retryDelayMS }: { retries?: number; retryDelayMS?: number } = {},
@@ -44,7 +44,7 @@ export async function getJSON<T>(
   return retry(job, { retries, retryDelayMS });
 }
 
-export async function retry<T>(
+async function retry<T>(
   job: () => Promise<T>,
   { retries = 5, retryDelayMS = 0 } = {},
 ): Promise<T> {
@@ -167,7 +167,7 @@ function checkXpub(xpub: string) {
   }
 }
 
-export function init(
+function init(
   xpub: string,
   silent?: boolean,
   quiet?: boolean,
@@ -206,7 +206,7 @@ export function init(
 }
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
-export function toUnprefixedCashAddress(address: string) {
+function toUnprefixedCashAddress(address: string) {
   if (configuration.currency.symbol !== currencies.bch.symbol) {
     return undefined;
   }
@@ -224,7 +224,7 @@ export function toUnprefixedCashAddress(address: string) {
  * @param amount the amount (in unit of account) to convert
  * @returns the converted amount, in base unit
  */
-export function toBaseUnit(amount: BigNumber): string {
+function toBaseUnit(amount: BigNumber): string {
   if (amount.isZero()) {
     return amount.toFixed(0);
   }
@@ -241,10 +241,7 @@ export function toBaseUnit(amount: BigNumber): string {
  * @param decimalPlaces (optional) decimal precision
  * @returns the converted amount, in unit of account
  */
-export function toAccountUnit(
-  amount: BigNumber,
-  decimalPlaces?: number,
-): string {
+function toAccountUnit(amount: BigNumber, decimalPlaces?: number): string {
   if (amount.isZero()) {
     return amount.toFixed();
   }
@@ -264,3 +261,13 @@ export function toAccountUnit(
 
   return convertedValue.toFixed();
 }
+
+export {
+  init,
+  getJSON,
+  retry,
+  setNetwork,
+  toUnprefixedCashAddress,
+  toBaseUnit,
+  toAccountUnit,
+};
