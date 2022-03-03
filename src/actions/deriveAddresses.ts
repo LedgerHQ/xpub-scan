@@ -2,6 +2,10 @@ import * as bjs from "bitcoinjs-lib";
 import bchaddr from "bchaddrjs";
 import bitcore from "bitcore-lib-cash";
 import Wallet from "ethereumjs-wallet";
+import { bech32, bech32m } from "bech32";
+import bs58 from "bs58";
+import { publicKeyTweakAdd } from "secp256k1";
+import createHmac from "create-hmac";
 
 import { DerivationMode } from "../configuration/currencies";
 import { configuration } from "../configuration/settings";
@@ -10,6 +14,68 @@ import BIP32Factory from "bip32";
 import * as ecc from "tiny-secp256k1";
 
 const bip32 = BIP32Factory(ecc);
+
+class BIP32 {
+  publicKey: any;
+  chainCode: any;
+  network: any;
+  depth: number;
+  index: number;
+  constructor(
+    publicKey: any,
+    chainCode: any,
+    network: any,
+    depth = 0,
+    index = 0
+  ) {
+    this.publicKey = publicKey;
+    this.chainCode = chainCode;
+    this.network = network;
+    this.depth = depth;
+    this.index = index;
+  }
+  derive(index: number) {
+    const data = Buffer.allocUnsafe(37);
+    this.publicKey.copy(data, 0);
+    data.writeUInt32BE(index, 33);
+    const I = createHmac("sha512", this.chainCode).update(data).digest();
+    const IL = I.slice(0, 32);
+    const IR = I.slice(32);
+    const Ki = Buffer.from(publicKeyTweakAdd(this.publicKey, IL));
+    return new BIP32(Ki, IR, this.network, this.depth + 1, index);
+  }
+}
+
+function getPubkeyAt(xpub: string, account: number, index: number): Buffer {
+  const buffer: Buffer = Buffer.from(bs58.decode(xpub));
+  const depth: number = buffer[4];
+  const i: number = buffer.readUInt32BE(9);
+  const chainCode: Buffer = buffer.slice(13, 45);
+  const publicKey: Buffer = buffer.slice(45, 78);
+  return new BIP32(
+    publicKey,
+    chainCode,
+    'bc',
+    depth,
+    i
+  ).derive(account).derive(index).publicKey;
+}
+
+function hashTapTweak(x: any): Buffer {
+  // hash_tag(x) = SHA256(SHA256(tag) || SHA256(tag) || x), see BIP340
+  // See https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki#specification
+  const h = bjs.crypto.sha256(Buffer.from("TapTweak", "utf-8"));
+  return bjs.crypto.sha256(Buffer.concat([h, h, x]));
+}
+
+function toBech32(data: Buffer, version: number, prefix: string): string {
+  const words = bech32.toWords(data);
+  words.unshift(version);
+
+  return version === 0
+    ? bech32.encode(prefix, words)
+    : bech32m.encode(prefix, words);
+}
 
 // derive legacy address at account and index positions
 function getLegacyAddress(
@@ -64,6 +130,34 @@ function getSegWitAddress(
   return String(address);
 }
 
+// derive taproot at account and index positions
+function getTaprootAddress(
+  xpub: string,
+  account: number,
+  index: number,
+): string {
+  const ecdsaPubkey = getPubkeyAt(xpub, account, index);
+  const schnorrInternalPubkey = ecdsaPubkey.slice(1);
+
+  const evenEcdsaPubkey = Buffer.concat([
+    Buffer.from([0x02]),
+    schnorrInternalPubkey,
+  ]);
+
+  const tweak = hashTapTweak(schnorrInternalPubkey);
+
+  // Q = P + int(hash_TapTweak(bytes(P)))G
+  const outputEcdsaKey = Buffer.from(
+    publicKeyTweakAdd(evenEcdsaPubkey, tweak)
+  );
+
+  // Convert to schnorr.
+  const outputSchnorrKey = outputEcdsaKey.slice(1);
+
+  // Create address
+  return toBech32(outputSchnorrKey, 1, 'bc');
+}
+
 // Based on https://github.com/go-faast/bitcoin-cash-payments/blob/54397eb97c7a9bf08b32e10bef23d5f27aa5ab01/index.js#L63-L73
 function getLegacyBitcoinCashAddress(
   xpub: string,
@@ -112,6 +206,8 @@ function getAddress(
       return getSegWitAddress(xpub, account, index);
     case DerivationMode.NATIVE:
       return getNativeSegWitAddress(xpub, account, index);
+    case DerivationMode.TAPROOT:
+      return getTaprootAddress(xpub, account, index);
     case DerivationMode.BCH:
       return getLegacyBitcoinCashAddress(xpub, account, index);
     case DerivationMode.ETHEREUM:
@@ -129,8 +225,10 @@ function getAddress(
 // correspond to the actual type (currently, a `ltc1` prefix
 // could match a native Bitcoin address type for instance)
 function getDerivationMode(address: string) {
-  if (address.match("^(bc1|tb1|ltc1).*")) {
+  if (address.match("^(bc1q|tb1|ltc1).*")) {
     return DerivationMode.NATIVE;
+  } else if (address.match("^(bc1p).*")) {
+    return DerivationMode.TAPROOT;
   } else if (address.match("^(3|2|M).*")) {
     return DerivationMode.SEGWIT;
   } else if (address.match("^(1|n|m|L).*")) {

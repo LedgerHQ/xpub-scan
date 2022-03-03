@@ -4,6 +4,7 @@ export enum DerivationMode {
   LEGACY = "Legacy",
   NATIVE = "Native SegWit",
   SEGWIT = "SegWit",
+  TAPROOT = "Taproot",
   BCH = "Bitcoin Cash",
   ETHEREUM = "Ethereum",
   UNKNOWN = "Unknown",
