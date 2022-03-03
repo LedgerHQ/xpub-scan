@@ -204,7 +204,7 @@ describe("derive Bitcoin addresses", () => {
       });
     });
 
-    describe("derive Native SegWit addresses", () => {
+    describe("derive Taproot addresses", () => {
       beforeEach(() => {
         derivationMode = DerivationMode.TAPROOT;
       });
