@@ -26,7 +26,7 @@ class BIP32 {
     chainCode: any,
     network: any,
     depth = 0,
-    index = 0
+    index = 0,
   ) {
     this.publicKey = publicKey;
     this.chainCode = chainCode;
@@ -44,37 +44,6 @@ class BIP32 {
     const Ki = Buffer.from(publicKeyTweakAdd(this.publicKey, IL));
     return new BIP32(Ki, IR, this.network, this.depth + 1, index);
   }
-}
-
-function getPubkeyAt(xpub: string, account: number, index: number): Buffer {
-  const buffer: Buffer = Buffer.from(bs58.decode(xpub));
-  const depth: number = buffer[4];
-  const i: number = buffer.readUInt32BE(9);
-  const chainCode: Buffer = buffer.slice(13, 45);
-  const publicKey: Buffer = buffer.slice(45, 78);
-  return new BIP32(
-    publicKey,
-    chainCode,
-    'bc',
-    depth,
-    i
-  ).derive(account).derive(index).publicKey;
-}
-
-function hashTapTweak(x: any): Buffer {
-  // hash_tag(x) = SHA256(SHA256(tag) || SHA256(tag) || x), see BIP340
-  // See https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki#specification
-  const h = bjs.crypto.sha256(Buffer.from("TapTweak", "utf-8"));
-  return bjs.crypto.sha256(Buffer.concat([h, h, x]));
-}
-
-function toBech32(data: Buffer, version: number, prefix: string): string {
-  const words = bech32.toWords(data);
-  words.unshift(version);
-
-  return version === 0
-    ? bech32.encode(prefix, words)
-    : bech32m.encode(prefix, words);
 }
 
 // derive legacy address at account and index positions
@@ -131,11 +100,43 @@ function getSegWitAddress(
 }
 
 // derive taproot at account and index positions
+// Based on https://github.com/cryptocoinjs/coininfo/blob/master/lib/coins/btc.js
 function getTaprootAddress(
   xpub: string,
   account: number,
   index: number,
 ): string {
+  const taprootNetworkPrefix = "bc";
+
+  const getPubkeyAt = (
+    xpub: string,
+    account: number,
+    index: number,
+  ): Buffer => {
+    const buffer: Buffer = Buffer.from(bs58.decode(xpub));
+    const depth: number = buffer[4];
+    const i: number = buffer.readUInt32BE(9);
+    const chainCode: Buffer = buffer.slice(13, 45);
+    const publicKey: Buffer = buffer.slice(45, 78);
+    return new BIP32(publicKey, chainCode, taprootNetworkPrefix, depth, i)
+      .derive(account)
+      .derive(index).publicKey;
+  };
+
+  const hashTapTweak = (x: any): Buffer => {
+    // hash_tag(x) = SHA256(SHA256(tag) || SHA256(tag) || x), see BIP340
+    // See https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki#specification
+    const h = bjs.crypto.sha256(Buffer.from("TapTweak", "utf-8"));
+    return bjs.crypto.sha256(Buffer.concat([h, h, x]));
+  };
+
+  const toBech32 = (data: Buffer): string => {
+    const words = bech32.toWords(data);
+    words.unshift(1);
+
+    return bech32m.encode(taprootNetworkPrefix, words);
+  };
+
   const ecdsaPubkey = getPubkeyAt(xpub, account, index);
   const schnorrInternalPubkey = ecdsaPubkey.slice(1);
 
@@ -147,15 +148,13 @@ function getTaprootAddress(
   const tweak = hashTapTweak(schnorrInternalPubkey);
 
   // Q = P + int(hash_TapTweak(bytes(P)))G
-  const outputEcdsaKey = Buffer.from(
-    publicKeyTweakAdd(evenEcdsaPubkey, tweak)
-  );
+  const outputEcdsaKey = Buffer.from(publicKeyTweakAdd(evenEcdsaPubkey, tweak));
 
-  // Convert to schnorr.
+  // Convert to schnorr
   const outputSchnorrKey = outputEcdsaKey.slice(1);
 
   // Create address
-  return toBech32(outputSchnorrKey, 1, 'bc');
+  return String(toBech32(outputSchnorrKey));
 }
 
 // Based on https://github.com/go-faast/bitcoin-cash-payments/blob/54397eb97c7a9bf08b32e10bef23d5f27aa5ab01/index.js#L63-L73

@@ -2,4 +2,4 @@ declare module "coininfo";
 
 declare module "bitcoincashjs";
 
-declare module "bech32"
+declare module "bech32";

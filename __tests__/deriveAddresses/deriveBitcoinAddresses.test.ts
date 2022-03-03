@@ -203,5 +203,46 @@ describe("derive Bitcoin addresses", () => {
         expect(address).toEqual("tb1q2fsmm5zz3258ulpquftfl2s0jeuzfhy9uwwwee");
       });
     });
+
+    describe("derive Native SegWit addresses", () => {
+      beforeEach(() => {
+        derivationMode = DerivationMode.TAPROOT;
+      });
+
+      it("derive m/0/0", () => {
+        const address = getAddress(derivationMode, xpub, 0, 0);
+        expect(address).toEqual(
+          "bc1p3phphcd4hapnux655mdashw2676yg5sn7e0uc8ka7e8kuryu5m6s5v5et6",
+        );
+      });
+
+      it("derive m/0/1", () => {
+        const address = getAddress(derivationMode, xpub, 0, 1);
+        expect(address).toEqual(
+          "bc1p4wqa0e0qqegr7hznytdphpsm353j9wqdzurkxjf77wr7fv8f6kxse2cr2n",
+        );
+      });
+
+      it("derive m/1/0", () => {
+        const address = getAddress(derivationMode, xpub, 1, 0);
+        expect(address).toEqual(
+          "bc1pnr8em42pvkf7xvkldvyasxmqg6vhg0j7za6g6qqmk5xv0rxxg03qnhwzjs",
+        );
+      });
+
+      it("derive m/1/1", () => {
+        const address = getAddress(derivationMode, xpub, 1, 1);
+        expect(address).toEqual(
+          "bc1ptz4ty0yctvems0njcl53nzktsy94r49evz3xyhx86gl3cjpz8enqy0ympq",
+        );
+      });
+
+      it("derive m/1/10000000", () => {
+        const address = getAddress(derivationMode, xpub, 1, 10000000);
+        expect(address).toEqual(
+          "bc1pn5cptn7gqftukp3fssf6zrtl0r2rwj246s4zygzqq0clt554p6tqtcam6w",
+        );
+      });
+    });
   });
 });
