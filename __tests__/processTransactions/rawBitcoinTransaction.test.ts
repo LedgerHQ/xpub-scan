@@ -35,34 +35,10 @@ describe("process transactions", () => {
 
     const transaction = rawTransactions[0];
 
-    expect(transaction.index).toEqual(1886);
-    expect(transaction.timestamp).toEqual(1637412724);
-    expect(transaction.transactionHash).toEqual(
+    expect(transaction.time).toEqual(1637411892);
+    expect(transaction.block_no).toEqual(710566);
+    expect(transaction.txid).toEqual(
       "6a832f494b57870a4cb8c9d4094373a6726ad501a12ee1106b371ef592df1df6",
     );
-
-    expect(transaction.fee.amount).toEqual("0.00002244");
-
-    expect(transaction.recipients).toMatchObject([
-      {
-        address: "3Q2AxuRxJnvddAa1wAm8PXeQCiBhkCGndi",
-        amount: "0.00070000",
-      },
-      {
-        address: "1GiCSuc1harcGUePV2EfZxmKoJou8V6KVE",
-        amount: "0.00010056",
-      },
-    ]);
-
-    expect(transaction.senders).toMatchObject([
-      {
-        address: "1CiWPcvoNz9DhrMbb8QLzX2GfhN96TDF78",
-        amount: "0.00012300",
-      },
-      {
-        address: "12bNVFv2eTy5wkDQKFT78a47Pk8TEaQjBL",
-        amount: "0.00070000",
-      },
-    ]);
   });
 });
