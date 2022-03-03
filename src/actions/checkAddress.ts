@@ -2,6 +2,7 @@ import chalk from "chalk";
 
 import { getDerivationMode, getAddress } from "./deriveAddresses";
 import { DERIVATION_SCOPE } from "../configuration/settings";
+import { setNetwork } from "../helpers";
 
 interface Result {
   partial?: string;
@@ -100,6 +101,7 @@ function search(
 ): Result {
   const derivationMode = getDerivationMode(providedAddress);
   const partialSearch = providedAddress.includes("?");
+  setNetwork(xpub);
 
   for (
     let account = range.account.min;
@@ -179,5 +181,9 @@ function run(xpub: string, providedAddress: string) {
 
   showComparisonResult(xpub, providedAddress, result);
 }
+
+export const _private = {
+  search,
+};
 
 export { run };
