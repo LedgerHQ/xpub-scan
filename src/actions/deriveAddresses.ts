@@ -108,37 +108,51 @@ function getTaprootAddress(
 ): string {
   const taprootNetworkPrefix = "bc";
 
-  const getPubkeyAt = (
+  const getSchnorrInternalPubkeyAt = (
     xpub: string,
     account: number,
     index: number,
   ): Buffer => {
-    const buffer: Buffer = Buffer.from(bs58.decode(xpub));
-    const depth: number = buffer[4];
-    const i: number = buffer.readUInt32BE(9);
-    const chainCode: Buffer = buffer.slice(13, 45);
-    const publicKey: Buffer = buffer.slice(45, 78);
-    return new BIP32(publicKey, chainCode, taprootNetworkPrefix, depth, i)
+    const buffer = Buffer.from(bs58.decode(xpub));
+    const depth = buffer[4];
+    const i = buffer.readUInt32BE(9);
+    const chainCode = buffer.slice(13, 45);
+    const publicKey = buffer.slice(45, 78);
+
+    const publicKeyAt = new BIP32(
+      publicKey,
+      chainCode,
+      taprootNetworkPrefix,
+      depth,
+      i,
+    )
       .derive(account)
       .derive(index).publicKey;
+
+    const schnorrInternalPubkeyAt = publicKeyAt.slice(1);
+
+    return schnorrInternalPubkeyAt;
   };
 
-  const hashTapTweak = (x: any): Buffer => {
+  const hashTapTweak = (schnorrInternalPubkey: Buffer): Buffer => {
     // hash_tag(x) = SHA256(SHA256(tag) || SHA256(tag) || x), see BIP340
     // See https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki#specification
     const h = bjs.crypto.sha256(Buffer.from("TapTweak", "utf-8"));
-    return bjs.crypto.sha256(Buffer.concat([h, h, x]));
+    return bjs.crypto.sha256(Buffer.concat([h, h, schnorrInternalPubkey]));
   };
 
-  const toBech32 = (data: Buffer): string => {
-    const words = bech32.toWords(data);
+  const toBech32 = (outputSchnorrKey: Buffer): string => {
+    const words = bech32.toWords(outputSchnorrKey);
     words.unshift(1);
 
     return bech32m.encode(taprootNetworkPrefix, words);
   };
 
-  const ecdsaPubkey = getPubkeyAt(xpub, account, index);
-  const schnorrInternalPubkey = ecdsaPubkey.slice(1);
+  const schnorrInternalPubkey = getSchnorrInternalPubkeyAt(
+    xpub,
+    account,
+    index,
+  );
 
   const evenEcdsaPubkey = Buffer.concat([
     Buffer.from([0x02]),
