@@ -10,7 +10,6 @@ export enum DerivationMode {
   UNKNOWN = "Unknown",
 }
 
-// TODO: complete migratation from settings to currencies
 export const currencies = {
   btc: {
     name: "Bitcoin",
@@ -21,6 +20,7 @@ export const currencies = {
       DerivationMode.LEGACY,
       DerivationMode.SEGWIT,
       DerivationMode.NATIVE,
+      // DerivationMode.TAPROOT, // TODO(Taproot): to enable when providers support this derivation mode
     ],
     precision: 10 ** 8,
     utxo_based: true,
