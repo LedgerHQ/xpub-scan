@@ -236,44 +236,47 @@ function makeTransactionsTable(outputData: TODO_TypeThis) {
     return "";
   }
 
-  let transactionsTable = `
+  const transactionsTableHead = `
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Block</th>
+        <th>Tx id</th>
+        <th>Address</th>
+        <th>Amount</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+  `;
+
+  let transactionsTemplate = `
+    {paginationStyle}
     <li class="tab">
       <input type="radio" name="tabs" id="tab4" />
       <label for="tab4">${outputData.transactions.length} Transactions</label>
       <div id="tab-content4" class="content">
       <div class="warning">{warning}</div>
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Block</th>
-              <th>Tx id</th>
-              <th>Address</th>
-              <th>Amount</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions}
-          </tbody>
-        </table>
+        {paginationRadios}
+        {transactions}
+        {paginationSlider}
       </div>
-      </li>
-    `;
+    </li>
+  `;
 
   // display warning if default provider is being used
   if (outputData.meta.provider === "default") {
-    transactionsTable = transactionsTable.replace(
+    transactionsTemplate = transactionsTemplate.replace(
       "{warning}",
       "Default provider used: only the last ~50 operations by address are displayed",
     );
   } else {
-    transactionsTable = transactionsTable.replace("{warning}", "");
+    transactionsTemplate = transactionsTemplate.replace("{warning}", "");
   }
 
-  const transactions: string[] = [];
+  const transactions: string[][] = [];
   for (const e of outputData.transactions) {
     let rowStyle = "<tr>";
+    const transactionRow: string[] = [];
 
     if (e.operationType === "Failed to send") {
       rowStyle = '<tr class="failed_operation">';
@@ -286,11 +289,11 @@ function makeTransactionsTable(outputData: TODO_TypeThis) {
       rowStyle = '<tr class="sci_operation">';
     }
 
-    transactions.push(rowStyle);
-    transactions.push("<td>" + e.date + "</td>");
-    transactions.push("<td>" + e.block + "</td>");
-    transactions.push("<td>" + renderTxid(e.txid) + "</td>");
-    transactions.push(
+    transactionRow.push(rowStyle);
+    transactionRow.push("<td>" + e.date + "</td>");
+    transactionRow.push("<td>" + e.block + "</td>");
+    transactionRow.push("<td>" + renderTxid(e.txid) + "</td>");
+    transactionRow.push(
       "<td>" + renderAddress(e.address, e.cashAddress) + "</td>",
     );
 
@@ -304,16 +307,18 @@ function makeTransactionsTable(outputData: TODO_TypeThis) {
       amount += `<br><span class="dapp_details">${e.dapp.contract_name}</span>`;
     }
 
-    transactions.push("<td>" + amount + "</td>");
-    transactions.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
+    transactionRow.push("<td>" + amount + "</td>");
+    transactionRow.push("<td>" + createTooltip(e.operationType) + "</td></tr>");
+    transactions.push(transactionRow);
   }
 
-  transactionsTable = transactionsTable.replace(
-    "{transactions}",
-    transactions.join(""),
+  return makePaginatedTable(
+    transactionsTableHead,
+    transactionsTemplate,
+    transactions,
+    100,
+    "transactions",
   );
-
-  return transactionsTable;
 }
 
 function makeUTXOSTable(outputData: TODO_TypeThis) {
@@ -324,86 +329,91 @@ function makeUTXOSTable(outputData: TODO_TypeThis) {
     return "";
   }
 
-  const UTXOSTable = `
+  const UTXOSTableHead = `
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Derivation</th>
+        <th>Address</th>
+        <th>Balance</th>
+        <th>Funded</th>
+        <th>Spent</th>
+      </tr>
+    </thead>`;
+
+  const UTXOSTemplate = `
+    {paginationStyle}
     <li class="tab">
-    <input type="radio" name="tabs" id="tab3" />
-    <label for="tab3">${outputData.utxos.length} UTXO${
+      <input type="radio" name="tabs" id="tab3" />
+      <label for="tab3">${outputData.utxos.length} UTXO${
     outputData.utxos.length > 1 ? "S" : ""
   }</label>
-    <div id="tab-content3" class="content">
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Derivation</th>
-            <th>Address</th>
-            <th>Balance</th>
-            <th>Funded</th>
-            <th>Spent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {utxos}
-        </tbody>
-      </table>
-    </div>
+      <div id="tab-content3" class="content">
+        {paginationRadios}
+        {utxos}
+        {paginationSlider}
+      </div>
     </li>
     `;
 
-  const utxos: string[] = [];
+  const utxos: string[][] = [];
 
   for (const e of outputData.utxos) {
-    utxos.push("<tr><td>" + e.derivationMode + "</td>");
+    const utxoRow: string[] = [];
+    utxoRow.push("<tr><td>" + e.derivationMode + "</td>");
 
     const derivationPath =
       "m/" + e.derivation.account + "/" + e.derivation.index;
-    utxos.push("<td>" + derivationPath + "</td>");
+    utxoRow.push("<td>" + derivationPath + "</td>");
 
-    utxos.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
+    utxoRow.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
 
     const balance = renderAmount(e.balance);
     const funded = renderAmount(e.funded);
     const spent = renderAmount(e.spent);
 
-    utxos.push("<td>" + balance + "</td>");
-    utxos.push("<td>" + funded + "</td>");
-    utxos.push("<td>" + spent + "</td></tr>");
+    utxoRow.push("<td>" + balance + "</td>");
+    utxoRow.push("<td>" + funded + "</td>");
+    utxoRow.push("<td>" + spent + "</td></tr>");
+    utxos.push(utxoRow);
   }
 
-  return UTXOSTable.replace("{utxos}", utxos.join(""));
+  return makePaginatedTable(UTXOSTableHead, UTXOSTemplate, utxos, 100, "utxos");
 }
 
 function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
+  const comparisonsTableHead = `
+    <thead>
+      <tr style="text-align: center">
+          <th rowspan="1" colspan="3" class="right_sep">IMPORTED OPERATION, FROM PRODUCT</th>
+          <th rowspan="1" colspan="3" class="right_sep">ACTUAL OPERATION, FROM EXTERNAL PROVIDER</th>
+          <th rowspan="2" colspan="1">TXID</th>
+          <th rowspan="2" colspan="1">TYPE</th>
+          <th rowspan="2" colspan="1">STATUS</th>
+      </tr>
+      <tr>
+          <th>Date</th>
+          <th>Address</th>
+          <th class="right_sep">Amount</th>
+          <th>Date</th>
+          <th>Address</th>
+          <th class="right_sep">Amount</th>
+      </tr>
+    </thead>
+  `;
+
   let comparisonsTemplate = `
+    {paginationStyle}
     <li class="tab">
-    <input type="radio" name="tabs" id="tab{id}" />
-    <label for="tab{id}">${
-      onlyDiff ? outputData.diffs.length : outputData.comparisons.length
-    } {label}</label>
-    <div id="tab-content{id}" class="content">
-    <table>
-        <thead>
-            <tr style="text-align: center">
-                <th rowspan="1" colspan="3" class="right_sep">IMPORTED OPERATION, FROM PRODUCT</th>
-                <th rowspan="1" colspan="3" class="right_sep">ACTUAL OPERATION, FROM EXTERNAL PROVIDER</th>
-                <th rowspan="2" colspan="1">TXID</th>
-                <th rowspan="2" colspan="1">TYPE</th>
-                <th rowspan="2" colspan="1">STATUS</th>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <th>Address</th>
-                <th class="right_sep">Amount</th>
-                <th>Date</th>
-                <th>Address</th>
-                <th class="right_sep">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {comparisons}
-        </tbody>
-    </table>
-    </div>
+      <input type="radio" name="tabs" id="tab{id}" />
+      <label for="tab{id}">${
+        onlyDiff ? outputData.diffs.length : outputData.comparisons.length
+      } {label}</label>
+      <div id="tab-content{id}" class="content">
+        {paginationRadios}
+        {comparisons}
+        {paginationSlider}
+      </div>
     </li>
     `;
 
@@ -425,9 +435,10 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
     comparisonsTemplate = comparisonsTemplate.split("{id}").join("6"); // differences have id 6
   }
 
-  const comparisons: string[] = [];
+  const comparisons: string[][] = [];
   if (typeof comp !== "undefined") {
     for (const e of comp) {
+      const comparisonRow: string[] = [];
       let txid = "";
       let opType = "";
 
@@ -475,27 +486,27 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
         }
 
         if (opType === "Failed to send") {
-          comparisons.push('<tr class="failed_operation">');
+          comparisonRow.push('<tr class="failed_operation">');
         } else if (opType.includes("token") || opType === "Swapped") {
-          comparisons.push('<tr class="token_operation">');
+          comparisonRow.push('<tr class="token_operation">');
         } else if (opType.includes("SCI")) {
-          comparisons.push('<tr class="sci_operation">');
+          comparisonRow.push('<tr class="sci_operation">');
         } else {
-          comparisons.push('<tr class="comparison_match">');
+          comparisonRow.push('<tr class="comparison_match">');
         }
       } else if (e.status.includes("aggregated")) {
         if (onlyDiff) {
           continue; // if diff: ignore aggregated operations
         }
-        comparisons.push('<tr class="comparison_aggregated">');
+        comparisonRow.push('<tr class="comparison_aggregated">');
       } else if (e.status === "Skipped") {
-        comparisons.push('<tr class="skipped_comparison">');
+        comparisonRow.push('<tr class="skipped_comparison">');
       } else {
-        comparisons.push('<tr class="comparison_mismatch">');
+        comparisonRow.push('<tr class="comparison_mismatch">');
       }
 
-      comparisons.push("<td>" + imported.date + "</td>");
-      comparisons.push("<td>" + imported.address + "</td>");
+      comparisonRow.push("<td>" + imported.date + "</td>");
+      comparisonRow.push("<td>" + imported.address + "</td>");
 
       let importedAmount = imported.amount;
 
@@ -507,10 +518,10 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
         importedAmount += `<br><span class="dapp_details">${e.imported.dapp.contract_name}</span>`;
       }
 
-      comparisons.push('<td class="right_sep">' + importedAmount + "</td>");
+      comparisonRow.push('<td class="right_sep">' + importedAmount + "</td>");
 
-      comparisons.push("<td>" + actual.date + "</td>");
-      comparisons.push("<td>" + actual.address + "</td>");
+      comparisonRow.push("<td>" + actual.date + "</td>");
+      comparisonRow.push("<td>" + actual.address + "</td>");
 
       let actualAmount = actual.amount;
 
@@ -518,11 +529,11 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
         actualAmount += renderToken(actual.token, e.status);
       }
 
-      comparisons.push('<td class="right_sep">' + actualAmount + "</td>");
+      comparisonRow.push('<td class="right_sep">' + actualAmount + "</td>");
 
-      comparisons.push("<td>" + renderTxid(txid) + "</td>");
-      comparisons.push("<td>" + createTooltip(opType) + "</td>");
-      comparisons.push(
+      comparisonRow.push("<td>" + renderTxid(txid) + "</td>");
+      comparisonRow.push("<td>" + createTooltip(opType) + "</td>");
+      comparisonRow.push(
         '<td><span class="label ' +
           (e.status.includes("Match")
             ? "match_label"
@@ -531,21 +542,206 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
             : "mismatch_label") +
           '">',
       );
-      comparisons.push(
+      comparisonRow.push(
         e.status +
           (e.status === "Skipped"
             ? ` (> block #${configuration.blockHeightUpperLimit})`
             : "") +
           "</span></td></tr>",
       );
+      comparisons.push(comparisonRow);
     }
   }
 
   if (comparisons.length > 0) {
-    return comparisonsTemplate.replace("{comparisons}", comparisons.join(""));
+    return makePaginatedTable(
+      comparisonsTableHead,
+      comparisonsTemplate,
+      comparisons,
+      100,
+      onlyDiff ? "diffs" : "comparisons",
+    );
   } else {
     return "";
   }
+}
+
+function makePaginatedTable(
+  tableHead: string,
+  template: string,
+  rowsData: string[][],
+  pageSize: number,
+  key: string,
+) {
+  if (rowsData.length > pageSize) {
+    const pageCount = Math.ceil(rowsData.length / 100);
+    const pageArray = [...Array(pageCount).keys()].map((i) => i + 1);
+    template = template
+      .replace(
+        "{paginationStyle}",
+        `<style type="text/css">
+          ${pageArray.map((i) => `#${key}-radio${i}`).join(", ")} {
+            display: none;
+          }
+          .page-slider {
+            display: grid;
+            margin: auto;
+            grid-auto-flow: column;
+            width: fit-content;
+          }
+          .${key}-page-label {
+            cursor: pointer;
+            color: white;
+            background-color: #303030;
+            padding: 6px 20px;
+          }
+          ${pageArray.map((i) => `#${key}-page${i}`).join(", ")} {
+            display: none;
+          }
+          ${pageArray
+            .map(
+              (i) =>
+                `#${key}-radio${i}:checked ~ .page-slider #${key}-label${i}`,
+            )
+            .join(", ")} {
+            background-color: #4a83fd;
+          }
+          ${pageArray
+            .map((i) => `#${key}-radio${i}:checked ~ #${key}-page${i}`)
+            .join(", ")} {
+            display: table;
+          }
+        </style>`,
+      )
+      .replace(
+        "{paginationRadios}",
+        pageArray
+          .map(
+            (i) =>
+              `<input type="radio" name="${key}-page-radio" id="${key}-radio${i}" ${
+                i === 1 ? "checked" : ""
+              } />`,
+          )
+          .join(""),
+      )
+      .replace(
+        "{paginationSlider}",
+        `<div class="page-slider">
+          ${pageArray
+            .map(
+              (i) =>
+                `<label for="${key}-radio${i}" id="${key}-label${i}" class="${key}-page-label">
+                  ${i}
+                </label>`,
+            )
+            .join("")}
+        </div>`,
+      )
+      .replace(
+        `{${key}}`,
+        pageArray
+          .map(
+            (i) =>
+              `<table id="${key}-page${i}">
+                ${tableHead}
+                <tbody>
+                  ${rowsData
+                    .slice(i * 100 - 100, i * 100)
+                    .map((rowData) => rowData.join(""))
+                    .join("")}
+                </tbody>
+              </table>`,
+          )
+          .join(""),
+      );
+  } else {
+    template = template
+      .replace("{paginationStyle}", "")
+      .replace("{paginationRadios}", "")
+      .replace("{paginationSlider}", "")
+      .replace(
+        `{${key}}`,
+        `<table>
+          ${tableHead}
+          <tbody>
+            ${rowsData.map((rowData) => rowData.join("")).join("")}
+          </tbody>
+        </table>`,
+      );
+  }
+  return template;
+}
+
+function makeAddressesTable(outputData: TODO_TypeThis) {
+  const addressesTableHead = `
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Derivation</th>
+        <th>Address</th>
+        <th>Balance</th>
+        <th>Funded</th>
+        <th>Spent</th>
+      </tr>
+    </thead>
+  `;
+
+  let addressesTemplate = `
+    {paginationStyle}
+    <li class="tab">
+      <input type="radio" name="tabs" id="tab2" />
+      <label for="tab2">{addresses_count} Address{addresses_plural}</label>
+      <div id="tab-content2" class="content">
+        {paginationRadios}
+        {addresses}
+        {paginationSlider}
+      </div>
+    </li>`;
+
+  const addresses: string[][] = [];
+
+  for (const e of outputData.addresses) {
+    const addressRow: string[] = [];
+
+    if (typeof e.derivation.account !== "undefined") {
+      addressRow.push("<tr><td>" + e.derivationMode + "</td>");
+      const derivationPath =
+        "m/" + e.derivation.account + "/" + e.derivation.index;
+      addressRow.push("<td>" + derivationPath + "</td>");
+    } else {
+      addressRow.push(
+        "<tr><td>" + configuration.currency.name + "</td><td>-</td>",
+      );
+    }
+
+    addressRow.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
+
+    const balance = renderAmount(e.balance);
+    const funded = renderAmount(e.funded);
+    const spent = renderAmount(e.spent);
+
+    addressRow.push("<td>" + balance + "</td>");
+    addressRow.push("<td>" + funded + "</td>");
+    addressRow.push("<td>" + spent + "</td></tr>");
+    addresses.push(addressRow);
+  }
+
+  addressesTemplate = addressesTemplate.replace(
+    "{addresses_count}",
+    outputData.addresses.length.toFixed(),
+  );
+  addressesTemplate = addressesTemplate.replace(
+    "{addresses_plural}",
+    outputData.addresses.length > 1 ? "es" : "",
+  );
+
+  return makePaginatedTable(
+    addressesTableHead,
+    addressesTemplate,
+    addresses,
+    100,
+    "addresses",
+  );
 }
 
 function saveHTML(outputData: TODO_TypeThis, filepath: string) {
@@ -618,40 +814,7 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
   report = report.replace("{summary}", summary.join(""));
 
   // addresses
-  const addresses: string[] = [];
-
-  for (const e of outputData.addresses) {
-    if (typeof e.derivation.account !== "undefined") {
-      addresses.push("<tr><td>" + e.derivationMode + "</td>");
-      const derivationPath =
-        "m/" + e.derivation.account + "/" + e.derivation.index;
-      addresses.push("<td>" + derivationPath + "</td>");
-    } else {
-      addresses.push(
-        "<tr><td>" + configuration.currency.name + "</td><td>-</td>",
-      );
-    }
-
-    addresses.push("<td>" + renderAddress(e.address, e.cashAddress) + "</td>");
-
-    const balance = renderAmount(e.balance);
-    const funded = renderAmount(e.funded);
-    const spent = renderAmount(e.spent);
-
-    addresses.push("<td>" + balance + "</td>");
-    addresses.push("<td>" + funded + "</td>");
-    addresses.push("<td>" + spent + "</td></tr>");
-  }
-
-  report = report.replace(
-    "{addresses_count}",
-    outputData.addresses.length.toFixed(),
-  );
-  report = report.replace(
-    "{addresses_plural}",
-    outputData.addresses.length > 1 ? "es" : "",
-  );
-  report = report.replace("{addresses}", addresses.join(""));
+  report = report.replace("{addresses_table}", makeAddressesTable(outputData));
 
   // UTXOs
   report = report.replace("{utxos_table}", makeUTXOSTable(outputData));
