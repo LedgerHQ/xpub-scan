@@ -107,7 +107,11 @@ def xpub_scan(data: dict, filepath: str, provider: str) -> int:
 
     # when testing the default providers, add a delay between the tests (API rate limits)
     if provider == "default":
-        time.sleep(60)
+        delay_in_seconds = 60
+        print(
+            f"(the default provider is being used: waiting {delay_in_seconds} seconds—rate limit issue)"
+        )
+        time.sleep(delay_in_seconds)
 
     xpub = data["xpub"]
     coin = data["coin_ticker"]
@@ -197,7 +201,7 @@ def run_tests(product_under_test=None, currency=None, provider=None):
         if "_separator_" in data:
             continue
 
-        product = data["product"].lower().replace("-", " ")
+        product = data["product"].split("/")[0].lower().replace("-", " ")
 
         if product_under_test and product_under_test not in product:
             continue
@@ -235,7 +239,10 @@ if __name__ == "__main__":
             provider = sys.argv[3].lower()
 
             # when testing the default provider, remove the API KEY env var
-            if provider == "default" and os.environ.get("XPUB_SCAN_CUSTOM_API_KEY_V2") is not None:
+            if (
+                provider == "default"
+                and os.environ.get("XPUB_SCAN_CUSTOM_API_KEY_V2") is not None
+            ):
                 del os.environ["XPUB_SCAN_CUSTOM_API_KEY_V2"]
 
         run_tests(product_under_test, currency, provider)
