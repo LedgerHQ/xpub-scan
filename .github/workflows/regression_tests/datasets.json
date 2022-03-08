@@ -66,6 +66,16 @@
     "balance": 7280
   },
   {
+    "product": "Live Desktop / BTC mainnet / Taproot",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "BTC",
+    "network": "mainnet",
+    "xpub": "xpub6CxmFW2XhCuATQzznar2FSHv2JQ9yARnn4Wn7YEdf8g1Tmxm8Stmi2ZEqQH3q7oPFDTsw8yonLvnEKNJTQ68b9BMY76MTAPSNAPbgPFcRRj",
+    "filename": "BTC/Mainnet/Live_Taproot_0.csv",
+    "simulated_discrepancy": "Mismatch: amounts",
+    "balance": 116827
+  },
+  {
     "_separator_": "[---------- Bitcoin mainnet: Custom ----------]"
   },
   {
