@@ -584,16 +584,20 @@ function makePaginatedTable(
             display: none;
           }
           .page-slider {
-            display: grid;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1000px;
             margin: auto;
-            grid-auto-flow: column;
-            width: fit-content;
+            text-align: center;
           }
           .${key}-page-label {
             cursor: pointer;
             color: white;
             background-color: #303030;
-            padding: 6px 20px;
+            padding: 6px;
+            width: 50px;
+            margin: 0px;
           }
           ${pageArray.map((i) => `#${key}-page${i}`).join(", ")} {
             display: none;
