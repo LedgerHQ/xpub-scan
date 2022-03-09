@@ -373,27 +373,7 @@ export const reportTemplate = `
     </div>
     </li>
 
-    <li class="tab">
-    <input type="radio" name="tabs" id="tab2" />
-    <label for="tab2">{addresses_count} Address{addresses_plural}</label>
-    <div id="tab-content2" class="content">
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Derivation</th>
-            <th>Address</th>
-            <th>Balance</th>
-            <th>Funded</th>
-            <th>Spent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {addresses}
-        </tbody>
-      </table>
-    </div>
-    </li>
+    {addresses_table}
 
     {utxos_table}
 
