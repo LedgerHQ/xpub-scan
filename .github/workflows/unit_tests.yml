@@ -17,12 +17,10 @@ jobs:
 
       - name: Install depcheck
         run: |
-          # npm i -g depcheck
           npm i -g check-outdated
       - name: Check dependencies
         run: |
           npm ci > /dev/null 2>&1
-          # temporarily disable depcheck because of a bug: https://github.com/depcheck/depcheck/issues/687
           check-outdated --ignore-packages chalk
           npm audit --audit-level=low --json
 

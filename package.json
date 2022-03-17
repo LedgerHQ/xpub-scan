@@ -14,7 +14,7 @@
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
     "ci": "yarn lint && yarn ts:check && prettier --list-different . && yarn test",
-    "check:dep": "npm ci > /dev/null 2>&1 && depcheck && check-outdated --ignore-packages chalk && npm audit --audit-level=low && npm shrinkwrap",
+    "check:dep": "npm ci > /dev/null 2>&1 && check-outdated --ignore-packages chalk && npm audit --audit-level=low && npm shrinkwrap",
     "regression": "python3 .github/workflows/regression_tests/check.py",
     "dev:test": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p .",
     "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && npm ci && yarn && tsc -p . && yarn regression"
@@ -59,6 +59,7 @@
     "object-hash": "3.0.0",
     "prettier": "2.6.0",
     "tiny-secp256k1": "2.2.1",
+    "ts-node": "10.7.0",
     "typescript": "4.6.2",
     "yargs": "17.3.1"
   }
