@@ -411,7 +411,7 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
       } {label}</label>
       <div id="tab-content{id}" class="content">
         {paginationRadios}
-        {comparisons}
+        ${onlyDiff ? "{diffs}" : "{comparisons}"}
         {paginationSlider}
       </div>
     </li>
