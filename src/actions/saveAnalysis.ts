@@ -917,9 +917,18 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
           funded: toBaseUnit(e.stats.funded),
           spent: toBaseUnit(e.stats.spent),
           // balance only mode: ignore the following fields
-          txid: balanceOnly ? undefined : e.transactions[0].txid,
-          height: balanceOnly ? undefined : e.transactions[0].blockHeight,
-          time: balanceOnly ? undefined : e.transactions[0].date,
+          txid:
+            balanceOnly || typeof e.transactions[0] === "undefined"
+              ? undefined
+              : e.transactions[0].txid,
+          height:
+            balanceOnly || typeof e.transactions[0] === "undefined"
+              ? undefined
+              : e.transactions[0].blockHeight,
+          time:
+            balanceOnly || typeof e.transactions[0] === "undefined"
+              ? undefined
+              : e.transactions[0].date,
         };
       });
   }
