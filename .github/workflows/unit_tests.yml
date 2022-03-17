@@ -17,13 +17,10 @@ jobs:
 
       - name: Install depcheck
         run: |
-          npm i -g depcheck
           npm i -g check-outdated
       - name: Check dependencies
         run: |
           npm ci > /dev/null 2>&1
-
-          depcheck
 
           # check for outdated dependencies
           # ignore `chalk`: https://github.com/chalk/chalk/releases/tag/v5.0.0:
