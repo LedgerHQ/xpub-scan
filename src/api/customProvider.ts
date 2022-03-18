@@ -265,16 +265,15 @@ function getTransactions(address: Address) {
 
     // the address currently being analyzed is a — sender —
     if (addressBelongsToTransactors(tx.senders)) {
-      let amountSent = new BigNumber(0);
-
       for (let i = 0; i < tx.recipients.length; i++) {
         const recipient = tx.recipients[i];
 
         // note: the amount sent is specified in blockchainSpecific.vout
         // _at the same index as the recipient_
-        amountSent = amountSent.plus(tx.blockchainSpecific.vout[i].value);
-
-        const op = new Operation(String(tx.timestamp), amountSent);
+        const op = new Operation(
+          String(tx.timestamp),
+          new BigNumber(tx.blockchainSpecific.vout[i].value),
+        );
 
         op.setAddress(processAddress(recipient.address));
         op.setTxid(tx.transactionId);
