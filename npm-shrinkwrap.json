@@ -1,12 +1,12 @@
 {
   "name": "@ledgerhq/xpub-scan",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@ledgerhq/xpub-scan",
-      "version": "0.4.3",
+      "version": "0.4.4",
       "license": "MIT",
       "dependencies": {
         "@babel/core": "7.17.7",

@@ -17,8 +17,8 @@ const DEFAULT_API_URLS = {
   eth: "https://api.blockcypher.com/v1/eth/main/{type}/{item}",
 };
 
-const CUSTOM_API_URL =
-  "https://rest.cryptoapis.io/v2/blockchain-data/{coin}/{network}";
+const CRYPTOAPIS_URL =
+  "https://rest.cryptoapis.io/v2/blockchain-data/{currency}/{network}";
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
@@ -85,7 +85,7 @@ export const configuration = {
 
 export {
   DEFAULT_API_URLS,
-  CUSTOM_API_URL,
+  CRYPTOAPIS_URL,
   VERBOSE,
   ETH_FIXED_PRECISION,
   DERIVATION_SCOPE,

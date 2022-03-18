@@ -9,13 +9,21 @@ import { configuration } from "../configuration/settings";
 import { DerivationMode } from "../configuration/currencies";
 import { getStats, getTransactions } from "./processTransactions";
 import { Summary } from "../types";
-import { getAddress } from "../actions/deriveAddresses";
+import { deriveAddress } from "../actions/deriveAddresses";
 
 import BigNumber from "bignumber.js";
 
-// scan all active addresses
-// (that is: balances with > 0 transactions)
-async function scanAddresses(
+/**
+ * derive and scan all active addresses _for a given derivation mode_
+ * note: an ACTIVE ADDRESS is an address with > 0 transactions
+ * @param derivationMode a derivation mode (enum)
+ * @param xpub the xpub to scan
+ * @param balanceOnly option to fetch the balance only—not the transactions
+ * @param scanLimits option to limit the scan to a certain account and indices range
+ * @returns an object containing the total balance for the derivation mode as well as
+ *          a list of active addresses associated with it
+ */
+async function deriveAndScanAddressesByDerivationMode(
   derivationMode: DerivationMode,
   xpub: string,
   balanceOnly: boolean,
@@ -170,6 +178,7 @@ async function scanAddresses(
       getTransactions(address, ownAddresses);
     });
   }
+
   display.transientLine(/* delete address */);
 
   display.logStatus(derivationMode.concat(" addresses scanned\n"));
@@ -180,20 +189,27 @@ async function scanAddresses(
   };
 }
 
+/**
+ * Scan an address (account-based mode)
+ * @param itemToScan xpub from which an address will be derived, or directly an address
+ * @param balanceOnly option to fetch the balance only—not the transactions
+ * @returns an array containing this address and a summary that includes the total balance
+ *          (TODO: simplify in order to normalize with xpub analysis)
+ */
 async function addressAnalysis(itemToScan: string, balanceOnly: boolean) {
   if (!configuration.silent) {
     console.log(chalk.bold("\nScanned address\n"));
   }
 
-  let address = undefined;
+  let address;
 
   if (itemToScan.substring(0, 4).toLocaleLowerCase() === "xpub") {
-    // if the item to scan is an xpub, derive the first address...
+    // the item to scan appears to be an xpub: derive just the first address
     const derivationMode =
       configuration.currency.derivationModes![0] || DerivationMode.UNKNOWN;
-    address = new Address(getAddress(derivationMode, itemToScan));
+    address = new Address(deriveAddress(derivationMode, itemToScan));
   } else {
-    // ... otherwise, it is an address: instantiate it directly
+    // the item to scan is directly an address: construct it
     address = new Address(itemToScan);
   }
 
@@ -203,9 +219,13 @@ async function addressAnalysis(itemToScan: string, balanceOnly: boolean) {
 
   display.updateAddressDetails(address);
 
+  // fetch (from external provider) the basic data regarding the address
+  // (balance, transactions count, etc.)
   await getStats(address, balanceOnly);
 
   if (!balanceOnly) {
+    // also (if applicable), fetch (from the external provider) the raw transactions
+    // associated with the address
     getTransactions(address);
   }
 
@@ -224,6 +244,14 @@ async function addressAnalysis(itemToScan: string, balanceOnly: boolean) {
   };
 }
 
+/**
+ * Run the analysis
+ * @param itemToScan ITEM TO SCAN can be an xpub or an address
+ *                   (that is why it is named `itemToScan` instead of xpub)
+ * @param balanceOnly option to fetch the balance only—not the transactions
+ * @param scanLimits option to limit the scan to a certain account and indices range
+ * @returns a list of active addresses and a summary (total balance per derivation mode)
+ */
 async function run(
   itemToScan: string,
   balanceOnly: boolean,
@@ -240,6 +268,13 @@ async function run(
   }
 }
 
+/**
+ * scan an xpub (UTXO-based mode)
+ * @param xpub the xpub to scan
+ * @param balanceOnly option to fetch the balance only—not the transactions
+ * @param scanLimits option to limit the scan to a certain account and indices range
+ * @returns a list of active addresses and a summary (total balance per derivation mode)
+ */
 async function xpubAnalysis(
   xpub: string,
   balanceOnly: boolean,
@@ -248,6 +283,8 @@ async function xpubAnalysis(
   let activeAddresses: Address[] = [];
   const summary: Summary[] = [];
 
+  // get all derivation modes associated with the currency type
+  // (e.g., for Bitcoin: legacy, SegWit, native SegWit, and taproot)
   let derivationModes = configuration.currency.derivationModes;
 
   if (configuration.specificDerivationMode) {
@@ -265,9 +302,10 @@ async function xpubAnalysis(
   }
 
   for (const derivationMode of derivationModes!) {
-    // loop over the derivation modes and `scan` the addresses
+    // loop over the derivation modes and `scan` the addresses belonging to
+    // the current derivation mode
     // (that is: derive them and identify the active ones)
-    const results = await scanAddresses(
+    const results = await deriveAndScanAddressesByDerivationMode(
       derivationMode,
       xpub,
       balanceOnly,
