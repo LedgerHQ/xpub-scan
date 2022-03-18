@@ -183,7 +183,6 @@ def run_tests(product_under_test=None, currency=None, provider=None):
 
     if provider is None:
         run_tests(product_under_test, currency, "custom")
-        run_tests(product_under_test, currency, "default")
         return
 
     with open(f"{base_path}/datasets.json", "r") as f:
