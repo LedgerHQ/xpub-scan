@@ -15,7 +15,10 @@ function handleSignal(signal: string) {
   process.exit(1);
 }
 
-// ⇓ ENTRYPOINT OF XPUB SCAN ⇓
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃ ⇓ ENTRYPOINT OF XPUB SCAN ⇓ ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
 scan();
 
 process.on("SIGINT", handleSignal);
