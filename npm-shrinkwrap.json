@@ -1,12 +1,12 @@
 {
   "name": "@ledgerhq/xpub-scan",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@ledgerhq/xpub-scan",
-      "version": "0.4.2",
+      "version": "0.4.3",
       "license": "MIT",
       "dependencies": {
         "@babel/core": "7.17.7",
@@ -17,7 +17,7 @@
         "@types/html-minifier": "4.0.2",
         "@types/node": "17.0.21",
         "@types/object-hash": "2.2.1",
-        "@types/yargs": "17.0.9",
+        "@types/yargs": "17.0.10",
         "@typescript-eslint/eslint-plugin": "5.15.0",
         "@typescript-eslint/parser": "5.15.0",
         "axios": "0.26.1",
@@ -4426,7 +4426,9 @@
       "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
       "license": "MIT",
       "optional": true,
-      "os": ["darwin"],
+      "os": [
+        "darwin"
+      ],
       "engines": {
         "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
       }
@@ -9210,8 +9212,7 @@
       }
     },
     "@types/yargs": {
-      "version": "17.0.9",
-      "resolved": "https://registry.npmjs.org/@types/yargs/-/yargs-17.0.9.tgz",
+      "version": "https://registry.npmjs.org/@types/yargs/-/yargs-17.0.9.tgz",
       "integrity": "sha512-Ci8+4/DOtkHRylcisKmVMtmVO5g7weUVCKcsu1sJvF1bn0wExTmbHmhFKj7AnEm0de800iovGhdSKzYnzbaHpg==",
       "requires": {
         "@types/yargs-parser": "*"
