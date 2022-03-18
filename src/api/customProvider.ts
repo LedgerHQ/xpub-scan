@@ -1,6 +1,13 @@
-// custom provider:
+// Here, the raw data is fetched from Crypto APIs (i.e., custom provider):
+//  - balance,
+//  - total spent and received, and
+//  - operations
+// per address
+//
 // Crypto APIs 2.0 <https://cryptoapis.io/>
 // https://developers.cryptoapis.io/technical-documentation/general-information/overview
+//
+// In order to enable the custom provider, an API key has to be provided (see: README.md)
 
 import * as helpers from "../helpers";
 import { currencies } from "../configuration/currencies";

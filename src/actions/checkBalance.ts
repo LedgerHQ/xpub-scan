@@ -28,7 +28,7 @@ async function scanAddresses(
   const ownAddresses = new OwnAddresses();
 
   let totalBalance = new BigNumber(0);
-  let noTxCounter = 0;
+  let txCounter = 0;
   const addresses: Address[] = [];
 
   let accountSpan = undefined;
@@ -42,9 +42,9 @@ async function scanAddresses(
     indexToSpan = scanLimits.indexTo;
     preDerivationSize = scanLimits.preDerivationSize;
 
-    // important step: precompute the addresses belonging
-    // to the same xpub in order to perform
-    // transaction analysis further down the flow
+    // crucial step in limited scan mode: precompute the addresses belonging
+    // to the same xpub in order to perform transaction analysis further
+    // down the flow. `preDerivationSize` define the number of addresses to pre-derive.
     for (let a = 0; a < 2; a++) {
       for (let i = 0; i < preDerivationSize; i++) {
         ownAddresses.addAddress(new Address(xpub, derivationMode, a, i));
@@ -52,41 +52,54 @@ async function scanAddresses(
     }
   }
 
-  // TODO: should we limit ourselves to account 0 and 1?
-  // if not, use a logic similar to indices exploration
+  // loop over derivation path accounts: `m/{account}/{index}`
+  // note: we limit ourselves to accounts 0 and 1
+  // but the scope could be extended further if needed
   for (let account = 0; account < 2; ++account) {
-    // scan span 1: account
+    // if limited scan mode is enabled and the current account is outside the scope, skip it
     if (typeof accountSpan != "undefined" && account !== accountSpan) {
       continue;
     }
 
+    // account 0 == external addresses
+    // account 1 == internal (aka change) addresses
     const typeAccount = account === 1 ? "internal" : "external";
 
     display.logStatus(
       "- scanning " + chalk.italic(typeAccount) + " addresses -",
     );
 
-    noTxCounter = 0;
+    txCounter = 0;
 
     for (let index = 0 /* scan all active indices */; ; ++index) {
-      // scan span 2: indices
+      // if limited scan mode is enabled and the current index is _below_ the range, skip it
+      // ______(current index)_______[     LIMITED SCAN RANGE     ]____________________________
       if (typeof indexFromSpan !== "undefined" && index < indexFromSpan) {
         continue;
       }
 
+      // if limited scan mode is enabled and the current index is _beyond_ the range, stop the scan
+      // ____________________________[     LIMITED SCAN RANGE     ]______(current index)_______
       if (typeof indexToSpan !== "undefined" && index > indexToSpan) {
         break;
       }
 
+      // get address derived according to:
+      // - its xpub (by definition),
+      // - the current derivation mode (legacy, SegWit, etc.)
+      // - the derivation path characteristics: `m/{account:0|1}/{index:0|∞}`
       const address = new Address(xpub, derivationMode, account, index);
+
       display.updateAddressDetails(address);
 
-      const status = noTxCounter === 0 ? "analyzing" : "probing address gap";
+      const status = txCounter === 0 ? "analyzing" : "probing address gap";
 
       if (!configuration.silent && !configuration.quiet) {
         process.stdout.write(chalk.yellow(status + "..."));
       }
 
+      // fetch (from external provider) the basic data regarding the address
+      // (balance, transactions count, etc.)
       await getStats(address, balanceOnly);
 
       const addressStats = address.getStats();
@@ -94,13 +107,35 @@ async function scanAddresses(
       // here, evaluate if the address needs further analysis
 
       if (addressStats.txsCount === 0) {
-        // if no transaction, perform address gap probing if exploration
-        // limit no reached yet
-        noTxCounter++;
-        display.transientLine(/* delete address */);
+        // no transaction associated with the address:
+        // perform address gap probing
+        // GAP PROBE: check whether an address is active in a certain range
+        //
+        // for instance:
+        // ┌┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┐
+        // ┊ m/0/0 — active (10 transactions)           ┊
+        // ┊ m/0/1 — active (2 transactions)            ┊
+        // ┊                                  ┐         ┊
+        // ┊ m/0/2 — inactive (0 transaction) │         ┊
+        // ┊ m/0/3 — inactive (0 transaction) │ GAP     ┊
+        // ┊ m/0/4 — inactive (0 transaction) │         ┊
+        // ┊                                  ┘         ┊
+        // ┊ m/0/5 — active (4 transactions)            ┊
+        // └┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┘
+        //
+        // in this example, the gap probing allows to detect that
+        // `m/0/5` is an active address
+        //
+        // note: the scope of the gap probing is 20 addresses by
+        // default (check `DEFAULT_GAP_LIMIT`) but can be configured
+        // using the `GAP_LIMIT` environment variable
 
-        if (account === 1 || noTxCounter >= configuration.gap_limit) {
-          // TODO?: extend logic to account numbers > 1
+        txCounter++;
+        display.transientLine(/* delete address as it is not an active one */);
+
+        if (account === 1 || txCounter >= configuration.gap_limit) {
+          // all active addresses have been scanned and the gap limit reached:
+          // stop the scan for this specific derivation mode
           display.transientLine(/* delete last probing info */);
           display.logStatus(
             "- " + chalk.italic(typeAccount) + " addresses scanned -",
@@ -110,7 +145,7 @@ async function scanAddresses(
 
         continue;
       } else {
-        noTxCounter = 0;
+        txCounter = 0;
       }
 
       // convert address balance into satoshis (or equivalent unit)
@@ -195,8 +230,12 @@ async function run(
   scanLimits?: ScanLimits,
 ) {
   if (configuration.currency.utxo_based) {
+    // if the currency is UTXOs based (e.g., Bitcoin):
+    // the item to scan is an xpub
     return xpubAnalysis(itemToScan, balanceOnly, scanLimits);
   } else {
+    // otherwise, the currency is account-based (e.g., Ethereum):
+    // the item to scan is an address
     return addressAnalysis(itemToScan, balanceOnly);
   }
 }
@@ -226,6 +265,8 @@ async function xpubAnalysis(
   }
 
   for (const derivationMode of derivationModes!) {
+    // loop over the derivation modes and `scan` the addresses
+    // (that is: derive them and identify the active ones)
     const results = await scanAddresses(
       derivationMode,
       xpub,

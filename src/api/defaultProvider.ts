@@ -1,3 +1,9 @@
+// Here, the raw data is fetched from default (i.e., free of charge) providers:
+//  - balance,
+//  - total spent and received, and
+//  - operations
+// per address
+
 import { getJSON, toAccountUnit } from "../helpers";
 import { configuration, ETH_FIXED_PRECISION } from "../configuration/settings";
 import { Address } from "../models/address";
