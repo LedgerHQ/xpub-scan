@@ -5,7 +5,7 @@ import bchaddr from "bchaddrjs";
 import {
   configuration,
   DEFAULT_API_URLS,
-  CUSTOM_API_URL,
+  CRYPTOAPIS_URL,
   ETH_FIXED_PRECISION,
 } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
@@ -120,7 +120,7 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
 const setExternalProviderURL = (): void => {
   // custom provider (i.e., API key is set)
   if (process.env.XPUB_SCAN_CUSTOM_API_KEY_V2) {
-    configuration.externalProviderURL = CUSTOM_API_URL.replace(
+    configuration.externalProviderURL = CRYPTOAPIS_URL.replace(
       "{network}",
       configuration.testnet
         ? configuration.currency.symbol === currencies.eth.symbol

@@ -1,5 +1,3 @@
-import chalk from "chalk";
-
 import * as checkBalances from "./checkBalance";
 import * as compare from "./checkAddress";
 import * as display from "../display";
@@ -13,7 +11,7 @@ import { ScanData, ScanMeta, ScannerArguments, ScanResult } from "../types";
 import { init } from "../helpers";
 
 // eslint-disable-next-line
-const { version } = require("../../package.json"); // do not modify
+const { version } = require("../../package.json"); // do not modify: get the version of Xpub Scan from `package.json`
 
 export class Scanner {
   args;
@@ -56,26 +54,16 @@ export class Scanner {
     }
 
     if (this.address) {
-      // comparison mode
+      // mode A: `--address {address}`:
+      // an address has been provided by the user: check whether its belongs or not to the xpub
       await compare.run(this.itemToScan, this.address);
       return { exitCode: this.exitCode };
     } else {
-      // scan mode
-      let importedTransactions;
+      // mode B: scan mode
+      let importedTransactions: any;
 
-      if (!this.args.operations) {
-        // if no file path has been provided, only the xpub is expected to have
-        // been specified
-        if (this.args._ !== undefined && this.args._.length > 1) {
-          console.log(
-            chalk.red(
-              "Only 1 xpub or address expected. Please check the documentation.",
-            ),
-          );
-          process.exit(1);
-        }
-      } else {
-        // if a file path has been provided, import its transactions
+      if (this.args.operations) {
+        // a file path has been provided: import its transactions
         importedTransactions = importOperations(this.args.operations);
       }
 
@@ -84,10 +72,11 @@ export class Scanner {
         this.balanceOnly,
         this.scanLimits,
       );
-      const actualAddresses = scanResult.addresses;
-      const actualUTXOs = getSortedUTXOS(actualAddresses);
-      const summary = scanResult.summary;
-      const actualTransactions = getSortedOperations(actualAddresses);
+
+      const actualAddresses = scanResult.addresses; // active addresses belonging to the xpub
+      const actualUTXOs = getSortedUTXOS(actualAddresses); // UTXOs (if any) belonging to the xpub
+      const summary = scanResult.summary; // summary: balance per derivation path
+      const actualTransactions = getSortedOperations(actualAddresses); // transactions related to the xpub
 
       display.showResults(
         actualUTXOs,
@@ -101,6 +90,8 @@ export class Scanner {
       let comparisonResults;
 
       if (typeof importedTransactions !== "undefined") {
+        // transactions have been imported: comparison mode enabled
+        // — compare imported transactions with actual ones
         comparisonResults = checkImportedOperations(
           importedTransactions,
           actualTransactions,
@@ -109,6 +100,7 @@ export class Scanner {
         );
       }
 
+      // full v. partial scan
       let mode: string;
 
       if (
@@ -126,12 +118,14 @@ export class Scanner {
         mode = "Full scan";
       }
 
+      // (special mode for Custom W)
       if (configuration.augmentedImport) {
         // Augmented import mode:
         // Use of an augmented JSON to compare smart contract interactions
         mode += " | Augmented Import";
       }
 
+      // balance only mode
       if (this.balanceOnly) {
         // Balance only mode
         mode += " | Balance Only";
