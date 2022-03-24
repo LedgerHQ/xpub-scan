@@ -14,7 +14,12 @@ import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 import { format } from "date-fns";
 
-// raw transactions provided by default API
+// ┏━━━━━━━━━━━━━━━━━━━━┓
+// ┃ DEFAULT PROVIDER   ┃
+// ┃ Bitcoin & Litecoin ┃
+// ┗━━━━━━━━━━━━━━━━━━━━┛
+
+// structure of the responses from the default API
 interface RawTransaction {
   txid: string;
   block_no: number;
@@ -35,37 +40,11 @@ interface RawTransaction {
   };
 }
 
-// raw transactions provided by BCH API
-interface BchRawTransaction {
-  txid: string;
-  blockheight: number;
-  confirmations: number;
-  time: number;
-  vin: {
-    value: string;
-    addr: string;
-  }[];
-  vout: {
-    value: string;
-    scriptPubKey: {
-      addresses: string[];
-    };
-  }[];
-}
-
-// raw transactions provided by ETH API
-interface EthRawTransaction {
-  tx_hash: string;
-  block_height: number;
-  value: number;
-  tx_input_n: number;
-  tx_output_n: number;
-  confirmed: string;
-  total: number;
-}
-
-// returns the basic stats related to an address:
-// its balance, funded and spend sums and counts
+/**
+ * fetch the structured basic stats related to an address
+ * its balance, funded and spend sums and counts
+ * @param address the address being analyzed
+ */
 async function getStats(address: Address) {
   // important: coin name is required to be upper case for default provider
   let coin = configuration.currency.symbol.toUpperCase();
@@ -75,7 +54,7 @@ async function getStats(address: Address) {
   }
 
   if (coin === currencies.eth.symbol) {
-    return getEthStats(address);
+    return getAccountBasedStats(address);
   }
 
   if (coin === currencies.btc.symbol.toUpperCase() && configuration.testnet) {
@@ -85,7 +64,7 @@ async function getStats(address: Address) {
   }
 
   const url = configuration.externalProviderURL
-    .replace("{coin}", coin)
+    .replace("{currency}", coin)
     .replace("{address}", address.toString());
 
   const res = await getJSON<any>(url);
@@ -101,89 +80,10 @@ async function getStats(address: Address) {
   address.setRawTransactions(res.data.txs);
 }
 
-async function getBchStats(address: Address) {
-  const urlStats = configuration.externalProviderURL
-    .replace("{type}", "details")
-    .replace("{address}", address.asCashAddress()!);
-
-  const res = await getJSON<any>(urlStats);
-
-  // TODO: check potential errors here (API returning invalid data...)
-  const fundedSum = res.totalReceived;
-  const balance = res.balance;
-  const spentSum = res.totalSent;
-
-  address.setStats(res.txApperances, fundedSum, spentSum);
-  address.setBalance(balance);
-
-  const urlTxs = configuration.externalProviderURL
-    .replace("{type}", "transactions")
-    .replace("{address}", address.asCashAddress()!);
-
-  const payloads = [];
-  let totalPages = 1;
-
-  for (let i = 0; i < totalPages; i++) {
-    const response = await getJSON<any>(
-      urlTxs.concat("?page=").concat(i.toString()),
-    );
-    totalPages = response.pagesTotal;
-    payloads.push(response.txs);
-  }
-
-  // flatten the payloads
-  const rawTransactions = [].concat(...payloads);
-
-  address.setRawTransactions(rawTransactions);
-}
-
-async function getEthStats(address: Address) {
-  const url = configuration.externalProviderURL
-    .replace("{type}", "addrs")
-    .replace("{item}", address.toString());
-
-  const res = await getJSON<any>(url);
-
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  const removeScientificNotation = (value: any) =>
-    value.toLocaleString("fullwide", { useGrouping: false });
-
-  const fundedSum = toAccountUnit(
-    new BigNumber(removeScientificNotation(res.total_received)),
-  );
-
-  const balance = toAccountUnit(
-    new BigNumber(removeScientificNotation(res.balance)),
-  );
-
-  const spentSum = toAccountUnit(
-    new BigNumber(removeScientificNotation(res.total_sent)),
-  );
-
-  address.setStats(res.n_tx, fundedSum, spentSum);
-  address.setBalance(balance);
-
-  // additional request to get the fees
-  for (let i = 0; i < res.txrefs.length; ++i) {
-    // if not a Sent transaction, skip
-    if (res.txrefs[i].tx_output_n !== -1) {
-      continue;
-    }
-
-    const urlTxs = configuration.externalProviderURL
-      .replace("{type}", "txs")
-      .replace("{item}", res.txrefs[i].tx_hash);
-
-    const resTxs = await getJSON<any>(urlTxs);
-    res.txrefs[i].total = resTxs.total;
-  }
-
-  address.setRawTransactions(res.txrefs);
-}
-
-// transforms raw transactions associated with an address
-// into an array of processed transactions:
-// [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
+/**
+ * get all structured transactions related to an address
+ * @param address the address being analyzed
+ */
 function getTransactions(address: Address) {
   // Because the general default API is not compatible with Bitcoin Cash,
   // these transactions have to be specifically handled
@@ -241,9 +141,74 @@ function getTransactions(address: Address) {
   address.setTransactions(transactions);
 }
 
-// transforms raw Bitcoin Cash transactions associated with an address
-// into an array of processed transactions:
-// [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
+// ┏━━━━━━━━━━━━━━┓
+// ┃ BCH PROVIDER ┃
+// ┃ Bitcoin Cash ┃
+// ┗━━━━━━━━━━━━━━┛
+
+// structure of the responses from the BCH API
+interface BchRawTransaction {
+  txid: string;
+  blockheight: number;
+  confirmations: number;
+  time: number;
+  vin: {
+    value: string;
+    addr: string;
+  }[];
+  vout: {
+    value: string;
+    scriptPubKey: {
+      addresses: string[];
+    };
+  }[];
+}
+
+/**
+ * fetch the structured basic stats related to a Bitcoin Cash address
+ * its balance, funded and spend sums and counts
+ * @param address the address being analyzed
+ */
+async function getBchStats(address: Address) {
+  const urlStats = configuration.externalProviderURL
+    .replace("{type}", "details")
+    .replace("{address}", address.asCashAddress()!);
+
+  const res = await getJSON<any>(urlStats);
+
+  // TODO: check potential errors here (API returning invalid data...)
+  const fundedSum = res.totalReceived;
+  const balance = res.balance;
+  const spentSum = res.totalSent;
+
+  address.setStats(res.txApperances, fundedSum, spentSum);
+  address.setBalance(balance);
+
+  const urlTxs = configuration.externalProviderURL
+    .replace("{type}", "transactions")
+    .replace("{address}", address.asCashAddress()!);
+
+  const payloads = [];
+  let totalPages = 1;
+
+  for (let i = 0; i < totalPages; i++) {
+    const response = await getJSON<any>(
+      urlTxs.concat("?page=").concat(i.toString()),
+    );
+    totalPages = response.pagesTotal;
+    payloads.push(response.txs);
+  }
+
+  // flatten the payloads
+  const rawTransactions = [].concat(...payloads);
+
+  address.setRawTransactions(rawTransactions);
+}
+
+/**
+ * get all structured transactions related to a Bitcoin Cash address
+ * @param address the address being analyzed
+ */
 function getBitcoinCashTransactions(address: Address) {
   // 1. get raw transactions
   const rawTransactions = address.getRawTransactions();
@@ -319,8 +284,75 @@ function getBitcoinCashTransactions(address: Address) {
   address.setTransactions(transactions);
 }
 
-// transforms raw Ethereum transactions associated with an address
-// into an array of processed transactions:
+// ┏━━━━━━━━━━━━━━┓
+// ┃ ETH PROVIDER ┃
+// ┃ Ethereum     ┃
+// ┗━━━━━━━━━━━━━━┛
+
+// structure of the responses from the ETH API
+interface EthRawTransaction {
+  tx_hash: string;
+  block_height: number;
+  value: number;
+  tx_input_n: number;
+  tx_output_n: number;
+  confirmed: string;
+  total: number;
+}
+
+/**
+ * fetch the structured basic stats related to an Ethereum address
+ * its balance, funded and spend sums and counts
+ * @param address the address being analyzed
+ */
+async function getAccountBasedStats(address: Address) {
+  const url = configuration.externalProviderURL
+    .replace("{type}", "addrs")
+    .replace("{item}", address.toString());
+
+  const res = await getJSON<any>(url);
+
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  const removeScientificNotation = (value: any) =>
+    value.toLocaleString("fullwide", { useGrouping: false });
+
+  const fundedSum = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.total_received)),
+  );
+
+  const balance = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.balance)),
+  );
+
+  const spentSum = toAccountUnit(
+    new BigNumber(removeScientificNotation(res.total_sent)),
+  );
+
+  address.setStats(res.n_tx, fundedSum, spentSum);
+  address.setBalance(balance);
+
+  // additional request to get the fees
+  for (let i = 0; i < res.txrefs.length; ++i) {
+    // if not a Sent transaction, skip
+    if (res.txrefs[i].tx_output_n !== -1) {
+      continue;
+    }
+
+    const urlTxs = configuration.externalProviderURL
+      .replace("{type}", "txs")
+      .replace("{item}", res.txrefs[i].tx_hash);
+
+    const resTxs = await getJSON<any>(urlTxs);
+    res.txrefs[i].total = resTxs.total;
+  }
+
+  address.setRawTransactions(res.txrefs);
+}
+
+/**
+ * get all structured transactions related to an account-based address (generally Ethereum)
+ * @param address the address being analyzed
+ */
 function getAccountBasedTransactions(address: Address) {
   // 1. get raw transactions
   const rawTransactions = address.getRawTransactions();

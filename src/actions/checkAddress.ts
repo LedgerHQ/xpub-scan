@@ -167,19 +167,9 @@ function search(
   return {};
 }
 
-// check basic assumptions to avoid useless comparisons
-function sanityCheck() {
-  // check that the settings are set
+function run(xpub: string, providedAddress: string) {
   if (typeof DERIVATION_SCOPE === "undefined") {
     showError("DERIVATION_SCOPE setting is not defined");
-  }
-
-  return true;
-}
-
-function run(xpub: string, providedAddress: string) {
-  if (!sanityCheck()) {
-    return;
   }
 
   const quickSearchRange = DERIVATION_SCOPE.quick_search;
