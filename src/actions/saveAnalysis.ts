@@ -73,7 +73,7 @@ function getUrl(itemType: string, item: string) {
 
   // Testnet
   if (configuration.testnet) {
-    url = url.replace("{coin}", "{coin}-testnet");
+    url = url.replace("{currency}", "{currency}-testnet");
   }
 
   // Bitcoin Cash
@@ -82,7 +82,7 @@ function getUrl(itemType: string, item: string) {
   // item types:  "address" | "transaction"
   if (configuration.currency.symbol === currencies.bch.symbol) {
     url = EXTERNAL_EXPLORERS_URLS.bch;
-    url = url.replace("{coin}", "bitcoin-cash");
+    url = url.replace("{currency}", "bitcoin-cash");
     itemTypes.address = "address";
     itemTypes.transaction = "transaction";
   }
@@ -118,7 +118,7 @@ function getUrl(itemType: string, item: string) {
   }
 
   return url
-    .replace("{coin}", configuration.currency.symbol.toLowerCase())
+    .replace("{currency}", configuration.currency.symbol.toLowerCase())
     .replace("{item}", item);
 }
 

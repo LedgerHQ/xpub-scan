@@ -8,6 +8,12 @@ import * as customProvider from "../api/customProvider";
 import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 
+/**
+ * fetch the processed basic stats related to an address
+ * its balance, funded and spend sums and counts
+ * @param address the address being analyzed
+ * @param balanceOnly an option to return only the balance (only for Crypto APIs)
+ */
 async function getStats(address: Address, balanceOnly: boolean) {
   switch (configuration.providerType) {
     case "default":
@@ -25,6 +31,11 @@ async function getStats(address: Address, balanceOnly: boolean) {
   }
 }
 
+/**
+ * get all processed transactions related to an address
+ * @param address the address being analyzed
+ * @param ownAddresses (optional) list of addresses derived from the same xpub as `address`
+ */
 function getTransactions(address: Address, ownAddresses?: OwnAddresses) {
   if (configuration.currency.symbol === currencies.eth.symbol) {
     switch (configuration.providerType) {
@@ -98,6 +109,10 @@ function processFundedTransactions(
         const op = new Operation(tx.date, tx.ins[0].amount);
         op.setTxid(tx.txid);
         op.setBlockNumber(tx.blockHeight);
+
+        // there are 2 types of received transaction:
+        // case 1 — received to an address that is NOT a change address: default received
+        // case 2 — received to a change address (account #1): received from non-sibling to change
         op.setOperationType(
           accountNumber !== 1 ? "Received" : "Received (non-sibling to change)",
         );
@@ -122,19 +137,24 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
     const outs = tx.outs;
 
     outs.forEach((out) => {
+      const isInternalAddress = internalAddresses.includes(out.address);
+      const isExternalAddress = externalAddresses.includes(out.address);
+
       // exclude internal (i.e. change) addresses
-      if (!internalAddresses.includes(out.address)) {
+      if (!isInternalAddress) {
         const op = new Operation(tx.date, out.amount);
         op.setTxid(tx.txid);
 
+        // there are 3 types of sent transaction:
         if (out.address === address.toString()) {
-          // sent to self: sent to same address
+          // case 1 — sent to self: sent to same address
           op.setOperationType("Sent to self");
-        } else if (externalAddresses.includes(out.address)) {
-          // sent to a sibling: sent to an address belonging to the same xpub
-          // while not being a change address
+        } else if (isExternalAddress) {
+          // case 2 — sent to a sibling: sent to an address belonging to the same xpub
+          // _while not being a change address_
           op.setOperationType("Sent to sibling");
         } else {
+          // case 3 — sent to an address not belonging to the xpub
           op.setOperationType("Sent");
         }
 

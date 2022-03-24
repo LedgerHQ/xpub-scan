@@ -1,31 +1,36 @@
 import * as dotenv from "dotenv";
 import { Currency } from "../models/currency";
 
-// GENERAL
-// -------
+// ┏━━━━━━━━━┓
+// ┃ GENERAL ┃
+// ┗━━━━━━━━━┛
+
 const VERBOSE = false;
 const ETH_FIXED_PRECISION = 10; // Decimal places for ETH (recommended for Crypto APIs provider: 10)
-
-// CHECK BALANCES
-// --------------
-
-// Providers
-// (use {coin} and {address} as placeholders for the coin name and the address)
-const DEFAULT_API_URLS = {
-  general: "https://sochain.com/api/v2/address/{coin}/{address}",
-  bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}",
-  eth: "https://api.blockcypher.com/v1/eth/main/{type}/{item}",
-};
-
-const CRYPTOAPIS_URL =
-  "https://rest.cryptoapis.io/v2/blockchain-data/{currency}/{network}";
 
 // max number of addresses to probe when checking a possible gap between derivation indices
 // (that is: range of indices not used for derivation)
 const DEFAULT_GAP_LIMIT = 20;
 
-// XPUB <> ADDRESS COMPARISON
-// --------------------------
+// ┏━━━━━━━━━━━┓
+// ┃ PROVIDERS ┃
+// ┗━━━━━━━━━━━┛
+
+// use {currency} and {address} as placeholders for the currency name and the address;
+// {type} for the transaction type, and {item} for either an address or a transaction
+const DEFAULT_API_URLS = {
+  general: "https://sochain.com/api/v2/address/{currency}/{address}",
+  bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}",
+  eth: "https://api.blockcypher.com/v1/eth/main/{type}/{item}",
+};
+
+// use {currency} and {network} as placeholders for the currency name and the network (mainnet v. testnet)
+const CRYPTOAPIS_URL =
+  "https://rest.cryptoapis.io/v2/blockchain-data/{currency}/{network}";
+
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃ XPUB <=> ADDRESS COMPARISON ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 // scope of the derivation for the comparison
 // only concerning xpub-search
@@ -59,13 +64,19 @@ const DERIVATION_SCOPE = {
   },
 };
 
-// HTML REPORT
-// -----------
+// ┏━━━━━━━━━━━━━┓
+// ┃ HTML REPORT ┃
+// ┗━━━━━━━━━━━━━┛
+
 const EXTERNAL_EXPLORERS_URLS = {
-  general: "https://live.blockcypher.com/{coin}/{type}/{item}",
-  bch: "https://blockchair.com/{coin}/{type}/{item}",
+  general: "https://live.blockcypher.com/{currency}/{type}/{item}",
+  bch: "https://blockchair.com/{currency}/{type}/{item}",
   eth: "https://etherscan.io/{type}/{item}",
 };
+
+// ┏━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃ CONFIGURATION OBJECT ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
 dotenv.config();
 export const configuration = {

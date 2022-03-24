@@ -26,7 +26,7 @@ type Transactors = Array<{
   amount: string;
 }>;
 
-// the structure of the response from Crypto APIs
+// structure of the responses from Crypto APIs
 interface RawTransaction {
   // common
   transactionId: string;
@@ -71,7 +71,6 @@ interface RawTransaction {
 
 // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 // ┃ FETCH RAW DATA FROM CRYPTO APIS ┃
-// ┃ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ ┃
 // ┃ just fetch the JSON responses   ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
@@ -205,11 +204,10 @@ async function fetchInternalTransactionsPayloads(
   return fetchPayloads(currency, address.toString(), "/internal");
 }
 
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-// ┃ PRE-PROCESS (I.E., NORMALIZE) TRANSACTIONS FROM CRYPTO APIS ┃
-// ┃ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ ┃
-// ┃ transform JSON objects into stats or Operation objects      ┃
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃ NORMALIZE TRANSACTIONS FROM CRYPTO APIS           ┃
+// ┃ transform JSONs into stats and Operations objects ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 /**
  * fetch the structured basic stats related to an address
