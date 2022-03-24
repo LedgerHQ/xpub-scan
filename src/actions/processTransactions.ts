@@ -145,7 +145,7 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
         const op = new Operation(tx.date, out.amount);
         op.setTxid(tx.txid);
 
-        // there are 3 types of sent transactions:
+        // there are 3 types of sent transaction:
         if (out.address === address.toString()) {
           // case 1 — sent to self: sent to same address
           op.setOperationType("Sent to self");
