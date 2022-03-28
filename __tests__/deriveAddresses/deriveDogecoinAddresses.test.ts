@@ -12,7 +12,7 @@ describe("derive Dogecoin addresses", () => {
         "dgub8rDzyFqzw35B8zSqrW9sHDivXL2YmcGEVKyRMhPh8SoeUmkGozD5YzNyEkSH1T9zhvy9iQzns7igxrhQkg4jETWna4X1AUC4MT3YgHenTMB";
       configuration.currency = currencies.doge;
       configuration.currency.network = currencies.doge.network_mainnet;
-      derivationMode = DerivationMode.LEGACY;
+      derivationMode = DerivationMode.DOGECOIN;
     });
 
     it("derive m/0/0", () => {
