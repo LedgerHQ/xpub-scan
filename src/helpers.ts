@@ -144,7 +144,8 @@ const setExternalProviderURL = (): void => {
   const currency = configuration.currency;
   if (
     currency.symbol === currencies.btc.symbol ||
-    currency.symbol === currencies.ltc.symbol
+    currency.symbol === currencies.ltc.symbol ||
+    currency.symbol === currencies.doge.symbol
   ) {
     configuration.externalProviderURL = DEFAULT_API_URLS.general;
     return;
