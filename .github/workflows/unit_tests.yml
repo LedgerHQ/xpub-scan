@@ -3,7 +3,7 @@ name: Unit Tests
 on:
   push:
     branches:
-      - "**"
+      - master
   pull_request:
     branches:
       - master
@@ -21,13 +21,7 @@ jobs:
       - name: Check dependencies
         run: |
           npm ci > /dev/null 2>&1
-
-          # check for outdated dependencies
-          # ignore `chalk`: https://github.com/chalk/chalk/releases/tag/v5.0.0:
-          # "This package is now pure ESM. Please read this."
-          # "If you use TypeScript, you will want to stay on Chalk 4 until TypeScript 4.6 is out."
           check-outdated --ignore-packages chalk
-
           npm audit --audit-level=low --json
 
   unit-tests:

@@ -1,6 +1,13 @@
-// custom provider:
+// Here, the raw data is fetched from Crypto APIs (i.e., Crypto APIs):
+//  - balance,
+//  - total spent and received, and
+//  - operations
+// per address
+//
 // Crypto APIs 2.0 <https://cryptoapis.io/>
 // https://developers.cryptoapis.io/technical-documentation/general-information/overview
+//
+// In order to enable Crypto APIs, an API key has to be provided (see: README.md)
 
 import * as helpers from "../helpers";
 import { currencies } from "../configuration/currencies";
@@ -19,8 +26,9 @@ type Transactors = Array<{
   amount: string;
 }>;
 
+// structure of the responses from Crypto APIs
 interface RawTransaction {
-  // COMMON
+  // common
   transactionId: string;
   minedInBlockHeight: number;
   timestamp: number;
@@ -43,7 +51,7 @@ interface RawTransaction {
     transactionStatus: string;
   };
 
-  // TOKENS
+  // tokens
   transactionHash: string;
   recipientAddress: string;
   senderAddress: string;
@@ -52,7 +60,7 @@ interface RawTransaction {
   tokensAmount: number;
   transactionTimestamp: number;
 
-  // INTERNAL TRANSACTIONS
+  // internal transactions
   parentHash: string;
   recipient: string;
   sender: string;
@@ -61,28 +69,41 @@ interface RawTransaction {
   amount: string;
 }
 
-// returns the transactional payloads
-async function getPayloads(
-  coin: string,
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃ FETCH RAW DATA FROM CRYPTO APIS ┃
+// ┃ just fetch the JSON responses   ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+/**
+ * fetch the response associated with the request (basic data, transactions)
+ * @param currency the currency being analyzed
+ * @param address the address being analyzed
+ * @param endpoint the endpoint to call
+ * @returns an array of transactions (if any)
+ */
+async function fetchPayloads(
+  currency: string,
   address: string,
-  transactionType: string,
+  endpoint: string,
 ) {
+  // limit the number of transactions per request
   const maxItemsPerRequest = 50;
+
   const payloads = [];
 
   const getTxsURLTemplate = configuration.externalProviderURL
     .concat("/addresses/")
     .concat(address.toString())
-    .replace("{coin}", coin)
+    .replace("{currency}", currency)
     .concat(
-      transactionType
+      endpoint
         .concat("?limit=")
         .concat(maxItemsPerRequest.toString())
         .concat("&offset={offset}"),
     );
 
   // to handle large number of transactions by address, use the index+limit logic
-  // offered by the custom provider
+  // offered by Crypto APIs
   let offset = 0;
   let itemsRemainingToBeFetched = true;
 
@@ -108,27 +129,46 @@ async function getPayloads(
   return payloads;
 }
 
-// returns the transactional payload
-async function getTransactionPayload(coin: string, transactionHash: string) {
+/**
+ * fetch the transactions associated with a transaction hash
+ * @param currency the currency being analyzed
+ * @param transactionHash a transaction hash
+ * @returns the transactions associated with a transaction hash
+ */
+async function fetchTransactionPayload(
+  currency: string,
+  transactionHash: string,
+) {
   const url = configuration.externalProviderURL
-    .replace("{coin}", coin)
+    .replace("{currency}", currency)
     .concat("/transactions/")
     .concat(transactionHash);
 
+  // important: a valid API key has to be provided
   const txs = await helpers.getJSON<any>(url, configuration.APIKey);
 
   return txs.data.item;
 }
 
-// returns the basic operations payloads
-async function getOperationsPayloads(coin: string, address: Address) {
-  return getPayloads(coin, address.toString(), "/transactions");
+/**
+ * fetch the raw basic stats (balance, transactions count...) associated with an address
+ * @param currency the currency being analyzed
+ * @param address the address being analyzed
+ * @returns the basic data associated with an address
+ */
+async function fetchOperationsPayloads(currency: string, address: Address) {
+  return fetchPayloads(currency, address.toString(), "/transactions");
 }
 
-// returns the Ethereum tokens-related payloads
-async function getTokenPayloads(coin: string, address: Address) {
-  const rawTokenOperations = await getPayloads(
-    coin,
+/**
+ * fetch the raw token-related transactions related to an address
+ * @param currency the currency being analyzed (account-based; typically Ethereum)
+ * @param address the address being analyzed (account-based; typically Ethereum)
+ * @returns the token-related transactions related to an address
+ */
+async function fetchTokenPayloads(currency: string, address: Address) {
+  const rawTokenOperations = await fetchPayloads(
+    currency,
     address.toString(),
     "/tokens-transfers",
   );
@@ -136,8 +176,8 @@ async function getTokenPayloads(coin: string, address: Address) {
 
   // augment token operations with transaction data
   for (const tokenOperation of tokenOperations as Array<RawTransaction>) {
-    const transaction = await getTransactionPayload(
-      coin,
+    const transaction = await fetchTransactionPayload(
+      currency,
       tokenOperation.transactionHash,
     );
 
@@ -151,21 +191,38 @@ async function getTokenPayloads(coin: string, address: Address) {
   return tokenOperations;
 }
 
-// returns the Ethereum internal transactions
-async function getInternalTransactionsPayloads(coin: string, address: Address) {
-  return getPayloads(coin, address.toString(), "/internal");
+/**
+ * fetch the raw internal transactions related to an address
+ * @param currency the currency being analyzed (account-based; typically Ethereum)
+ * @param address the address being analyzed (account-based; typically Ethereum)
+ * @returns the internal transactions related to an address
+ */
+async function fetchInternalTransactionsPayloads(
+  currency: string,
+  address: Address,
+) {
+  return fetchPayloads(currency, address.toString(), "/internal");
 }
 
-// returns the basic stats related to an address:
-// its balance, funded and spend sums and counts
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃ NORMALIZE TRANSACTIONS FROM CRYPTO APIS           ┃
+// ┃ transform JSONs into stats and Operations objects ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+/**
+ * fetch the structured basic stats related to an address
+ * its balance, funded and spend sums and counts
+ * @param address the address being analyzed
+ * @param balanceOnly an option to return only the balance
+ */
 async function getStats(address: Address, balanceOnly: boolean) {
-  // important: coin name is required to be lower case for custom provider
-  const coin = configuration.currency.name.toLowerCase().replace(" ", "-");
+  // important: currency name is required to be lower case for Crypto APIs
+  const currency = configuration.currency.name.toLowerCase().replace(" ", "-");
 
   const url = configuration.externalProviderURL
     .concat("/addresses/")
     .concat(address.toString())
-    .replace("{coin}", coin);
+    .replace("{currency}", currency);
 
   const res = await helpers.getJSON<any>(url, configuration.APIKey);
   const item = res.data.item;
@@ -180,14 +237,14 @@ async function getStats(address: Address, balanceOnly: boolean) {
 
   // get transactions (when applicable)
   if (!balanceOnly) {
-    let payloads = await getOperationsPayloads(coin, address);
+    let payloads = await fetchOperationsPayloads(currency, address);
 
     // Ethereum: add token-related and internal transactions
     if (configuration.currency.symbol === currencies.eth.symbol) {
-      payloads = payloads.concat(await getTokenPayloads(coin, address));
+      payloads = payloads.concat(await fetchTokenPayloads(currency, address));
       payloads = payloads.concat(
         payloads,
-        await getInternalTransactionsPayloads(coin, address),
+        await fetchInternalTransactionsPayloads(currency, address),
       );
     }
 
@@ -195,7 +252,7 @@ async function getStats(address: Address, balanceOnly: boolean) {
     const rawTransactions = [].concat(...payloads);
 
     // Remove duplicates
-    // (related to a bug from the custom provider)
+    // (related to a bug from Crypto APIs)
     const uniqueRawTransactions: any[] = [];
 
     for (let i = rawTransactions.length - 1; i >= 0; i--) {
@@ -213,14 +270,15 @@ async function getStats(address: Address, balanceOnly: boolean) {
   }
 }
 
-// transforms raw transactions associated with an address
-// into an array of processed transactions:
-// [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
+/**
+ * get all structured transactions related to an address
+ * @param address the address being analyzed
+ */
 function getTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
   const transactions: Transaction[] = [];
 
-  // Bitcoin Cash addresses are expressed as cash addresses by the custom provider:
+  // Bitcoin Cash addresses are expressed as cash addresses by Crypto APIs:
   // they have to be converted into legacy ones (if needed)
   const processAddress = (originalAddress: string) => {
     if (configuration.currency.symbol === currencies.bch.symbol) {
@@ -230,6 +288,9 @@ function getTransactions(address: Address) {
     }
   };
 
+  // transforms raw transactions associated with an address
+  // into an array of processed transactions:
+  // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
   rawTransactions.forEach((tx: RawTransaction) => {
     const ins: Operation[] = [];
     const outs: Operation[] = [];
@@ -265,16 +326,15 @@ function getTransactions(address: Address) {
 
     // the address currently being analyzed is a — sender —
     if (addressBelongsToTransactors(tx.senders)) {
-      let amountSent = new BigNumber(0);
-
       for (let i = 0; i < tx.recipients.length; i++) {
         const recipient = tx.recipients[i];
 
         // note: the amount sent is specified in blockchainSpecific.vout
         // _at the same index as the recipient_
-        amountSent = amountSent.plus(tx.blockchainSpecific.vout[i].value);
-
-        const op = new Operation(String(tx.timestamp), amountSent);
+        const op = new Operation(
+          String(tx.timestamp),
+          new BigNumber(tx.blockchainSpecific.vout[i].value),
+        );
 
         op.setAddress(processAddress(recipient.address));
         op.setTxid(tx.transactionId);
@@ -298,6 +358,10 @@ function getTransactions(address: Address) {
   address.setTransactions(transactions);
 }
 
+/**
+ * get all normalized transactions related to an account-based address
+ * @param address an account-based address (typically Ethereum)
+ */
 function getAccountBasedTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
 
@@ -368,6 +432,10 @@ function getAccountBasedTransactions(address: Address) {
   getInternalTransactions(address);
 }
 
+/**
+ * get all normalized token-related transactions associated with an account-based address
+ * @param address an account-based address (typically Ethereum)
+ */
 function getTokenTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
 
@@ -400,7 +468,7 @@ function getTokenTransactions(address: Address) {
     let amount = new BigNumber(0);
     let hasSent = false;
 
-    // case 1. has received
+    // the address currently being analyzed is a — recipient —
     for (const recipient of tx.recipients) {
       if (
         recipient.address.toLocaleLowerCase() ===
@@ -410,7 +478,7 @@ function getTokenTransactions(address: Address) {
       }
     }
 
-    // case 2. has sent
+    // the address currently being analyzed is a — sender —
     for (const sender of tx.senders) {
       if (
         sender.address.toLocaleLowerCase() ===
@@ -460,6 +528,10 @@ function getTokenTransactions(address: Address) {
   });
 }
 
+/**
+ * get all normalized internal transactions associated with an account-based address
+ * @param address an account-based address (typically Ethereum)
+ */
 function getInternalTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
 

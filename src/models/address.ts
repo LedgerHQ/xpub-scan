@@ -3,7 +3,7 @@ import { currencies, DerivationMode } from "../configuration/currencies";
 import { Transaction } from "./transaction";
 import { Operation } from "./operation";
 import { Stats } from "./stats";
-import { getAddress } from "../actions/deriveAddresses";
+import { deriveAddress } from "../actions/deriveAddresses";
 import { toUnprefixedCashAddress } from "../helpers";
 import BigNumber from "bignumber.js";
 
@@ -27,7 +27,12 @@ class Address {
     index?: number,
   ) {
     if (derivationMode) {
-      this.address = getAddress(derivationMode, itemToScan, account!, index!);
+      this.address = deriveAddress(
+        derivationMode,
+        itemToScan,
+        account!,
+        index!,
+      );
     } else {
       this.address = itemToScan;
     }

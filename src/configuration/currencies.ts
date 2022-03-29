@@ -7,6 +7,7 @@ export enum DerivationMode {
   TAPROOT = "Taproot",
   BCH = "Bitcoin Cash",
   ETHEREUM = "Ethereum",
+  DOGECOIN = "Dogecoin",
   UNKNOWN = "Unknown",
 }
 
@@ -20,7 +21,7 @@ export const currencies = {
       DerivationMode.LEGACY,
       DerivationMode.SEGWIT,
       DerivationMode.NATIVE,
-      // DerivationMode.TAPROOT, // TODO(Taproot): to enable when providers support this derivation mode
+      // DerivationMode.TAPROOT, // TODO(Taproot): to enable when CryptoAPIs supports this derivation mode
     ],
     precision: 10 ** 8,
     utxo_based: true,
@@ -53,5 +54,14 @@ export const currencies = {
     precision: 10 ** 18,
     utxo_based: false,
     derivationModes: [DerivationMode.ETHEREUM],
+  },
+  doge: {
+    name: "Dogecoin",
+    symbol: "DOGE",
+    network_mainnet: coininfo.dogecoin.main.toBitcoinJS(),
+    network_testnet: coininfo.dogecoin.test.toBitcoinJS(),
+    precision: 10 ** 8,
+    utxo_based: true,
+    derivationModes: [DerivationMode.DOGECOIN],
   },
 };

@@ -73,7 +73,7 @@ function getUrl(itemType: string, item: string) {
 
   // Testnet
   if (configuration.testnet) {
-    url = url.replace("{coin}", "{coin}-testnet");
+    url = url.replace("{currency}", "{currency}-testnet");
   }
 
   // Bitcoin Cash
@@ -82,7 +82,7 @@ function getUrl(itemType: string, item: string) {
   // item types:  "address" | "transaction"
   if (configuration.currency.symbol === currencies.bch.symbol) {
     url = EXTERNAL_EXPLORERS_URLS.bch;
-    url = url.replace("{coin}", "bitcoin-cash");
+    url = url.replace("{currency}", "bitcoin-cash");
     itemTypes.address = "address";
     itemTypes.transaction = "transaction";
   }
@@ -118,7 +118,7 @@ function getUrl(itemType: string, item: string) {
   }
 
   return url
-    .replace("{coin}", configuration.currency.symbol.toLowerCase())
+    .replace("{currency}", configuration.currency.symbol.toLowerCase())
     .replace("{item}", item);
 }
 
@@ -411,7 +411,7 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
       } {label}</label>
       <div id="tab-content{id}" class="content">
         {paginationRadios}
-        {comparisons}
+        ${onlyDiff ? "{diffs}" : "{comparisons}"}
         {paginationSlider}
       </div>
     </li>
@@ -917,9 +917,18 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
           funded: toBaseUnit(e.stats.funded),
           spent: toBaseUnit(e.stats.spent),
           // balance only mode: ignore the following fields
-          txid: balanceOnly ? undefined : e.transactions[0].txid,
-          height: balanceOnly ? undefined : e.transactions[0].blockHeight,
-          time: balanceOnly ? undefined : e.transactions[0].date,
+          txid:
+            balanceOnly || typeof e.transactions[0] === "undefined"
+              ? undefined
+              : e.transactions[0].txid,
+          height:
+            balanceOnly || typeof e.transactions[0] === "undefined"
+              ? undefined
+              : e.transactions[0].blockHeight,
+          time:
+            balanceOnly || typeof e.transactions[0] === "undefined"
+              ? undefined
+              : e.transactions[0].date,
         };
       });
   }

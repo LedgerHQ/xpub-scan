@@ -4,19 +4,21 @@ import { getArgs } from "./input/args";
 import { Scanner } from "./actions/scanner";
 import { ScanResult } from "./types";
 
-const args = getArgs();
-
 async function scan() {
+  const args = getArgs(); // get CLI args (if any)
   const scanResult: ScanResult = await new Scanner(args).scan();
   process.exit(scanResult.exitCode);
 }
 
-// see https://nodejs.org/api/process.html#process_signal_events
 function handleSignal(signal: string) {
   console.log(`Received ${signal}`);
   process.exit(1);
 }
 
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃ ENTRYPOINT OF XPUB SCAN ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 scan();
+
 process.on("SIGINT", handleSignal);
 process.on("SIGTERM", handleSignal);

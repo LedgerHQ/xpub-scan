@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-import { getDerivationMode, getAddress } from "./deriveAddresses";
+import { getDerivationMode, deriveAddress } from "./deriveAddresses";
 import { DERIVATION_SCOPE } from "../configuration/settings";
 import { setNetwork } from "../helpers";
 
@@ -93,6 +93,14 @@ function partialMatch(derived: string, provided: string) {
   return true;
 }
 
+/**
+ * identify whether an address provided by the user belongs or not to the xpub
+ * @param xpub the xpub from which the address may have been derived
+ * @param providedAddress the address provided by the user
+ * @param range the range of the search (i.e., accounts and indices ranges)
+ * @param searchType indication of the type of search (quick/deep)
+ * @returns a match or an empty object (i.e., non-match)
+ */
 function search(
   xpub: string,
   providedAddress: string,
@@ -109,7 +117,12 @@ function search(
     ++account
   ) {
     for (let index = range.index.min; index < range.index.max; ++index) {
-      const derivedAddress = getAddress(derivationMode, xpub, account, index);
+      const derivedAddress = deriveAddress(
+        derivationMode,
+        xpub,
+        account,
+        index,
+      );
 
       // m/{account}/{index}
       const derivationPath = "m/"
@@ -154,19 +167,9 @@ function search(
   return {};
 }
 
-// check basic assumptions to avoid useless comparisons
-function sanityCheck() {
-  // check that the settings are set
+function run(xpub: string, providedAddress: string) {
   if (typeof DERIVATION_SCOPE === "undefined") {
     showError("DERIVATION_SCOPE setting is not defined");
-  }
-
-  return true;
-}
-
-function run(xpub: string, providedAddress: string) {
-  if (!sanityCheck()) {
-    return;
   }
 
   const quickSearchRange = DERIVATION_SCOPE.quick_search;

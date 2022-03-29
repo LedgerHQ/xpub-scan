@@ -46,7 +46,7 @@ const importFromCustomGCSV = (contents: string): Operation[] => {
 
   // temporary fix: offset if CSV refers to storageLimit
   // (only columns with index > 14 have to be offsetted in this situation)
-  const offset = contents.includes("storageLimit") ? 1 : 0;
+  const offset = contents.includes("storageLimit") ? 2 : 1;
 
   contents
     .split(/\r?\n/)

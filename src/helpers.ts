@@ -5,7 +5,7 @@ import bchaddr from "bchaddrjs";
 import {
   configuration,
   DEFAULT_API_URLS,
-  CUSTOM_API_URL,
+  CRYPTOAPIS_URL,
   ETH_FIXED_PRECISION,
 } from "./configuration/settings";
 import { currencies } from "./configuration/currencies";
@@ -71,9 +71,11 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
   if (
     typeof currency === "undefined" ||
     currency === "BTC" ||
-    currency === "LTC"
+    currency === "LTC" ||
+    currency === "DOGE"
   ) {
     const prefix = xpub.substring(0, 4).toLocaleLowerCase();
+
     if (prefix === "xpub") {
       // Bitcoin mainnet
       configuration.currency = currencies.btc;
@@ -89,6 +91,10 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
 
       // TODO: LTC testnet
       configuration.currency.network = currencies.ltc.network_mainnet;
+    } else if (prefix === "dgub") {
+      // Dogecoin
+      configuration.currency = currencies.doge;
+      configuration.currency.network = currencies.doge.network_mainnet;
     } else {
       throw new Error("INVALID XPUB: " + xpub + " has not a valid prefix");
     }
@@ -120,7 +126,7 @@ function setNetwork(xpub: string, currency?: string, testnet?: boolean) {
 const setExternalProviderURL = (): void => {
   // custom provider (i.e., API key is set)
   if (process.env.XPUB_SCAN_CUSTOM_API_KEY_V2) {
-    configuration.externalProviderURL = CUSTOM_API_URL.replace(
+    configuration.externalProviderURL = CRYPTOAPIS_URL.replace(
       "{network}",
       configuration.testnet
         ? configuration.currency.symbol === currencies.eth.symbol
@@ -138,7 +144,8 @@ const setExternalProviderURL = (): void => {
   const currency = configuration.currency;
   if (
     currency.symbol === currencies.btc.symbol ||
-    currency.symbol === currencies.ltc.symbol
+    currency.symbol === currencies.ltc.symbol ||
+    currency.symbol === currencies.doge.symbol
   ) {
     configuration.externalProviderURL = DEFAULT_API_URLS.general;
     return;
@@ -155,10 +162,6 @@ const setExternalProviderURL = (): void => {
   }
 };
 
-// ensure that the xpub is a valid one
-// and select the relevant network
-//
-// TODO: extend to ypub, zpub...
 function checkXpub(xpub: string) {
   try {
     bip32.fromBase58(xpub, configuration.currency.network);
