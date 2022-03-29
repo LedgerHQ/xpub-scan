@@ -274,5 +274,21 @@
     "filename": "ETH/Mainnet/Live-common_0.json",
     "simulated_discrepancy": "Mismatch: amounts",
     "balance": 1858515270441823
+  },
+  {
+    "_separator_": "[========== DOGECOIN MAINNET ==========]"
+  },
+  {
+    "_separator_": "[---------- Dogecoin mainnet: Live ----------]"
+  },
+  {
+    "product": "Live Desktop / DOGE mainnet",
+    "test_types": ["positive", "negative"],
+    "coin_ticker": "DOGE",
+    "network": "mainnet",
+    "xpub": "dgub8rDzyFqzw35B8zSqrW9sHDivXL2YmcGEVKyRMhPh8SoeUmkGozD5YzNyEkSH1T9zhvy9iQzns7igxrhQkg4jETWna4X1AUC4MT3YgHenTMB",
+    "filename": "DOGE/Mainnet/Live_0.csv",
+    "simulated_discrepancy": "Mismatch: amounts",
+    "balance": 123456789
   }
 ]

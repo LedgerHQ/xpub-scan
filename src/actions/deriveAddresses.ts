@@ -6,10 +6,63 @@ import Wallet from "ethereumjs-wallet";
 import { DerivationMode } from "../configuration/currencies";
 import { configuration } from "../configuration/settings";
 
+import createHmac from "create-hmac";
+
 import BIP32Factory from "bip32";
 import * as ecc from "tiny-secp256k1";
+import bs58 from "bs58check";
+import { publicKeyTweakAdd } from "secp256k1";
 
 const bip32 = BIP32Factory(ecc);
+
+class BIP32 {
+  publicKey: any;
+  chainCode: any;
+  network: any;
+  depth: number;
+  index: number;
+  constructor(
+    publicKey: any,
+    chainCode: any,
+    network: any,
+    depth = 0,
+    index = 0,
+  ) {
+    this.publicKey = publicKey;
+    this.chainCode = chainCode;
+    this.network = network;
+    this.depth = depth;
+    this.index = index;
+  }
+  derive(index: number) {
+    const data = Buffer.allocUnsafe(37);
+    this.publicKey.copy(data, 0);
+    data.writeUInt32BE(index, 33);
+    const I = createHmac("sha512", this.chainCode).update(data).digest();
+    const IL = I.slice(0, 32);
+    const IR = I.slice(32);
+    const Ki = Buffer.from(publicKeyTweakAdd(this.publicKey, IL));
+    return new BIP32(Ki, IR, this.network, this.depth + 1, index);
+  }
+}
+
+const getPubkeyAt = (xpub: string, account: number, index: number) => {
+  const buffer = Buffer.from(bs58.decode(xpub));
+  const depth = buffer[4];
+  const i = buffer.readUInt32BE(9);
+  const chainCode = buffer.slice(13, 45);
+  const publicKey = buffer.slice(45, 78);
+
+  return new BIP32(
+    publicKey,
+    chainCode,
+    configuration.currency.network,
+    depth,
+    i,
+  )
+    .derive(account)
+    .derive(index).publicKey;
+};
 
 /**
  * derive a legacy address at a given account and index positions
@@ -23,15 +76,14 @@ function getLegacyAddress(
   account: number,
   index: number,
 ): string {
-  const { address } = bjs.payments.p2pkh({
-    pubkey: bip32
-      .fromBase58(xpub, configuration.currency.network)
-      .derive(account)
-      .derive(index).publicKey,
-    network: configuration.currency.network,
-  });
+  const publicKeyBuffer: Buffer = getPubkeyAt(xpub, account, index);
 
-  return String(address);
+  const publicKeyHash160: Buffer = bjs.crypto.hash160(publicKeyBuffer);
+
+  return bjs.address.toBase58Check(
+    publicKeyHash160,
+    configuration.currency.network!.pubKeyHash,
+  );
 }
 
 /**
@@ -151,6 +203,8 @@ function deriveAddress(
       return getNativeSegWitAddress(xpub, account, index);
     case DerivationMode.BCH:
       return getLegacyBitcoinCashAddress(xpub, account, index);
+    case DerivationMode.DOGECOIN:
+      return getLegacyAddress(xpub, account, index);
     case DerivationMode.ETHEREUM:
       return getEthereumAddress(xpub);
     case DerivationMode.UNKNOWN:
@@ -177,6 +231,8 @@ function getDerivationMode(address: string) {
     return DerivationMode.SEGWIT;
   } else if (address.match("^(1|n|m|L).*")) {
     return DerivationMode.LEGACY;
+  } else if (address.match("^(D).*")) {
+    return DerivationMode.DOGECOIN;
   } else {
     throw new Error(
       "INVALID ADDRESS: "

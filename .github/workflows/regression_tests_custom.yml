@@ -43,5 +43,5 @@ jobs:
     needs:
       - regression-tests
     steps:
-      - name: just exit 
+      - name: just exit
         run: exit 0

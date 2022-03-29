@@ -6,6 +6,7 @@ export enum DerivationMode {
   SEGWIT = "SegWit",
   BCH = "Bitcoin Cash",
   ETHEREUM = "Ethereum",
+  DOGECOIN = "Dogecoin",
   UNKNOWN = "Unknown",
 }
 
@@ -52,5 +53,14 @@ export const currencies = {
     precision: 10 ** 18,
     utxo_based: false,
     derivationModes: [DerivationMode.ETHEREUM],
+  },
+  doge: {
+    name: "Dogecoin",
+    symbol: "DOGE",
+    network_mainnet: coininfo.dogecoin.main.toBitcoinJS(),
+    network_testnet: coininfo.dogecoin.test.toBitcoinJS(),
+    precision: 10 ** 8,
+    utxo_based: true,
+    derivationModes: [DerivationMode.DOGECOIN],
   },
 };
