@@ -249,7 +249,7 @@ function getSortedOperations(addresses: Address[]): Operation[] {
   const operations: Operation[] = [];
   const processedTxids: string[] = [];
 
-  // flatten the array of arrays in one dimension, and iterate
+  // flatten the array of arrays in one dimension, and loop over
   ([] as Address[]).concat(addresses).forEach((address: Address) => {
     address.getFundedOperations().forEach((op: Operation) => {
       op.setAddress(address.toString());
@@ -294,9 +294,10 @@ function getSortedUTXOS(addresses: Address[]): Address[] {
 
   const utxos: Address[] = [];
 
-  // flatten the array of arrays in one dimension, and iterate
+  // flatten the array of arrays in one dimension, and loop over
   ([] as Address[]).concat(addresses).forEach((address: Address) => {
     if (address.isUTXO()) {
+      // if the address is an UTXO, just add it to the list of UTXOs
       utxos.push(address);
     }
   });
