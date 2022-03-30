@@ -327,7 +327,7 @@ const showOperations = (
  * Check whether operations are aggregated or not
  * @param  {Operation} importedOp
  *          An imported operation
- * @param  {Operation[]} actualOps
+ * @param  {Array<Operation>} actualOps
  *          List of actual operations
  * @returns boolean
  *          `true` if operations are aggregated
@@ -335,7 +335,7 @@ const showOperations = (
  */
 const areAggregated = (
   importedOp: Operation,
-  actualOps: Operation[],
+  actualOps: Array<Operation>,
 ): boolean => {
   if (typeof importedOp === "undefined") {
     return false;
@@ -360,19 +360,19 @@ const areAggregated = (
 
 /**
  * Compare the imported operations with the actual ones
- * @param  {Operation[]} importedOperations
+ * @param  {Array<Operation>} importedOperations
  *          Imported operations
- * @param  {Operation[]} actualOperations
+ * @param  {Array<Operation>} actualOperations
  *          Actual operations
  * @returns Comparison
  *          Result of the comparison
  */
 const checkImportedOperations = (
-  importedOperations: Operation[],
-  actualOperations: Operation[],
-  actualAddresses: Address[],
+  importedOperations: Array<Operation>,
+  actualOperations: Array<Operation>,
+  actualAddresses: Array<Address>,
   partialComparison?: boolean,
-): Comparison[] => {
+): Array<Comparison> => {
   if (!configuration.silent) {
     console.log(
       chalk.bold.whiteBright(
@@ -384,8 +384,8 @@ const checkImportedOperations = (
     );
   }
 
-  const allComparingCriteria: ComparingCriterion[] = [];
-  const comparisons: Comparison[] = [];
+  const allComparingCriteria: Array<ComparingCriterion> = [];
+  const comparisons: Array<Comparison> = [];
   const blockHeightUpperLimit = configuration.blockHeightUpperLimit;
 
   // filter imported operations if scan is limited (range scan)
@@ -514,7 +514,7 @@ const checkImportedOperations = (
       }
     }
 
-    const aggregatedTxids: string[] = [];
+    const aggregatedTxids: Array<string> = [];
 
     // Math.max(...) used here because the imported and actual arrays do not
     // necessarily have the same size (i.e. missing operations)

@@ -103,7 +103,7 @@ function updateAddressDetails(address: Address) {
 }
 
 // display the list of UTXOs sorted by date (reverse chronological order)
-function showSortedUTXOs(sortedUTXOs: Address[]) {
+function showSortedUTXOs(sortedUTXOs: Array<Address>) {
   if (configuration.silent || !configuration.currency.utxo_based) {
     return;
   }
@@ -121,7 +121,7 @@ function showSortedUTXOs(sortedUTXOs: Address[]) {
 }
 
 // display the list of operations sorted by date (reverse chronological order)
-function showSortedOperations(sortedOperations: Operation[]) {
+function showSortedOperations(sortedOperations: Array<Operation>) {
   if (configuration.silent) {
     return;
   }
@@ -274,9 +274,9 @@ function transientLine(message?: string) {
 }
 
 function showResults(
-  sortedUTXOs: Address[],
-  sortedOperations: Operation[],
-  summary: Summary[],
+  sortedUTXOs: Array<Address>,
+  sortedOperations: Array<Operation>,
+  summary: Array<Summary>,
   balanceOnly: boolean,
 ) {
   if (configuration.silent) {

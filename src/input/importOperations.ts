@@ -41,8 +41,8 @@ const getFileContents = (path: string): string => {
  * @returns Operation
  *          Imported operations
  */
-const importFromCustomGCSV = (contents: string): Operation[] => {
-  const operations: Operation[] = [];
+const importFromCustomGCSV = (contents: string): Array<Operation> => {
+  const operations: Array<Operation> = [];
 
   // temporary fix: offset if CSV refers to storageLimit
   // (only columns with index > 14 have to be offsetted in this situation)
@@ -114,8 +114,8 @@ const importFromCustomGCSV = (contents: string): Operation[] => {
  * @returns Operation
  *          Imported operations
  */
-const importFromLiveDesktopCSV = (contents: string): Operation[] => {
-  const operations: Operation[] = [];
+const importFromLiveDesktopCSV = (contents: string): Array<Operation> => {
+  const operations: Array<Operation> = [];
 
   contents
     .split(/\r?\n/)
@@ -189,8 +189,8 @@ const importFromLiveDesktopCSV = (contents: string): Operation[] => {
  * @returns Operation
  *          Imported operations
  */
-const importFromJSONTypeA = (contents: string): Operation[] => {
-  const operations: Operation[] = [];
+const importFromJSONTypeA = (contents: string): Array<Operation> => {
+  const operations: Array<Operation> = [];
 
   let ops;
 
@@ -262,8 +262,8 @@ const importFromJSONTypeA = (contents: string): Operation[] => {
  * @returns Operation
  *          Imported operations
  */
-const importFromLiveCommonJSON = (contents: string): Operation[] => {
-  const operations: Operation[] = [];
+const importFromLiveCommonJSON = (contents: string): Array<Operation> => {
+  const operations: Array<Operation> = [];
 
   let ops;
 
@@ -331,8 +331,8 @@ const importFromLiveCommonJSON = (contents: string): Operation[] => {
  * @returns Operation
  *          Imported operations
  */
-const importFromCustomWJSON = (contents: string): Operation[] => {
-  const operations: Operation[] = [];
+const importFromCustomWJSON = (contents: string): Array<Operation> => {
+  const operations: Array<Operation> = [];
 
   let ops;
 
@@ -415,12 +415,12 @@ const importFromCustomWJSON = (contents: string): Operation[] => {
  * @returns Operation
  *          Imported transactions
  */
-const importOperations = (path: string): Operation[] => {
+const importOperations = (path: string): Array<Operation> => {
   const contents = getFileContents(path);
 
   const firstLine = contents.split(/\r?\n/)[0].replace('"', "");
 
-  let operations: Operation[] = [];
+  let operations: Array<Operation> = [];
 
   // CSV FILES
   if (firstLine.substring(0, 8) === "Creation") {
