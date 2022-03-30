@@ -5,7 +5,6 @@ import { Operation } from "../models/operation";
 
 import * as defaultProvider from "../api/defaultProvider";
 import * as customProvider from "../api/customProvider";
-import { TODO_TypeThis } from "../types";
 import { currencies } from "../configuration/currencies";
 
 /**
@@ -32,38 +31,10 @@ async function getStats(address: Address, balanceOnly: boolean) {
 }
 
 /**
- * get all processed transactions related to an address
- * @param address the address being analyzed
- * @param ownAddresses (optional) list of addresses derived from the same xpub as `address`
+ * get all transactions associated with an UTXO-based address
+ * @param address the UTXO-based address being analyzed
  */
-function getTransactions(address: Address, ownAddresses?: OwnAddresses) {
-  if (configuration.currency.symbol === currencies.eth.symbol) {
-    switch (configuration.providerType) {
-      case "default":
-        defaultProvider.getAccountBasedTransactions(address);
-        break;
-
-      case "Crypto APIs":
-        customProvider.getAccountBasedTransactions(address);
-        break;
-
-      default:
-        throw new Error(
-          "Should not be reachable: providerType should be 'default' or 'Crypto APIs'",
-        );
-    }
-
-    return;
-  }
-
-  preprocessTransactions(address);
-  processFundedTransactions(address, ownAddresses!);
-  processSentTransactions(address, ownAddresses!);
-}
-
-// get and transform raw transactions associated with an address
-// into an array of processed transactions
-function preprocessTransactions(address: Address) {
+function getUTXOBasedTransactions(address: Address) {
   switch (configuration.providerType) {
     case "default":
       defaultProvider.getTransactions(address);
@@ -80,25 +51,80 @@ function preprocessTransactions(address: Address) {
   }
 }
 
-// process amounts received
+/**
+ * get all transactions associated with an account-based address (typically Ethereum)
+ * @param address the account-based address being analyzed
+ */
+function getAccountBasedTransactions(address: Address) {
+  switch (configuration.providerType) {
+    case "default":
+      defaultProvider.getAccountBasedTransactions(address);
+      break;
+
+    case "Crypto APIs":
+      customProvider.getAccountBasedTransactions(address);
+      break;
+
+    default:
+      throw new Error(
+        "Should not be reachable: providerType should be 'default' or 'Crypto APIs'",
+      );
+  }
+}
+
+/**
+ * get all processed transactions related to an address
+ * @param address the address being analyzed
+ * @param ownAddresses (optional) list of addresses derived from the same xpub as `address`
+ */
+function getTransactions(address: Address, ownAddresses?: OwnAddresses) {
+  if (configuration.currency.utxo_based) {
+    // ┏━━━━━━━━━━━━━━━━━━━━━┓
+    // ┃ UTXO-BASED CURRENCY ┃
+    // ┗━━━━━━━━━━━━━━━━━━━━━┛
+    getUTXOBasedTransactions(address);
+
+    // important step: distinguish funded from sent transactions
+    processFundedTransactions(address, ownAddresses!);
+    processSentTransactions(address, ownAddresses!);
+  } else {
+    // ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+    // ┃ ACCOUNT-BASED CURRENCY ┃
+    // ┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+    getAccountBasedTransactions(address);
+  }
+}
+
+/**
+ * identify _funded_ transactions among the address' transactions
+ * @param address the address being analyzed
+ * @param ownAddresses list of addresses derived from the same xpub as `address`
+ */
 function processFundedTransactions(
   address: Address,
   ownAddresses: OwnAddresses,
 ) {
+  // all transactions associated with the address, without distinction
   const transactions = address.getTransactions();
+
+  // all addresses derived from the same xpub as `address`
   const allOwnAddresses = ownAddresses.getAllAddresses();
+
   const accountNumber = address.getDerivation().account;
+
   let isFunded: boolean;
 
   for (const tx of transactions) {
     isFunded = true;
+
     if (typeof tx.ins !== "undefined" && tx.ins.length > 0) {
-      // if account is internal (i.e., 1), and
-      //     - has a sibling as sender: not externally funded (expected behavior: sent to change)
-      //     - has no sibling as sender: process the operation (edge case: non-sibling to change)
       if (accountNumber === 1) {
+        // when account is internal (i.e., 1), and
+        //     - has a sibling as sender: not externally funded (expected behavior: sent to change)
+        //     - has no sibling as sender: process the operation (edge case: non-sibling to change)
         for (const txin of tx.ins) {
           if (allOwnAddresses.includes(txin.address)) {
+            // has a sibling as sender: not funded
             isFunded = false;
             break;
           }
@@ -106,10 +132,12 @@ function processFundedTransactions(
       }
 
       if (isFunded) {
+        // this is a _funded_ operation...
         const op = new Operation(tx.date, tx.ins[0].amount);
         op.setTxid(tx.txid);
         op.setBlockNumber(tx.blockHeight);
 
+        // ... that has to be categorized:
         // there are 2 types of received transaction:
         // case 1 — received to an address that is NOT a change address: default received
         // case 2 — received to a change address (account #1): received from non-sibling to change
@@ -117,6 +145,7 @@ function processFundedTransactions(
           accountNumber !== 1 ? "Received" : "Received (non-sibling to change)",
         );
 
+        // associate this funded operation with the address
         address.addFundedOperation(op);
       }
     }
@@ -127,24 +156,38 @@ function processFundedTransactions(
   }
 }
 
-// process amounts sent to relevant addresses
+/**
+ * identify _sent_ transactions among the address' transactions
+ * @param address the address being analyzed
+ * @param ownAddresses list of addresses derived from the same xpub as `address`
+ */
 function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
+  // all transactions associated with the address, without distinction
   const transactions = address.getTransactions();
-  const internalAddresses = ownAddresses.getInternalAddresses();
+
+  // addresses derived from the same xpub as `address`,
+  // either external or internal (i.e., change)
   const externalAddresses = ownAddresses.getExternalAddresses();
+  const internalAddresses = ownAddresses.getInternalAddresses();
 
   for (const tx of transactions) {
     const outs = tx.outs;
 
     outs.forEach((out) => {
+      // analyse all recipient addresses and identify whether they
+      // are external/internal/third-party addresses
       const isInternalAddress = internalAddresses.includes(out.address);
       const isExternalAddress = externalAddresses.includes(out.address);
 
-      // exclude internal (i.e. change) addresses
+      // exclude internal addresses—by definition (i.e., change addresses)
       if (!isInternalAddress) {
+        // at this stage, the recipient is either an external address or a
+        // third-party address (i.e., not belonging to the same xpub)...
         const op = new Operation(tx.date, out.amount);
         op.setTxid(tx.txid);
+        op.setBlockNumber(tx.blockHeight);
 
+        // ... and has to be categorized:
         // there are 3 types of sent transaction:
         if (out.address === address.toString()) {
           // case 1 — sent to self: sent to same address
@@ -158,8 +201,7 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
           op.setOperationType("Sent");
         }
 
-        op.setBlockNumber(tx.blockHeight);
-
+        // associate this sent operation with the address
         address.addSentOperation(op);
       }
     });
@@ -170,7 +212,12 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
   }
 }
 
-// sort by block number and, _then, if needed_, by date
+/**
+ * sort by block number and, _then, if needed_, by date
+ * @param A first operation
+ * @param B second operation
+ * @returns -1|0|1, depending on the ordering
+ */
 function compareOpsByBlockThenDate(A: Operation, B: Operation) {
   // block number
   if (A.block > B.block) {
@@ -195,15 +242,15 @@ function compareOpsByBlockThenDate(A: Operation, B: Operation) {
 
 /**
  * Returns an array of ordered operations
- * @param {...any} addresses - all active addresses belonging to the xpub
+ * @param {Array<Address>} addresses - all active addresses belonging to the xpub
  * @returns {Array<Address>} Array of operations in reverse chronological order
  */
-function getSortedOperations(...addresses: TODO_TypeThis): Operation[] {
+function getSortedOperations(addresses: Address[]): Operation[] {
   const operations: Operation[] = [];
   const processedTxids: string[] = [];
 
   // flatten the array of arrays in one dimension, and iterate
-  [].concat(...addresses).forEach((address: Address) => {
+  ([] as Address[]).concat(addresses).forEach((address: Address) => {
     address.getFundedOperations().forEach((op: Operation) => {
       op.setAddress(address.toString());
 
@@ -237,18 +284,18 @@ function getSortedOperations(...addresses: TODO_TypeThis): Operation[] {
 
 /**
  * Returns an array of ordered UTXOs
- * @param {...any} addresses - all active addresses belonging to the xpub
+ * @param {Array<Address>} addresses - all active addresses belonging to the xpub
  * @returns {Array<Address>} Array of UTXOs in reverse chronological order
  */
 // (reverse chronological order)
-function getSortedUTXOS(...addresses: TODO_TypeThis): Address[] {
+function getSortedUTXOS(addresses: Address[]): Address[] {
   // note: no need to explicitely sort the UTXOs as they inherit
   //       the order from the addresses themselves
 
   const utxos: Address[] = [];
 
   // flatten the array of arrays in one dimension, and iterate
-  [].concat(...addresses).forEach((address: Address) => {
+  ([] as Address[]).concat(addresses).forEach((address: Address) => {
     if (address.isUTXO()) {
       utxos.push(address);
     }
