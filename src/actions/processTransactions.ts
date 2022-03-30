@@ -245,12 +245,12 @@ function compareOpsByBlockThenDate(A: Operation, B: Operation) {
  * @param {Array<Address>} addresses - all active addresses belonging to the xpub
  * @returns {Array<Address>} Array of operations in reverse chronological order
  */
-function getSortedOperations(addresses: Address[]): Operation[] {
-  const operations: Operation[] = [];
-  const processedTxids: string[] = [];
+function getSortedOperations(addresses: Array<Address>): Array<Operation> {
+  const operations: Array<Operation> = [];
+  const processedTxids: Array<string> = [];
 
   // flatten the array of arrays in one dimension, and loop over
-  ([] as Address[]).concat(addresses).forEach((address: Address) => {
+  ([] as Array<Address>).concat(addresses).forEach((address: Address) => {
     address.getFundedOperations().forEach((op: Operation) => {
       op.setAddress(address.toString());
 
@@ -288,14 +288,14 @@ function getSortedOperations(addresses: Address[]): Operation[] {
  * @returns {Array<Address>} Array of UTXOs in reverse chronological order
  */
 // (reverse chronological order)
-function getSortedUTXOS(addresses: Address[]): Address[] {
+function getSortedUTXOS(addresses: Array<Address>): Array<Address> {
   // note: no need to explicitely sort the UTXOs as they inherit
   //       the order from the addresses themselves
 
-  const utxos: Address[] = [];
+  const utxos: Array<Address> = [];
 
   // flatten the array of arrays in one dimension, and loop over
-  ([] as Address[]).concat(addresses).forEach((address: Address) => {
+  ([] as Array<Address>).concat(addresses).forEach((address: Address) => {
     if (address.isUTXO()) {
       // if the address is an UTXO, just add it to the list of UTXOs
       utxos.push(address);

@@ -37,7 +37,7 @@ async function deriveAndScanAddressesByDerivationMode(
 
   let totalBalance = new BigNumber(0);
   let txCounter = 0;
-  const addresses: Address[] = [];
+  const addresses: Array<Address> = [];
 
   let accountSpan = undefined;
   let indexFromSpan = undefined;
@@ -280,8 +280,8 @@ async function xpubAnalysis(
   balanceOnly: boolean,
   scanLimits?: ScanLimits,
 ) {
-  let activeAddresses: Address[] = [];
-  const summary: Summary[] = [];
+  let activeAddresses: Array<Address> = [];
+  const summary: Array<Summary> = [];
 
   // get all derivation modes associated with the currency type
   // (e.g., for Bitcoin: legacy, SegWit, native SegWit, and taproot)

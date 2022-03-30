@@ -4,15 +4,15 @@ class Transaction {
   blockHeight: number;
   date: string;
   txid: string;
-  ins: Operation[];
-  outs: Operation[];
+  ins: Array<Operation>;
+  outs: Array<Operation>;
 
   constructor(
     block: number,
     date: string,
     txid: string,
-    ins: Operation[],
-    outs: Operation[],
+    ins: Array<Operation>,
+    outs: Array<Operation>,
   ) {
     this.blockHeight = block;
     this.date = date;

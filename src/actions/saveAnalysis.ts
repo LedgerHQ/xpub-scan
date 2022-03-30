@@ -9,7 +9,7 @@ import { reportTemplate } from "../templates/report.html";
 import { base64WhiteLogo, base64YellowLogo } from "../templates/logos.base64";
 import { toAccountUnit, toBaseUnit, toUnprefixedCashAddress } from "../helpers";
 import { Address } from "../models/address";
-import { Summary, TODO_TypeThis } from "../types";
+import { Summary } from "../types";
 import { currencies } from "../configuration/currencies";
 import BigNumber from "bignumber.js";
 import { ComparisonStatus, Comparison } from "../models/comparison";
@@ -230,7 +230,7 @@ function createTooltip(opType: string) {
   return '<div class="tooltip">' + opType + tooltip + "</div>";
 }
 
-function makeTransactionsTable(outputData: TODO_TypeThis) {
+function makeTransactionsTable(outputData: any) {
   // balance only mode: do not display the transaction table
   if (outputData.meta.balanceOnly) {
     return "";
@@ -273,10 +273,10 @@ function makeTransactionsTable(outputData: TODO_TypeThis) {
     transactionsTemplate = transactionsTemplate.replace("{warning}", "");
   }
 
-  const transactions: string[][] = [];
+  const transactions: Array<string>[] = [];
   for (const e of outputData.transactions) {
     let rowStyle = "<tr>";
-    const transactionRow: string[] = [];
+    const transactionRow: Array<string> = [];
 
     if (e.operationType === "Failed to send") {
       rowStyle = '<tr class="failed_operation">';
@@ -321,7 +321,7 @@ function makeTransactionsTable(outputData: TODO_TypeThis) {
   );
 }
 
-function makeUTXOSTable(outputData: TODO_TypeThis) {
+function makeUTXOSTable(outputData: any) {
   if (
     typeof outputData.utxos === "undefined" ||
     outputData.utxos.length === 0
@@ -356,10 +356,10 @@ function makeUTXOSTable(outputData: TODO_TypeThis) {
     </li>
     `;
 
-  const utxos: string[][] = [];
+  const utxos: Array<string>[] = [];
 
   for (const e of outputData.utxos) {
-    const utxoRow: string[] = [];
+    const utxoRow: Array<string> = [];
     utxoRow.push("<tr><td>" + e.derivationMode + "</td>");
 
     const derivationPath =
@@ -381,7 +381,7 @@ function makeUTXOSTable(outputData: TODO_TypeThis) {
   return makePaginatedTable(UTXOSTableHead, UTXOSTemplate, utxos, 100, "utxos");
 }
 
-function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
+function makeComparisonsTable(outputData: any, onlyDiff?: boolean) {
   const comparisonsTableHead = `
     <thead>
       <tr style="text-align: center">
@@ -435,10 +435,10 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
     comparisonsTemplate = comparisonsTemplate.split("{id}").join("6"); // differences have id 6
   }
 
-  const comparisons: string[][] = [];
+  const comparisons: Array<string>[] = [];
   if (typeof comp !== "undefined") {
     for (const e of comp) {
-      const comparisonRow: string[] = [];
+      const comparisonRow: Array<string> = [];
       let txid = "";
       let opType = "";
 
@@ -569,7 +569,7 @@ function makeComparisonsTable(outputData: TODO_TypeThis, onlyDiff?: boolean) {
 function makePaginatedTable(
   tableHead: string,
   template: string,
-  rowsData: string[][],
+  rowsData: Array<string>[],
   pageSize: number,
   key: string,
 ) {
@@ -676,7 +676,7 @@ function makePaginatedTable(
   return template;
 }
 
-function makeAddressesTable(outputData: TODO_TypeThis) {
+function makeAddressesTable(outputData: any) {
   const addressesTableHead = `
     <thead>
       <tr>
@@ -702,10 +702,10 @@ function makeAddressesTable(outputData: TODO_TypeThis) {
       </div>
     </li>`;
 
-  const addresses: string[][] = [];
+  const addresses: Array<string>[] = [];
 
   for (const e of outputData.addresses) {
-    const addressRow: string[] = [];
+    const addressRow: Array<string> = [];
 
     if (typeof e.derivation.account !== "undefined") {
       addressRow.push("<tr><td>" + e.derivationMode + "</td>");
@@ -748,7 +748,7 @@ function makeAddressesTable(outputData: TODO_TypeThis) {
   );
 }
 
-function saveHTML(outputData: TODO_TypeThis, filepath: string) {
+function saveHTML(outputData: any, filepath: string) {
   let report = reportTemplate;
 
   // background color and logo
@@ -796,7 +796,7 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
   }
 
   // summary
-  const summary: string[] = [];
+  const summary: Array<string> = [];
   for (const e of outputData.summary) {
     if (typeof e.derivationMode !== "undefined") {
       summary.push("<tr><td>" + e.derivationMode + "</td>");
@@ -865,7 +865,7 @@ function saveHTML(outputData: TODO_TypeThis, filepath: string) {
   console.log("\nHTML report saved: ".concat(filepath));
 }
 
-function saveJSON(outputData: TODO_TypeThis, filepath: string) {
+function saveJSON(outputData: any, filepath: string) {
   // stringify -> parse -> stringify to remove `undefined` in final JSON
   const JSONobject = JSON.stringify(
     JSON.parse(JSON.stringify(outputData)),
@@ -886,11 +886,11 @@ function saveJSON(outputData: TODO_TypeThis, filepath: string) {
   }
 }
 
-function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
+function save(meta: any, data: any, directory: string) {
   const balanceOnly = meta.balanceOnly;
 
   // convert amounts into base unit
-  const addresses: Address[] = data.addresses.map((e: Address) => {
+  const addresses: Array<Address> = data.addresses.map((e: Address) => {
     return {
       derivationMode: e.derivationMode,
       derivation: e.getDerivation(),
@@ -902,7 +902,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
     };
   });
 
-  let utxos: Address[] = [];
+  let utxos: Array<Address> = [];
 
   if (configuration.currency.utxo_based) {
     utxos = data.addresses
@@ -933,14 +933,14 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       });
   }
 
-  const summary: Summary[] = data.summary.map((e: Summary) => {
+  const summary: Array<Summary> = data.summary.map((e: Summary) => {
     return {
       ...e,
       balance: toBaseUnit(new BigNumber(e.balance)),
     };
   });
 
-  const transactions: Operation[] = !balanceOnly
+  const transactions: Array<Operation> = !balanceOnly
     ? data.transactions.map((e: Operation) => {
         return {
           ...e,
@@ -950,7 +950,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
       })
     : [];
 
-  const comparisons: Comparison[] =
+  const comparisons: Array<Comparison> =
     typeof data.comparisons !== "undefined"
       ? data.comparisons.map((e: Comparison) => {
           return {
@@ -974,7 +974,7 @@ function save(meta: TODO_TypeThis, data: TODO_TypeThis, directory: string) {
         })
       : undefined;
 
-  let diffs: Comparison[] = [];
+  let diffs: Array<Comparison> = [];
 
   if (typeof comparisons !== "undefined") {
     diffs =
