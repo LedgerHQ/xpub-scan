@@ -122,9 +122,9 @@ const areMatching = (
     return "Mismatch: amounts";
   }
 
-  // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  // ┃ 3 |CHECK TOKENS (OPTIONAL) ┃
-  // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  // ┃ 3 | CHECK TOKENS (OPTIONAL) ┃
+  // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
   // 3. (if applicable: augmented mode) check tokens
   const importedToken = importedOperation.token;
@@ -146,9 +146,9 @@ const areMatching = (
     }
   }
 
-  // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  // ┃ 4 |CHECK DAPPS (OPTIONAL) ┃
-  // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  // ┃ 4 | CHECK DAPPS (OPTIONAL) ┃
+  // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
   // 4. (if applicable: augmented mode) check dapp
   const importedDapp = importedOperation.dapp;
