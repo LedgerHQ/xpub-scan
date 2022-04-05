@@ -69,22 +69,19 @@ const areMatching = (
   importedOperation: Operation,
   actualOperation: Operation,
 ): ComparisonStatus => {
-  // 1. Check addresses
+  // ┏━━━━━━━━━━━━━━━━━━━━━┓
+  // ┃ 1 | CHECK ADDRESSES ┃
+  // ┗━━━━━━━━━━━━━━━━━━━━━┛
 
-  // only check if imported address is set (not always the case: see type B CSV)
+  // 1. Check addresses (general case)
+  // only check if imported address is set (not always the case: Live Desktpop CSVs)
   // besides, imported address can be a superset of actual address as the
   // imported operation can have several addresses; therefore, `includes` has to
   // be used
 
   let mismatchingAddresses = false;
 
-  // imported address can be undefined
-  const importedAddress =
-    typeof importedOperation.getAddress() !== "undefined"
-      ? importedOperation.getAddress().toLowerCase()
-      : undefined;
-
-  // actual address is not expected to be undefined
+  const importedAddress = importedOperation.getAddress()?.toLowerCase();
   const actualAddress = actualOperation.getAddress().toLowerCase();
 
   if (
@@ -95,16 +92,9 @@ const areMatching = (
     mismatchingAddresses = true;
   }
 
-  // Bitcoin Cash cash addresses
-  const importedCashAddress =
-    typeof importedOperation.getCashAddress() !== "undefined"
-      ? importedOperation.getCashAddress()!.toLowerCase()
-      : undefined;
-
-  const actualCashAddress =
-    typeof actualOperation.getCashAddress() !== "undefined"
-      ? actualOperation.getCashAddress()!.toLowerCase()
-      : undefined;
+  // 1b. Check addresses (Bitcoin Cash)
+  const importedCashAddress = importedOperation.getCashAddress()?.toLowerCase();
+  const actualCashAddress = actualOperation.getCashAddress()?.toLowerCase();
 
   if (
     importedCashAddress &&
@@ -119,7 +109,10 @@ const areMatching = (
     return "Mismatch: addresses";
   }
 
-  // 2. Check amounts
+  // ┏━━━━━━━━━━━━━━━━━━━┓
+  // ┃ 2 | CHECK AMOUNTS ┃
+  // ┗━━━━━━━━━━━━━━━━━━━┛
+
   // Note: absolute values are compared because one of the amounts can be negative (i.e., swap)
   if (
     !importedOperation.amount
@@ -129,9 +122,14 @@ const areMatching = (
     return "Mismatch: amounts";
   }
 
-  // 3. (If applicable) check tokens
+  // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  // ┃ 3 | CHECK TOKENS (OPTIONAL) ┃
+  // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  // 3. (if applicable: augmented mode) check tokens
   const importedToken = importedOperation.token;
   const actualToken = actualOperation.token;
+
   if (
     typeof importedToken !== "undefined" &&
     typeof actualToken !== "undefined"
@@ -146,21 +144,16 @@ const areMatching = (
     ) {
       return "Mismatch: token tickers";
     }
-
-    // name comparison is disabled because there is currently no mapping
-    // between official names and our own names
-
-    // if (
-    //   importedToken.name.toLocaleLowerCase() !==
-    //   actualToken.name.toLocaleLowerCase()
-    // ) {
-    //   return false;
-    // }
   }
 
-  // 4. (If applicable) check dapp
+  // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  // ┃ 4 | CHECK DAPPS (OPTIONAL) ┃
+  // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  // 4. (if applicable: augmented mode) check dapp
   const importedDapp = importedOperation.dapp;
   const actualDapp = actualOperation.token; // currently, as far as the external provider is concerned, token == Dapp
+
   if (
     typeof importedDapp !== "undefined" &&
     typeof actualDapp !== "undefined"
@@ -360,12 +353,11 @@ const areAggregated = (
 
 /**
  * Compare the imported operations with the actual ones
- * @param  {Array<Operation>} importedOperations
- *          Imported operations
- * @param  {Array<Operation>} actualOperations
- *          Actual operations
- * @returns Comparison
- *          Result of the comparison
+ * @param importedOperations operations from the product
+ * @param actualOperations operations from the provider (source of truth)
+ * @param actualAddresses actual addresses
+ * @param partialComparison (optional) partial comparison
+ * @returns list of comparisons
  */
 const checkImportedOperations = (
   importedOperations: Array<Operation>,
@@ -380,7 +372,9 @@ const checkImportedOperations = (
       ),
     );
     console.log(
-      chalk.grey("imported operations\t\t\t\t\t\t\t\t     actual operations"),
+      chalk.grey(
+        "imported operations" + "\t".repeat(8) + "     actual operations",
+      ),
     );
   }
 
@@ -397,8 +391,13 @@ const checkImportedOperations = (
     );
   }
 
+  // create a list of comparing criterion containing all elements that can be used
+  // to compare transactions. That is: date, txid, and/or block number
+
+  // first, add comparing criteria from the imported operations...
   importedOperations.forEach((op) => {
     if (!allComparingCriteria.some((t) => t.hash === op.txid)) {
+      // (ignore duplicates)
       allComparingCriteria.push({
         date: op.date,
         hash: op.txid,
@@ -407,10 +406,11 @@ const checkImportedOperations = (
     }
   });
 
-  // add potential actual operations absent from the list
+  // ... then add potential actual operations absent from the list
   // of imported operations
   actualOperations.forEach((op) => {
     if (!allComparingCriteria.some((t) => t.hash === op.txid)) {
+      // (ignore duplicates)
       allComparingCriteria.push({
         date: op.date,
         hash: op.txid,
@@ -420,9 +420,7 @@ const checkImportedOperations = (
   });
 
   // sort by reverse chronological order
-  allComparingCriteria.sort((a, b) =>
-    a.date > b.date ? -1 : a.date < b.date ? 1 : 0,
-  );
+  allComparingCriteria.sort((a, b) => (a.date > b.date ? -1 : 1));
 
   for (const comparingCriterion of allComparingCriteria) {
     let importedOps;
@@ -447,11 +445,11 @@ const checkImportedOperations = (
     }
 
     // the imported operations can have multiple concatenated addresses
-    // (see: type A CSV) that have to be reduced to only one:
+    // that have to be reduced to only one:
     // the one corresponding to that of an actual operation from the same
     // block and with the same amount
     for (const imported of importedOps) {
-      // do not continue if no address (see: type B CSVs): not relevant
+      // do not continue if no address (see: Live Desktop CSVs): not relevant
       if (!imported.address) {
         break;
       }
@@ -469,21 +467,23 @@ const checkImportedOperations = (
       }
     }
 
-    // sort I (common cases): compare by date, amount, address
+    // sort I (common case):
+    // compare by date, amount, address
     importedOps.sort(compareOps);
     actualOps.sort(compareOps);
 
-    // sort II (edge cases):
+    // sort II (edge case):
     // sort operations with same txid, same date, and same amount
     // that cannot be sorted by address
     for (const criterion of allComparingCriteria) {
       const imported = importedOps.filter((op) => op.txid === criterion.hash);
 
-      // if only one imported operation have this txid, skip
+      // if only one imported operation have this txid, skip...
       if (imported.length < 2 || typeof criterion.hash === "undefined") {
         continue;
       }
 
+      // ... otherwise, sort the imported operations
       for (const importedOp of imported) {
         for (let i = 0; i < actualOps.length; ++i) {
           // if an actual operation is having the same txid,
@@ -529,19 +529,37 @@ const checkImportedOperations = (
         (aggregatedTxids.includes(actualOp.txid) ||
           areAggregated(importedOp, actualOps))
       ) {
+        // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        // ┃ CASE 1 | AGGREGATED OPERATIONS ┃
+        // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
         aggregatedTxids.push(actualOp.txid);
 
         if (typeof importedOp !== "undefined") {
-          showOperations("Match (aggregated)", importedOp, actualOp);
-        } else {
-          showOperations("Missing (aggregated)", actualOp);
-        }
+          // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+          // ┃ CASE 1A | MATCHING AGGREGATED OPERATIONS ┃
+          // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-        comparisons.push({
-          imported: importedOp,
-          actual: actualOp,
-          status: "Match (aggregated)",
-        });
+          showOperations("Match (aggregated)", importedOp, actualOp);
+
+          comparisons.push({
+            imported: importedOp,
+            actual: actualOp,
+            status: "Match (aggregated)",
+          });
+        } else {
+          // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+          // ┃ CASE 1B | MISSING AGGREGATED OPERATIONS ┃
+          // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+          showOperations("Missing (aggregated)", actualOp);
+
+          comparisons.push({
+            imported: importedOp,
+            actual: actualOp,
+            status: "Missing (aggregated)",
+          });
+        }
 
         continue;
       }
@@ -553,6 +571,10 @@ const checkImportedOperations = (
           blockHeightUpperLimit > 0 &&
           actualOp.getBlockNumber() > blockHeightUpperLimit
         ) {
+          // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+          // ┃ CASE 2 | SKIPPED OPERATIONS (BLOCK HEIGHT UPPER LIMIT MODE) ┃
+          // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
           comparisons.push({
             imported: undefined,
             actual: actualOp,
@@ -561,6 +583,10 @@ const checkImportedOperations = (
 
           continue;
         }
+
+        // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        // ┃ CASE 3 | MISSING OPERATION ┃
+        // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
         // ...else, this is a missing operation
         showOperations("Missing Operation", actualOp);
@@ -576,6 +602,10 @@ const checkImportedOperations = (
 
       // imported operation with no corresponding actual operation
       if (typeof actualOp === "undefined") {
+        // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        // ┃ CASE 4 | EXTRA OPERATION ┃
+        // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
         showOperations("Extra Operation", importedOp);
 
         comparisons.push({
@@ -590,7 +620,10 @@ const checkImportedOperations = (
       const comparisonResult = areMatching(importedOp, actualOp);
 
       if (comparisonResult !== "Match") {
-        // mismatch
+        // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        // ┃ CASE 5 | MISMATCHING OPERATIONS ┃
+        // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
         showOperations(comparisonResult, importedOp, actualOp);
 
         comparisons.push({
@@ -599,7 +632,10 @@ const checkImportedOperations = (
           status: comparisonResult,
         });
       } else {
-        // match
+        // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        // ┃ CASE 6 | MATCHING OPERATIONS ┃
+        // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
         showOperations("Match", importedOp, actualOp);
 
         comparisons.push({
@@ -616,7 +652,7 @@ const checkImportedOperations = (
   // 1. Split the comparisons in two segments:
   //   first segment (can be empty): skipped comparisons
   //   second segment: unskipped comparisons
-  const skippedComparisons = [];
+  const skippedComparisons: Array<Comparison> = [];
   for (let i = comparisons.length - 1; i >= 0; i--) {
     const comparison = comparisons[i];
 
@@ -628,11 +664,7 @@ const checkImportedOperations = (
 
   // 2. Sort the skipped comparisons by date
   skippedComparisons.sort((a, b) => {
-    return a.actual!.date > b.actual!.date
-      ? -1
-      : a.actual!.date < b.actual!.date
-      ? 1
-      : 0;
+    return a.actual!.date > b.actual!.date ? -1 : 1;
   });
 
   // 3. Merge the two segments into one.
