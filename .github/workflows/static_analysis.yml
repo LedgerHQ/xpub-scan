@@ -3,7 +3,7 @@ name: Static Analysis
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
     needs: check-dependencies
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Install dependencies
         run: yarn
 
