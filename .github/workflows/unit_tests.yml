@@ -44,5 +44,11 @@ jobs:
       - name: Run checks
         run: yarn ci
 
-      - name: SonarQube Analysis
+      - name: Generate code coverage
         run: yarn sonarqube
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
