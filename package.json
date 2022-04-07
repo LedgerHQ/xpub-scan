@@ -10,6 +10,7 @@
     "clean": "yarn cache clean --force && rm -rf lib/",
     "build": "tsc && chmod +x ./lib/scan.js",
     "test": "jest",
+    "sonarqube": "jest --collect-coverage --testResultsProcessor jest-sonar-reporter",
     "lint": "eslint .",
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
@@ -64,11 +65,17 @@
     "yargs": "17.4.0"
   },
   "devDependencies": {
-    "@babel/core": "7.17.8",
+    "@babel/core": "7.17.9",
     "@babel/preset-env": "7.16.11",
     "@babel/preset-typescript": "7.16.7",
     "@types/bs58check": "2.1.0",
     "@types/create-hmac": "1.1.0",
-    "@types/jest": "27.4.1"
+    "@types/jest": "27.4.1",
+    "jest-sonar-reporter": "2.0.0"
+  },
+  "jestSonar": {
+    "reportPath": "coverage",
+    "reportFile": "test-reporter.xml",
+    "indent": 4
   }
 }
