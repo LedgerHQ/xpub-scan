@@ -10,7 +10,6 @@ jobs:
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
-    needs: check-dependencies
     steps:
       - uses: actions/checkout@v2
 
