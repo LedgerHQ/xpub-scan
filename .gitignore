@@ -4,3 +4,4 @@ lib
 yarn.lock
 .vscode
 package-lock.json
+coverage/

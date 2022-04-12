@@ -2,7 +2,7 @@ name: Build Docker Package
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   build:
     name: Build and push xpub-scan image

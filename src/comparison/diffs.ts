@@ -9,7 +9,7 @@ import { Comparison } from "../models/comparison";
  *          Actual balance
  * @param  {number} importedBalance?
  *          Optional imported balance
- * @param  {Comparison[]} comparisons?
+ * @param  {Array<Comparison>} comparisons?
  *          Optional list of comparisons
  * @param  {boolean} diff?
  *          Optional diff boolean
@@ -21,7 +21,7 @@ import { Comparison } from "../models/comparison";
 const showDiff = (
   actualBalance: number,
   importedBalance?: string,
-  comparisons?: Comparison[],
+  comparisons?: Array<Comparison>,
   diff?: boolean,
 ): number => {
   let exitCode = 0;

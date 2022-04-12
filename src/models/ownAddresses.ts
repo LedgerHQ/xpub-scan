@@ -2,8 +2,8 @@ import { Address } from "./address";
 
 // addresses belonging to the same xpub
 class OwnAddresses {
-  internal: string[];
-  external: string[];
+  internal: Array<string>;
+  external: Array<string>;
 
   constructor() {
     this.internal = [];

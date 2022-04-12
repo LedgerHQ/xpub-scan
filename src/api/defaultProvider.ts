@@ -99,11 +99,11 @@ function getTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
 
   // 2. parse raw transactions
-  const transactions: Transaction[] = [];
+  const transactions: Array<Transaction> = [];
 
   rawTransactions.forEach((tx: RawTransaction) => {
-    const ins: Operation[] = [];
-    const outs: Operation[] = [];
+    const ins: Array<Operation> = [];
+    const outs: Array<Operation> = [];
 
     if (typeof tx.incoming !== "undefined") {
       tx.incoming.inputs.forEach((txin) => {
@@ -159,7 +159,7 @@ interface BchRawTransaction {
   vout: {
     value: string;
     scriptPubKey: {
-      addresses: string[];
+      addresses: Array<string>;
     };
   }[];
 }
@@ -214,11 +214,11 @@ function getBitcoinCashTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
 
   // 2. parse raw transactions
-  const transactions: Transaction[] = [];
+  const transactions: Array<Transaction> = [];
 
   rawTransactions.forEach((tx: BchRawTransaction) => {
-    const ins: Operation[] = [];
-    const outs: Operation[] = [];
+    const ins: Array<Operation> = [];
+    const outs: Array<Operation> = [];
     let amount = new BigNumber(0);
     let processIn = false;
     let processOut = false;
@@ -358,11 +358,11 @@ function getAccountBasedTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
 
   // 2. parse raw transactions
-  const transactions: Transaction[] = [];
+  const transactions: Array<Transaction> = [];
 
   rawTransactions.forEach((tx: EthRawTransaction) => {
-    const ins: Operation[] = [];
-    const outs: Operation[] = [];
+    const ins: Array<Operation> = [];
+    const outs: Array<Operation> = [];
 
     const isRecipient = tx.tx_input_n === -1;
     const isSender = tx.tx_output_n === -1;

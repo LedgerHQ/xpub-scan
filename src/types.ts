@@ -6,8 +6,6 @@ import { Address } from "./models/address";
 import { Operation } from "./models/operation";
 import { Comparison } from "./models/comparison";
 
-export type TODO_TypeThis = any;
-
 export interface ScannerArguments {
   _?: string;
   itemToScan: string;
@@ -51,10 +49,10 @@ export interface ScanMeta {
 }
 
 export interface ScanData {
-  summary: Summary[];
-  addresses: Address[];
-  transactions: Operation[];
-  comparisons?: Comparison[];
+  summary: Array<Summary>;
+  addresses: Array<Address>;
+  transactions: Array<Operation>;
+  comparisons?: Array<Comparison>;
 }
 
 export interface Summary {

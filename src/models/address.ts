@@ -13,11 +13,11 @@ class Address {
   account: number;
   index: number;
   balance: BigNumber;
-  transactions: Transaction[];
-  rawTransactions: any[];
+  transactions: Array<Transaction>;
+  rawTransactions: Array<any>;
   stats: Stats;
-  ins: Operation[];
-  outs: Operation[];
+  ins: Array<Operation>;
+  outs: Array<Operation>;
   utxo: boolean;
 
   constructor(
@@ -44,11 +44,11 @@ class Address {
     this.utxo = false;
   }
 
-  setTransactions(transactions: Transaction[]) {
+  setTransactions(transactions: Array<Transaction>) {
     this.transactions = transactions;
   }
 
-  setRawTransactions(rawTransactions: any[]) {
+  setRawTransactions(rawTransactions: Array<any>) {
     this.rawTransactions = rawTransactions;
   }
 

@@ -40,7 +40,7 @@ interface RawTransaction {
   senders: Transactors;
   blockchainSpecific: {
     vin: {
-      addresses: string[];
+      addresses: Array<string>;
       value: string;
       vout: number;
     }[];
@@ -253,7 +253,7 @@ async function getStats(address: Address, balanceOnly: boolean) {
 
     // Remove duplicates
     // (related to a bug from Crypto APIs)
-    const uniqueRawTransactions: any[] = [];
+    const uniqueRawTransactions: Array<any> = [];
 
     for (let i = rawTransactions.length - 1; i >= 0; i--) {
       const transaction = rawTransactions[i];
@@ -276,7 +276,7 @@ async function getStats(address: Address, balanceOnly: boolean) {
  */
 function getTransactions(address: Address) {
   const rawTransactions = address.getRawTransactions();
-  const transactions: Transaction[] = [];
+  const transactions: Array<Transaction> = [];
 
   // Bitcoin Cash addresses are expressed as cash addresses by Crypto APIs:
   // they have to be converted into legacy ones (if needed)
@@ -292,8 +292,8 @@ function getTransactions(address: Address) {
   // into an array of processed transactions:
   // [ { blockHeight, txid, ins: [ { address, value }... ], outs: [ { address, value }...] } ]
   rawTransactions.forEach((tx: RawTransaction) => {
-    const ins: Operation[] = [];
-    const outs: Operation[] = [];
+    const ins: Array<Operation> = [];
+    const outs: Array<Operation> = [];
 
     // identify whether the address belongs to the list of transactors or not
     const addressBelongsToTransactors = (transactors: Transactors) => {

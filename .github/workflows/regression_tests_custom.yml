@@ -3,10 +3,8 @@ name: Regression - Custom provider
 on:
   push:
     branches:
-      - master
+      - main
   pull_request_target:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
