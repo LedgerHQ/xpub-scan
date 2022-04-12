@@ -393,22 +393,7 @@ const checkImportedOperations = (
 
   // create a list of comparing criterion containing all elements that can be used
   // to compare transactions. That is: date, txid, and/or block number
-
-  // first, add comparing criteria from the imported operations...
-  importedOperations.forEach((op) => {
-    if (!allComparingCriteria.some((t) => t.hash === op.txid)) {
-      // (ignore duplicates)
-      allComparingCriteria.push({
-        date: op.date,
-        hash: op.txid,
-        block: op.block,
-      });
-    }
-  });
-
-  // ... then add potential actual operations absent from the list
-  // of imported operations
-  actualOperations.forEach((op) => {
+  importedOperations.concat(actualOperations).forEach((op) => {
     if (!allComparingCriteria.some((t) => t.hash === op.txid)) {
       // (ignore duplicates)
       allComparingCriteria.push({
@@ -672,9 +657,7 @@ const checkImportedOperations = (
   //   first: all skipped comparisons, sorted by date
   //   second: all unskipped comparisons, sorted following the
   //           imported operations ordering
-  const sortedComparisons = skippedComparisons.concat(comparisons);
-
-  return sortedComparisons;
+  return skippedComparisons.concat(comparisons);
 };
 
 export { checkImportedOperations };

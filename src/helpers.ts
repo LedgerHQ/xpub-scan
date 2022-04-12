@@ -51,8 +51,7 @@ async function retry<T>(
   let err: any = null;
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await job();
-      return res;
+      return await job();
     } catch (e) {
       err = e;
       // wait before retrying if it's not the last try
@@ -158,7 +157,6 @@ const setExternalProviderURL = (): void => {
 
   if (currency.symbol === currencies.eth.symbol) {
     configuration.externalProviderURL = DEFAULT_API_URLS.eth;
-    return;
   }
 };
 

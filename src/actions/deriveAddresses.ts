@@ -227,9 +227,9 @@ function deriveAddress(
 function getDerivationMode(address: string) {
   if (address.match("^(bc1|tb1|ltc1).*")) {
     return DerivationMode.NATIVE;
-  } else if (address.match("^(3|2|M).*")) {
+  } else if (address.match("^[32M].*")) {
     return DerivationMode.SEGWIT;
-  } else if (address.match("^(1|n|m|L).*")) {
+  } else if (address.match("^[1nmL].*")) {
     return DerivationMode.LEGACY;
   } else if (address.match("^(D).*")) {
     return DerivationMode.DOGECOIN;
