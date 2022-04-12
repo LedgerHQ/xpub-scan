@@ -332,7 +332,7 @@ async function getAccountBasedStats(address: Address) {
   address.setBalance(balance);
 
   // additional request to get the fees
-  for (let txref of res.txrefs) {
+  for (const txref of res.txrefs) {
     // if not a Sent transaction, skip
     if (txref.tx_output_n !== -1) {
       continue;
