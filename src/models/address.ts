@@ -27,12 +27,7 @@ class Address {
     index?: number,
   ) {
     if (derivationMode) {
-      this.address = deriveAddress(
-        derivationMode,
-        itemToScan,
-        account!,
-        index!,
-      );
+      this.address = deriveAddress(derivationMode, itemToScan, account, index);
     } else {
       this.address = itemToScan;
     }

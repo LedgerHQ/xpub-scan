@@ -332,18 +332,18 @@ async function getAccountBasedStats(address: Address) {
   address.setBalance(balance);
 
   // additional request to get the fees
-  for (let i = 0; i < res.txrefs.length; ++i) {
+  for (const txref of res.txrefs) {
     // if not a Sent transaction, skip
-    if (res.txrefs[i].tx_output_n !== -1) {
+    if (txref.tx_output_n !== -1) {
       continue;
     }
 
     const urlTxs = configuration.externalProviderURL
       .replace("{type}", "txs")
-      .replace("{item}", res.txrefs[i].tx_hash);
+      .replace("{item}", txref.tx_hash);
 
     const resTxs = await getJSON<any>(urlTxs);
-    res.txrefs[i].total = resTxs.total;
+    txref.total = resTxs.total;
   }
 
   address.setRawTransactions(res.txrefs);
