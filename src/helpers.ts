@@ -208,6 +208,10 @@ function init(
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
 function toUnprefixedCashAddress(address: string) {
+  if (configuration.currency.symbol !== currencies.bch.symbol) {
+    return undefined;
+  }
+
   if (!bchaddr.isCashAddress(address)) {
     address = bchaddr.toCashAddress(address);
   }
