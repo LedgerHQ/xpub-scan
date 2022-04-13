@@ -114,7 +114,7 @@ async function deriveAndScanAddressesByDerivationMode(
 
       // here, evaluate if the address needs further analysis
 
-      if (addressStats.txsCount === 0) {
+      if (addressStats.txsCount.isZero()) {
         // no transaction associated with the address:
         // perform address gap probing
         // GAP PROBE: check whether an address is active in a certain range

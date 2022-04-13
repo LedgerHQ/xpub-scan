@@ -208,7 +208,7 @@ function processSentTransactions(address: Address, ownAddresses: OwnAddresses) {
   }
 
   if (VERBOSE) {
-    console.log("SENT\t", address.getSpentOperations());
+    console.log("SENT\t", address.getSentOperations());
   }
 }
 
@@ -261,7 +261,7 @@ function getSortedOperations(addresses: Array<Address>): Array<Operation> {
       operations.push(op);
     });
 
-    address.getSpentOperations().forEach((op: Operation) => {
+    address.getSentOperations().forEach((op: Operation) => {
       // only process a given txid once
       if (!processedTxids.includes(op.txid)) {
         op.setAddress(address.toString());

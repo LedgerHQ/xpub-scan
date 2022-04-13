@@ -7,7 +7,12 @@ import {
 } from "../configuration/settings";
 import { reportTemplate } from "../templates/report.html";
 import { base64WhiteLogo, base64YellowLogo } from "../templates/logos.base64";
-import { toAccountUnit, toBaseUnit, toUnprefixedCashAddress } from "../helpers";
+import {
+  getNetworkLabel,
+  toAccountUnit,
+  toBaseUnit,
+  toUnprefixedCashAddress,
+} from "../helpers";
 import { Address } from "../models/address";
 import { Summary } from "../types";
 import { currencies } from "../configuration/currencies";
@@ -382,6 +387,16 @@ function makeUTXOSTable(outputData: any) {
 }
 
 function makeComparisonsTable(outputData: any, onlyDiff?: boolean) {
+  const getLabel = (status: string) => {
+    if (status.includes("Match")) {
+      return "match_label";
+    } else if (status === "Skipped") {
+      return "skipped_label";
+    } else {
+      return "mismatch_label";
+    }
+  };
+
   const comparisonsTableHead = `
     <thead>
       <tr style="text-align: center">
@@ -533,15 +548,8 @@ function makeComparisonsTable(outputData: any, onlyDiff?: boolean) {
 
       comparisonRow.push("<td>" + renderTxid(txid) + "</td>");
       comparisonRow.push("<td>" + createTooltip(opType) + "</td>");
-      comparisonRow.push(
-        '<td><span class="label ' +
-          (e.status.includes("Match")
-            ? "match_label"
-            : e.status === "Skipped"
-            ? "skipped_label"
-            : "mismatch_label") +
-          '">',
-      );
+
+      comparisonRow.push('<td><span class="label ' + getLabel(e.status) + '">');
       comparisonRow.push(
         e.status +
           (e.status === "Skipped"
@@ -999,14 +1007,7 @@ function save(meta: any, data: any, directory: string) {
       version: meta.version,
       xpub: meta.xpub,
       analysis_date: meta.date,
-      currency: configuration.currency.name.concat(
-        configuration.testnet
-          ? configuration.currency.symbol === currencies.eth.symbol &&
-            typeof configuration.APIKey !== "undefined"
-            ? " (ropsten)"
-            : " (testnet)"
-          : " (mainnet)",
-      ),
+      currency: `${configuration.currency.name} (${getNetworkLabel()})`,
       provider: configuration.providerType,
       provider_url: providerBaseUrl,
       gap_limit: configuration.gap_limit,

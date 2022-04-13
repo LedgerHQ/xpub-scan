@@ -218,10 +218,6 @@ function deriveAddress(
  * infer the derivation mode from the address syntax
  * @param address any address (Bitcoin, Ethereum, etc.)
  * @returns the derivation mode associated with the address
- *
- * TODO: improve the prefix matching: make the expected prefix
- * correspond to the actual type (currently, a `ltc1` prefix
- * could match a native Bitcoin address type for instance)
  */
 
 function getDerivationMode(address: string) {
