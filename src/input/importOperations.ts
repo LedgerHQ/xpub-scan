@@ -17,7 +17,7 @@ import { currencies } from "../configuration/currencies";
  *        A sanitized address or a sanitized aggregated list of addresses
  */
 const sanitizeInputedAddress = (address: string): string => {
-  return address.replace(/[^0-9A-Za-z,]/gi, "");
+  return address.replace(/[^0-9a-zA-Z,]/gi, "");
 };
 
 /**

@@ -56,7 +56,7 @@ export class Scanner {
     if (this.address) {
       // mode A: `--address {address}`:
       // an address has been provided by the user: check whether its belongs or not to the xpub
-      await compare.run(this.itemToScan, this.address);
+      compare.run(this.itemToScan, this.address);
       return { exitCode: this.exitCode };
     } else {
       // mode B: scan mode

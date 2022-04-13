@@ -298,10 +298,6 @@ function deriveAddress(
  * infer the derivation mode from the address syntax
  * @param address any address (Bitcoin, Ethereum, etc.)
  * @returns the derivation mode associated with the address
- *
- * TODO: improve the prefix matching: make the expected prefix
- * correspond to the actual type (currently, a `ltc1` prefix
- * could match a native Bitcoin address type for instance)
  */
 
 function getDerivationMode(address: string) {
@@ -309,9 +305,9 @@ function getDerivationMode(address: string) {
     return DerivationMode.NATIVE;
   } else if (address.match("^(bc1p).*")) {
     return DerivationMode.TAPROOT;
-  } else if (address.match("^(3|2|M).*")) {
+  } else if (address.match("^[32M].*")) {
     return DerivationMode.SEGWIT;
-  } else if (address.match("^(1|n|m|L).*")) {
+  } else if (address.match("^[1nmL].*")) {
     return DerivationMode.LEGACY;
   } else if (address.match("^(D).*")) {
     return DerivationMode.DOGECOIN;

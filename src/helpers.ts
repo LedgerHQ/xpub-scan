@@ -51,8 +51,7 @@ async function retry<T>(
   let err: any = null;
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await job();
-      return res;
+      return await job();
     } catch (e) {
       err = e;
       // wait before retrying if it's not the last try
@@ -128,11 +127,7 @@ const setExternalProviderURL = (): void => {
   if (process.env.XPUB_SCAN_CUSTOM_API_KEY_V2) {
     configuration.externalProviderURL = CRYPTOAPIS_URL.replace(
       "{network}",
-      configuration.testnet
-        ? configuration.currency.symbol === currencies.eth.symbol
-          ? "ropsten"
-          : "testnet"
-        : "mainnet",
+      getNetworkLabel(),
     );
 
     configuration.providerType = "Crypto APIs";
@@ -158,7 +153,6 @@ const setExternalProviderURL = (): void => {
 
   if (currency.symbol === currencies.eth.symbol) {
     configuration.externalProviderURL = DEFAULT_API_URLS.eth;
-    return;
   }
 };
 
@@ -223,7 +217,6 @@ function toUnprefixedCashAddress(address: string) {
 
 /**
  * Convert from unit of account to base unit (e.g. bitcoins to satoshis)
- * (TODO: refactor for a more proper conversion mechanism)
  * @param amount the amount (in unit of account) to convert
  * @returns the converted amount, in base unit
  */
@@ -239,7 +232,6 @@ function toBaseUnit(amount: BigNumber): string {
 
 /**
  * Convert from base unit to unit of account (e.g. satoshis to bitcoins)
- * (TODO: refactor for a more proper conversion mechanism)
  * @param amount the amount (in base unit) to convert
  * @param decimalPlaces (optional) decimal precision
  * @returns the converted amount, in unit of account
@@ -265,9 +257,25 @@ function toAccountUnit(amount: BigNumber, decimalPlaces?: number): string {
   return convertedValue.toFixed();
 }
 
+function getNetworkLabel() {
+  if (configuration.testnet) {
+    if (
+      configuration.currency.symbol === currencies.eth.symbol &&
+      typeof configuration.APIKey !== "undefined"
+    ) {
+      return "ropsten";
+    } else {
+      return "testnet";
+    }
+  } else {
+    return "mainnet";
+  }
+}
+
 export {
   init,
   getJSON,
+  getNetworkLabel,
   retry,
   setNetwork,
   toUnprefixedCashAddress,

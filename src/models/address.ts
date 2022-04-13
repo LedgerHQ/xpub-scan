@@ -1,5 +1,4 @@
-import { configuration } from "../configuration/settings";
-import { currencies, DerivationMode } from "../configuration/currencies";
+import { DerivationMode } from "../configuration/currencies";
 import { Transaction } from "./transaction";
 import { Operation } from "./operation";
 import { Stats } from "./stats";
@@ -27,12 +26,7 @@ class Address {
     index?: number,
   ) {
     if (derivationMode) {
-      this.address = deriveAddress(
-        derivationMode,
-        itemToScan,
-        account!,
-        index!,
-      );
+      this.address = deriveAddress(derivationMode, itemToScan, account, index);
     } else {
       this.address = itemToScan;
     }
@@ -57,16 +51,18 @@ class Address {
 
     if (!this.balance.isZero()) {
       this.utxo = true;
+    } else {
+      this.utxo = false;
     }
   }
 
   setStats(
-    txsCount: string,
+    txsCount: string | number,
     fundedSum: string | number,
     spentSum: string | number,
   ) {
     this.stats = new Stats();
-    this.stats.txsCount = parseInt(txsCount);
+    this.stats.txsCount = new BigNumber(txsCount);
     this.stats.funded = new BigNumber(fundedSum);
     this.stats.spent = new BigNumber(spentSum);
   }
@@ -83,7 +79,7 @@ class Address {
     this.outs.push(sent);
   }
 
-  getSpentOperations() {
+  getSentOperations() {
     return this.outs;
   }
 
@@ -93,7 +89,7 @@ class Address {
 
   // render as Cash Address (Bitcoin Cash)
   asCashAddress() {
-    if (configuration.currency.symbol === currencies.bch.symbol) {
+    if (this.derivationMode === DerivationMode.BCH) {
       return toUnprefixedCashAddress(this.address);
     }
 
