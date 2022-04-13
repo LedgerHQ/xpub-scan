@@ -10,7 +10,6 @@ export enum DerivationMode {
   UNKNOWN = "Unknown",
 }
 
-// TODO: complete migratation from settings to currencies
 export const currencies = {
   btc: {
     name: "Bitcoin",

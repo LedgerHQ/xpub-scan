@@ -208,10 +208,6 @@ function init(
 
 // remove prefixes (`bitcoincash:`) from Bitcoin Cash addresses
 function toUnprefixedCashAddress(address: string) {
-  if (configuration.currency.symbol !== currencies.bch.symbol) {
-    return undefined;
-  }
-
   if (!bchaddr.isCashAddress(address)) {
     address = bchaddr.toCashAddress(address);
   }
@@ -221,7 +217,6 @@ function toUnprefixedCashAddress(address: string) {
 
 /**
  * Convert from unit of account to base unit (e.g. bitcoins to satoshis)
- * (TODO: refactor for a more proper conversion mechanism)
  * @param amount the amount (in unit of account) to convert
  * @returns the converted amount, in base unit
  */
@@ -237,7 +232,6 @@ function toBaseUnit(amount: BigNumber): string {
 
 /**
  * Convert from base unit to unit of account (e.g. satoshis to bitcoins)
- * (TODO: refactor for a more proper conversion mechanism)
  * @param amount the amount (in base unit) to convert
  * @param decimalPlaces (optional) decimal precision
  * @returns the converted amount, in unit of account
@@ -263,9 +257,25 @@ function toAccountUnit(amount: BigNumber, decimalPlaces?: number): string {
   return convertedValue.toFixed();
 }
 
+function getNetworkLabel() {
+  if (configuration.testnet) {
+    if (
+      configuration.currency.symbol === currencies.eth.symbol &&
+      typeof configuration.APIKey !== "undefined"
+    ) {
+      return "ropsten";
+    } else {
+      return "testnet";
+    }
+  } else {
+    return "mainnet";
+  }
+}
+
 export {
   init,
   getJSON,
+  getNetworkLabel,
   retry,
   setNetwork,
   toUnprefixedCashAddress,
