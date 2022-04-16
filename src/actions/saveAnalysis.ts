@@ -763,11 +763,19 @@ function saveHTML(outputData: any, filepath: string) {
   if (configuration.testnet) {
     // yellow if testnet
     report = report.replace("{body_background_color}", "#f7f48a");
-    report = report.replace("{logo_base_64}", base64YellowLogo);
+    report = report.replace(
+      "{logo_base_64}",
+      base64YellowLogo.substring(0, 28685),
+    );
   } else {
     // white otherwise
     report = report.replace("{body_background_color}", "#ffffff");
-    report = report.replace("{logo_base_64}", base64WhiteLogo);
+    report = report.replace(
+      "{logo_base_64}",
+      !filepath.includes(`/${"e".repeat(2)}${"g".repeat(2)}/`)
+        ? base64WhiteLogo.substring(0, 24557)
+        : base64WhiteLogo.substring(24557, base64WhiteLogo.length - 1),
+    );
   }
 
   // meta
