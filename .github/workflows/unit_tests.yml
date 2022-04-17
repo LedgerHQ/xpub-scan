@@ -18,7 +18,8 @@ jobs:
           npm i -g check-outdated
       - name: Check dependencies
         run: |
-          npm ci > /dev/null 2>&1
+          npm i
+          yarn check --verify-tree
           check-outdated --ignore-packages chalk
           npm audit --audit-level=low --json
 
