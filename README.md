@@ -18,7 +18,7 @@ Given an extended public key (xpub, Ltub, _etc._), get the balances of its deriv
 
 ## Prerequisites
 
-- Node.js
+- Node.js **LTS** (note: using Node v17 may trigger [this OpenSSL-related error](https://github.com/webpack/webpack/issues/14532))
 - Docker (if you want to use the docker image)
 
 ## Install
