@@ -7,7 +7,6 @@
     "xpub-scan": "./lib/scan.js"
   },
   "scripts": {
-    "scan": "node ./lib/scan.js",
     "clean": "yarn cache clean --force && rm -rf lib/",
     "build": "tsc && chmod +x ./lib/scan.js",
     "test": "jest",
