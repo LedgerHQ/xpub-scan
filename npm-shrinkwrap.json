@@ -1,12 +1,12 @@
 {
   "name": "@ledgerhq/xpub-scan",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@ledgerhq/xpub-scan",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "license": "MIT",
       "dependencies": {
         "@types/bchaddrjs": "0.4.0",
