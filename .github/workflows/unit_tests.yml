@@ -20,7 +20,7 @@ jobs:
         run: |
           npm i
           yarn check --verify-tree
-          check-outdated --ignore-packages chalk
+          check-outdated --ignore-packages chalk,jest
           npm audit --audit-level=low --json
 
   unit-tests:

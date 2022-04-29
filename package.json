@@ -15,10 +15,10 @@
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
     "ci": "yarn prettier && yarn ts:check && yarn test",
-    "check:dep": "npm i && yarn check --verify-tree && check-outdated --ignore-packages chalk && npm audit --audit-level=low && npm shrinkwrap",
+    "check:dep": "npm i && yarn check --verify-tree && check-outdated --ignore-packages chalk,jest && npm audit --audit-level=low && npm shrinkwrap",
     "regression": "yarn build && python3 .github/workflows/regression_tests/check.py",
     "dev:test": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p .",
-    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && npm ci && yarn && tsc -p . && yarn regression"
+    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p . && yarn regression"
   },
   "repository": {
     "type": "git",
@@ -34,12 +34,12 @@
     "@types/bchaddrjs": "0.4.0",
     "@types/bitcore-lib-cash": "8.23.5",
     "@types/html-minifier": "4.0.2",
-    "@types/node": "17.0.25",
+    "@types/node": "17.0.30",
     "@types/object-hash": "2.2.1",
     "@types/yargs": "17.0.10",
-    "@typescript-eslint/eslint-plugin": "5.20.0",
-    "@typescript-eslint/parser": "5.20.0",
-    "axios": "0.26.1",
+    "@typescript-eslint/eslint-plugin": "5.21.0",
+    "@typescript-eslint/parser": "5.21.0",
+    "axios": "0.27.2",
     "bchaddrjs": "0.5.2",
     "bignumber.js": "9.0.2",
     "bip32": "3.0.1",
@@ -52,7 +52,7 @@
     "create-hmac": "1.1.7",
     "date-fns": "2.28.0",
     "dotenv": "16.0.0",
-    "eslint": "8.13.0",
+    "eslint": "8.14.0",
     "ethereumjs-wallet": "1.0.2",
     "html-minifier": "4.0.0",
     "jest": "27.5.1",
@@ -61,7 +61,7 @@
     "secp256k1": "4.0.3",
     "tiny-secp256k1": "2.2.1",
     "ts-node": "10.7.0",
-    "typescript": "4.6.3",
+    "typescript": "4.6.4",
     "yargs": "17.4.1"
   },
   "devDependencies": {
