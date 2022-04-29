@@ -14,6 +14,7 @@ Xpub Scan is based on four core principles that are expected to be reflected in 
 - It is privacy-focused
 
 ## 1. Product Agnostic
+
 One consequence of this principle is that Xpub Scan is required to work with Live and LES (Ledger Enterprise Solutions) products when using the comparison feature.
 
 To help enforce this principle, the regression tests are targeting both the Live (Live-common, Live Desktop) and the LES components.
@@ -21,6 +22,7 @@ To help enforce this principle, the regression tests are targeting both the Live
 Rationale: Xpub Scan is used by both business-to-consumer and business-to-business teams.
 
 ## 2. Works Out the Box
+
 Anyone should be able to just clone, build, and run Xpub Scan. It should just work without additional configuration.
 
 Advanced users should also be able to customize the tool to use robust external providers.
@@ -34,18 +36,20 @@ The free providers are not as reliable as the paid provider. Consequently, Xpub 
 Rationale: Xpub Scan is used outside Ledger and should not depend on one provider.
 
 ## 3. Stateless
+
 Xpub Scan is not a wallet: there is no need to maintain an internal state.
 
 Using a database would complexify the tool, notably by implementing a mechanism ensuring the correct synchronization of such a database.
 
 ## 4. Privacy-Focused
-Xpub Scan should *never* send xpubs to external providers and only fetch the minimum information (transactions per address that it derives itself).
+
+Xpub Scan should _never_ send xpubs to external providers and only fetch the minimum information (transactions per address that it derives itself).
 
 # Setting up the development environment
 
 Use Node **LTS**. The most recent versions of Node may trigger [OpenSSL-related errors](https://github.com/webpack/webpack/issues/14532)).
 
-At the root of the project, a `.env` file, containing a valid [CryptoAPIs API v2 key](https://developers.cryptoapis.io/technical-documentation/general-information/overview), is required to enable the custom provider. 
+At the root of the project, a `.env` file, containing a valid [CryptoAPIs API v2 key](https://developers.cryptoapis.io/technical-documentation/general-information/overview), is required to enable the custom provider.
 
 ```
 XPUB_SCAN_CUSTOM_API_KEY_V2=<your key>
@@ -62,11 +66,12 @@ $ yarn prettier
 ```
 
 ## Add Unit Tests
-When implementing a new feature, please add corresponding unit tests. 
 
-You can also contribute to the project by enhancing the current code coverage. 
+When implementing a new feature, please add corresponding unit tests.
 
-The general idea is to progressively reach near 100% coverage. 
+You can also contribute to the project by enhancing the current code coverage.
+
+The general idea is to progressively reach near 100% coverage.
 
 # Testing
 
@@ -75,7 +80,8 @@ Once your fix or feature has been implemented, you can locally ensure that the p
 (Note: you can run all tests at once: `$ yarn dev:test:all`).
 
 ## Up-to-date Requirements
-For security reasons, the dependencies have to be up-to-date and strictly pinpointed. 
+
+For security reasons, the dependencies have to be up-to-date and strictly pinpointed.
 
 To this effect, a dedicated command verifies the dependencies:
 
@@ -85,13 +91,14 @@ $ yarn check:dep
 
 If this command reveals that dependencies are outdated, update them in `package.json` **using strict versioning**:
 
-- `1.2.3`	✅
-- `^1.2.3`	❌
-- `~1.2.3`	❌
+- `1.2.3` ✅
+- `^1.2.3` ❌
+- `~1.2.3` ❌
 
 Run `check:dep` again and, if the check passes, run the subsequent tests to ensure that the newest dependencies do not break anything.
 
 ## Unit Tests
+
 To run the unit tests, do:
 
 ```
@@ -106,8 +113,8 @@ $ jest --collect-coverage
 
 An HTML report will be generated in `./coverage/lcov-report/`.
 
-
 ## Regression Tests
+
 Regression tests are essential to ensure that the core logic of Xpub Scan is not negatively affected by new features and/or fixes. They consist of scanning ad hoc xpubs and performing comparisons using products exports (see: `.github/workflows/regression_tests/datasets.json`). Both positive and negative tests are running: positive tests ensure that Xpub Scan does not detect erroneous discrepancies; negative tests ensure that Xpub Scan can detect fake discrepancies, injected for testing purposes into the exports of the products.
 
 To run the regression tests locally, use the following command:

@@ -95,6 +95,34 @@
   "operationsCount": 10,
   "operations": [
     {
+      "id": "libcore:1:bitcoin:xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p:native_segwit-223457cdeeeebcdb3dfd51636331d0bbf37f24f79936ad42a2151994e004e084-OUT",
+      "hash": "223457cdeeeebcdb3dfd51636331d0bbf37f24f79936ad42a2151994e004e084",
+      "type": "OUT",
+      "senders": ["13eyfkTuBqqLmHRdhoDdvFQB61WB68LvLr"],
+      "recipients": ["12guhXzntzFLE4Bq9hm67yc7WCpPkS3cM7", "bc1qxzkg92zvlkdmktc6mh4l9sf35hgvy4nmpmjduq"],
+      "accountId": "libcore:1:bitcoin:xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p:native_segwit",
+      "blockHash": null,
+      "blockHeight": 733013,
+      "extra": {},
+      "date": "2022-04-22T13:20:59.000Z",
+      "value": "20100",
+      "fee": "100"
+    },
+    {
+      "id": "libcore:1:bitcoin:xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p:native_segwit-debe5e8d1a093501c7068e45904c3fd966b4bfa5e3656c9bca38340cbdce96f7-IN",
+      "hash": "debe5e8d1a093501c7068e45904c3fd966b4bfa5e3656c9bca38340cbdce96f7",
+      "type": "IN",
+      "senders": ["bc1qxzkg92zvlkdmktc6mh4l9sf35hgvy4nmpmjduq"],
+      "recipients": ["13eyfkTuBqqLmHRdhoDdvFQB61WB68LvLr", "bc1qdzh0musx2tvdl8q9v8s6m2a2aamgcffu8utjau"],
+      "accountId": "libcore:1:bitcoin:xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p:native_segwit",
+      "blockHash": null,
+      "blockHeight": 733004,
+      "extra": {},
+      "date": "2022-04-22T12:00:16.000Z",
+      "value": "30000",
+      "fee": "154"
+    },
+    {
       "id": "libcore:1:bitcoin:xpub6C2qnauSiRRR8UG9PXraYrfBtXZHzFRNgwJgwG7ZDp7SbWAdMSiMFoYDukTw4ExE95H4VkgECnhDe2uyLawoqUkoSHEDnoDafC2R44dXs7p:native_segwit-4fadad2c103014ebaa3073ea63ff060b27d2d30b4e7f956727b97a44d1cf8ad7-IN",
       "hash": "4fadad2c103014ebaa3073ea63ff060b27d2d30b4e7f956727b97a44d1cf8ad7",
       "type": "IN",

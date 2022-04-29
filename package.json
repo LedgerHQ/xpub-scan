@@ -15,10 +15,10 @@
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
     "ci": "yarn prettier && yarn ts:check && yarn test",
-    "check:dep": "npm i && yarn check --verify-tree && check-outdated --ignore-packages chalk && npm audit --audit-level=low && npm shrinkwrap",
+    "check:dep": "npm i && yarn check --verify-tree && check-outdated --ignore-packages chalk,jest && npm audit --audit-level=low && npm shrinkwrap",
     "regression": "yarn build && python3 .github/workflows/regression_tests/check.py",
     "dev:test": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p .",
-    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && npm ci && yarn && tsc -p . && yarn regression"
+    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p . && yarn regression"
   },
   "repository": {
     "type": "git",
@@ -55,7 +55,7 @@
     "eslint": "8.14.0",
     "ethereumjs-wallet": "1.0.2",
     "html-minifier": "4.0.0",
-    "jest": "28.0.3",
+    "jest": "27.5.1",
     "object-hash": "3.0.0",
     "prettier": "2.6.2",
     "secp256k1": "4.0.3",
