@@ -6,7 +6,7 @@ Blockchain test oracle and forensics tool.
 
 Given an extended public key (xpub, Ltub, _etc._), get the balances of its derived active addresses and the associated list of operations, or check whether an address has been derived from it.
 
-![Example](./doc/demo_balance.gif)
+![Xpub Scan demo](./doc/demo.gif)
 
 ## Features
 
