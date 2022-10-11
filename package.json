@@ -43,6 +43,7 @@
     "bchaddrjs": "0.5.2",
     "bignumber.js": "9.0.2",
     "bip32": "3.0.1",
+    "bip86": "0.0.1",
     "bitcoinjs-lib": "6.0.1",
     "bitcore-lib-cash": "8.25.28",
     "bs58check": "2.1.2",
