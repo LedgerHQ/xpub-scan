@@ -14,6 +14,7 @@ import bs58 from "bs58check";
 import { publicKeyTweakAdd } from "secp256k1";
 
 const bip32 = BIP32Factory(ecc);
+const BIP86 = require('bip86');
 
 class BIP32 {
   publicKey: any;
@@ -135,6 +136,25 @@ function getNativeSegWitAddress(
 }
 
 /**
+ * derive a Taproot address at a given account and index positions
+ * @param xpub the xpub from which to derive the native SegWit address
+ * @param account account number from which to derive the native SegWit address
+ * @param index index number from which to derive the native SegWit address
+ * @returns the derived Taproot address
+ */
+ function getTaprootAddress(
+  xpub: string,
+  account: number,
+  index: number,
+): string {
+
+  var account1 = new BIP86.fromXPub(xpub);
+  var address = account1.getAddress(index,!!account);
+
+  return String(address);
+}
+
+/**
  * derive a Bitcoin Cash address at a given account and index positions
  * @param xpub the xpub from which to derive the Bitcoin Cash address
  * @param account account number from which to derive the Bitcoin Cash address
@@ -201,6 +221,8 @@ function deriveAddress(
       return getSegWitAddress(xpub, account, index);
     case DerivationMode.NATIVE:
       return getNativeSegWitAddress(xpub, account, index);
+    case DerivationMode.TAPROOT:
+        return getTaprootAddress(xpub,account,index);
     case DerivationMode.BCH:
       return getLegacyBitcoinCashAddress(xpub, account, index);
     case DerivationMode.DOGECOIN:
@@ -221,8 +243,10 @@ function deriveAddress(
  */
 
 function getDerivationMode(address: string) {
-  if (address.match("^(bc1|tb1|ltc1).*")) {
+  if (address.match("^(bc1q|tb1|ltc1).*")) {
     return DerivationMode.NATIVE;
+  } else if (address.match("^[bc1p].*")) {
+    return DerivationMode.TAPROOT;
   } else if (address.match("^[32M].*")) {
     return DerivationMode.SEGWIT;
   } else if (address.match("^[1nmL].*")) {
