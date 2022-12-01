@@ -251,7 +251,7 @@ describe("helpers", () => {
         },
       };
       const spy = jest.spyOn(mock, "job");
-      jest.useFakeTimers("legacy");
+      jest.useFakeTimers({ legacyFakeTimers: true });
       const promise = retry(mock.job, { retryDelayMS: 500 });
 
       await flushPromises();
