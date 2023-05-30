@@ -141,7 +141,7 @@ async function deriveAndScanAddressesByDerivationMode(
         txCounter++;
         display.transientLine(/* delete address as it is not an active one */);
 
-        if (account === 1 || txCounter >= configuration.gap_limit) {
+        if (account === 1 || txCounter >= +configuration.gap_limit) {
           // all active addresses have been scanned and the gap limit reached:
           // stop the scan for this specific derivation mode
           display.transientLine(/* delete last probing info */);
