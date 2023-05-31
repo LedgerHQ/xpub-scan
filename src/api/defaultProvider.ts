@@ -22,22 +22,49 @@ import { format } from "date-fns";
 // structure of the responses from the default API
 interface RawTransaction {
   txid: string;
-  block_no: number;
-  confirmations: number;
-  time: number;
-  incoming: {
-    value: string;
-    inputs: {
-      address: string;
-    }[];
-  };
-  outgoing: {
-    value: string;
-    outputs: {
-      address: string;
-      value: string;
-    }[];
-  };
+  version: number;
+  locktime: number;
+  vin: Vin[];
+  vout: Vout[];
+  size: number;
+  weight: number;
+  fee: number;
+  status: Status;
+}
+
+interface Vin {
+  txid: string;
+  vout: number;
+  prevout: Prevout;
+  scriptsig: string;
+  scriptsig_asm: string;
+  is_coinbase: boolean;
+  sequence: number;
+  witness?: string[];
+  inner_redeemscript_asm?: string;
+}
+
+interface Prevout {
+  scriptpubkey: string;
+  scriptpubkey_asm: string;
+  scriptpubkey_type: string;
+  scriptpubkey_address: string;
+  value: number;
+}
+
+interface Vout {
+  scriptpubkey: string;
+  scriptpubkey_asm: string;
+  scriptpubkey_type: string;
+  scriptpubkey_address: string;
+  value: number;
+}
+
+interface Status {
+  confirmed: boolean;
+  block_height: number;
+  block_hash: string;
+  block_time: number;
 }
 
 /**
@@ -57,27 +84,34 @@ async function getStats(address: Address) {
     return getAccountBasedStats(address);
   }
 
-  if (coin === currencies.btc.symbol.toUpperCase() && configuration.testnet) {
-    // Bitcoin Testnet: "BTCTEST"
-    // see: https://sochain.com/api#networks-supported
-    coin = coin.concat("TEST");
-  }
+  let url = configuration.externalProviderURL.replace(
+    "{address}",
+    address.toString(),
+  );
 
-  const url = configuration.externalProviderURL
-    .replace("{currency}", coin)
-    .replace("{address}", address.toString());
+  if (coin === currencies.btc.symbol.toUpperCase()) {
+    url = url.replace("{network}", configuration.testnet ? "testnet" : "");
+  }
 
   const res = await getJSON<any>(url);
 
   // TODO: check potential errors here (API returning invalid data...)
-  const fundedSum = res.data.received_value;
-  const balance = res.data.balance;
-  const spentSum = fundedSum - balance;
+  const fundedSum = res.chain_stats.funded_txo_sum;
+  const spentSum = res.chain_stats.spent_txo_sum;
 
-  address.setStats(res.data.total_txs, fundedSum, spentSum);
-  address.setBalance(balance);
+  const balance = fundedSum - spentSum;
 
-  address.setRawTransactions(res.data.txs);
+  address.setStats(
+    res.chain_stats.tx_count,
+    toAccountUnit(BigNumber(fundedSum)),
+    toAccountUnit(BigNumber(spentSum)),
+  );
+  address.setBalance(toAccountUnit(BigNumber(balance)));
+
+  if (res.chain_stats.tx_count > 0) {
+    // get transactions per address
+    address.setRawTransactions(await getJSON<any>(url + "/txs"));
+  }
 }
 
 /**
@@ -105,32 +139,38 @@ function getTransactions(address: Address) {
     const ins: Array<Operation> = [];
     const outs: Array<Operation> = [];
 
-    if (typeof tx.incoming !== "undefined") {
-      tx.incoming.inputs.forEach((txin) => {
-        const op = new Operation(String(tx.time), tx.incoming.value);
-        op.setAddress(txin.address);
-        op.setTxid(tx.txid);
+    const isSender = tx.vin.some(
+      (t) =>
+        t.prevout.scriptpubkey_address.toLowerCase() ===
+        address.toString().toLowerCase(),
+    );
+
+    tx.vout.forEach((txout) => {
+      const op = new Operation(
+        format(new Date(tx.status.block_time * 1000), "yyyy-MM-dd HH:mm:ss"),
+        toAccountUnit(BigNumber(txout.value)),
+      );
+      op.setAddress(txout.scriptpubkey_address);
+      op.setTxid(tx.txid);
+
+      if (
+        txout.scriptpubkey_address.toLowerCase() ===
+        address.toString().toLowerCase()
+      ) {
         op.setOperationType("Received");
-
         ins.push(op);
-      });
-    }
+      }
 
-    if (typeof tx.outgoing !== "undefined") {
-      tx.outgoing.outputs.forEach((txout) => {
-        const op = new Operation(String(tx.time), txout.value);
-        op.setAddress(txout.address);
-        op.setTxid(tx.txid);
+      if (isSender) {
         op.setOperationType("Sent");
-
         outs.push(op);
-      });
-    }
+      }
+    });
 
     transactions.push(
       new Transaction(
-        tx.block_no,
-        format(new Date(tx.time * 1000), "yyyy-MM-dd HH:mm:ss"), // unix time to readable format
+        tx.status.block_height,
+        format(new Date(tx.status.block_time * 1000), "yyyy-MM-dd HH:mm:ss"), // unix time to readable format
         tx.txid,
         ins,
         outs,

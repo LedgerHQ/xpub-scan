@@ -19,7 +19,7 @@ const DEFAULT_GAP_LIMIT = 20;
 // use {currency} and {address} as placeholders for the currency name and the address;
 // {type} for the transaction type, and {item} for either an address or a transaction
 const DEFAULT_API_URLS = {
-  general: "https://sochain.com/api/v2/address/{currency}/{address}",
+  general: "https://blockstream.info/{network}/api/address/{address}",
   bch: "https://rest.bitcoin.com/v2/address/{type}/bitcoincash:{address}",
   eth: "https://api.blockcypher.com/v1/eth/main/{type}/{item}",
 };
