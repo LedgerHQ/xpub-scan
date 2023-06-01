@@ -139,29 +139,44 @@ function getTransactions(address: Address) {
     const ins: Array<Operation> = [];
     const outs: Array<Operation> = [];
 
-    const isSender = tx.vin.some(
-      (t) =>
-        t.prevout.scriptpubkey_address.toLowerCase() ===
-        address.toString().toLowerCase(),
-    );
-
     tx.vout.forEach((txout) => {
-      const op = new Operation(
-        format(new Date(tx.status.block_time * 1000), "yyyy-MM-dd HH:mm:ss"),
-        toAccountUnit(BigNumber(txout.value)),
-      );
-      op.setAddress(txout.scriptpubkey_address);
-      op.setTxid(tx.txid);
-
+      // the address currently being analyzed is a — recipient —
       if (
         txout.scriptpubkey_address.toLowerCase() ===
         address.toString().toLowerCase()
       ) {
-        op.setOperationType("Received");
-        ins.push(op);
+        tx.vin.forEach((txin) => {
+          const op = new Operation(
+            format(
+              new Date(tx.status.block_time * 1000),
+              "yyyy-MM-dd HH:mm:ss",
+            ),
+            toAccountUnit(BigNumber(txout.value)),
+          );
+
+          op.setTxid(tx.txid);
+          op.setAddress(txin.prevout.scriptpubkey_address);
+          op.setOperationType("Received");
+          ins.push(op);
+        });
       }
 
-      if (isSender) {
+      // the address currently being analyzed is a — sender —
+      // (it is part of at least one vin's prevout)
+      if (
+        tx.vin.some(
+          (t) =>
+            t.prevout.scriptpubkey_address.toLowerCase() ===
+            address.toString().toLowerCase(),
+        )
+      ) {
+        const op = new Operation(
+          format(new Date(tx.status.block_time * 1000), "yyyy-MM-dd HH:mm:ss"),
+          toAccountUnit(BigNumber(txout.value)),
+        );
+
+        op.setTxid(tx.txid);
+        op.setAddress(txout.scriptpubkey_address);
         op.setOperationType("Sent");
         outs.push(op);
       }
