@@ -182,7 +182,13 @@ def run_negative_test(data: dict, provider: str) -> bool:
 def run_tests(product_under_test=None, currency=None, provider=None):
 
     if provider is None:
-        run_tests(product_under_test, currency, "custom")
+        run_tests(
+            product_under_test,
+            currency,
+            "default"
+            if os.environ.get("XPUB_SCAN_CUSTOM_API_KEY_V2") is None
+            else "custom",
+        )
         return
 
     with open(f"{base_path}/datasets.json", "r") as f:
@@ -234,7 +240,10 @@ if __name__ == "__main__":
             provider = sys.argv[3].lower()
 
             # when testing the default provider, remove the API KEY env var
-            if provider == "default" and os.environ.get("XPUB_SCAN_CUSTOM_API_KEY_V2") is not None:
+            if (
+                provider == "default"
+                and os.environ.get("XPUB_SCAN_CUSTOM_API_KEY_V2") is not None
+            ):
                 del os.environ["XPUB_SCAN_CUSTOM_API_KEY_V2"]
 
         run_tests(product_under_test, currency, provider)

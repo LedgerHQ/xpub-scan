@@ -19,7 +19,6 @@ jobs:
       - name: Check dependencies
         run: |
           npm i
-          yarn check --verify-tree
           check-outdated --ignore-packages chalk,jest,bitcoinjs-lib
           npm audit --audit-level=low --json
 
@@ -33,13 +32,13 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/npm-shrinkwrap.json') }}
 
       - name: Install dependencies
-        run: yarn
+        run: npm i
 
       - name: Prettify
-        run: yarn prettier
+        run: npm run prettier
 
       - name: Run checks
-        run: yarn ci
+        run: npm run ci

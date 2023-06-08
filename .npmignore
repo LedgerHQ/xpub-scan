@@ -11,4 +11,3 @@ doc
 node_modules
 src
 tsconfig.json
-yarn.lock

@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Xpub Scan dependencies and build it
         run: |
-          yarn && yarn build
+          npm i && npm run build
 
       - name: ${{ matrix.product }} x ${{ matrix.currency }}
         run: |

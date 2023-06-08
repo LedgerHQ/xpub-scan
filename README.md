@@ -23,14 +23,6 @@ Given an extended public key (xpub, Ltub, _etc._), get the balances of its deriv
 
 ## Install
 
-With yarn:
-
-```
-$ yarn global add @ledgerhq/xpub-scan
-```
-
-With npm:
-
 ```
 $ npm i -g @ledgerhq/xpub-scan
 ```
@@ -66,7 +58,7 @@ scanResult("your_xpub");
 Install dependencies:
 
 ```
-$ npm ci
+$ npm run ci
 ```
 
 Build the project
@@ -84,7 +76,7 @@ $ node ./lib/scan.js [options] <xpub>
 _Alternatively, if you want to use the locally-built version of xpub-scan with just `xpub-scan` command, you can:_
 
 ```
-$ yarn link
+$ npm link
 ```
 
 ### Currencies
@@ -207,7 +199,7 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 ### Change Settings
 
 1. Modify `./src/settings.ts`
-2. rebuild the tool: `$ yarn build`
+2. rebuild the tool: `$ npm run build`
 3. Re-run it: `$ node ./lib/scan.js <xpub> …`
 
 ### Change External Provider
@@ -218,6 +210,6 @@ The derived addresses are displayed during the analysis. Perfect matches are dis
 
 1. At the root of the project, rename `.env.template` to `.env`
 2. In `.env`, set the `XPUB_SCAN_CUSTOM_API_KEY_V2` (corresponding to your Crypto APIs v2 API key—e.g.: `XPUB_SCAN_CUSTOM_API_KEY_V2=abcd6eacca264f7530eb2f7025a84f8`)
-3. rebuild the tool: `$ yarn build`
+3. rebuild the tool: `$ npm run build`
 4. Re-run it: `$ node ./lib/scan.js <xpub> …`
 5. Ensure that, when running the tool, it shows that the _custom_ provider is being used
