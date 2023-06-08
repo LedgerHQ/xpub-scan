@@ -7,18 +7,18 @@
     "xpub-scan": "./lib/scan.js"
   },
   "scripts": {
-    "clean": "yarn cache clean --force && rm -rf lib/",
+    "clean": "npm cache clean --force && rm -rf lib/",
     "build": "tsc && chmod +x ./lib/scan.js",
     "test": "jest",
     "sonarqube": "jest --collect-coverage --testResultsProcessor jest-sonar-reporter",
     "lint": "eslint .",
     "ts:check": "tsc --noEmit",
     "prettier": "prettier --write .",
-    "ci": "yarn prettier && yarn ts:check && yarn test",
-    "check:dep": "npm i && yarn check --verify-tree && check-outdated --ignore-packages chalk,jest && npm audit --audit-level=low && npm shrinkwrap",
-    "regression": "yarn build && python3 .github/workflows/regression_tests/check.py",
-    "dev:test": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p .",
-    "dev:test:all": "yarn clean && yarn check:dep && yarn prettier && yarn ci && yarn && tsc -p . && yarn regression"
+    "ci": "npm run prettier && npm run ts:check && npm test",
+    "check:dep": "npm i && check-outdated --ignore-packages chalk,jest && npm audit --audit-level=low && npm shrinkwrap",
+    "regression": "npm run build && python3 .github/workflows/regression_tests/check.py",
+    "dev:test": "npm run clean && npm check:dep && npm run prettier && npm run ci && npm i && tsc -p .",
+    "dev:test:all": "npm run clean && npm run check:dep && npm run prettier && npm run ci && npm i && tsc -p . && npm run regression"
   },
   "repository": {
     "type": "git",

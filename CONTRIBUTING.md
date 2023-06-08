@@ -62,7 +62,7 @@ XPUB_SCAN_CUSTOM_API_KEY_V2=<your key>
 Your code has to be correctly formatted. To this effect, a set of rules are defined in `.prettierrc.json` and automatically enforced with this command:
 
 ```
-$ yarn prettier
+$ npm run prettier
 ```
 
 ## Add Unit Tests
@@ -77,7 +77,7 @@ The general idea is to progressively reach near 100% coverage.
 
 Once your fix or feature has been implemented, you can locally ensure that the project will pass the tests in the CI.
 
-(Note: you can run all tests at once: `$ yarn dev:test:all`).
+(Note: you can run all tests at once: `$ npm run dev:test:all`).
 
 ## Up-to-date Requirements
 
@@ -86,7 +86,7 @@ For security reasons, the dependencies have to be up-to-date and strictly pinpoi
 To this effect, a dedicated command verifies the dependencies:
 
 ```
-$ yarn check:dep
+$ npm run check:dep
 ```
 
 If this command reveals that dependencies are outdated, update them in `package.json` **using strict versioning**:
@@ -102,7 +102,7 @@ Run `check:dep` again and, if the check passes, run the subsequent tests to ensu
 To run the unit tests, do:
 
 ```
-$ yarn ci
+$ npm run ci
 ```
 
 To generate the coverage (prerequisites: `jest` and `ts-node`, run:
@@ -120,7 +120,7 @@ Regression tests are essential to ensure that the core logic of Xpub Scan is not
 To run the regression tests locally, use the following command:
 
 ```
-$ yarn regression
+$ npm run regression
 ```
 
 (Important: the tests will fail if no CryptoAPIs API v2 key is provided).

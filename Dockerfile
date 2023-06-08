@@ -10,7 +10,7 @@ WORKDIR /app
 
 COPY package.json npm-shrinkwrap.json ./
 
-RUN npm i && npm ci
+RUN npm i && npm run ci
 
 COPY . .
 
