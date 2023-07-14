@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:16-alpine
 
 ENV PYTHONUNBUFFERED=1
 ENV TERM xterm-256color
